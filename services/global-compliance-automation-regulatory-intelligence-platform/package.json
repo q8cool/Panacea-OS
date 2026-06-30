@@ -1,0 +1,19 @@
+{
+  "name": "@panacea/global-compliance-automation-regulatory-intelligence-platform",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Panacea OS Sprint 77 global enterprise compliance automation and regulatory intelligence platform.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.mjs",
+    "check": "node --check src/domain/compliance-domain.mjs && node --check src/domain/compliance-validation.mjs && node --check src/application/compliance-service.mjs && node --check src/infrastructure/postgres-repository.mjs && node --check src/infrastructure/security.mjs && node --check src/api/server.mjs && node --check src/api/openapi.mjs && node --check src/index.mjs",
+    "test": "node --test ../../tests/global-compliance-automation-regulatory-intelligence-platform/*.test.mjs",
+    "openapi": "node src/api/openapi.mjs --write docs/openapi.json"
+  },
+  "dependencies": {
+    "pg": "^8.16.3"
+  }
+}
