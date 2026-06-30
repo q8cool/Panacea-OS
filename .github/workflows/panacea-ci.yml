@@ -17,8 +17,8 @@ jobs:
     name: Typecheck all services
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
       - run: npm run typecheck
@@ -27,8 +27,8 @@ jobs:
     name: Build validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
       - run: npm run build
@@ -37,8 +37,8 @@ jobs:
     name: Automated tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
       - run: npm run test:unit
@@ -50,8 +50,8 @@ jobs:
     name: OpenAPI validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
       - run: npm run openapi
@@ -61,8 +61,8 @@ jobs:
     name: Dependency audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
       - run: npm run audit
@@ -71,8 +71,8 @@ jobs:
     name: Forbidden marker scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
       - run: node scripts/scan-forbidden-markers.mjs
@@ -81,7 +81,7 @@ jobs:
     name: External secret scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: docker run --rm -v "$PWD:/src:ro" zricethezav/gitleaks:latest detect --source /src --no-git --redact --exit-code 1
 
   docker-build-validation:
@@ -101,15 +101,15 @@ jobs:
           - global-workforce-hr-credentialing-staff-experience-platform
           - real-time-global-healthcare-command-intelligence-platform
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: docker build -f services/${{ matrix.service }}/Dockerfile services/${{ matrix.service }}
 
   kubernetes-manifest-validation:
     name: Kubernetes manifest validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
       - run: node scripts/validate-kubernetes.mjs
@@ -118,8 +118,8 @@ jobs:
     name: Live infrastructure validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
       - run: docker compose -f infra/docker-compose/runtime/docker-compose.yml config --quiet
