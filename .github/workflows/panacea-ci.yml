@@ -77,6 +77,13 @@ jobs:
           node-version: 22
       - run: node scripts/scan-forbidden-markers.mjs
 
+  external-secret-scan:
+    name: External secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker run --rm -v "$PWD:/src:ro" zricethezav/gitleaks:latest detect --source /src --no-git --redact --exit-code 1
+
   docker-build-validation:
     name: Docker build validation
     runs-on: ubuntu-latest
@@ -106,3 +113,15 @@ jobs:
         with:
           node-version: 22
       - run: node scripts/validate-kubernetes.mjs
+
+  live-infrastructure-validation:
+    name: Live infrastructure validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: docker compose -f infra/docker-compose/runtime/docker-compose.yml config --quiet
+      - run: npm run runtime:orchestration
+      - run: npm run runtime:disaster-recovery

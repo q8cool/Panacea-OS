@@ -1,6 +1,6 @@
 {
   "name": "panacea-os-enterprise",
-  "version": "4.0.0-sprint.86",
+  "version": "4.0.0",
   "private": true,
   "description": "Panacea OS Enterprise monorepo orchestration and production hardening workspace.",
   "type": "module",
@@ -14,9 +14,11 @@
     "test:contract": "node scripts/panacea-test-runner.mjs contract",
     "openapi": "node scripts/validate-openapi.mjs --write",
     "audit": "node scripts/audit-services.mjs --audit-level=moderate",
-    "lint": "node scripts/scan-forbidden-markers.mjs && node scripts/validate-openapi.mjs --check-only && node scripts/validate-docker.mjs && node scripts/validate-kubernetes.mjs",
+    "lint": "node scripts/scan-forbidden-markers.mjs && node scripts/validate-openapi.mjs --check-only && node scripts/validate-docker.mjs && node scripts/validate-kubernetes.mjs && node scripts/validate-foundation-provider.mjs",
     "format:check": "node scripts/format-check.mjs",
-    "quality:gate": "node scripts/quality-gate.mjs"
+    "quality:gate": "node scripts/quality-gate.mjs",
+    "runtime:orchestration": "node scripts/runtime-orchestration-validate.mjs",
+    "runtime:disaster-recovery": "node scripts/disaster-recovery-mini-drill.mjs"
   },
   "engines": {
     "node": ">=22"

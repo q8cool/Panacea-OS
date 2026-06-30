@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import { listFiles, repoRoot, run, serviceDirectories } from "./lib/workspace.mjs";
+import { pathToFileURL } from "node:url";
+import { listFiles, repoRoot, serviceDirectories } from "./lib/workspace.mjs";
 
 const migrationFiles = [
   ...listFiles("services", (file) => file.includes("/migrations/") && file.endsWith(".sql")),
@@ -36,9 +37,9 @@ for (const file of migrationFiles) {
 if (process.env.PANACEA_POSTGRES_TEST_URL) {
   for (const servicePath of serviceDirectories()) {
     process.stdout.write(`Executing live PostgreSQL migration for ${servicePath}\n`);
-    run("node", ["src/index.mjs", "--migrate"], {
-      cwd: path.join(repoRoot, servicePath),
-      env: { DATABASE_URL: process.env.PANACEA_POSTGRES_TEST_URL }
+    const repositoryModule = await import(pathToFileURL(path.join(repoRoot, servicePath, "src/infrastructure/postgres-repository.mjs")));
+    await repositoryModule.runPostgresMigrations({
+      connectionString: process.env.PANACEA_POSTGRES_TEST_URL
     });
   }
 } else {

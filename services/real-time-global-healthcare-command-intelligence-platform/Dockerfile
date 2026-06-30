@@ -6,7 +6,6 @@ RUN npm ci --omit=dev && npm cache clean --force
 FROM node:22-bookworm-slim AS runtime
 ENV NODE_ENV=production
 ENV PORT=8095
-ENV PORT=8095
 WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY package.json package-lock.json ./

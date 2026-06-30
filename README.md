@@ -6,8 +6,9 @@ Panacea OS Enterprise is a governed healthcare operating system workspace. This 
 
 - Current active branch: `develop/v4.0`
 - Latest implemented sprint in this checkout: Sprint 85
-- Current hardening sprint: Sprint 86
+- Latest validation phase in this checkout: Sprints 86-92 plus final completion evidence
 - Latest release tags present: `v3.0.0`, `v3.0.1-LTS`
+- Version 4 release tags prepared for release-owner approval: `v4.0.0-rc1`, `v4.0.0`, `v4.0.1-LTS`
 
 ## Root Quality Gates
 

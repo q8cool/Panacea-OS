@@ -19,12 +19,23 @@ async function main() {
   const service = createGlobalWorkforceService({ repository });
   const server = createGlobalWorkforceServer({ service });
   server.listen(config.port, () => {
-    process.stdout.write(`${config.serviceName} listening on ${config.port}\n`);
+    process.stdout.write(`${JSON.stringify({
+      level: "info",
+      event: "service.started",
+      service: config.serviceName,
+      port: config.port
+    })}\n`);
   });
 
-  const shutdown = async () => {
+  const shutdown = async (signal) => {
     server.close(async () => {
       await pool.end();
+      process.stdout.write(`${JSON.stringify({
+        level: "info",
+        event: "service.stopped",
+        service: config.serviceName,
+        signal
+      })}\n`);
       process.exit(0);
     });
   };

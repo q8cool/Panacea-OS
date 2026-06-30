@@ -14,14 +14,34 @@ async function main() {
   if (config.runMigrations) {
     await runPostgresMigrations({ connectionString: config.databaseUrl });
   }
-  const { repository } = await createPostgresRealTimeGlobalCommandIntelligenceRepository({
+  const { repository, pool } = await createPostgresRealTimeGlobalCommandIntelligenceRepository({
     connectionString: config.databaseUrl
   });
   const service = createRealTimeGlobalCommandIntelligenceService({ repository });
   const server = createRealTimeGlobalCommandIntelligenceServer({ service });
   server.listen(config.port, () => {
-    process.stdout.write(`real-time-global-healthcare-command-intelligence-platform listening on ${config.port}\n`);
+    process.stdout.write(`${JSON.stringify({
+      level: "info",
+      event: "service.started",
+      service: "real-time-global-healthcare-command-intelligence-platform",
+      port: config.port
+    })}\n`);
   });
+
+  const shutdown = async (signal) => {
+    server.close(async () => {
+      await pool.end();
+      process.stdout.write(`${JSON.stringify({
+        level: "info",
+        event: "service.stopped",
+        service: "real-time-global-healthcare-command-intelligence-platform",
+        signal
+      })}\n`);
+      process.exit(0);
+    });
+  };
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

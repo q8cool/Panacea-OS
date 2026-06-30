@@ -14,14 +14,34 @@ async function main() {
   if (config.runMigrations) {
     await runPostgresMigrations({ connectionString: config.databaseUrl });
   }
-  const { repository } = await createPostgresAutonomousHealthcareIntelligenceRepository({
+  const { repository, pool } = await createPostgresAutonomousHealthcareIntelligenceRepository({
     connectionString: config.databaseUrl
   });
   const service = createAutonomousHealthcareIntelligenceService({ repository });
   const server = createAutonomousHealthcareIntelligenceServer({ service });
   server.listen(config.port, () => {
-    process.stdout.write(`autonomous-healthcare-intelligence-foundation listening on ${config.port}\n`);
+    process.stdout.write(`${JSON.stringify({
+      level: "info",
+      event: "service.started",
+      service: "autonomous-healthcare-intelligence-foundation",
+      port: config.port
+    })}\n`);
   });
+
+  const shutdown = async (signal) => {
+    server.close(async () => {
+      await pool.end();
+      process.stdout.write(`${JSON.stringify({
+        level: "info",
+        event: "service.stopped",
+        service: "autonomous-healthcare-intelligence-foundation",
+        signal
+      })}\n`);
+      process.exit(0);
+    });
+  };
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

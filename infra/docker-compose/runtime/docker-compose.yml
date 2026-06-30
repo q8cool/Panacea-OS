@@ -1,0 +1,212 @@
+name: panacea-runtime
+
+networks:
+  panacea-runtime:
+    name: panacea-runtime
+
+volumes:
+  panacea-runtime-postgres:
+
+x-foundation-provider-env: &foundation-provider-env
+  PANACEA_FOUNDATION_URL: http://foundation.external.panacea.local
+  PANACEA_FOUNDATION_JWT_ISSUER: https://foundation.panacea.local
+  PANACEA_FOUNDATION_JWKS_URL: http://foundation.external.panacea.local/.well-known/jwks.json
+  PANACEA_FOUNDATION_AUDIT_APPEND_PATH: /api/v1/foundation/audit/events
+  PANACEA_FOUNDATION_POLICY_EVALUATION_PATH: /api/v1/foundation/access/evaluate
+  PANACEA_FOUNDATION_HEALTH_PATH: /api/v1/foundation/live
+  PANACEA_FOUNDATION_READY_PATH: /api/v1/foundation/ready
+  PANACEA_FOUNDATION_METRICS_PATH: /api/v1/foundation/metrics
+  PANACEA_FOUNDATION_TIMEOUT_MS: 2000
+  PANACEA_FOUNDATION_RETRY_ATTEMPTS: 2
+  PANACEA_FOUNDATION_RETRY_BACKOFF_MS: 100
+  PANACEA_FOUNDATION_CIRCUIT_BREAKER_FAILURE_THRESHOLD: 3
+  PANACEA_FOUNDATION_CIRCUIT_BREAKER_RESET_MS: 30000
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: panacea-runtime-postgres
+    environment:
+      POSTGRES_USER: panacea
+      POSTGRES_PASSWORD: panacea
+      POSTGRES_DB: panacea_runtime
+    ports:
+      - "55433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U panacea -d panacea_runtime"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - panacea-runtime
+    volumes:
+      - panacea-runtime-postgres:/var/lib/postgresql/data
+
+  autonomous-healthcare-intelligence-foundation:
+    build:
+      context: ../../../services/autonomous-healthcare-intelligence-foundation
+      dockerfile: Dockerfile
+    image: panacea-runtime/autonomous-healthcare-intelligence-foundation:local
+    container_name: panacea-runtime-autonomous-healthcare-intelligence-foundation
+    environment:
+      <<: *foundation-provider-env
+      DATABASE_URL: postgres://panacea:panacea@postgres:5432/panacea_runtime
+      PORT: 8094
+    ports:
+      - "18094:8094"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - panacea-runtime
+
+  global-ai-assurance-safety-model-risk-management-platform:
+    build:
+      context: ../../../services/global-ai-assurance-safety-model-risk-management-platform
+      dockerfile: Dockerfile
+    image: panacea-runtime/global-ai-assurance-safety-model-risk-management-platform:local
+    container_name: panacea-runtime-global-ai-assurance-safety-model-risk-management-platform
+    environment:
+      <<: *foundation-provider-env
+      DATABASE_URL: postgres://panacea:panacea@postgres:5432/panacea_runtime
+      PANACEA_GLOBAL_AI_ASSURANCE_PORT: 8146
+      PORT: 8146
+    ports:
+      - "18146:8146"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - panacea-runtime
+
+  global-compliance-automation-regulatory-intelligence-platform:
+    build:
+      context: ../../../services/global-compliance-automation-regulatory-intelligence-platform
+      dockerfile: Dockerfile
+    image: panacea-runtime/global-compliance-automation-regulatory-intelligence-platform:local
+    container_name: panacea-runtime-global-compliance-automation-regulatory-intelligence-platform
+    environment:
+      <<: *foundation-provider-env
+      DATABASE_URL: postgres://panacea:panacea@postgres:5432/panacea_runtime
+      PANACEA_GLOBAL_COMPLIANCE_PORT: 8145
+      PORT: 8145
+    ports:
+      - "18145:8145"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - panacea-runtime
+
+  global-customer-success-support-service-management-platform:
+    build:
+      context: ../../../services/global-customer-success-support-service-management-platform
+      dockerfile: Dockerfile
+    image: panacea-runtime/global-customer-success-support-service-management-platform:local
+    container_name: panacea-runtime-global-customer-success-support-service-management-platform
+    environment:
+      <<: *foundation-provider-env
+      DATABASE_URL: postgres://panacea:panacea@postgres:5432/panacea_runtime
+      PANACEA_GLOBAL_CUSTOMER_SUCCESS_PORT: 8143
+      PORT: 8143
+    ports:
+      - "18143:8143"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - panacea-runtime
+
+  global-enterprise-data-privacy-consent-trust-platform:
+    build:
+      context: ../../../services/global-enterprise-data-privacy-consent-trust-platform
+      dockerfile: Dockerfile
+    image: panacea-runtime/global-enterprise-data-privacy-consent-trust-platform:local
+    container_name: panacea-runtime-global-enterprise-data-privacy-consent-trust-platform
+    environment:
+      <<: *foundation-provider-env
+      DATABASE_URL: postgres://panacea:panacea@postgres:5432/panacea_runtime
+      PANACEA_GLOBAL_PRIVACY_PORT: 8147
+      PORT: 8147
+    ports:
+      - "18147:8147"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - panacea-runtime
+
+  global-legal-contracting-risk-governance-platform:
+    build:
+      context: ../../../services/global-legal-contracting-risk-governance-platform
+      dockerfile: Dockerfile
+    image: panacea-runtime/global-legal-contracting-risk-governance-platform:local
+    container_name: panacea-runtime-global-legal-contracting-risk-governance-platform
+    environment:
+      <<: *foundation-provider-env
+      DATABASE_URL: postgres://panacea:panacea@postgres:5432/panacea_runtime
+      PANACEA_GLOBAL_LEGAL_PORT: 8142
+      PORT: 8142
+    ports:
+      - "18142:8142"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - panacea-runtime
+
+  global-product-management-roadmap-innovation-portfolio-platform:
+    build:
+      context: ../../../services/global-product-management-roadmap-innovation-portfolio-platform
+      dockerfile: Dockerfile
+    image: panacea-runtime/global-product-management-roadmap-innovation-portfolio-platform:local
+    container_name: panacea-runtime-global-product-management-roadmap-innovation-portfolio-platform
+    environment:
+      <<: *foundation-provider-env
+      DATABASE_URL: postgres://panacea:panacea@postgres:5432/panacea_runtime
+      PANACEA_GLOBAL_PRODUCT_MANAGEMENT_PORT: 8144
+      PORT: 8144
+    ports:
+      - "18144:8144"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - panacea-runtime
+
+  global-workforce-hr-credentialing-staff-experience-platform:
+    build:
+      context: ../../../services/global-workforce-hr-credentialing-staff-experience-platform
+      dockerfile: Dockerfile
+    image: panacea-runtime/global-workforce-hr-credentialing-staff-experience-platform:local
+    container_name: panacea-runtime-global-workforce-hr-credentialing-staff-experience-platform
+    environment:
+      <<: *foundation-provider-env
+      DATABASE_URL: postgres://panacea:panacea@postgres:5432/panacea_runtime
+      PANACEA_GLOBAL_WORKFORCE_PORT: 8141
+      PORT: 8141
+    ports:
+      - "18141:8141"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - panacea-runtime
+
+  real-time-global-healthcare-command-intelligence-platform:
+    build:
+      context: ../../../services/real-time-global-healthcare-command-intelligence-platform
+      dockerfile: Dockerfile
+    image: panacea-runtime/real-time-global-healthcare-command-intelligence-platform:local
+    container_name: panacea-runtime-real-time-global-healthcare-command-intelligence-platform
+    environment:
+      <<: *foundation-provider-env
+      DATABASE_URL: postgres://panacea:panacea@postgres:5432/panacea_runtime
+      PORT: 8095
+    ports:
+      - "18095:8095"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - panacea-runtime
