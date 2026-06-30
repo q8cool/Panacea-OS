@@ -8,7 +8,7 @@ Branch: `develop/v4.0`
 
 OFFICIALLY RELEASED WITH OPERATOR ACTION REQUIRED.
 
-Panacea OS Enterprise v4.0 release closure is complete. The only remaining operator action is live Foundation provider validation before production traffic is served.
+Panacea OS Enterprise v4.0 release closure is complete. The only remaining operator action is live Foundation provider validation before production traffic is served. A final validation attempt on 2026-06-30 found no live Foundation environment configuration in this shell, so no live endpoint results are claimed.
 
 ## Release And Branch State
 
@@ -69,11 +69,14 @@ No new release tags were created during final official closure.
 | Check | Status |
 |---|---|
 | Live Foundation URL available | NO |
-| Live health endpoint validated | NO |
-| Live readiness endpoint validated | NO |
-| Live metrics endpoint validated | NO |
-| Live audit endpoint validated | NO |
-| Live policy endpoint validated | NO |
+| Live health endpoint validated | NO -- `FOUNDATION_HEALTH_URL` missing |
+| Live readiness endpoint validated | NO -- `FOUNDATION_READY_URL` missing |
+| Live metrics endpoint validated | NO -- optional endpoint not configured |
+| Live JWKS endpoint validated | NO -- `FOUNDATION_JWKS_URL` missing |
+| Live JWT signature validated | NO -- test JWT and JWKS configuration missing |
+| Live audit endpoint validated | NO -- endpoint and test credentials missing |
+| Live policy endpoint validated | NO -- endpoint and test credentials missing |
+| Timeout and error behavior validated | NO -- live provider configuration missing |
 | Local contract and wiring validation | PASS |
 | Release disposition | OPERATOR ACTION REQUIRED |
 
@@ -87,8 +90,9 @@ No new release tags were created during final official closure.
 
 ## Remaining Operator Actions
 
-1. Configure and validate the live Foundation provider before production traffic is served.
-2. Record formal approvals for accepted-risk waivers if required by organizational governance.
+1. Configure `FOUNDATION_BASE_URL`, `FOUNDATION_HEALTH_URL`, `FOUNDATION_READY_URL`, `FOUNDATION_JWKS_URL`, `FOUNDATION_JWT_ISSUER`, and authenticated test credentials for the live Foundation provider before production traffic is served.
+2. Validate health, readiness, JWKS, JWT signature, audit append, policy evaluation, timeout, retry, and circuit breaker behavior in the target environment.
+3. Record formal approvals for accepted-risk waivers if required by organizational governance.
 
 ## Final Decision
 

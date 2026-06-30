@@ -19,6 +19,28 @@ OFFICIALLY RELEASED WITH OPERATOR ACTION REQUIRED
 | Foundation live provider formally non-blocking for release closure | YES, operator action required before production traffic |
 | GitHub Actions warning condition | RESOLVED |
 
+## Final Foundation Live Provider Validation Attempt
+
+| Check | Status |
+|---|---|
+| Foundation base URL | MISSING |
+| Health URL | MISSING |
+| Readiness URL | MISSING |
+| Metrics URL | MISSING, optional if provider does not expose metrics |
+| JWKS URL | MISSING |
+| JWT issuer | MISSING |
+| Test JWT | MISSING |
+| Audit append URL | MISSING |
+| Policy URL | MISSING |
+| Test credentials | MISSING |
+| Health call | NOT EXECUTED |
+| Readiness call | NOT EXECUTED |
+| JWKS call | NOT EXECUTED |
+| JWT validation | NOT EXECUTED |
+| Audit append live test | NOT EXECUTED |
+| Policy live test | NOT EXECUTED |
+| Timeout and error behavior | NOT EXECUTED |
+
 ## Why This Is Not Unconditional OFFICIALLY RELEASED
 
 The live Foundation provider was not validated because no live provider environment values are available in this shell. This requires operator action before production traffic is served.
@@ -35,7 +57,7 @@ The live Foundation provider was not validated because no live provider environm
 
 ## Remaining Operator Action
 
-Configure and validate the live Foundation provider in the target environment before production traffic is served.
+Configure and validate the live Foundation provider in the target environment before production traffic is served. Required validation includes health, readiness, JWKS, JWT signature, audit append, policy evaluation, timeout handling, retry behavior, and circuit breaker behavior.
 
 ## Final Decision
 

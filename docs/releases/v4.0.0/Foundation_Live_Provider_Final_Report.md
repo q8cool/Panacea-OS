@@ -7,9 +7,44 @@ Branch: `develop/v4.0`
 
 FOUNDATION LIVE PROVIDER: NOT VALIDATED -- OPERATOR ACTION REQUIRED.
 
+## Latest Validation Attempt
+
+Validation date: 2026-06-30
+Result: NOT EXECUTED against a live provider because required Foundation environment values are missing.
+
 ## Configuration Check
 
 No environment variables matching `FOUNDATION_`, `PANACEA_FOUNDATION_`, `JWT_`, or `JWKS_` were available for a live provider validation run.
+
+Required and conditional values checked during the final validation attempt:
+
+| Environment variable | Status |
+|---|---:|
+| `FOUNDATION_BASE_URL` | MISSING |
+| `FOUNDATION_HEALTH_URL` | MISSING |
+| `FOUNDATION_READY_URL` | MISSING |
+| `FOUNDATION_METRICS_URL` | MISSING |
+| `FOUNDATION_JWKS_URL` | MISSING |
+| `FOUNDATION_JWT_ISSUER` | MISSING |
+| `FOUNDATION_AUDIT_APPEND_URL` | MISSING |
+| `FOUNDATION_POLICY_URL` | MISSING |
+| `FOUNDATION_TEST_JWT` | MISSING |
+| `FOUNDATION_TEST_AUTH_HEADER` | MISSING |
+| `FOUNDATION_TEST_BEARER_TOKEN` | MISSING |
+| `FOUNDATION_AUDIENCE` | MISSING |
+
+## Final Live Validation Status
+
+| Check | Status |
+|---|---|
+| Health endpoint | NOT EXECUTED -- `FOUNDATION_HEALTH_URL` missing |
+| Readiness endpoint | NOT EXECUTED -- `FOUNDATION_READY_URL` missing |
+| Metrics endpoint | NOT EXECUTED -- optional endpoint not configured |
+| JWKS endpoint | NOT EXECUTED -- `FOUNDATION_JWKS_URL` missing |
+| JWT signature validation | NOT EXECUTED -- test token and JWKS configuration missing |
+| Audit append endpoint | NOT EXECUTED -- endpoint and test credentials missing |
+| Policy endpoint | NOT EXECUTED -- endpoint and test credentials missing |
+| Timeout and error behavior | NOT EXECUTED -- live provider configuration missing |
 
 ## Local Contract Evidence
 
