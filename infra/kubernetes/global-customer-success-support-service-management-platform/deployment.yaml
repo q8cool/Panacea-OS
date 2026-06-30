@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: panacea-global-customer-success
+  labels:
+    app.kubernetes.io/name: panacea-global-customer-success
+    app.kubernetes.io/component: customer-success-support-service-management
+    app.kubernetes.io/part-of: panacea-os
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: panacea-global-customer-success
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: panacea-global-customer-success
+    spec:
+      containers:
+        - name: global-customer-success
+          image: panacea/global-customer-success-support-service-management-platform:3.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8143
+          env:
+            - name: PANACEA_GLOBAL_CUSTOMER_SUCCESS_PORT
+              value: "8143"
+            - name: GLOBAL_CUSTOMER_SUCCESS_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: panacea-global-customer-success-db
+                  key: database-url
+            - name: PANACEA_FOUNDATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: foundation-url
+            - name: PANACEA_ENTERPRISE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: enterprise-url
+            - name: PANACEA_DEVOPS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: devops-url
+            - name: PANACEA_SECURITY_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: security-url
+            - name: PANACEA_LTS_MAINTENANCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: lts-maintenance-url
+            - name: PANACEA_GLOBAL_LEGAL_GOVERNANCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: global-legal-governance-url
+            - name: PANACEA_AUDIT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: audit-url
+            - name: PANACEA_NOTIFICATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: notification-url
+          readinessProbe:
+            httpGet:
+              path: /api/v3/global-customer-success/ready
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v3/global-customer-success/live
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: panacea-global-customer-success
+  labels:
+    app.kubernetes.io/name: panacea-global-customer-success
+spec:
+  selector:
+    app.kubernetes.io/name: panacea-global-customer-success
+  ports:
+    - name: http
+      port: 8143
+      targetPort: http
