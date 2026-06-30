@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: panacea-global-ai-assurance
+  labels:
+    app.kubernetes.io/name: panacea-global-ai-assurance
+    app.kubernetes.io/component: ai-assurance-safety-model-risk-management
+    app.kubernetes.io/part-of: panacea-os
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: panacea-global-ai-assurance
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: panacea-global-ai-assurance
+    spec:
+      containers:
+        - name: global-ai-assurance
+          image: panacea/global-ai-assurance-safety-model-risk-management-platform:3.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8146
+          env:
+            - name: PANACEA_GLOBAL_AI_ASSURANCE_PORT
+              value: "8146"
+            - name: GLOBAL_AI_ASSURANCE_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: panacea-global-ai-assurance-db
+                  key: database-url
+            - name: PANACEA_FOUNDATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: foundation-url
+            - name: PANACEA_AI_FOUNDATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: ai-foundation-url
+            - name: PANACEA_AI_GOVERNANCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: ai-governance-url
+            - name: PANACEA_CLINICAL_INTELLIGENCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: clinical-intelligence-url
+            - name: PANACEA_MULTI_AGENT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: multi-agent-url
+            - name: PANACEA_LEARNING_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: learning-url
+            - name: PANACEA_GLOBAL_COMPLIANCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: global-compliance-url
+            - name: PANACEA_SECURITY_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: security-url
+            - name: PANACEA_AUDIT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: audit-url
+            - name: PANACEA_NOTIFICATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: notification-url
+          readinessProbe:
+            httpGet:
+              path: /api/v3/global-ai-assurance/ready
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v3/global-ai-assurance/live
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: panacea-global-ai-assurance
+  labels:
+    app.kubernetes.io/name: panacea-global-ai-assurance
+spec:
+  selector:
+    app.kubernetes.io/name: panacea-global-ai-assurance
+  ports:
+    - name: http
+      port: 8146
+      targetPort: http

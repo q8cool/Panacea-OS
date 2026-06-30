@@ -1,0 +1,4407 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Panacea OS Global Enterprise AI Assurance, Safety & Model Risk Management API",
+    "version": "3.0.0",
+    "description": "Versioned API for governed, auditable, multi-country AI assurance, model risk, safety testing, prompt and agent assurance, monitoring, incident management, and regulatory AI governance workflows."
+  },
+  "servers": [
+    {
+      "url": "/api/v3/global-ai-assurance",
+      "description": "Versioned API base path"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Operations"
+    },
+    {
+      "name": "Integrations"
+    },
+    {
+      "name": "ai_assurance"
+    },
+    {
+      "name": "model_risk_management"
+    },
+    {
+      "name": "ai_safety_testing"
+    },
+    {
+      "name": "prompt_agent_assurance"
+    },
+    {
+      "name": "ai_monitoring"
+    },
+    {
+      "name": "ai_incident_management"
+    },
+    {
+      "name": "regulatory_ai_governance"
+    }
+  ],
+  "paths": {
+    "/api/v3/global-ai-assurance/live": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getGlobalAiAssuranceLive",
+        "summary": "Liveness probe",
+        "responses": {
+          "200": {
+            "description": "Service is live"
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/ready": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getGlobalAiAssuranceReady",
+        "summary": "Readiness probe",
+        "responses": {
+          "200": {
+            "description": "Service is ready"
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/metrics": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getGlobalAiAssuranceMetrics",
+        "summary": "Operational metrics summary",
+        "responses": {
+          "200": {
+            "description": "Metrics returned"
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/docs/openapi.json": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getGlobalAiAssuranceOpenApi",
+        "summary": "OpenAPI document",
+        "responses": {
+          "200": {
+            "description": "OpenAPI document returned"
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/assurance/registries": {
+      "post": {
+        "tags": [
+          "ai_assurance"
+        ],
+        "operationId": "createAiAssuranceRegistryRecord",
+        "summary": "Create an AI assurance registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/assurance/systems": {
+      "post": {
+        "tags": [
+          "ai_assurance"
+        ],
+        "operationId": "createAiSystemInventoryRecord",
+        "summary": "Create an AI system inventory record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/assurance/use-cases": {
+      "post": {
+        "tags": [
+          "ai_assurance"
+        ],
+        "operationId": "createAiUseCaseRecord",
+        "summary": "Create an AI use case registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/assurance/risk-classifications": {
+      "post": {
+        "tags": [
+          "ai_assurance"
+        ],
+        "operationId": "createAiRiskClassificationRecord",
+        "summary": "Create an AI risk classification record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/assurance/safety-assessments": {
+      "post": {
+        "tags": [
+          "ai_assurance"
+        ],
+        "operationId": "createAiSafetyAssessmentRecord",
+        "summary": "Create an AI safety assessment record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/assurance/impact-assessments": {
+      "post": {
+        "tags": [
+          "ai_assurance"
+        ],
+        "operationId": "createAiImpactAssessmentRecord",
+        "summary": "Create an AI impact assessment record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/assurance/workflows": {
+      "post": {
+        "tags": [
+          "ai_assurance"
+        ],
+        "operationId": "createAiAssuranceWorkflowRecord",
+        "summary": "Create an AI assurance workflow record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/assurance/dashboard": {
+      "post": {
+        "tags": [
+          "ai_assurance"
+        ],
+        "operationId": "createAiAssuranceDashboardRecord",
+        "summary": "Create an AI assurance dashboard record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/models/risks": {
+      "post": {
+        "tags": [
+          "model_risk_management"
+        ],
+        "operationId": "createModelRiskRecord",
+        "summary": "Create a model risk registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/models/risk-scoring": {
+      "post": {
+        "tags": [
+          "model_risk_management"
+        ],
+        "operationId": "createModelRiskScoringRecord",
+        "summary": "Create a model risk scoring record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/models/validation": {
+      "post": {
+        "tags": [
+          "model_risk_management"
+        ],
+        "operationId": "createModelValidationRecord",
+        "summary": "Create a model validation workflow record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/models/approvals": {
+      "post": {
+        "tags": [
+          "model_risk_management"
+        ],
+        "operationId": "createModelApprovalRecord",
+        "summary": "Create a model approval workflow record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/models/limitations": {
+      "post": {
+        "tags": [
+          "model_risk_management"
+        ],
+        "operationId": "createModelLimitationRecord",
+        "summary": "Create a model limitation registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/models/risk-reviews": {
+      "post": {
+        "tags": [
+          "model_risk_management"
+        ],
+        "operationId": "createModelRiskReviewRecord",
+        "summary": "Create a model risk review record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/models/retirements": {
+      "post": {
+        "tags": [
+          "model_risk_management"
+        ],
+        "operationId": "createModelRetirementRecord",
+        "summary": "Create a model retirement workflow record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/models/dashboard": {
+      "post": {
+        "tags": [
+          "model_risk_management"
+        ],
+        "operationId": "createModelRiskDashboardRecord",
+        "summary": "Create a model risk dashboard record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/safety-tests/registries": {
+      "post": {
+        "tags": [
+          "ai_safety_testing"
+        ],
+        "operationId": "createSafetyTestRegistryRecord",
+        "summary": "Create a safety test registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/safety-tests/clinical": {
+      "post": {
+        "tags": [
+          "ai_safety_testing"
+        ],
+        "operationId": "createClinicalSafetyTestRecord",
+        "summary": "Create a clinical safety test case record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/safety-tests/hallucination": {
+      "post": {
+        "tags": [
+          "ai_safety_testing"
+        ],
+        "operationId": "createHallucinationTestRecord",
+        "summary": "Create a hallucination test case record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/safety-tests/bias": {
+      "post": {
+        "tags": [
+          "ai_safety_testing"
+        ],
+        "operationId": "createBiasTestRecord",
+        "summary": "Create a bias test case record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/safety-tests/robustness": {
+      "post": {
+        "tags": [
+          "ai_safety_testing"
+        ],
+        "operationId": "createRobustnessTestRecord",
+        "summary": "Create a robustness test case record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/safety-tests/adversarial": {
+      "post": {
+        "tags": [
+          "ai_safety_testing"
+        ],
+        "operationId": "createAdversarialTestRecord",
+        "summary": "Create an adversarial test case record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/safety-tests/regression": {
+      "post": {
+        "tags": [
+          "ai_safety_testing"
+        ],
+        "operationId": "createRegressionSafetyTestRecord",
+        "summary": "Create a regression safety test record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/safety-tests/reports": {
+      "post": {
+        "tags": [
+          "ai_safety_testing"
+        ],
+        "operationId": "createSafetyTestReportRecord",
+        "summary": "Create a safety test report record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/prompt-agent/prompts/risks": {
+      "post": {
+        "tags": [
+          "prompt_agent_assurance"
+        ],
+        "operationId": "createPromptRiskRecord",
+        "summary": "Create a prompt risk registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/prompt-agent/prompts/reviews": {
+      "post": {
+        "tags": [
+          "prompt_agent_assurance"
+        ],
+        "operationId": "createPromptReviewRecord",
+        "summary": "Create a prompt review workflow record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/prompt-agent/prompts/approvals": {
+      "post": {
+        "tags": [
+          "prompt_agent_assurance"
+        ],
+        "operationId": "createPromptApprovalRecord",
+        "summary": "Create a prompt approval workflow record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/prompt-agent/agents/risks": {
+      "post": {
+        "tags": [
+          "prompt_agent_assurance"
+        ],
+        "operationId": "createAgentRiskRecord",
+        "summary": "Create an agent risk registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/prompt-agent/agents/permissions": {
+      "post": {
+        "tags": [
+          "prompt_agent_assurance"
+        ],
+        "operationId": "createAgentPermissionReviewRecord",
+        "summary": "Create an agent permission review record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/prompt-agent/agents/behavior": {
+      "post": {
+        "tags": [
+          "prompt_agent_assurance"
+        ],
+        "operationId": "createAgentBehaviorEvaluationRecord",
+        "summary": "Create an agent behavior evaluation record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/prompt-agent/agents/safety-testing": {
+      "post": {
+        "tags": [
+          "prompt_agent_assurance"
+        ],
+        "operationId": "createAgentSafetyTestingRecord",
+        "summary": "Create an agent safety testing record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/prompt-agent/agents/runtime-approvals": {
+      "post": {
+        "tags": [
+          "prompt_agent_assurance"
+        ],
+        "operationId": "createAgentRuntimeApprovalRecord",
+        "summary": "Create an agent runtime approval record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/monitoring/runtime": {
+      "post": {
+        "tags": [
+          "ai_monitoring"
+        ],
+        "operationId": "createAiRuntimeMonitoringRecord",
+        "summary": "Create an AI runtime monitoring record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/monitoring/recommendations": {
+      "post": {
+        "tags": [
+          "ai_monitoring"
+        ],
+        "operationId": "createRecommendationMonitoringRecord",
+        "summary": "Create a recommendation monitoring record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/monitoring/drift": {
+      "post": {
+        "tags": [
+          "ai_monitoring"
+        ],
+        "operationId": "createDriftMonitoringRecord",
+        "summary": "Create a drift monitoring record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/monitoring/bias": {
+      "post": {
+        "tags": [
+          "ai_monitoring"
+        ],
+        "operationId": "createBiasMonitoringRecord",
+        "summary": "Create a bias monitoring record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/monitoring/hallucination": {
+      "post": {
+        "tags": [
+          "ai_monitoring"
+        ],
+        "operationId": "createHallucinationMonitoringRecord",
+        "summary": "Create a hallucination monitoring record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/monitoring/unsafe-output": {
+      "post": {
+        "tags": [
+          "ai_monitoring"
+        ],
+        "operationId": "createUnsafeOutputMonitoringRecord",
+        "summary": "Create an unsafe output monitoring record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/monitoring/model-performance": {
+      "post": {
+        "tags": [
+          "ai_monitoring"
+        ],
+        "operationId": "createModelPerformanceMonitoringRecord",
+        "summary": "Create a model performance monitoring record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/monitoring/incidents": {
+      "post": {
+        "tags": [
+          "ai_monitoring"
+        ],
+        "operationId": "createAiIncidentMonitoringRecord",
+        "summary": "Create an AI incident monitoring record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/incidents/registries": {
+      "post": {
+        "tags": [
+          "ai_incident_management"
+        ],
+        "operationId": "createAiIncidentRecord",
+        "summary": "Create an AI incident registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/incidents/workflows": {
+      "post": {
+        "tags": [
+          "ai_incident_management"
+        ],
+        "operationId": "createAiSafetyIncidentWorkflowRecord",
+        "summary": "Create an AI safety incident workflow record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/incidents/severity": {
+      "post": {
+        "tags": [
+          "ai_incident_management"
+        ],
+        "operationId": "createAiIncidentSeverityRecord",
+        "summary": "Create an AI incident severity record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/incidents/investigations": {
+      "post": {
+        "tags": [
+          "ai_incident_management"
+        ],
+        "operationId": "createAiIncidentInvestigationRecord",
+        "summary": "Create an AI incident investigation record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/incidents/corrective-actions": {
+      "post": {
+        "tags": [
+          "ai_incident_management"
+        ],
+        "operationId": "createAiIncidentCorrectiveActionRecord",
+        "summary": "Create an AI incident corrective action record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/incidents/closures": {
+      "post": {
+        "tags": [
+          "ai_incident_management"
+        ],
+        "operationId": "createAiIncidentClosureRecord",
+        "summary": "Create an AI incident closure record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/incidents/reporting": {
+      "post": {
+        "tags": [
+          "ai_incident_management"
+        ],
+        "operationId": "createAiIncidentReportingRecord",
+        "summary": "Create an AI incident reporting record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/regulatory/requirements": {
+      "post": {
+        "tags": [
+          "regulatory_ai_governance"
+        ],
+        "operationId": "createAiRegulatoryRequirementRecord",
+        "summary": "Create an AI regulatory requirement registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/regulatory/compliance-mappings": {
+      "post": {
+        "tags": [
+          "regulatory_ai_governance"
+        ],
+        "operationId": "createAiComplianceMappingRecord",
+        "summary": "Create an AI compliance mapping record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/regulatory/evidence": {
+      "post": {
+        "tags": [
+          "regulatory_ai_governance"
+        ],
+        "operationId": "createAiEvidenceRecord",
+        "summary": "Create an AI evidence repository record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/regulatory/audit-packages": {
+      "post": {
+        "tags": [
+          "regulatory_ai_governance"
+        ],
+        "operationId": "createAiAuditPackageRecord",
+        "summary": "Create an AI audit package generation record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/regulatory/review-board": {
+      "post": {
+        "tags": [
+          "regulatory_ai_governance"
+        ],
+        "operationId": "createAiGovernanceReviewBoardRecord",
+        "summary": "Create an AI governance review board record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/regulatory/decisions": {
+      "post": {
+        "tags": [
+          "regulatory_ai_governance"
+        ],
+        "operationId": "createAiGovernanceDecisionRecord",
+        "summary": "Create an AI governance decision record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/regulatory/attestations": {
+      "post": {
+        "tags": [
+          "regulatory_ai_governance"
+        ],
+        "operationId": "createAiGovernanceAttestationRecord",
+        "summary": "Create an AI governance attestation record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiAssuranceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI assurance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiAssuranceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-ai-assurance/integrations/references": {
+      "post": {
+        "tags": [
+          "Integrations"
+        ],
+        "operationId": "createGlobalAiAssuranceIntegrationReference",
+        "summary": "Create an auditable integration reference",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntegrationReferenceCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Integration reference persisted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationReferenceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "tenantHeaders": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-tenant-id",
+        "description": "Tenant isolation boundary supplied by the identity platform."
+      }
+    },
+    "schemas": {
+      "AiAssuranceRecordCreate": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "tenantId",
+          "status",
+          "title",
+          "countryCode",
+          "jurisdictionCode",
+          "policyControls",
+          "governanceContext",
+          "workflowControls",
+          "evidence"
+        ],
+        "properties": {
+          "tenantId": {
+            "type": "string"
+          },
+          "recordGroup": {
+            "type": "string",
+            "enum": [
+              "ai_assurance",
+              "model_risk_management",
+              "ai_safety_testing",
+              "prompt_agent_assurance",
+              "ai_monitoring",
+              "ai_incident_management",
+              "regulatory_ai_governance"
+            ]
+          },
+          "recordType": {
+            "type": "string",
+            "enum": [
+              "ai_assurance_registry",
+              "ai_system_inventory",
+              "ai_use_case_registry",
+              "ai_risk_classification",
+              "ai_safety_assessment",
+              "ai_impact_assessment",
+              "ai_assurance_workflow",
+              "ai_assurance_dashboard",
+              "model_risk_registry",
+              "model_risk_scoring",
+              "model_validation_workflow",
+              "model_approval_workflow",
+              "model_limitation_registry",
+              "model_risk_review",
+              "model_retirement_workflow",
+              "model_risk_dashboard",
+              "safety_test_registry",
+              "clinical_safety_test_cases",
+              "hallucination_test_cases",
+              "bias_test_cases",
+              "robustness_test_cases",
+              "adversarial_test_cases",
+              "regression_safety_tests",
+              "safety_test_reports",
+              "prompt_risk_registry",
+              "prompt_review_workflow",
+              "prompt_approval_workflow",
+              "agent_risk_registry",
+              "agent_permission_review",
+              "agent_behavior_evaluation",
+              "agent_safety_testing",
+              "agent_runtime_approval",
+              "ai_runtime_monitoring",
+              "recommendation_monitoring",
+              "drift_monitoring",
+              "bias_monitoring",
+              "hallucination_monitoring",
+              "unsafe_output_monitoring",
+              "model_performance_monitoring",
+              "ai_incident_monitoring",
+              "ai_incident_registry",
+              "ai_safety_incident_workflow",
+              "ai_incident_severity",
+              "ai_incident_investigation",
+              "ai_incident_corrective_actions",
+              "ai_incident_closure",
+              "ai_incident_reporting",
+              "ai_regulatory_requirement_registry",
+              "ai_compliance_mapping",
+              "ai_evidence_repository",
+              "ai_audit_package_generation",
+              "ai_governance_review_board",
+              "ai_governance_decisions",
+              "ai_governance_attestation"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "registered",
+              "classified",
+              "active",
+              "under_review",
+              "reviewed",
+              "approved",
+              "rejected",
+              "started",
+              "in_progress",
+              "completed",
+              "closed",
+              "retired",
+              "detected",
+              "generated",
+              "monitoring",
+              "validated",
+              "updated"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "countryCode": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "regionCode": {
+            "type": "string"
+          },
+          "jurisdictionCode": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "aiSystemId": {
+            "type": "string"
+          },
+          "aiUseCaseId": {
+            "type": "string"
+          },
+          "assuranceId": {
+            "type": "string"
+          },
+          "riskClassificationId": {
+            "type": "string"
+          },
+          "safetyAssessmentId": {
+            "type": "string"
+          },
+          "impactAssessmentId": {
+            "type": "string"
+          },
+          "modelId": {
+            "type": "string"
+          },
+          "modelVersionId": {
+            "type": "string"
+          },
+          "modelRiskId": {
+            "type": "string"
+          },
+          "validationId": {
+            "type": "string"
+          },
+          "limitationId": {
+            "type": "string"
+          },
+          "testId": {
+            "type": "string"
+          },
+          "testCaseId": {
+            "type": "string"
+          },
+          "testReportId": {
+            "type": "string"
+          },
+          "promptId": {
+            "type": "string"
+          },
+          "promptVersionId": {
+            "type": "string"
+          },
+          "agentId": {
+            "type": "string"
+          },
+          "agentVersionId": {
+            "type": "string"
+          },
+          "permissionReviewId": {
+            "type": "string"
+          },
+          "behaviorEvaluationId": {
+            "type": "string"
+          },
+          "runtimeApprovalId": {
+            "type": "string"
+          },
+          "monitoringId": {
+            "type": "string"
+          },
+          "recommendationMonitorId": {
+            "type": "string"
+          },
+          "driftMonitorId": {
+            "type": "string"
+          },
+          "biasMonitorId": {
+            "type": "string"
+          },
+          "hallucinationMonitorId": {
+            "type": "string"
+          },
+          "unsafeOutputMonitorId": {
+            "type": "string"
+          },
+          "performanceMonitorId": {
+            "type": "string"
+          },
+          "incidentId": {
+            "type": "string"
+          },
+          "investigationId": {
+            "type": "string"
+          },
+          "correctiveActionId": {
+            "type": "string"
+          },
+          "regulatoryRequirementId": {
+            "type": "string"
+          },
+          "complianceMappingId": {
+            "type": "string"
+          },
+          "evidenceRepositoryId": {
+            "type": "string"
+          },
+          "auditPackageId": {
+            "type": "string"
+          },
+          "governanceDecisionId": {
+            "type": "string"
+          },
+          "attestationId": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "approvalId": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "riskLevel": {
+            "type": "string",
+            "enum": [
+              "minimal",
+              "low",
+              "moderate",
+              "high",
+              "critical"
+            ]
+          },
+          "riskScore": {
+            "type": "number"
+          },
+          "safetyScore": {
+            "type": "number"
+          },
+          "validationScore": {
+            "type": "number"
+          },
+          "biasScore": {
+            "type": "number"
+          },
+          "driftScore": {
+            "type": "number"
+          },
+          "performanceScore": {
+            "type": "number"
+          },
+          "readinessScore": {
+            "type": "number"
+          },
+          "impactScore": {
+            "type": "number"
+          },
+          "startedAt": {
+            "type": "string"
+          },
+          "completedAt": {
+            "type": "string"
+          },
+          "approvedAt": {
+            "type": "string"
+          },
+          "rejectedAt": {
+            "type": "string"
+          },
+          "retiredAt": {
+            "type": "string"
+          },
+          "detectedAt": {
+            "type": "string"
+          },
+          "closedAt": {
+            "type": "string"
+          },
+          "generatedAt": {
+            "type": "string"
+          },
+          "policyControls": {
+            "type": "object"
+          },
+          "governanceContext": {
+            "type": "object"
+          },
+          "workflowControls": {
+            "type": "object"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "metrics": {
+            "type": "object"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      },
+      "AiAssuranceRecordResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "event"
+        ],
+        "properties": {
+          "data": {
+            "type": "object"
+          },
+          "event": {
+            "type": "object",
+            "properties": {
+              "eventType": {
+                "type": "string",
+                "enum": [
+                  "ai.assurance.review.created",
+                  "ai.risk.classified",
+                  "model.validation.started",
+                  "model.validation.completed",
+                  "model.approved",
+                  "model.rejected",
+                  "prompt.approved",
+                  "agent.approved",
+                  "ai.safety.test.completed",
+                  "ai.incident.created",
+                  "ai.incident.closed",
+                  "ai.audit.package.generated"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "IntegrationReferenceCreate": {
+        "type": "object",
+        "required": [
+          "tenantId",
+          "sourceSystem",
+          "sourceResourceType",
+          "sourceResourceId",
+          "aiAssuranceResourceType",
+          "aiAssuranceResourceId",
+          "countryCode"
+        ],
+        "properties": {
+          "tenantId": {
+            "type": "string"
+          },
+          "sourceSystem": {
+            "type": "string",
+            "enum": [
+              "foundation_platform",
+              "ai_foundation_platform",
+              "ai_governance_platform",
+              "clinical_intelligence_platform",
+              "multi_agent_platform",
+              "learning_platform",
+              "compliance_platform",
+              "security_platform",
+              "audit_service",
+              "notification_service"
+            ]
+          },
+          "sourceResourceType": {
+            "type": "string"
+          },
+          "sourceResourceId": {
+            "type": "string"
+          },
+          "aiAssuranceResourceType": {
+            "type": "string"
+          },
+          "aiAssuranceResourceId": {
+            "type": "string"
+          },
+          "countryCode": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      },
+      "IntegrationReferenceResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error",
+          "message"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  },
+  "x-panacea": {
+    "apiVersion": "v3",
+    "events": [
+      "ai.assurance.review.created",
+      "ai.risk.classified",
+      "model.validation.started",
+      "model.validation.completed",
+      "model.approved",
+      "model.rejected",
+      "prompt.approved",
+      "agent.approved",
+      "ai.safety.test.completed",
+      "ai.incident.created",
+      "ai.incident.closed",
+      "ai.audit.package.generated"
+    ],
+    "controls": [
+      "identity",
+      "rbac",
+      "abac",
+      "audit",
+      "tenant_isolation",
+      "ai_governance_permissions",
+      "model_approval_permissions",
+      "prompt_approval_permissions",
+      "agent_approval_permissions",
+      "regulatory_access_controls",
+      "production_promotion_approval_required"
+    ],
+    "clinicalAutomation": "not_permitted"
+  }
+}
