@@ -1,0 +1,28 @@
+global:
+  imagePullPolicy: IfNotPresent
+  replicaCount: 3
+  tag: "3.0.0"
+  configMapName: panacea-platform-endpoints
+  secretSuffix: db
+services:
+  globalWorkforce:
+    enabled: true
+    port: 8141
+  globalLegalGovernance:
+    enabled: true
+    port: 8142
+  globalCustomerSuccess:
+    enabled: true
+    port: 8143
+  globalProductManagement:
+    enabled: true
+    port: 8144
+  globalCompliance:
+    enabled: true
+    port: 8145
+  globalAiAssurance:
+    enabled: true
+    port: 8146
+  globalPrivacy:
+    enabled: true
+    port: 8147

@@ -1,7 +1,7 @@
 # Remaining Work
 
-Sprint 80 is complete.
+Panacea OS Enterprise Version 3.0 GA source release is complete.
 
-No remaining source-level implementation work is required for Panacea OS Enterprise Version 3.0 Release Candidate readiness.
+No remaining source-level work is required for Sprint 81.
 
-Before General Availability, release operations must attach environment-specific evidence for production deployment, rollback, disaster recovery, performance benchmarking, and interoperability certification.
+Operational rollout teams must still attach site-specific deployment wave evidence, production acceptance sign-off, and jurisdiction-specific interoperability evidence for each deployment environment.

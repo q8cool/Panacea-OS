@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: panacea-global-compliance
+  labels:
+    app.kubernetes.io/name: panacea-global-compliance
+    app.kubernetes.io/component: compliance-automation-regulatory-intelligence
+    app.kubernetes.io/part-of: panacea-os
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: panacea-global-compliance
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: panacea-global-compliance
+    spec:
+      containers:
+        - name: global-compliance
+          image: panacea/global-compliance-automation-regulatory-intelligence-platform:3.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8145
+          env:
+            - name: PANACEA_GLOBAL_COMPLIANCE_PORT
+              value: "8145"
+            - name: GLOBAL_COMPLIANCE_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: panacea-global-compliance-db
+                  key: database-url
+            - name: PANACEA_FOUNDATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: foundation-url
+            - name: PANACEA_SECURITY_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: security-url
+            - name: PANACEA_GLOBAL_LEGAL_GOVERNANCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: global-legal-governance-url
+            - name: PANACEA_QUALITY_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: quality-url
+            - name: PANACEA_GLOBAL_PRODUCT_MANAGEMENT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: global-product-management-url
+            - name: PANACEA_ENTERPRISE_DATA_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: enterprise-data-url
+            - name: PANACEA_AUDIT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: audit-url
+            - name: PANACEA_NOTIFICATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: notification-url
+          readinessProbe:
+            httpGet:
+              path: /api/v3/global-compliance/ready
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v3/global-compliance/live
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: panacea-global-compliance
+  labels:
+    app.kubernetes.io/name: panacea-global-compliance
+spec:
+  selector:
+    app.kubernetes.io/name: panacea-global-compliance
+  ports:
+    - name: http
+      port: 8145
+      targetPort: http

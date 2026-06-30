@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: panacea-v3-observability-template
+data:
+  logging: structured-json
+  metrics: prometheus-compatible
+  tracing: open-telemetry-compatible
+  audit-retention: governed-by-policy
+  required-health-endpoints: "/live,/ready,/metrics,/docs/openapi.json"

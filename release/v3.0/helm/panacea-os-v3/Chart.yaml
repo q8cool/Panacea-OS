@@ -1,0 +1,6 @@
+apiVersion: v2
+name: panacea-os-v3
+description: Panacea OS Enterprise Version 3.0 GA deployment chart
+type: application
+version: 3.0.0
+appVersion: "3.0.0"

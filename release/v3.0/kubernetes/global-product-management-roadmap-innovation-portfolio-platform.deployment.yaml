@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: panacea-global-product-management
+  labels:
+    app.kubernetes.io/name: panacea-global-product-management
+    app.kubernetes.io/component: product-management-roadmap-innovation-portfolio
+    app.kubernetes.io/part-of: panacea-os
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: panacea-global-product-management
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: panacea-global-product-management
+    spec:
+      containers:
+        - name: global-product-management
+          image: panacea/global-product-management-roadmap-innovation-portfolio-platform:3.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8144
+          env:
+            - name: PANACEA_GLOBAL_PRODUCT_MANAGEMENT_PORT
+              value: "8144"
+            - name: GLOBAL_PRODUCT_MANAGEMENT_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: panacea-global-product-management-db
+                  key: database-url
+            - name: PANACEA_FOUNDATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: foundation-url
+            - name: PANACEA_ENTERPRISE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: enterprise-url
+            - name: PANACEA_DEVELOPER_PLATFORM_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: developer-platform-url
+            - name: PANACEA_MARKETPLACE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: marketplace-url
+            - name: PANACEA_GLOBAL_CUSTOMER_SUCCESS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: global-customer-success-url
+            - name: PANACEA_SUPPORT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: support-url
+            - name: PANACEA_GLOBAL_LEGAL_GOVERNANCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: global-legal-governance-url
+            - name: PANACEA_ENTERPRISE_DATA_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: enterprise-data-url
+            - name: PANACEA_AUDIT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: audit-url
+            - name: PANACEA_NOTIFICATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: panacea-platform-endpoints
+                  key: notification-url
+          readinessProbe:
+            httpGet:
+              path: /api/v3/global-product-management/ready
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v3/global-product-management/live
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: panacea-global-product-management
+  labels:
+    app.kubernetes.io/name: panacea-global-product-management
+spec:
+  selector:
+    app.kubernetes.io/name: panacea-global-product-management
+  ports:
+    - name: http
+      port: 8144
+      targetPort: http
