@@ -1,7 +1,9 @@
 import { marked } from "marked";
 import { activeServiceModules, allModules, clinicalModules, enterpriseDocModules, innovationModules, navSections, searchNav } from "./catalog";
 import { buildCurl, filterEndpoints, flattenEndpoints, summarizeOpenApi, type EndpointRecord } from "./apiExplorer";
-import type { AppData, MarkdownDocument, ModuleVisibility, ReleaseEvidence, ServiceRecord } from "./types";
+import { isRoleRoute, renderRoleWorkspace, rolePageTitle } from "./roleRender";
+import { roleFromRoute, roleSwitcherOptions } from "./roleWorkspaces";
+import type { AppData, MarkdownDocument, ModuleVisibility, ReleaseEvidence, RoleId, ServiceRecord } from "./types";
 import type { FoundationProbeResult } from "./foundation";
 
 marked.use({ gfm: true, async: false });
@@ -16,6 +18,7 @@ export interface RenderState {
   foundationProbe?: FoundationProbeResult;
   theme: "light" | "dark";
   language: "en" | "ar";
+  selectedRole: RoleId;
 }
 
 export const initialState: RenderState = {
@@ -26,7 +29,8 @@ export const initialState: RenderState = {
   selectedEndpointKey: "",
   selectedDocumentId: "",
   theme: "light",
-  language: "en"
+  language: "en",
+  selectedRole: "operator"
 };
 
 export function renderApp(data: AppData, route: string, state: RenderState): string {
@@ -44,6 +48,7 @@ export function renderApp(data: AppData, route: string, state: RenderState): str
 }
 
 export function renderRoute(data: AppData, route: string, state: RenderState = initialState): string {
+  if (isRoleRoute(route)) return renderRoleWorkspace(data, route);
   if (route === "/command/system-health") return renderSystemHealth(data);
   if (route === "/command/global-command") return renderModuleDetailPage(data, "real-time-global-healthcare-command-intelligence-platform");
   if (route === "/command/foundation-provider") return renderFoundationProvider(data, state.foundationProbe);
@@ -97,6 +102,7 @@ function renderSidebar(route: string): string {
 
 function renderTopbar(data: AppData, route: string, state: RenderState): string {
   const matches = searchNav(state.globalSearch).slice(0, 5);
+  const activeRole = roleFromRoute(route) ?? state.selectedRole;
   return `
     <header class="topbar">
       <div>
@@ -107,6 +113,12 @@ function renderTopbar(data: AppData, route: string, state: RenderState): string 
         <label class="search-box">
           <i data-lucide="Search"></i>
           <input id="global-search" type="search" value="${escapeAttribute(state.globalSearch)}" autocomplete="off" aria-label="Search pages, services, docs" />
+        </label>
+        <label class="role-switcher">
+          <span>Demo Role Switcher</span>
+          <select id="demo-role-switcher" aria-label="Demo Role Switcher">
+            ${roleSwitcherOptions.map((option) => `<option value="${option.id}" ${option.id === activeRole ? "selected" : ""}>${escapeHtml(option.label)}</option>`).join("")}
+          </select>
         </label>
         <button class="icon-button" id="language-toggle" title="Toggle language direction" aria-label="Toggle language direction"><i data-lucide="Languages"></i></button>
         <button class="icon-button" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme"><i data-lucide="${state.theme === "light" ? "Moon" : "Sun"}"></i></button>
@@ -737,6 +749,8 @@ function statusClass(status: string): string {
 }
 
 function pageTitle(route: string): string {
+  const roleTitle = rolePageTitle(route);
+  if (roleTitle) return roleTitle;
   const item = navSections.flatMap((section) => section.items).find((navItem) => navItem.route === route);
   return item?.label ?? "Executive Overview";
 }

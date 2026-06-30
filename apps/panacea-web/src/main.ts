@@ -3,6 +3,7 @@ import "./styles.css";
 import { defaultRoute } from "./catalog";
 import { probeFoundation } from "./foundation";
 import { initialState, renderApp, type RenderState } from "./render";
+import { roleDefaultRoute } from "./roleWorkspaces";
 import type { AppData } from "./types";
 
 const root = document.querySelector<HTMLDivElement>("#app");
@@ -11,7 +12,8 @@ let data: AppData;
 let state: RenderState = {
   ...initialState,
   theme: (localStorage.getItem("panacea-theme") as RenderState["theme"]) || "light",
-  language: (localStorage.getItem("panacea-language") as RenderState["language"]) || "en"
+  language: (localStorage.getItem("panacea-language") as RenderState["language"]) || "en",
+  selectedRole: (localStorage.getItem("panacea-demo-role") as RenderState["selectedRole"]) || "operator"
 };
 
 async function bootstrap() {
@@ -50,6 +52,13 @@ function bindEvents() {
     state = { ...state, language: state.language === "en" ? "ar" : "en" };
     localStorage.setItem("panacea-language", state.language);
     render();
+  });
+
+  document.querySelector<HTMLSelectElement>("#demo-role-switcher")?.addEventListener("change", (event) => {
+    const selectedRole = (event.target as HTMLSelectElement).value as RenderState["selectedRole"];
+    state = { ...state, selectedRole };
+    localStorage.setItem("panacea-demo-role", selectedRole);
+    window.location.hash = roleDefaultRoute(selectedRole);
   });
 
   document.querySelector<HTMLInputElement>("#api-query")?.addEventListener("input", (event) => {

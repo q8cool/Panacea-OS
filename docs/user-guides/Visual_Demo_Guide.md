@@ -2,7 +2,7 @@
 
 ## Demo Goal
 
-Show Panacea OS v4.0 as a visible, professional platform without adding new backend behavior.
+Show Panacea OS v4.0 as a visible, professional, role-aware platform without adding new backend behavior.
 
 ## Start Demo
 
@@ -24,40 +24,46 @@ http://localhost:5174
    - Show OpenAPI and test evidence.
    - Show Foundation Provider status.
 
-2. **System Health**
-   - Show the active runtime services.
-   - Point out health, readiness, metrics, and OpenAPI URLs.
-   - Start Docker Compose if live local service checks are required.
+2. **Demo Role Switcher**
+   - Select Doctor, Patient, Laboratory User, Radiology User, Pharmacist, Administrator, and Operator.
+   - Explain this is demo-only and does not bypass production security.
 
-3. **API Explorer**
+3. **Doctor / Clinician Workspace**
+   - Show patient context panel, timeline, allergies, medications, lab/radiology summaries, AI recommendations, alerts, tasks, and care team pages.
+   - Point out: `Advisory only. Clinician remains final decision maker.`
+
+4. **Patient Portal Workspace**
+   - Show simple patient-facing language, appointments, medications, allergies, results, documents, messages, invoices, notifications, and care instructions.
+   - Explain that educational content is not medical advice.
+
+5. **Laboratory Workspace**
+   - Show order status, specimen status, turnaround time, critical result flag, validation/approval state, auditability, and integration status.
+
+6. **Radiology Workspace**
+   - Show imaging orders, study list, DICOM metadata, PACS status, reporting worklist, report editor shell, approvals, critical findings, timeline, and analytics.
+   - Point out: `DICOM image viewer not implemented in this UI sprint.`
+
+7. **Pharmacy Workspace**
+   - Show medication catalog, prescription queue, review, dispensing, inventory, batch/lot, expiration, drug safety, controlled medications, and reports.
+   - Explain no new medication safety backend logic was added.
+
+8. **Administration Workspace**
+   - Show users, roles, permissions, tenants, organizations, facilities, departments, configuration, audit logs, security, privacy, compliance, release evidence, health, APIs, and docs.
+
+9. **API Explorer**
    - Search for `live`.
    - Filter by `GET`.
    - Open an endpoint detail panel.
    - Copy the generated safe curl command.
 
-4. **Foundation Provider**
-   - Show `https://foundation.utbe.ai`.
-   - Run the browser probe if CORS permits it.
-   - Explain audit append and policy evaluation require credentials for write tests.
-
-5. **Clinical Modules**
-   - Explain that clinical areas are visible as coverage status.
-   - Confirm no autonomous diagnosis or treatment workflows are added.
-
-6. **Release Evidence**
-   - Show official closure, CI, validation, and tag evidence.
-
-7. **Legacy Coverage**
-   - Show what was preserved, upgraded, replaced, or missing from legacy scope.
-
-8. **New Innovations**
-   - Show the web platform, Foundation Provider, runtime validation, AI assurance, command intelligence, compliance, privacy, and evidence stack.
+10. **Release Evidence**
+   - Show official closure, CI, validation, Foundation Provider, and tag evidence.
 
 ## Demo Boundaries
 
-- Use only test tenant examples.
+- Use only demo/operator mode.
 - Do not enter patient information.
-- Do not claim missing role-specific screens exist.
+- Do not claim live patient records are loaded.
 - Do not claim documentation-backed modules are active runtime services.
 - Keep all clinical and AI workflows advisory and governed.
 

@@ -2,7 +2,7 @@
 
 ## Summary
 
-Sprint 101 adds a professional operator web platform. The map below distinguishes active UI pages from backend services and documentation-backed areas.
+Panacea OS v4.0 now includes a professional operator platform and role-based user workspaces in `apps/panacea-web`.
 
 | UI area | Route | Active now | Backing evidence |
 |---|---|---:|---|
@@ -10,18 +10,15 @@ Sprint 101 adds a professional operator web platform. The map below distinguishe
 | System Health | `#/command/system-health` | YES | Docker Compose ports, service package metadata |
 | Global Command Intelligence | `#/command/global-command` | YES | Active v4 service and OpenAPI |
 | Foundation Provider | `#/command/foundation-provider` | YES | Live Foundation reports and configured URLs |
+| Doctor / Clinician Workspace | `#/workspace/doctor/dashboard` | YES | OpenAPI, clinical docs, AI governance evidence |
+| Patient Portal Workspace | `#/workspace/patient/dashboard` | YES | Patient experience docs, privacy and consent evidence |
+| Laboratory Workspace | `#/workspace/laboratory/dashboard` | YES | Laboratory docs and command status evidence |
+| Radiology Workspace | `#/workspace/radiology/dashboard` | YES | Radiology docs, DICOM metadata references, command status evidence |
+| Pharmacy Workspace | `#/workspace/pharmacy/dashboard` | YES | Pharmacy docs, medication safety references, command/privacy evidence |
+| Administration Workspace | `#/workspace/administrator/dashboard` | YES | Active services, OpenAPI, Foundation, security, release evidence |
 | Clinical Modules | `#/clinical/modules` | YES | Visibility matrix and docs |
-| Patient Experience | `#/clinical/patient-experience` | YES | Documentation-backed coverage |
-| Education & Training | `#/clinical/education` | YES | Documentation-backed coverage |
 | Enterprise Modules | `#/enterprise/modules` | YES | Active enterprise services and docs |
-| Workforce | `#/enterprise/workforce` | YES | Active service |
-| Legal & Governance | `#/enterprise/legal-governance` | YES | Active service |
-| Compliance & Privacy | `#/enterprise/compliance-privacy` | YES | Active services |
-| Customer Success | `#/enterprise/customer-success` | YES | Active service |
-| Product Management | `#/enterprise/product-management` | YES | Active service |
 | AI & Governance | `#/intelligence/ai-governance` | YES | Active AI assurance service |
-| Autonomous Intelligence | `#/intelligence/autonomous-foundation` | YES | Active v4 governance service |
-| New Innovations | `#/intelligence/innovations` | YES | User guide and release evidence |
 | API Explorer | `#/developer/api-explorer` | YES | 26 OpenAPI documents |
 | Documentation Center | `#/developer/documentation` | YES | Markdown docs under `docs/` |
 | Demo Mode | `#/developer/demo-mode` | YES | Runtime and validation guides |
@@ -29,16 +26,19 @@ Sprint 101 adds a professional operator web platform. The map below distinguishe
 | Legacy Coverage | `#/evidence/legacy-coverage` | YES | Legacy coverage matrix |
 | User Journeys | `#/evidence/user-journeys` | YES | User journey map |
 
-## Not Yet Full Role Applications
+## Role Workspace Pages
 
-The following are not full role-specific applications in this sprint:
+| Workspace | Page count |
+|---|---:|
+| Doctor / Clinician | 18 |
+| Patient Portal | 14 |
+| Laboratory | 12 |
+| Radiology | 11 |
+| Pharmacy | 12 |
+| Administration | 17 |
 
-- Clinician console.
-- Nurse console.
-- Patient portal.
-- Laboratory console.
-- Radiology console.
-- Pharmacy console.
-- Finance console.
+## Current Boundary
 
-They are represented through coverage views and documentation until future approved UI and backend scopes are created.
+The role workspaces are not production write applications yet. They are professional, responsive, read-only UI experiences backed by OpenAPI, documentation, runtime status, Foundation Provider status, and release evidence.
+
+Live records require authenticated backend APIs and real production authorization.

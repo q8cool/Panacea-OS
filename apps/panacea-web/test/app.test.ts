@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import dataJson from "../public/panacea-data.json";
 import { flattenEndpoints, filterEndpoints } from "../src/apiExplorer";
 import { probeFoundation } from "../src/foundation";
-import { initialState, renderRoute } from "../src/render";
+import { allRoleRoutes, roleDefaultRoute, roleSwitcherOptions, roleWorkspaces } from "../src/roleWorkspaces";
+import { initialState, renderApp, renderRoute } from "../src/render";
 import type { AppData } from "../src/types";
 
 const data = dataJson as AppData;
@@ -68,5 +69,74 @@ describe("Panacea web platform", () => {
     expect(result.overall).toBe("pass");
     expect(result.checks).toHaveLength(4);
     expect(result.checks.find((check) => check.name === "jwks")?.detail).toContain("Valid JWKS");
+  });
+
+  it("renders the demo role switcher in the global shell", () => {
+    const html = renderApp(data, "/workspace/doctor/dashboard", {
+      ...initialState,
+      selectedRole: "doctor"
+    });
+    expect(html).toContain("Demo Role Switcher");
+    expect(html).toContain("Doctor");
+    expect(html).toContain("Patient");
+    expect(html).toContain("Administrator");
+  });
+
+  it("maps role switcher options to workspace routes without bypassing operator mode", () => {
+    expect(roleDefaultRoute("operator")).toBe("/command/executive-overview");
+    for (const option of roleSwitcherOptions.filter((item) => item.id !== "operator")) {
+      expect(roleDefaultRoute(option.id)).toBe(option.route);
+      expect(option.route).toMatch(/^\/workspace\//);
+    }
+  });
+
+  it("renders every role workspace dashboard", () => {
+    for (const workspace of roleWorkspaces) {
+      const html = renderRoute(data, workspace.route, {
+        ...initialState,
+        selectedRole: workspace.id
+      });
+      expect(html).toContain(workspace.title);
+      expect(html).toContain("DEMO DATA -- NOT REAL PATIENT DATA");
+      expect(html).toContain("Workflow Timeline");
+      expect(html).toContain("API And Documentation Sources");
+    }
+  });
+
+  it("renders every requested role page route without empty screens", () => {
+    for (const route of allRoleRoutes()) {
+      const html = renderRoute(data, route, initialState);
+      expect(html).toContain("Worklist");
+      expect(html).toContain("Read-only");
+      expect(html).toContain("Live data unavailable");
+      expect(html).not.toContain("No module records match this page");
+    }
+  });
+
+  it("renders clinician safety and advisory-only sections", () => {
+    const html = renderRoute(data, "/workspace/doctor/ai-recommendations", {
+      ...initialState,
+      selectedRole: "doctor"
+    });
+    expect(html).toContain("AI Recommendations Viewer");
+    expect(html).toContain("Advisory only. Clinician remains final decision maker.");
+    expect(html).toContain("Medication safety area");
+  });
+
+  it("renders patient portal pages with patient-facing boundaries", () => {
+    const html = renderRoute(data, "/workspace/patient/care-instructions", {
+      ...initialState,
+      selectedRole: "patient"
+    });
+    expect(html).toContain("Care Instructions");
+    expect(html).toContain("Educational content only");
+    expect(html).toContain("Patient-friendly");
+  });
+
+  it("renders laboratory, radiology, pharmacy, and admin specialist pages", () => {
+    expect(renderRoute(data, "/workspace/laboratory/critical-results", initialState)).toContain("Critical Results");
+    expect(renderRoute(data, "/workspace/radiology/dicom-metadata", initialState)).toContain("DICOM image viewer not implemented in this UI sprint.");
+    expect(renderRoute(data, "/workspace/pharmacy/drug-safety-alerts", initialState)).toContain("Drug Safety Alerts");
+    expect(renderRoute(data, "/workspace/administrator/audit-logs", initialState)).toContain("Audit Logs");
   });
 });

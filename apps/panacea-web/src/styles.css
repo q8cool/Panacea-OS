@@ -214,6 +214,29 @@ select {
   outline: none;
 }
 
+.role-switcher {
+  display: grid;
+  gap: 4px;
+  min-width: 190px;
+}
+
+.role-switcher span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.role-switcher select {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  padding: 0 10px;
+}
+
 .icon-button,
 .button {
   min-height: 40px;
@@ -809,6 +832,303 @@ pre {
   padding: 40px;
 }
 
+.header-status {
+  max-width: 380px;
+}
+
+.header-status svg {
+  flex: 0 0 auto;
+}
+
+.header-status span {
+  overflow-wrap: anywhere;
+}
+
+.role-hero .header-status {
+  align-items: flex-start;
+  height: auto;
+  min-height: 58px;
+  padding-block: 12px;
+}
+
+.role-hero-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.role-hero-facts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-strong);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.role-hero-facts svg {
+  width: 15px;
+  height: 15px;
+}
+
+.role-shell {
+  display: grid;
+  grid-template-columns: 286px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.role-nav {
+  position: sticky;
+  top: 104px;
+  max-height: calc(100vh - 128px);
+  overflow: auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.role-nav-title {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 12px;
+}
+
+.role-nav-title > svg {
+  width: 34px;
+  height: 34px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--panel-strong);
+  color: var(--blue);
+}
+
+.role-nav-title strong,
+.role-nav-title span {
+  display: block;
+}
+
+.role-nav-title span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.role-nav nav {
+  display: grid;
+  gap: 6px;
+}
+
+.role-nav a {
+  min-height: 38px;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.role-nav a:hover,
+.role-nav a.active {
+  background: var(--panel-strong);
+}
+
+.role-nav a.active {
+  box-shadow: inset 3px 0 0 var(--cyan);
+  font-weight: 800;
+}
+
+.role-nav a svg {
+  width: 16px;
+  height: 16px;
+}
+
+.role-content {
+  display: grid;
+  gap: 18px;
+}
+
+.demo-notice {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  background: #fff7ed;
+  color: #7c2d12;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.app-shell[data-theme="dark"] .demo-notice {
+  background: rgba(180, 83, 9, 0.14);
+  color: #fed7aa;
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
+.demo-notice p {
+  margin: 4px 0 0;
+}
+
+.role-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 18px;
+}
+
+.role-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.role-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-strong);
+  padding: 12px;
+}
+
+.role-panel h3 {
+  margin: 10px 0 6px;
+  font-size: 16px;
+}
+
+.role-panel p {
+  margin: 0;
+}
+
+.bar-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) minmax(130px, 1.2fr) 42px;
+  gap: 10px;
+  align-items: center;
+}
+
+.bar-row strong,
+.bar-row span,
+.bar-row em {
+  display: block;
+}
+
+.bar-row span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.bar-row em {
+  color: var(--muted);
+  font-style: normal;
+  font-weight: 800;
+  text-align: right;
+}
+
+.bar-track {
+  height: 10px;
+  background: var(--panel-strong);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+
+.bar-track span {
+  display: block;
+  height: 100%;
+}
+
+.bar-track .success {
+  background: var(--green);
+}
+
+.bar-track .warn {
+  background: var(--amber);
+}
+
+.bar-track .info {
+  background: var(--blue);
+}
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.timeline li span {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--blue);
+  color: white;
+  font-weight: 800;
+}
+
+.timeline li p {
+  margin: 4px 0 0;
+}
+
+.role-source-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.source-list {
+  display: grid;
+  gap: 10px;
+}
+
+.source-list article {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--panel-strong);
+}
+
+.source-list strong,
+.source-list span {
+  display: block;
+}
+
+.source-list span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 1120px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -835,12 +1155,20 @@ pre {
 
   .api-layout,
   .docs-workspace,
-  .two-column {
+  .two-column,
+  .role-shell,
+  .role-dashboard-grid,
+  .role-source-grid {
     grid-template-columns: 1fr;
   }
 
   .endpoint-detail {
     position: static;
+  }
+
+  .role-nav {
+    position: static;
+    max-height: none;
   }
 }
 
@@ -860,6 +1188,10 @@ pre {
     width: 100%;
   }
 
+  .role-switcher {
+    width: 100%;
+  }
+
   .page-root,
   .topbar {
     padding: 16px;
@@ -872,10 +1204,19 @@ pre {
   .metric-grid,
   .module-grid,
   .doc-grid,
-  .endpoint-grid,
-  .evidence-grid,
-  .api-controls,
-  .nav {
+    .endpoint-grid,
+    .evidence-grid,
+    .role-panel-grid,
+    .api-controls,
+    .nav {
     grid-template-columns: 1fr;
+  }
+
+  .bar-row {
+    grid-template-columns: 1fr;
+  }
+
+  .bar-row em {
+    text-align: left;
   }
 }

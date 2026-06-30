@@ -138,3 +138,53 @@ export interface NavSection {
   title: string;
   items: NavItem[];
 }
+
+export type RoleId = "operator" | "doctor" | "patient" | "laboratory" | "radiology" | "pharmacy" | "administrator";
+
+export interface RoleMetric {
+  label: string;
+  value: string;
+  detail: string;
+  tone: "success" | "warn" | "info";
+}
+
+export interface RoleTable {
+  columns: string[];
+  rows: string[][];
+}
+
+export interface RolePanel {
+  title: string;
+  detail: string;
+  status: "Available" | "Documentation-backed" | "Live data unavailable" | "Action required";
+}
+
+export interface RolePageDefinition {
+  id: string;
+  label: string;
+  icon: string;
+  description: string;
+  route: string;
+  source: string;
+  metrics: RoleMetric[];
+  workflow: string[];
+  table: RoleTable;
+  panels: RolePanel[];
+  chart: RoleMetric[];
+  safetyNote: string;
+}
+
+export interface RoleWorkspaceDefinition {
+  id: RoleId;
+  label: string;
+  title: string;
+  icon: string;
+  route: string;
+  audience: string;
+  summary: string;
+  boundary: string;
+  dataMode: string;
+  serviceIds: string[];
+  docHints: string[];
+  pages: RolePageDefinition[];
+}

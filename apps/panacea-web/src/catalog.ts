@@ -4,6 +4,17 @@ export const defaultRoute = "/command/executive-overview";
 
 export const navSections: NavSection[] = [
   {
+    title: "Role Workspaces",
+    items: [
+      { label: "Doctor / Clinician", route: "/workspace/doctor/dashboard", icon: "Stethoscope", keywords: ["doctor", "clinician", "patient", "clinical"] },
+      { label: "Patient Portal", route: "/workspace/patient/dashboard", icon: "HeartHandshake", keywords: ["patient", "portal", "appointments", "messages"] },
+      { label: "Laboratory", route: "/workspace/laboratory/dashboard", icon: "TestTube2", keywords: ["lab", "laboratory", "specimen", "results"] },
+      { label: "Radiology", route: "/workspace/radiology/dashboard", icon: "ScanLine", keywords: ["radiology", "imaging", "dicom", "pacs"] },
+      { label: "Pharmacy", route: "/workspace/pharmacy/dashboard", icon: "Pill", keywords: ["pharmacy", "medication", "dispensing", "inventory"] },
+      { label: "Administration", route: "/workspace/administrator/dashboard", icon: "Settings", keywords: ["admin", "users", "roles", "configuration"] }
+    ]
+  },
+  {
     title: "Command",
     items: [
       { label: "Executive Overview", route: "/command/executive-overview", icon: "LayoutDashboard", keywords: ["release", "overview", "status"] },

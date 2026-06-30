@@ -2,7 +2,7 @@
 
 Audit date: 2026-06-30
 Release status: Panacea OS Enterprise v4.0 officially released
-UI status: Professional operator web platform available
+UI status: Professional operator and role-based web platform available
 
 ## 1. How do I use Panacea OS today?
 
@@ -20,18 +20,15 @@ Open:
 http://localhost:5174
 ```
 
-Use the UI to inspect:
+Use the **Demo Role Switcher** to open:
 
-- Release status.
-- Runtime service inventory.
-- Health, readiness, metrics, and OpenAPI URLs.
-- Foundation Provider status.
-- Clinical, enterprise, AI, and global capability visibility.
-- API contracts and demo curl commands.
-- Release evidence.
-- Legacy coverage.
-- New innovations.
-- Documentation and demo instructions.
+- Doctor / Clinician Workspace.
+- Patient Portal Workspace.
+- Laboratory Workspace.
+- Radiology Workspace.
+- Pharmacy Workspace.
+- Administration Workspace.
+- Operator dashboard.
 
 ## 2. What URL do I open?
 
@@ -41,26 +38,24 @@ Open:
 http://localhost:5174
 ```
 
-For production build preview:
-
-```sh
-npm run web:build
-npm run web:preview
-```
-
-Then open:
+Direct workspace URLs:
 
 ```text
-http://localhost:4174
+http://localhost:5174/#/workspace/doctor/dashboard
+http://localhost:5174/#/workspace/patient/dashboard
+http://localhost:5174/#/workspace/laboratory/dashboard
+http://localhost:5174/#/workspace/radiology/dashboard
+http://localhost:5174/#/workspace/pharmacy/dashboard
+http://localhost:5174/#/workspace/administrator/dashboard
 ```
 
 ## 3. Is there a visible UI?
 
-Yes. Sprint 101 adds `apps/panacea-web`, a Vite + TypeScript professional web platform.
+Yes. Panacea OS now has `apps/panacea-web`, a Vite + TypeScript professional web platform with operator and role-based workspaces.
 
-It is an operator console and demo explorer. It is not yet a direct clinical care application or patient portal.
+The role workspaces are read-only demo/operator interfaces. They do not execute clinical care, diagnosis, treatment, medication safety backend logic, DICOM image viewing, or production administrative writes.
 
-## 4. If I want to test the backend, how do I do it?
+## 4. How do I test the backend?
 
 Start backend runtime:
 
@@ -90,30 +85,27 @@ Preserved or upgraded coverage includes:
 - Workflow and governance concepts through active v3/v4 service APIs.
 - Documentation, release evidence, runtime orchestration, and disaster recovery validation.
 - A web visibility layer replacing the missing legacy frontend with a professional operator console.
+- Role-based UI shells for clinician, patient, laboratory, radiology, pharmacy, and administration workflows.
 
-## 6. Which legacy features are missing as active runtime services?
+## 6. Which features still require live backend data?
 
-The active checkout does not contain standalone runtime services for:
+The role workspaces are visual and API-aware, but the following require live authenticated APIs:
 
-- Direct patient service.
-- Direct clinical core care workflows.
-- Laboratory.
-- Radiology.
-- Pharmacy.
-- Orders.
-- Patient portal.
-- API gateway.
-- Standalone notification service.
-- Standalone audit service.
-- Full hospital connection/network service.
-
-Those areas are visible as documentation-backed coverage unless a future approved sprint creates executable services or role-specific UIs.
+- Real patient search and profile data.
+- Encounter, order, result, note, and care-team records.
+- Patient messages, appointments, documents, invoices, and telemedicine sessions.
+- Laboratory order/specimen/result writes.
+- Radiology PACS integration, DICOM object retrieval, report writes, and critical finding notifications.
+- Pharmacy prescription queues, safety checks, dispensing, inventory, controlled-medication records.
+- Admin user, role, permission, tenant, organization, facility, configuration, and audit-log write workflows.
 
 ## 7. What new innovations were added?
 
-Major new capabilities include:
+Major capabilities include:
 
 - Professional Panacea web platform.
+- Role-based user workspaces.
+- Demo Role Switcher.
 - Live Foundation Provider validation at `https://foundation.utbe.ai`.
 - Enterprise release evidence package.
 - Runtime orchestration validation.
@@ -126,22 +118,24 @@ Major new capabilities include:
 - Privacy, consent, and trust service.
 - Workforce, legal governance, customer success, and product management services.
 
-## 8. What should be built next so the operator can visually use the program?
+## 8. What should be built next?
 
 Recommended next UI sprint:
 
-**Authenticated Role Workspace Sprint**
+**Authenticated Live Data Workspace Sprint**
 
 Scope:
 
 - Foundation-backed login.
-- Role-aware shell for administrator, operator, clinician, nurse, patient, compliance officer, AI governance officer, and developer.
-- Read-only service dashboards with live health polling.
-- Safe create/read demo forms for active governance APIs.
+- Real role claims.
+- Read-only API execution from the browser.
+- Token, CORS, and error handling.
+- Live service polling.
+- Audit-aware browser actions.
 - No clinical diagnosis, treatment, or autonomous AI expansion.
 
 ## 9. Is Panacea OS currently a backend platform, a full visual application, or both?
 
-It is both a backend platform and an operator-facing web application.
+It is both a backend platform and a professional visual web application.
 
-It is not yet a complete visual hospital application for every role. The current UI gives the operator a professional way to inspect, test, and understand the platform without changing product behavior.
+It now includes role-based workspaces, but those workspaces remain read-only and demo/operator oriented until live backend APIs and production authentication are connected.
