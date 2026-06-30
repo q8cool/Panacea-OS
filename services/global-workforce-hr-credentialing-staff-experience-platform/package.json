@@ -1,0 +1,19 @@
+{
+  "name": "@panacea/global-workforce-hr-credentialing-staff-experience-platform",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Panacea OS Sprint 73 global workforce, HR, credentialing, and staff experience platform.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.mjs",
+    "check": "node --check src/domain/workforce-domain.mjs && node --check src/domain/workforce-validation.mjs && node --check src/application/workforce-service.mjs && node --check src/infrastructure/postgres-repository.mjs && node --check src/infrastructure/security.mjs && node --check src/api/server.mjs && node --check src/api/openapi.mjs && node --check src/index.mjs",
+    "test": "node --test ../../tests/global-workforce-hr-credentialing-staff-experience-platform/*.test.mjs",
+    "openapi": "node src/api/openapi.mjs --write docs/openapi.json"
+  },
+  "dependencies": {
+    "pg": "^8.16.3"
+  }
+}
