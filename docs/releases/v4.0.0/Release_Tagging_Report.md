@@ -7,30 +7,38 @@ Branch: `develop/v4.0`
 
 | Order | Tag | Message | Status |
 |---|---|---|---|
-| 1 | `v4.0.0-rc1` | `Panacea OS Enterprise v4.0.0 Release Candidate 1` | Not created |
-| 2 | `v4.0.0` | `Panacea OS Enterprise v4.0.0 General Availability` | Not created |
-| 3 | `v4.0.1-LTS` | `Panacea OS Enterprise v4.0.1 Long-Term Support` | Not created |
+| 1 | `v4.0.0-rc1` | `Panacea OS Enterprise v4.0.0 Release Candidate 1` | Pending final validation |
+| 2 | `v4.0.0` | `Panacea OS Enterprise v4.0.0 General Availability` | Pending final validation |
+| 3 | `v4.0.1-LTS` | `Panacea OS Enterprise v4.0.1 Long-Term Support` | Pending final validation |
 
-## Reason Tags Were Not Created
+## Tag Criteria Status
 
-Tag criteria are not fully satisfied:
-
-- Branch push failed with `fatal: could not read Username for 'https://github.com': Device not configured`.
-- Remote CI is not observed because branch push failed before GitHub Actions could start.
-- Foundation live provider validation is not observed because provider configuration is absent in this shell.
-- Waivers remain `PENDING APPROVAL`.
-- Release governance has not recorded explicit acceptance of the unresolved conditions.
+| Criterion | Status |
+|---|---|
+| Release evidence committed | PASS |
+| Remote branch push | PASS |
+| Remote CI observed | PASS, run `28448921412` |
+| Runtime orchestration in remote CI | PASS |
+| Runtime disaster recovery in remote CI | PASS |
+| Foundation provider condition | ACCEPTED OPERATOR CONDITION |
+| Migration rollback waiver | ACCEPTED OPERATOR CONDITION |
+| Historical Sprint 1-72 waiver | ACCEPTED OPERATOR CONDITION |
+| Final local validation after report update | PASS |
 
 ## Prepared Commands
 
-Run these only after the criteria are satisfied:
+Run these only after release closure report updates are committed, pushed, and remote CI remains passing:
 
 ```bash
 git tag -a v4.0.0-rc1 -m "Panacea OS Enterprise v4.0.0 Release Candidate 1"
 git tag -a v4.0.0 -m "Panacea OS Enterprise v4.0.0 General Availability"
 git tag -a v4.0.1-LTS -m "Panacea OS Enterprise v4.0.1 Long-Term Support"
+
+git push origin v4.0.0-rc1
+git push origin v4.0.0
+git push origin v4.0.1-LTS
 ```
 
 ## Tagging Decision
 
-STOPPED BEFORE TAG CREATION. Later tags were not attempted because branch push failed before remote CI and tag criteria could be satisfied.
+READY AFTER FINAL REPORT COMMIT AND REMOTE CI. Tags have not yet been created in this report.

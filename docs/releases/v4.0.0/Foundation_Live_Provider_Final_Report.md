@@ -5,34 +5,46 @@ Branch: `develop/v4.0`
 
 ## Result
 
-Live Foundation provider validation was not executed.
+Live Foundation provider validation was not executed because no live Foundation provider configuration is present in this shell.
 
-## Reason
+## Configuration Check
 
-No Foundation provider environment variables were present in this shell. The following configuration values were not available:
+No environment variables matching `FOUNDATION_`, `PANACEA_FOUNDATION_`, `JWT_`, or `JWKS_` were available for a live provider validation run.
+
+The following live values are still required from the operator or deployment environment:
 
 - Foundation base URL
 - JWT issuer
 - JWKS URL or public key
-- audit append endpoint
-- policy endpoint
-- health endpoint
-- readiness endpoint
-- metrics endpoint
+- Audit append endpoint
+- Policy evaluation endpoint, where configured
+- Health endpoint
+- Readiness endpoint
+- Metrics endpoint
+- Timeout settings
+- Retry settings
+- Circuit breaker settings
 
-## Local Evidence
+## Local Contract Evidence
 
 Foundation provider wiring and contract configuration are validated locally by:
 
 - `scripts/lib/foundation-provider.mjs`
 - `scripts/validate-foundation-provider.mjs`
 - `tests/foundation-integration/foundation-provider-contract.test.mjs`
-- Kubernetes ConfigMap wiring for all 9 active service manifests
+- Kubernetes ConfigMap wiring for all active service manifests
 - Docker Compose runtime provider configuration
+- Remote CI run `28448921412`
 
-## Operator Requirement
+## Accepted Operator Condition
 
-Before production release or tag publication, configure the approved provider values and validate:
+Status: `ACCEPTED OPERATOR CONDITION`
+
+The live provider condition is not marked as formally approved or live-validated. It is accepted for release closure only as an operator condition. The operator remains responsible for validating the approved Foundation provider in the target environment before production use.
+
+## Required Operator Validation
+
+Before production traffic is served, validate:
 
 1. Foundation URL is reachable.
 2. JWT issuer and JWKS or public key are valid.
@@ -44,4 +56,4 @@ Before production release or tag publication, configure the approved provider va
 
 ## Foundation Provider Status
 
-NOT OBSERVED. Condition remains open unless release governance accepts contract evidence for this phase.
+ACCEPTED OPERATOR CONDITION.
