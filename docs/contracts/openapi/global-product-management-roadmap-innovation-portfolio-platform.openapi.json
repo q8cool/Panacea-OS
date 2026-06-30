@@ -1,0 +1,3812 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Panacea OS Global Enterprise Product Management, Roadmap & Innovation Portfolio API",
+    "version": "3.0.0",
+    "description": "Versioned API for governed, auditable, multi-country product management, roadmap governance, innovation portfolio, requirements, product feedback, and release governance workflows."
+  },
+  "servers": [
+    {
+      "url": "/api/v3/global-product-management",
+      "description": "Versioned API base path"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Operations"
+    },
+    {
+      "name": "Integrations"
+    },
+    {
+      "name": "product_management"
+    },
+    {
+      "name": "roadmap_management"
+    },
+    {
+      "name": "innovation_portfolio"
+    },
+    {
+      "name": "requirements_management"
+    },
+    {
+      "name": "product_feedback"
+    },
+    {
+      "name": "release_governance"
+    }
+  ],
+  "paths": {
+    "/api/v3/global-product-management/live": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getGlobalProductManagementLive",
+        "summary": "Liveness probe",
+        "responses": {
+          "200": {
+            "description": "Service is live"
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/ready": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getGlobalProductManagementReady",
+        "summary": "Readiness probe",
+        "responses": {
+          "200": {
+            "description": "Service is ready"
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/metrics": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getGlobalProductManagementMetrics",
+        "summary": "Operational metrics summary",
+        "responses": {
+          "200": {
+            "description": "Metrics returned"
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/docs/openapi.json": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getGlobalProductManagementOpenApi",
+        "summary": "OpenAPI document",
+        "responses": {
+          "200": {
+            "description": "OpenAPI document returned"
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/products/registries": {
+      "post": {
+        "tags": [
+          "product_management"
+        ],
+        "operationId": "createProductRegistryRecord",
+        "summary": "Create a product registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/products/modules": {
+      "post": {
+        "tags": [
+          "product_management"
+        ],
+        "operationId": "createProductModuleRecord",
+        "summary": "Create a product module registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/products/capabilities": {
+      "post": {
+        "tags": [
+          "product_management"
+        ],
+        "operationId": "createProductCapabilityRecord",
+        "summary": "Create a product capability registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/products/features": {
+      "post": {
+        "tags": [
+          "product_management"
+        ],
+        "operationId": "createFeatureRecord",
+        "summary": "Create a feature registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/products/feature-lifecycle": {
+      "post": {
+        "tags": [
+          "product_management"
+        ],
+        "operationId": "createFeatureLifecycleRecord",
+        "summary": "Create a feature lifecycle record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/products/feature-ownership": {
+      "post": {
+        "tags": [
+          "product_management"
+        ],
+        "operationId": "createFeatureOwnershipRecord",
+        "summary": "Create a feature ownership record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/products/feature-dependencies": {
+      "post": {
+        "tags": [
+          "product_management"
+        ],
+        "operationId": "createFeatureDependencyRecord",
+        "summary": "Create a feature dependency mapping record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/products/feature-status": {
+      "post": {
+        "tags": [
+          "product_management"
+        ],
+        "operationId": "createFeatureStatusRecord",
+        "summary": "Create a feature status tracking record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/roadmaps/registries": {
+      "post": {
+        "tags": [
+          "roadmap_management"
+        ],
+        "operationId": "createRoadmapRegistryRecord",
+        "summary": "Create a roadmap registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/roadmaps/versions": {
+      "post": {
+        "tags": [
+          "roadmap_management"
+        ],
+        "operationId": "createVersionRoadmapRecord",
+        "summary": "Create a version roadmap record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/roadmaps/release-planning": {
+      "post": {
+        "tags": [
+          "roadmap_management"
+        ],
+        "operationId": "createReleasePlanningRecord",
+        "summary": "Create a release planning record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/roadmaps/milestones": {
+      "post": {
+        "tags": [
+          "roadmap_management"
+        ],
+        "operationId": "createMilestonePlanningRecord",
+        "summary": "Create a milestone planning record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/roadmaps/sprints": {
+      "post": {
+        "tags": [
+          "roadmap_management"
+        ],
+        "operationId": "createSprintPlanningRecord",
+        "summary": "Create a sprint planning record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/roadmaps/dependencies": {
+      "post": {
+        "tags": [
+          "roadmap_management"
+        ],
+        "operationId": "createRoadmapDependencyRecord",
+        "summary": "Create a roadmap dependency record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/roadmaps/approvals": {
+      "post": {
+        "tags": [
+          "roadmap_management"
+        ],
+        "operationId": "createRoadmapApprovalRecord",
+        "summary": "Create a roadmap approval workflow record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/roadmaps/history": {
+      "post": {
+        "tags": [
+          "roadmap_management"
+        ],
+        "operationId": "createRoadmapHistoryRecord",
+        "summary": "Create a roadmap history record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/innovation/ideas": {
+      "post": {
+        "tags": [
+          "innovation_portfolio"
+        ],
+        "operationId": "createInnovationIdeaRecord",
+        "summary": "Create an innovation idea registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/innovation/pipeline": {
+      "post": {
+        "tags": [
+          "innovation_portfolio"
+        ],
+        "operationId": "createInnovationPipelineRecord",
+        "summary": "Create an innovation pipeline record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/innovation/scoring": {
+      "post": {
+        "tags": [
+          "innovation_portfolio"
+        ],
+        "operationId": "createInnovationScoringRecord",
+        "summary": "Create an innovation scoring record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/innovation/reviews": {
+      "post": {
+        "tags": [
+          "innovation_portfolio"
+        ],
+        "operationId": "createInnovationReviewRecord",
+        "summary": "Create an innovation review workflow record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/innovation/approvals": {
+      "post": {
+        "tags": [
+          "innovation_portfolio"
+        ],
+        "operationId": "createInnovationApprovalRecord",
+        "summary": "Create an innovation approval workflow record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/innovation/experiments": {
+      "post": {
+        "tags": [
+          "innovation_portfolio"
+        ],
+        "operationId": "createInnovationExperimentRecord",
+        "summary": "Create an innovation experiment registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/innovation/impact-assessments": {
+      "post": {
+        "tags": [
+          "innovation_portfolio"
+        ],
+        "operationId": "createInnovationImpactRecord",
+        "summary": "Create an innovation impact assessment record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/innovation/dashboard": {
+      "post": {
+        "tags": [
+          "innovation_portfolio"
+        ],
+        "operationId": "createInnovationDashboardRecord",
+        "summary": "Create an innovation portfolio dashboard record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/requirements/registries": {
+      "post": {
+        "tags": [
+          "requirements_management"
+        ],
+        "operationId": "createRequirementRegistryRecord",
+        "summary": "Create a requirement registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/requirements/functional": {
+      "post": {
+        "tags": [
+          "requirements_management"
+        ],
+        "operationId": "createFunctionalRequirementRecord",
+        "summary": "Create a functional requirement record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/requirements/non-functional": {
+      "post": {
+        "tags": [
+          "requirements_management"
+        ],
+        "operationId": "createNonFunctionalRequirementRecord",
+        "summary": "Create a non-functional requirement record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/requirements/prioritization": {
+      "post": {
+        "tags": [
+          "requirements_management"
+        ],
+        "operationId": "createRequirementPrioritizationRecord",
+        "summary": "Create a requirement prioritization record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/requirements/traceability": {
+      "post": {
+        "tags": [
+          "requirements_management"
+        ],
+        "operationId": "createRequirementTraceabilityRecord",
+        "summary": "Create a requirement traceability record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/requirements/approvals": {
+      "post": {
+        "tags": [
+          "requirements_management"
+        ],
+        "operationId": "createRequirementApprovalRecord",
+        "summary": "Create a requirement approval record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/requirements/change-control": {
+      "post": {
+        "tags": [
+          "requirements_management"
+        ],
+        "operationId": "createRequirementChangeControlRecord",
+        "summary": "Create a requirement change control record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/requirements/coverage-dashboard": {
+      "post": {
+        "tags": [
+          "requirements_management"
+        ],
+        "operationId": "createRequirementCoverageRecord",
+        "summary": "Create a requirement coverage dashboard record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/feedback/customers": {
+      "post": {
+        "tags": [
+          "product_feedback"
+        ],
+        "operationId": "createCustomerFeedbackRecord",
+        "summary": "Create a customer feedback registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/feedback/clinicians": {
+      "post": {
+        "tags": [
+          "product_feedback"
+        ],
+        "operationId": "createClinicianFeedbackRecord",
+        "summary": "Create a clinician feedback registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/feedback/patients": {
+      "post": {
+        "tags": [
+          "product_feedback"
+        ],
+        "operationId": "createPatientFeedbackRecord",
+        "summary": "Create a patient feedback registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/feedback/internal": {
+      "post": {
+        "tags": [
+          "product_feedback"
+        ],
+        "operationId": "createInternalFeedbackRecord",
+        "summary": "Create an internal feedback registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/feedback/triage": {
+      "post": {
+        "tags": [
+          "product_feedback"
+        ],
+        "operationId": "createFeedbackTriageRecord",
+        "summary": "Create a feedback triage record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/feedback/prioritization": {
+      "post": {
+        "tags": [
+          "product_feedback"
+        ],
+        "operationId": "createFeedbackPrioritizationRecord",
+        "summary": "Create a feedback prioritization record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/feedback/roadmap-links": {
+      "post": {
+        "tags": [
+          "product_feedback"
+        ],
+        "operationId": "createFeedbackRoadmapLinkRecord",
+        "summary": "Create a feedback-to-roadmap linking record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/feedback/analytics": {
+      "post": {
+        "tags": [
+          "product_feedback"
+        ],
+        "operationId": "createFeedbackAnalyticsRecord",
+        "summary": "Create a feedback analytics record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/releases/candidates": {
+      "post": {
+        "tags": [
+          "release_governance"
+        ],
+        "operationId": "createReleaseCandidateRecord",
+        "summary": "Create a release candidate registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/releases/approvals": {
+      "post": {
+        "tags": [
+          "release_governance"
+        ],
+        "operationId": "createReleaseApprovalRecord",
+        "summary": "Create a release approval workflow record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/releases/risk-assessments": {
+      "post": {
+        "tags": [
+          "release_governance"
+        ],
+        "operationId": "createReleaseRiskAssessmentRecord",
+        "summary": "Create a release risk assessment record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/releases/notes": {
+      "post": {
+        "tags": [
+          "release_governance"
+        ],
+        "operationId": "createReleaseNotesRecord",
+        "summary": "Create a release notes management record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/releases/dependencies": {
+      "post": {
+        "tags": [
+          "release_governance"
+        ],
+        "operationId": "createReleaseDependencyRecord",
+        "summary": "Create a release dependency tracking record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/releases/readiness-checklists": {
+      "post": {
+        "tags": [
+          "release_governance"
+        ],
+        "operationId": "createReleaseReadinessRecord",
+        "summary": "Create a release readiness checklist record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/releases/retrospectives": {
+      "post": {
+        "tags": [
+          "release_governance"
+        ],
+        "operationId": "createReleaseRetrospectiveRecord",
+        "summary": "Create a release retrospective record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductManagementRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product management record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductManagementRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/global-product-management/integrations/references": {
+      "post": {
+        "tags": [
+          "Integrations"
+        ],
+        "operationId": "createGlobalProductManagementIntegrationReference",
+        "summary": "Create an auditable integration reference",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntegrationReferenceCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Integration reference persisted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationReferenceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "tenantHeaders": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-tenant-id",
+        "description": "Tenant isolation boundary supplied by the identity platform."
+      }
+    },
+    "schemas": {
+      "ProductManagementRecordCreate": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "tenantId",
+          "status",
+          "title",
+          "countryCode",
+          "jurisdictionCode",
+          "policyControls",
+          "governanceContext",
+          "workflowControls",
+          "evidence"
+        ],
+        "properties": {
+          "tenantId": {
+            "type": "string"
+          },
+          "recordGroup": {
+            "type": "string",
+            "enum": [
+              "product_management",
+              "roadmap_management",
+              "innovation_portfolio",
+              "requirements_management",
+              "product_feedback",
+              "release_governance"
+            ]
+          },
+          "recordType": {
+            "type": "string",
+            "enum": [
+              "product_registry",
+              "product_module_registry",
+              "product_capability_registry",
+              "feature_registry",
+              "feature_lifecycle",
+              "feature_ownership",
+              "feature_dependency_mapping",
+              "feature_status_tracking",
+              "roadmap_registry",
+              "version_roadmap",
+              "release_planning",
+              "milestone_planning",
+              "sprint_planning",
+              "roadmap_dependencies",
+              "roadmap_approval_workflow",
+              "roadmap_history",
+              "innovation_idea_registry",
+              "innovation_pipeline",
+              "innovation_scoring",
+              "innovation_review_workflow",
+              "innovation_approval_workflow",
+              "innovation_experiment_registry",
+              "innovation_impact_assessment",
+              "innovation_portfolio_dashboard",
+              "requirement_registry",
+              "functional_requirement",
+              "non_functional_requirement",
+              "requirement_prioritization",
+              "requirement_traceability",
+              "requirement_approval",
+              "requirement_change_control",
+              "requirement_coverage_dashboard",
+              "customer_feedback_registry",
+              "clinician_feedback_registry",
+              "patient_feedback_registry",
+              "internal_feedback_registry",
+              "feedback_triage",
+              "feedback_prioritization",
+              "feedback_to_roadmap_linking",
+              "feedback_analytics",
+              "release_candidate_registry",
+              "release_approval_workflow",
+              "release_risk_assessment",
+              "release_notes_management",
+              "release_dependency_tracking",
+              "release_readiness_checklist",
+              "release_retrospective"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "registered",
+              "proposed",
+              "active",
+              "under_review",
+              "reviewed",
+              "triaged",
+              "prioritized",
+              "approved",
+              "rejected",
+              "planned",
+              "in_progress",
+              "completed",
+              "released",
+              "linked",
+              "changed",
+              "updated",
+              "received"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "countryCode": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "regionCode": {
+            "type": "string"
+          },
+          "jurisdictionCode": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "moduleId": {
+            "type": "string"
+          },
+          "capabilityId": {
+            "type": "string"
+          },
+          "featureId": {
+            "type": "string"
+          },
+          "dependencyId": {
+            "type": "string"
+          },
+          "roadmapId": {
+            "type": "string"
+          },
+          "versionId": {
+            "type": "string"
+          },
+          "releaseId": {
+            "type": "string"
+          },
+          "milestoneId": {
+            "type": "string"
+          },
+          "sprintId": {
+            "type": "string"
+          },
+          "innovationIdeaId": {
+            "type": "string"
+          },
+          "experimentId": {
+            "type": "string"
+          },
+          "requirementId": {
+            "type": "string"
+          },
+          "traceabilityId": {
+            "type": "string"
+          },
+          "feedbackId": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "clinicianId": {
+            "type": "string"
+          },
+          "patientId": {
+            "type": "string"
+          },
+          "releaseCandidateId": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "approvalId": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "impactScore": {
+            "type": "number"
+          },
+          "effortScore": {
+            "type": "number"
+          },
+          "valueScore": {
+            "type": "number"
+          },
+          "riskScore": {
+            "type": "number"
+          },
+          "coveragePercent": {
+            "type": "number"
+          },
+          "plannedStartAt": {
+            "type": "string"
+          },
+          "plannedEndAt": {
+            "type": "string"
+          },
+          "approvedAt": {
+            "type": "string"
+          },
+          "completedAt": {
+            "type": "string"
+          },
+          "policyControls": {
+            "type": "object"
+          },
+          "governanceContext": {
+            "type": "object"
+          },
+          "workflowControls": {
+            "type": "object"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "metrics": {
+            "type": "object"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      },
+      "ProductManagementRecordResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "event"
+        ],
+        "properties": {
+          "data": {
+            "type": "object"
+          },
+          "event": {
+            "type": "object",
+            "properties": {
+              "eventType": {
+                "type": "string",
+                "enum": [
+                  "product.created",
+                  "feature.created",
+                  "feature.approved",
+                  "requirement.created",
+                  "roadmap.updated",
+                  "milestone.completed",
+                  "innovation.idea.submitted",
+                  "innovation.approved",
+                  "feedback.received",
+                  "release.approved"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "IntegrationReferenceCreate": {
+        "type": "object",
+        "required": [
+          "tenantId",
+          "sourceSystem",
+          "sourceResourceType",
+          "sourceResourceId",
+          "productManagementResourceType",
+          "productManagementResourceId",
+          "countryCode"
+        ],
+        "properties": {
+          "tenantId": {
+            "type": "string"
+          },
+          "sourceSystem": {
+            "type": "string",
+            "enum": [
+              "foundation_platform",
+              "developer_platform",
+              "marketplace_platform",
+              "customer_success_platform",
+              "support_platform",
+              "legal_governance_platform",
+              "enterprise_data_platform",
+              "audit_service",
+              "notification_service"
+            ]
+          },
+          "sourceResourceType": {
+            "type": "string"
+          },
+          "sourceResourceId": {
+            "type": "string"
+          },
+          "productManagementResourceType": {
+            "type": "string"
+          },
+          "productManagementResourceId": {
+            "type": "string"
+          },
+          "countryCode": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      },
+      "IntegrationReferenceResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error",
+          "message"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  },
+  "x-panacea": {
+    "apiVersion": "v3",
+    "events": [
+      "product.created",
+      "feature.created",
+      "feature.approved",
+      "requirement.created",
+      "roadmap.updated",
+      "milestone.completed",
+      "innovation.idea.submitted",
+      "innovation.approved",
+      "feedback.received",
+      "release.approved"
+    ],
+    "controls": [
+      "identity",
+      "rbac",
+      "abac",
+      "audit",
+      "tenant_isolation",
+      "product_governance_permissions",
+      "roadmap_approval_permissions",
+      "innovation_review_permissions",
+      "release_governance_permissions"
+    ],
+    "clinicalAutomation": "not_permitted"
+  }
+}
