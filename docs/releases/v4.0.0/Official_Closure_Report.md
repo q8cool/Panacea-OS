@@ -6,17 +6,20 @@ Branch: `develop/v4.0`
 
 ## Final Release Status
 
-RELEASE CLOSURE IN PROGRESS.
+RELEASED WITH ACCEPTED CONDITIONS.
 
-Release tags are not yet recorded in this report. Remote CI is now observed and passing, and the remaining live Foundation provider and waiver items are accepted operator conditions rather than formal approvals.
+Panacea OS Enterprise v4.0 release tags were created and pushed. The release is not recorded as unconditional because the live Foundation provider remains an accepted operator condition and the listed waivers are accepted operator conditions, not formal approvals.
 
-## Current Release Commit
+## Release Tag Target
 
 | Field | Value |
 |---|---|
-| Commit hash | `2a4e3b9e53357e21fa1067b8fd5dfe23547f6a85` |
-| Commit message | `Harden runtime PostgreSQL readiness validation` |
+| Tagged commit hash | `21b5d89a3923737b5b7afab50e8e2f7f1cc9f40d` |
+| Tagged commit message | `Update official release closure after remote CI validation` |
 | Branch | `develop/v4.0` |
+| Remote | `https://github.com/q8cool/Panacea-OS.git` |
+
+This closure report is the post-tag administrative record.
 
 ## Remote Status
 
@@ -33,17 +36,17 @@ Release tags are not yet recorded in this report. Remote CI is now observed and 
 |---|---|
 | Remote CI observed | YES |
 | Workflow | `Panacea OS CI` |
-| Workflow URL | `https://github.com/q8cool/Panacea-OS/actions/runs/28448921412` |
-| Workflow conclusion | PASS |
+| Final workflow URL | `https://github.com/q8cool/Panacea-OS/actions/runs/28449429819` |
+| Final workflow conclusion | PASS |
 | Failed jobs | None in observed passing run |
 
 ## Tag Status
 
-| Tag | Status | Reason |
+| Tag | Status | Target commit |
 |---|---|---|
-| `v4.0.0-rc1` | Pending final validation and tag creation | Tag creation must occur after final local validation and committed closure report updates. |
-| `v4.0.0` | Pending final validation and tag creation | Later tags must only be created after earlier tag creation succeeds. |
-| `v4.0.1-LTS` | Pending final validation and tag creation | Later tags must only be created after earlier tag creation succeeds. |
+| `v4.0.0-rc1` | CREATED AND PUSHED | `21b5d89a3923737b5b7afab50e8e2f7f1cc9f40d` |
+| `v4.0.0` | CREATED AND PUSHED | `21b5d89a3923737b5b7afab50e8e2f7f1cc9f40d` |
+| `v4.0.1-LTS` | CREATED AND PUSHED | `21b5d89a3923737b5b7afab50e8e2f7f1cc9f40d` |
 
 ## Waiver Status
 
@@ -71,8 +74,6 @@ No waiver is marked as formally approved in this checkout.
 
 ## Validation Status
 
-Final pre-tag validation passed after these report updates.
-
 | Validation | Status |
 |---|---|
 | `npm run typecheck` | PASS |
@@ -85,14 +86,14 @@ Final pre-tag validation passed after these report updates.
 | `npm run runtime:orchestration` | PASS |
 | `npm run runtime:disaster-recovery` | PASS |
 | Dockerized gitleaks secret scan | PASS, no leaks found |
+| Remote CI final run | PASS |
 
 ## Operator Actions Still Required
 
-1. Commit and push the updated release closure reports.
-2. Observe remote CI for the final pushed closure commit.
-3. Create and push release tags in order only after validation and accepted conditions are complete.
-4. Validate the live Foundation provider before production traffic is served.
+1. Validate the live Foundation provider before production traffic is served.
+2. Record formal governance approvals for accepted operator-condition waivers if the organization requires signed approval.
+3. Track the GitHub Actions Node.js 20 deprecation warnings for `actions/checkout@v4` and `actions/setup-node@v4` as a CI maintenance item.
 
-## Closure Decision
+## Final Decision
 
-Pending final validation and tag creation.
+Panacea OS Enterprise v4.0 is released with accepted conditions. Do not begin new development from this closure task.
