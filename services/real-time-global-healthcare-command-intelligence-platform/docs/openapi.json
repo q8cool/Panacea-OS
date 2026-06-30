@@ -1,0 +1,3744 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Panacea OS Real-Time Global Healthcare Command Intelligence API",
+    "version": "4.0.0",
+    "description": "Versioned API for governed, advisory, explainable, auditable real-time global healthcare command intelligence. The platform provides command visibility, alerts, crisis coordination, recommendations, and executive intelligence without autonomous diagnosis, autonomous treatment, or autonomous emergency enforcement."
+  },
+  "servers": [
+    {
+      "url": "/api/v4/global-command-intelligence",
+      "description": "Versioned API base path"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Operations"
+    },
+    {
+      "name": "Integrations"
+    },
+    {
+      "name": "global_command_intelligence"
+    },
+    {
+      "name": "real_time_operational_intelligence"
+    },
+    {
+      "name": "global_alert_intelligence"
+    },
+    {
+      "name": "crisis_emergency_coordination"
+    },
+    {
+      "name": "command_decision_support"
+    },
+    {
+      "name": "executive_intelligence"
+    }
+  ],
+  "paths": {
+    "/api/v4/global-command-intelligence/live": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getGlobalCommandIntelligenceLive",
+        "summary": "Liveness probe",
+        "responses": {
+          "200": {
+            "description": "Service is live"
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/ready": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getGlobalCommandIntelligenceReady",
+        "summary": "Readiness probe",
+        "responses": {
+          "200": {
+            "description": "Service is ready"
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/metrics": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getGlobalCommandIntelligenceMetrics",
+        "summary": "Operational metrics summary",
+        "responses": {
+          "200": {
+            "description": "Metrics returned"
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/docs/openapi.json": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getGlobalCommandIntelligenceOpenApi",
+        "summary": "OpenAPI document",
+        "responses": {
+          "200": {
+            "description": "OpenAPI document returned"
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/command-centers/global": {
+      "post": {
+        "tags": [
+          "global_command_intelligence"
+        ],
+        "operationId": "createGlobalHealthcareCommandCenter",
+        "summary": "Create a global healthcare command center record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/command-centers/regional": {
+      "post": {
+        "tags": [
+          "global_command_intelligence"
+        ],
+        "operationId": "createRegionalCommandCenter",
+        "summary": "Create a regional command center record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/command-centers/country": {
+      "post": {
+        "tags": [
+          "global_command_intelligence"
+        ],
+        "operationId": "createCountryCommandCenter",
+        "summary": "Create a country command center record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/command-centers/hospital": {
+      "post": {
+        "tags": [
+          "global_command_intelligence"
+        ],
+        "operationId": "createHospitalCommandCenter",
+        "summary": "Create a hospital command center record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/command-centers/department": {
+      "post": {
+        "tags": [
+          "global_command_intelligence"
+        ],
+        "operationId": "createDepartmentCommandCenter",
+        "summary": "Create a department command center record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/command-centers/situation-awareness": {
+      "post": {
+        "tags": [
+          "global_command_intelligence"
+        ],
+        "operationId": "updateSituationAwareness",
+        "summary": "Update real-time situation awareness",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/command-centers/dashboards": {
+      "post": {
+        "tags": [
+          "global_command_intelligence"
+        ],
+        "operationId": "createCommandIntelligenceDashboard",
+        "summary": "Create a command intelligence dashboard record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/command-centers/timeline": {
+      "post": {
+        "tags": [
+          "global_command_intelligence"
+        ],
+        "operationId": "createCommandEventTimeline",
+        "summary": "Create a command event timeline record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational/capacity": {
+      "post": {
+        "tags": [
+          "real_time_operational_intelligence"
+        ],
+        "operationId": "recordCapacityIntelligence",
+        "summary": "Record real-time capacity intelligence",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational/beds": {
+      "post": {
+        "tags": [
+          "real_time_operational_intelligence"
+        ],
+        "operationId": "recordBedIntelligence",
+        "summary": "Record real-time bed intelligence",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational/icu": {
+      "post": {
+        "tags": [
+          "real_time_operational_intelligence"
+        ],
+        "operationId": "recordIcuIntelligence",
+        "summary": "Record real-time ICU intelligence",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational/emergency": {
+      "post": {
+        "tags": [
+          "real_time_operational_intelligence"
+        ],
+        "operationId": "recordEmergencyIntelligence",
+        "summary": "Record real-time emergency intelligence",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational/surgery": {
+      "post": {
+        "tags": [
+          "real_time_operational_intelligence"
+        ],
+        "operationId": "recordSurgeryIntelligence",
+        "summary": "Record real-time surgery intelligence",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational/resources": {
+      "post": {
+        "tags": [
+          "real_time_operational_intelligence"
+        ],
+        "operationId": "recordResourceIntelligence",
+        "summary": "Record real-time resource intelligence",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational/workforce": {
+      "post": {
+        "tags": [
+          "real_time_operational_intelligence"
+        ],
+        "operationId": "recordWorkforceIntelligence",
+        "summary": "Record real-time workforce intelligence",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational/supply": {
+      "post": {
+        "tags": [
+          "real_time_operational_intelligence"
+        ],
+        "operationId": "recordSupplyIntelligence",
+        "summary": "Record real-time supply intelligence",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/alerts/registries": {
+      "post": {
+        "tags": [
+          "global_alert_intelligence"
+        ],
+        "operationId": "createGlobalAlert",
+        "summary": "Create a global alert registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/alerts/classifications": {
+      "post": {
+        "tags": [
+          "global_alert_intelligence"
+        ],
+        "operationId": "classifyAlert",
+        "summary": "Classify an alert",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/alerts/prioritization": {
+      "post": {
+        "tags": [
+          "global_alert_intelligence"
+        ],
+        "operationId": "prioritizeAlert",
+        "summary": "Prioritize an alert",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/alerts/correlation": {
+      "post": {
+        "tags": [
+          "global_alert_intelligence"
+        ],
+        "operationId": "correlateAlert",
+        "summary": "Correlate alerts",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/alerts/escalation": {
+      "post": {
+        "tags": [
+          "global_alert_intelligence"
+        ],
+        "operationId": "escalateAlert",
+        "summary": "Escalate an alert",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/alerts/suppression-rules": {
+      "post": {
+        "tags": [
+          "global_alert_intelligence"
+        ],
+        "operationId": "createAlertSuppressionRule",
+        "summary": "Create alert suppression rules",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/alerts/reviews": {
+      "post": {
+        "tags": [
+          "global_alert_intelligence"
+        ],
+        "operationId": "reviewAlert",
+        "summary": "Record alert review workflow",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/alerts/resolution": {
+      "post": {
+        "tags": [
+          "global_alert_intelligence"
+        ],
+        "operationId": "trackAlertResolution",
+        "summary": "Track alert resolution",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/crisis/events": {
+      "post": {
+        "tags": [
+          "crisis_emergency_coordination"
+        ],
+        "operationId": "createCrisisEvent",
+        "summary": "Create a crisis event registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/crisis/emergency-operations": {
+      "post": {
+        "tags": [
+          "crisis_emergency_coordination"
+        ],
+        "operationId": "startEmergencyOperations",
+        "summary": "Start emergency operations workflow",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/crisis/mass-casualty": {
+      "post": {
+        "tags": [
+          "crisis_emergency_coordination"
+        ],
+        "operationId": "coordinateMassCasualty",
+        "summary": "Coordinate mass casualty operations",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/crisis/pandemic-dashboard": {
+      "post": {
+        "tags": [
+          "crisis_emergency_coordination"
+        ],
+        "operationId": "createPandemicCommandDashboard",
+        "summary": "Create pandemic command dashboard record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/crisis/disaster-dashboard": {
+      "post": {
+        "tags": [
+          "crisis_emergency_coordination"
+        ],
+        "operationId": "createDisasterCommandDashboard",
+        "summary": "Create disaster command dashboard record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/crisis/resource-mobilization": {
+      "post": {
+        "tags": [
+          "crisis_emergency_coordination"
+        ],
+        "operationId": "mobilizeResources",
+        "summary": "Record resource mobilization",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/crisis/cross-hospital": {
+      "post": {
+        "tags": [
+          "crisis_emergency_coordination"
+        ],
+        "operationId": "coordinateCrossHospital",
+        "summary": "Record cross-hospital coordination",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/crisis/cross-region": {
+      "post": {
+        "tags": [
+          "crisis_emergency_coordination"
+        ],
+        "operationId": "coordinateCrossRegion",
+        "summary": "Record cross-region coordination",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/decision-support/engines": {
+      "post": {
+        "tags": [
+          "command_decision_support"
+        ],
+        "operationId": "createCommandRecommendationEngine",
+        "summary": "Create command recommendation engine record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/decision-support/capacity": {
+      "post": {
+        "tags": [
+          "command_decision_support"
+        ],
+        "operationId": "generateCapacityRecommendation",
+        "summary": "Generate a governed capacity recommendation",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/decision-support/resources": {
+      "post": {
+        "tags": [
+          "command_decision_support"
+        ],
+        "operationId": "generateResourceRecommendation",
+        "summary": "Generate a governed resource recommendation",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/decision-support/staff": {
+      "post": {
+        "tags": [
+          "command_decision_support"
+        ],
+        "operationId": "generateStaffRecommendation",
+        "summary": "Generate a governed staff recommendation",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/decision-support/transfers": {
+      "post": {
+        "tags": [
+          "command_decision_support"
+        ],
+        "operationId": "generateTransferRecommendation",
+        "summary": "Generate a governed transfer recommendation",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/decision-support/emergency-response": {
+      "post": {
+        "tags": [
+          "command_decision_support"
+        ],
+        "operationId": "generateEmergencyResponseRecommendation",
+        "summary": "Generate a governed emergency response recommendation",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/decision-support/continuity": {
+      "post": {
+        "tags": [
+          "command_decision_support"
+        ],
+        "operationId": "generateContinuityRecommendation",
+        "summary": "Generate a governed continuity recommendation",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/executive/situation-room": {
+      "post": {
+        "tags": [
+          "executive_intelligence"
+        ],
+        "operationId": "createExecutiveSituationRoom",
+        "summary": "Create executive situation room record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/executive/global-kpis": {
+      "post": {
+        "tags": [
+          "executive_intelligence"
+        ],
+        "operationId": "createGlobalKpiDashboard",
+        "summary": "Create global KPI dashboard record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/executive/regional-kpis": {
+      "post": {
+        "tags": [
+          "executive_intelligence"
+        ],
+        "operationId": "createRegionalKpiDashboard",
+        "summary": "Create regional KPI dashboard record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/executive/country-kpis": {
+      "post": {
+        "tags": [
+          "executive_intelligence"
+        ],
+        "operationId": "createCountryKpiDashboard",
+        "summary": "Create country KPI dashboard record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/executive/enterprise-risk": {
+      "post": {
+        "tags": [
+          "executive_intelligence"
+        ],
+        "operationId": "createEnterpriseRiskDashboard",
+        "summary": "Create enterprise risk dashboard record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/executive/operational-risk": {
+      "post": {
+        "tags": [
+          "executive_intelligence"
+        ],
+        "operationId": "createOperationalRiskDashboard",
+        "summary": "Create operational risk dashboard record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/executive/briefings": {
+      "post": {
+        "tags": [
+          "executive_intelligence"
+        ],
+        "operationId": "generateExecutiveBriefing",
+        "summary": "Generate an executive briefing",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Command intelligence record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/integrations/references": {
+      "post": {
+        "tags": [
+          "Integrations"
+        ],
+        "operationId": "createGlobalCommandIntelligenceIntegrationReference",
+        "summary": "Create an auditable integration reference",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntegrationReferenceCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Integration reference persisted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationReferenceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "tenantHeaders": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-tenant-id",
+        "description": "Tenant isolation boundary supplied by the identity platform."
+      }
+    },
+    "schemas": {
+      "CommandRecordCreate": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "tenantId",
+          "status",
+          "title",
+          "countryCode",
+          "regionCode",
+          "jurisdictionCode",
+          "policyControls",
+          "governanceContext",
+          "workflowControls",
+          "evidence"
+        ],
+        "properties": {
+          "tenantId": {
+            "type": "string"
+          },
+          "recordGroup": {
+            "type": "string",
+            "enum": [
+              "global_command_intelligence",
+              "real_time_operational_intelligence",
+              "global_alert_intelligence",
+              "crisis_emergency_coordination",
+              "command_decision_support",
+              "executive_intelligence"
+            ]
+          },
+          "recordType": {
+            "type": "string",
+            "enum": [
+              "global_healthcare_command_center",
+              "regional_command_center",
+              "country_command_center",
+              "hospital_command_center",
+              "department_command_center",
+              "real_time_situation_awareness",
+              "command_intelligence_dashboard",
+              "command_event_timeline",
+              "real_time_capacity_intelligence",
+              "real_time_bed_intelligence",
+              "real_time_icu_intelligence",
+              "real_time_emergency_intelligence",
+              "real_time_surgery_intelligence",
+              "real_time_resource_intelligence",
+              "real_time_workforce_intelligence",
+              "real_time_supply_intelligence",
+              "global_alert_registry",
+              "alert_classification",
+              "alert_prioritization",
+              "alert_correlation",
+              "alert_escalation",
+              "alert_suppression_rules",
+              "alert_review_workflow",
+              "alert_resolution_tracking",
+              "crisis_event_registry",
+              "emergency_operations_workflow",
+              "mass_casualty_coordination",
+              "pandemic_command_dashboard",
+              "disaster_command_dashboard",
+              "resource_mobilization",
+              "cross_hospital_coordination",
+              "cross_region_coordination",
+              "command_recommendation_engine",
+              "capacity_recommendation",
+              "resource_recommendation",
+              "staff_recommendation",
+              "transfer_recommendation",
+              "emergency_response_recommendation",
+              "continuity_recommendation",
+              "executive_situation_room",
+              "global_kpi_dashboard",
+              "regional_kpi_dashboard",
+              "country_kpi_dashboard",
+              "enterprise_risk_dashboard",
+              "operational_risk_dashboard",
+              "executive_briefing_generator"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "created",
+              "active",
+              "updated",
+              "classified",
+              "prioritized",
+              "correlated",
+              "escalated",
+              "suppressed",
+              "review_required",
+              "reviewed",
+              "resolved",
+              "started",
+              "mobilized",
+              "coordinated",
+              "generated",
+              "completed",
+              "closed"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "countryCode": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "regionCode": {
+            "type": "string"
+          },
+          "jurisdictionCode": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "commandCenterId": {
+            "type": "string"
+          },
+          "commandEventId": {
+            "type": "string"
+          },
+          "situationId": {
+            "type": "string"
+          },
+          "alertId": {
+            "type": "string"
+          },
+          "crisisEventId": {
+            "type": "string"
+          },
+          "coordinationId": {
+            "type": "string"
+          },
+          "recommendationId": {
+            "type": "string"
+          },
+          "briefingId": {
+            "type": "string"
+          },
+          "facilityId": {
+            "type": "string"
+          },
+          "departmentId": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "approverId": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "riskLevel": {
+            "type": "string",
+            "enum": [
+              "minimal",
+              "low",
+              "moderate",
+              "high",
+              "critical"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "confidenceScore": {
+            "type": "number"
+          },
+          "riskScore": {
+            "type": "number"
+          },
+          "urgencyScore": {
+            "type": "number"
+          },
+          "capacityImpactScore": {
+            "type": "number"
+          },
+          "startedAt": {
+            "type": "string"
+          },
+          "updatedAtSignal": {
+            "type": "string"
+          },
+          "escalatedAt": {
+            "type": "string"
+          },
+          "resolvedAt": {
+            "type": "string"
+          },
+          "generatedAt": {
+            "type": "string"
+          },
+          "policyControls": {
+            "type": "object"
+          },
+          "governanceContext": {
+            "type": "object"
+          },
+          "workflowControls": {
+            "type": "object"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "metrics": {
+            "type": "object"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      },
+      "CommandRecordResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "event"
+        ],
+        "properties": {
+          "data": {
+            "type": "object"
+          },
+          "event": {
+            "type": "object",
+            "properties": {
+              "eventType": {
+                "type": "string",
+                "enum": [
+                  "command.center.created",
+                  "command.event.created",
+                  "situation.updated",
+                  "alert.correlated",
+                  "alert.escalated",
+                  "crisis.event.created",
+                  "emergency.coordination.started",
+                  "command.recommendation.generated",
+                  "executive.briefing.generated"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "IntegrationReferenceCreate": {
+        "type": "object",
+        "required": [
+          "tenantId",
+          "sourceSystem",
+          "sourceResourceType",
+          "sourceResourceId",
+          "commandResourceType",
+          "commandResourceId",
+          "countryCode",
+          "regionCode"
+        ],
+        "properties": {
+          "tenantId": {
+            "type": "string"
+          },
+          "sourceSystem": {
+            "type": "string",
+            "enum": [
+              "autonomous_intelligence_foundation",
+              "ahos_core",
+              "enterprise_operations_platform",
+              "global_healthcare_platform",
+              "public_health_platform",
+              "facility_platform",
+              "workforce_platform",
+              "supply_chain_platform",
+              "analytics_platform",
+              "audit_service",
+              "notification_service"
+            ]
+          },
+          "sourceResourceType": {
+            "type": "string"
+          },
+          "sourceResourceId": {
+            "type": "string"
+          },
+          "commandResourceType": {
+            "type": "string"
+          },
+          "commandResourceId": {
+            "type": "string"
+          },
+          "countryCode": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "regionCode": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      },
+      "IntegrationReferenceResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error",
+          "message"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  },
+  "x-panacea": {
+    "apiVersion": "v4",
+    "requiredEvents": [
+      "command.center.created",
+      "command.event.created",
+      "situation.updated",
+      "alert.correlated",
+      "alert.escalated",
+      "crisis.event.created",
+      "emergency.coordination.started",
+      "command.recommendation.generated",
+      "executive.briefing.generated"
+    ],
+    "advisoryOnly": true,
+    "governanceApprovalRequired": true,
+    "clinicianApprovalProtected": true,
+    "autonomousDiagnosis": "not_permitted",
+    "autonomousTreatment": "not_permitted",
+    "autonomousEmergencyEnforcement": "not_permitted",
+    "controls": [
+      "identity",
+      "rbac",
+      "abac",
+      "audit",
+      "tenant_isolation",
+      "emergency_access_governance",
+      "command_center_permissions",
+      "regional_governance_policies",
+      "country_level_policy_controls"
+    ]
+  }
+}
