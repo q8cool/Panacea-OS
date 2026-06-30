@@ -93,17 +93,55 @@ export async function wait(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function waitForPostgres({ attempts = 40 } = {}) {
+function isTransientPostgresFailure(result) {
+  const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
+  return /database system is (?:starting up|shutting down)|could not connect|connection refused|server closed the connection unexpectedly|no response/i.test(output);
+}
+
+function commandFailure(command, args, result) {
+  return new Error([
+    `${[command, ...args].join(" ")} failed with exit code ${result.status}`,
+    result.stdout,
+    result.stderr
+  ].filter(Boolean).join("\n"));
+}
+
+export async function dockerExecWithRetry(args, options = {}, { attempts = 30, delayMs = 1000 } = {}) {
+  let lastResult;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
-    const result = execFile("docker", ["exec", postgresContainer, "pg_isready", "-U", "panacea", "-d", "panacea_runtime"], {
+    const result = execFile("docker", args, { ...options, allowFailure: true });
+    if (result.status === 0) {
+      return result;
+    }
+    lastResult = result;
+    if (!isTransientPostgresFailure(result) || attempt === attempts) {
+      break;
+    }
+    await wait(delayMs);
+  }
+  throw commandFailure("docker", args, lastResult);
+}
+
+export async function waitForPostgres({ attempts = 60, stableChecks = 3 } = {}) {
+  let stable = 0;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const ready = execFile("docker", ["exec", postgresContainer, "pg_isready", "-U", "panacea", "-d", "panacea_runtime"], {
       allowFailure: true
     });
-    if (result.status === 0) {
-      return;
+    const sql = execFile("docker", ["exec", postgresContainer, "psql", "-U", "panacea", "-d", "panacea_runtime", "-Atc", "SELECT 1;"], {
+      allowFailure: true
+    });
+    if (ready.status === 0 && sql.status === 0 && sql.stdout.trim() === "1") {
+      stable += 1;
+      if (stable >= stableChecks) {
+        return;
+      }
+    } else {
+      stable = 0;
     }
     await wait(1000);
   }
-  throw new Error("PostgreSQL did not become ready");
+  throw new Error("PostgreSQL did not become stably ready");
 }
 
 export async function waitForHttpJson(url, { attempts = 40, options = {} } = {}) {
@@ -137,23 +175,23 @@ export function migrationFiles() {
     .sort();
 }
 
-export function applyMigrations(label = "forward") {
+export async function applyMigrations(label = "forward") {
   for (const migration of migrationFiles()) {
     const sql = fs.readFileSync(path.join(repoRoot, migration), "utf8");
-    execFile("docker", ["exec", "-i", postgresContainer, "psql", "-v", "ON_ERROR_STOP=1", "-U", "panacea", "-d", "panacea_runtime"], {
+    await dockerExecWithRetry(["exec", "-i", postgresContainer, "psql", "-v", "ON_ERROR_STOP=1", "-U", "panacea", "-d", "panacea_runtime"], {
       input: sql
     });
     process.stdout.write(`migration.${label}: ${migration}\n`);
   }
 }
 
-export function queryScalar(sql) {
-  const result = execFile("docker", ["exec", postgresContainer, "psql", "-U", "panacea", "-d", "panacea_runtime", "-Atc", sql]);
+export async function queryScalar(sql) {
+  const result = await dockerExecWithRetry(["exec", postgresContainer, "psql", "-U", "panacea", "-d", "panacea_runtime", "-Atc", sql]);
   return result.stdout.trim();
 }
 
-export function queryLines(sql) {
-  const output = queryScalar(sql);
+export async function queryLines(sql) {
+  const output = await queryScalar(sql);
   if (!output) {
     return [];
   }

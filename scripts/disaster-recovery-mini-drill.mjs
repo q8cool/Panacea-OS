@@ -2,7 +2,7 @@ import {
   applyMigrations,
   compose,
   containerExitCode,
-  execFile,
+  dockerExecWithRetry,
   postProtectedRecord,
   queryScalar,
   runtimeServices,
@@ -21,8 +21,8 @@ async function main() {
     compose(["build", serviceName]);
     compose(["up", "-d", "postgres"]);
     await waitForPostgres();
-    applyMigrations("drill-forward");
-    applyMigrations("drill-idempotency");
+    await applyMigrations("drill-forward");
+    await applyMigrations("drill-idempotency");
 
     compose(["up", "-d", serviceName]);
     await waitForHttpJson(`http://127.0.0.1:${service.hostPort}${service.basePath}/live`);
@@ -36,10 +36,10 @@ async function main() {
       throw new Error(`DR protected write failed with status ${write.status}`);
     }
 
-    const beforeRecords = queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_records WHERE created_by='sprint89-dr-validator';");
-    const beforeEvents = queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_events WHERE actor_id='sprint89-dr-validator';");
-    const beforeAudits = queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_audit_entries WHERE actor_id='sprint89-dr-validator';");
-    const beforeIndexes = queryScalar("SELECT COUNT(*) FROM pg_indexes WHERE schemaname='public';");
+    const beforeRecords = await queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_records WHERE created_by='sprint89-dr-validator';");
+    const beforeEvents = await queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_events WHERE actor_id='sprint89-dr-validator';");
+    const beforeAudits = await queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_audit_entries WHERE actor_id='sprint89-dr-validator';");
+    const beforeIndexes = await queryScalar("SELECT COUNT(*) FROM pg_indexes WHERE schemaname='public';");
 
     compose(["stop", serviceName]);
     const exitCode = containerExitCode(service.container);
@@ -47,8 +47,8 @@ async function main() {
       throw new Error(`DR service shutdown exit code ${exitCode}`);
     }
 
-    execFile("docker", ["exec", "panacea-runtime-postgres", "pg_dump", "-U", "panacea", "-d", "panacea_runtime", "-Fc", "-f", "/tmp/panacea_runtime_dr.dump"]);
-    execFile("docker", [
+    await dockerExecWithRetry(["exec", "panacea-runtime-postgres", "pg_dump", "-U", "panacea", "-d", "panacea_runtime", "-Fc", "-f", "/tmp/panacea_runtime_dr.dump"]);
+    await dockerExecWithRetry([
       "exec",
       "panacea-runtime-postgres",
       "psql",
@@ -63,13 +63,13 @@ async function main() {
       "-c",
       "CREATE DATABASE panacea_runtime OWNER panacea;"
     ]);
-    execFile("docker", ["exec", "panacea-runtime-postgres", "pg_restore", "-U", "panacea", "-d", "panacea_runtime", "/tmp/panacea_runtime_dr.dump"]);
+    await dockerExecWithRetry(["exec", "panacea-runtime-postgres", "pg_restore", "-U", "panacea", "-d", "panacea_runtime", "/tmp/panacea_runtime_dr.dump"]);
 
-    const afterRecords = queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_records WHERE created_by='sprint89-dr-validator';");
-    const afterEvents = queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_events WHERE actor_id='sprint89-dr-validator';");
-    const afterAudits = queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_audit_entries WHERE actor_id='sprint89-dr-validator';");
-    const afterIndexes = queryScalar("SELECT COUNT(*) FROM pg_indexes WHERE schemaname='public';");
-    const outboxTables = queryScalar("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name LIKE '%events';");
+    const afterRecords = await queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_records WHERE created_by='sprint89-dr-validator';");
+    const afterEvents = await queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_events WHERE actor_id='sprint89-dr-validator';");
+    const afterAudits = await queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_audit_entries WHERE actor_id='sprint89-dr-validator';");
+    const afterIndexes = await queryScalar("SELECT COUNT(*) FROM pg_indexes WHERE schemaname='public';");
+    const outboxTables = await queryScalar("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name LIKE '%events';");
 
     if (beforeRecords !== afterRecords || beforeEvents !== afterEvents || beforeAudits !== afterAudits || beforeIndexes !== afterIndexes) {
       throw new Error([

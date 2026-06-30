@@ -36,9 +36,10 @@ test("Docker Compose runtime profile exposes required health, readiness, metrics
 
 test("live infrastructure validation script validates migrations, auth, tenant isolation, audit, events, and shutdown", () => {
   const source = read("scripts/runtime-orchestration-validate.mjs");
+  const runtimeHelper = read("scripts/lib/runtime-validation.mjs");
   for (const required of [
-    "applyMigrations(\"forward\")",
-    "applyMigrations(\"idempotency\")",
+    "await applyMigrations(\"forward\")",
+    "await applyMigrations(\"idempotency\")",
     "postProtectedRecord",
     "unauthenticated.status !== 401",
     "unauthorized.status !== 403",
@@ -52,6 +53,9 @@ test("live infrastructure validation script validates migrations, auth, tenant i
   ]) {
     assert.ok(source.includes(required), `runtime orchestration script missing ${required}`);
   }
+  assert.match(runtimeHelper, /stableChecks = 3/, "PostgreSQL readiness must require stable SQL checks");
+  assert.match(runtimeHelper, /dockerExecWithRetry/, "runtime SQL execution must retry transient PostgreSQL states");
+  assert.ok(runtimeHelper.includes("database system is (?:starting up|shutting down)"), "runtime validation must detect transient PostgreSQL startup and shutdown states");
 });
 
 test("disaster recovery mini-drill validates backup, drop, restore, indexes, audit, and event outbox", () => {

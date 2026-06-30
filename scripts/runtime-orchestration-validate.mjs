@@ -30,8 +30,8 @@ async function main() {
     compose(["up", "-d", "postgres"]);
     await waitForPostgres();
 
-    applyMigrations("forward");
-    applyMigrations("idempotency");
+    await applyMigrations("forward");
+    await applyMigrations("idempotency");
 
     compose(["up", "-d", ...serviceNames]);
 
@@ -89,9 +89,9 @@ async function main() {
       throw new Error(`tenant mismatch returned ${tenantMismatch.status}, expected 403`);
     }
 
-    const recordCount = queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_records WHERE created_by='sprint89-runtime-validator';");
-    const eventCount = queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_events WHERE actor_id='sprint89-runtime-validator';");
-    const auditCount = queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_audit_entries WHERE actor_id='sprint89-runtime-validator';");
+    const recordCount = await queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_records WHERE created_by='sprint89-runtime-validator';");
+    const eventCount = await queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_events WHERE actor_id='sprint89-runtime-validator';");
+    const auditCount = await queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_audit_entries WHERE actor_id='sprint89-runtime-validator';");
     if (recordCount !== "1" || eventCount !== "1" || auditCount !== "1") {
       throw new Error(`persistence validation failed: records=${recordCount} events=${eventCount} audits=${auditCount}`);
     }
