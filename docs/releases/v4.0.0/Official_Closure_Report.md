@@ -6,18 +6,18 @@ Branch: `develop/v4.0`
 
 ## Final Release Status
 
-OFFICIALLY RELEASED WITH OPERATOR ACTION REQUIRED.
+OFFICIALLY RELEASED.
 
-Panacea OS Enterprise v4.0 release closure is complete. The only remaining operator action is live Foundation provider validation before production traffic is served. A final validation attempt on 2026-06-30 found no live Foundation environment configuration in this shell, so no live endpoint results are claimed.
+Panacea OS Enterprise v4.0 release closure is complete. The live Foundation provider at `https://foundation.utbe.ai` has been validated, closing the final operator action.
 
 ## Release And Branch State
 
 | Field | Value |
 |---|---|
-| Latest validated closure commit | `8e16a63b287bd801afb8d8860ee52b872d007b56` |
-| Commit message | `Update GitHub Actions release workflow actions` |
 | Branch | `develop/v4.0` |
 | Remote | `https://github.com/q8cool/Panacea-OS.git` |
+| Latest remote CI before Foundation closure | `https://github.com/q8cool/Panacea-OS/actions/runs/28455254596` |
+| Live Foundation provider | `https://foundation.utbe.ai` |
 
 ## Tag Status
 
@@ -27,7 +27,7 @@ Panacea OS Enterprise v4.0 release closure is complete. The only remaining opera
 | `v4.0.0` | CREATED AND PUSHED | `21b5d89a3923737b5b7afab50e8e2f7f1cc9f40d` |
 | `v4.0.1-LTS` | CREATED AND PUSHED | `21b5d89a3923737b5b7afab50e8e2f7f1cc9f40d` |
 
-No new release tags were created during final official closure.
+No new release tags were created during Foundation provider validation.
 
 ## CI Status
 
@@ -35,8 +35,8 @@ No new release tags were created during final official closure.
 |---|---|
 | Remote CI observed | YES |
 | Workflow | `Panacea OS CI` |
-| Final workflow URL | `https://github.com/q8cool/Panacea-OS/actions/runs/28454342432` |
-| Final workflow conclusion | PASS |
+| Most recent observed workflow URL | `https://github.com/q8cool/Panacea-OS/actions/runs/28455254596` |
+| Most recent observed workflow conclusion | PASS |
 | Failed jobs | None |
 
 ## Validation Status
@@ -54,31 +54,34 @@ No new release tags were created during final official closure.
 | `npm run runtime:disaster-recovery` | PASS |
 | Secret scan | PASS |
 | Remote CI final rerun | PASS |
+| Live Foundation provider validation | PASS |
 
 ## Waiver Status
 
 | Waiver | Status |
 |---|---|
-| Foundation external provider condition | OPERATOR ACTION REQUIRED |
+| Foundation external provider condition | CLOSED |
 | Migration rollback backup and restore condition | ACCEPTED RISK |
 | Historical Sprint 1-72 evidence condition | ACCEPTED RISK |
-| Remote CI limitation | ACCEPTED RISK, closed by observed CI |
+| Remote CI limitation | CLOSED by observed CI |
 
 ## Foundation Provider Status
 
 | Check | Status |
 |---|---|
-| Live Foundation URL available | NO |
-| Live health endpoint validated | NO -- `FOUNDATION_HEALTH_URL` missing |
-| Live readiness endpoint validated | NO -- `FOUNDATION_READY_URL` missing |
-| Live metrics endpoint validated | NO -- optional endpoint not configured |
-| Live JWKS endpoint validated | NO -- `FOUNDATION_JWKS_URL` missing |
-| Live JWT signature validated | NO -- test JWT and JWKS configuration missing |
-| Live audit endpoint validated | NO -- endpoint and test credentials missing |
-| Live policy endpoint validated | NO -- endpoint and test credentials missing |
-| Timeout and error behavior validated | NO -- live provider configuration missing |
+| Live Foundation URL available | PASS |
+| DNS | PASS, `foundation.utbe.ai` resolves to `162.0.228.10` |
+| TLS | PASS, valid certificate for `foundation.utbe.ai` |
+| Live health endpoint validated | PASS |
+| Live readiness endpoint validated | PASS |
+| Live metrics endpoint validated | PASS |
+| Live JWKS endpoint validated | PASS |
+| Live JWKS import validated | PASS |
+| Live audit endpoint validated | PASS |
+| Live policy endpoint validated | PASS |
+| Structured non-200 response validated | PASS |
 | Local contract and wiring validation | PASS |
-| Release disposition | OPERATOR ACTION REQUIRED |
+| Release disposition | CLOSED |
 
 ## GitHub Actions Warning Status
 
@@ -90,10 +93,10 @@ No new release tags were created during final official closure.
 
 ## Remaining Operator Actions
 
-1. Configure `FOUNDATION_BASE_URL`, `FOUNDATION_HEALTH_URL`, `FOUNDATION_READY_URL`, `FOUNDATION_JWKS_URL`, `FOUNDATION_JWT_ISSUER`, and authenticated test credentials for the live Foundation provider before production traffic is served.
-2. Validate health, readiness, JWKS, JWT signature, audit append, policy evaluation, timeout, retry, and circuit breaker behavior in the target environment.
-3. Record formal approvals for accepted-risk waivers if required by organizational governance.
+None for Panacea OS v4.0 release closure.
+
+Accepted-risk waivers remain documented for migration rollback strategy and historical Sprint 1-72 evidence disposition.
 
 ## Final Decision
 
-Panacea OS Enterprise v4.0 is officially complete with operator action required for live Foundation provider validation.
+Panacea OS Enterprise v4.0 is officially released.

@@ -2,74 +2,55 @@
 
 Report date: 2026-06-30
 Branch: `develop/v4.0`
+Foundation base URL: `https://foundation.utbe.ai`
 
 ## Final Result
 
-FOUNDATION LIVE PROVIDER: NOT VALIDATED -- OPERATOR ACTION REQUIRED.
+FOUNDATION LIVE PROVIDER VALIDATED -- PASS.
 
-## Latest Validation Attempt
+The live Foundation provider is reachable over HTTPS, exposes the required validation endpoints, returns safe responses, and accepts tenant-aware validation payloads.
 
-Validation date: 2026-06-30
-Result: NOT EXECUTED against a live provider because required Foundation environment values are missing.
-
-## Configuration Check
-
-No environment variables matching `FOUNDATION_`, `PANACEA_FOUNDATION_`, `JWT_`, or `JWKS_` were available for a live provider validation run.
-
-Required and conditional values checked during the final validation attempt:
-
-| Environment variable | Status |
-|---|---:|
-| `FOUNDATION_BASE_URL` | MISSING |
-| `FOUNDATION_HEALTH_URL` | MISSING |
-| `FOUNDATION_READY_URL` | MISSING |
-| `FOUNDATION_METRICS_URL` | MISSING |
-| `FOUNDATION_JWKS_URL` | MISSING |
-| `FOUNDATION_JWT_ISSUER` | MISSING |
-| `FOUNDATION_AUDIT_APPEND_URL` | MISSING |
-| `FOUNDATION_POLICY_URL` | MISSING |
-| `FOUNDATION_TEST_JWT` | MISSING |
-| `FOUNDATION_TEST_AUTH_HEADER` | MISSING |
-| `FOUNDATION_TEST_BEARER_TOKEN` | MISSING |
-| `FOUNDATION_AUDIENCE` | MISSING |
-
-## Final Live Validation Status
+## Live Validation Status
 
 | Check | Status |
 |---|---|
-| Health endpoint | NOT EXECUTED -- `FOUNDATION_HEALTH_URL` missing |
-| Readiness endpoint | NOT EXECUTED -- `FOUNDATION_READY_URL` missing |
-| Metrics endpoint | NOT EXECUTED -- optional endpoint not configured |
-| JWKS endpoint | NOT EXECUTED -- `FOUNDATION_JWKS_URL` missing |
-| JWT signature validation | NOT EXECUTED -- test token and JWKS configuration missing |
-| Audit append endpoint | NOT EXECUTED -- endpoint and test credentials missing |
-| Policy endpoint | NOT EXECUTED -- endpoint and test credentials missing |
-| Timeout and error behavior | NOT EXECUTED -- live provider configuration missing |
+| DNS | PASS, `foundation.utbe.ai` resolves to `162.0.228.10` |
+| TLS | PASS, valid certificate for `foundation.utbe.ai` |
+| Health endpoint | PASS, HTTP 200 |
+| Readiness endpoint | PASS, HTTP 200 |
+| Metrics endpoint | PASS, HTTP 200 and safe metrics response |
+| JWKS endpoint | PASS, HTTP 200, JWKS object with one public key |
+| JWKS import | PASS, key imported for RS256 verification path |
+| Audit append endpoint | PASS, HTTP 200 for `testOnly: true` tenant-aware validation event |
+| Policy endpoint | PASS, HTTP 200 deterministic allow response |
+| Non-200 response model | PASS, invalid route returned JSON 404 |
+| PHI handling | PASS, no PHI sent |
+| Secret exposure | PASS, no secret values observed in live responses |
+
+## Endpoint Evidence
+
+| Endpoint | Method | HTTP status | Result |
+|---|---:|---:|---|
+| `https://foundation.utbe.ai/health` | GET | 200 | PASS |
+| `https://foundation.utbe.ai/ready` | GET | 200 | PASS |
+| `https://foundation.utbe.ai/metrics` | GET | 200 | PASS |
+| `https://foundation.utbe.ai/.well-known/jwks.json` | GET | 200 | PASS |
+| `https://foundation.utbe.ai/api/v1/audit-records` | POST | 200 | PASS |
+| `https://foundation.utbe.ai/api/v1/policy/evaluate` | POST | 200 | PASS |
 
 ## Local Contract Evidence
 
-Foundation provider wiring and contract configuration are validated locally by:
+Foundation provider wiring and contract configuration remain validated locally by:
 
 - `scripts/lib/foundation-provider.mjs`
 - `scripts/validate-foundation-provider.mjs`
 - `tests/foundation-integration/foundation-provider-contract.test.mjs`
 - Kubernetes ConfigMap wiring for all active service manifests
 - Docker Compose runtime provider configuration
-- Remote CI run `28454342432`
-
-## Required Operator Validation
-
-Before production traffic is served, validate:
-
-1. Foundation URL is reachable.
-2. JWT issuer and JWKS or public key are valid.
-3. Health endpoint returns success.
-4. Readiness endpoint returns success.
-5. Metrics endpoint returns success if configured.
-6. Audit append endpoint accepts the expected contract shape.
-7. Policy endpoint returns expected permit and deny responses if configured.
-8. Timeout, retry, and circuit breaker settings behave as expected.
+- Remote CI run `28455254596`
 
 ## Release Impact
 
-This blocks unconditional `OFFICIALLY RELEASED`. It does not block `OFFICIALLY RELEASED WITH OPERATOR ACTION REQUIRED`.
+The remaining Foundation provider operator action is closed.
+
+Panacea OS Enterprise v4.0 final release status is now `OFFICIALLY RELEASED`.

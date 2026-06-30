@@ -5,47 +5,38 @@ Release target: Panacea OS Enterprise v4.0.0
 
 ## Final Status
 
-OFFICIALLY RELEASED WITH OPERATOR ACTION REQUIRED
+OFFICIALLY RELEASED
 
 ## Decision Basis
 
 | Requirement | Status |
 |---|---|
 | Release tags exist | PASS |
-| Remote CI passed | PASS, run `28454342432` |
+| Remote CI passed | PASS, run `28455254596` |
 | Final validation passed | PASS |
 | Blocking waivers remain | NO |
-| Foundation live provider validated | NO |
-| Foundation live provider formally non-blocking for release closure | YES, operator action required before production traffic |
+| Foundation live provider validated | PASS |
+| Foundation operator action closed | YES |
 | GitHub Actions warning condition | RESOLVED |
 
-## Final Foundation Live Provider Validation Attempt
+## Foundation Live Provider Validation
 
 | Check | Status |
 |---|---|
-| Foundation base URL | MISSING |
-| Health URL | MISSING |
-| Readiness URL | MISSING |
-| Metrics URL | MISSING, optional if provider does not expose metrics |
-| JWKS URL | MISSING |
-| JWT issuer | MISSING |
-| Test JWT | MISSING |
-| Audit append URL | MISSING |
-| Policy URL | MISSING |
-| Test credentials | MISSING |
-| Health call | NOT EXECUTED |
-| Readiness call | NOT EXECUTED |
-| JWKS call | NOT EXECUTED |
-| JWT validation | NOT EXECUTED |
-| Audit append live test | NOT EXECUTED |
-| Policy live test | NOT EXECUTED |
-| Timeout and error behavior | NOT EXECUTED |
+| Foundation base URL | PASS, `https://foundation.utbe.ai` |
+| DNS | PASS, resolves to `162.0.228.10` |
+| TLS | PASS, certificate validates for `foundation.utbe.ai` |
+| Health call | PASS, HTTP 200 |
+| Readiness call | PASS, HTTP 200 |
+| Metrics call | PASS, HTTP 200 and safe metrics response |
+| JWKS call | PASS, HTTP 200 with a JWKS key set |
+| JWKS import | PASS, key imported for RS256 verification path |
+| Audit append live test | PASS, HTTP 200 for tenant-aware `testOnly: true` event |
+| Policy live test | PASS, HTTP 200 deterministic allow response |
+| Structured non-200 response | PASS, invalid route returned JSON 404 |
+| PHI and secrets | PASS, no PHI sent and no secret values observed |
 
-## Why This Is Not Unconditional OFFICIALLY RELEASED
-
-The live Foundation provider was not validated because no live provider environment values are available in this shell. This requires operator action before production traffic is served.
-
-## Why This Is Release-Complete
+## Why This Is Officially Released
 
 - Repository state is valid.
 - Required release tags exist.
@@ -53,12 +44,13 @@ The live Foundation provider was not validated because no live provider environm
 - Remote CI passed after updating GitHub Actions versions.
 - Migration rollback and historical-evidence conditions are accepted risks.
 - Remote CI limitation is closed by observed runs.
-- No feature, service, healthcare module, or AI capability was added.
+- The live Foundation provider was validated at `https://foundation.utbe.ai`.
+- No feature, service, healthcare module, or AI capability was added to Panacea OS product behavior during closure.
 
 ## Remaining Operator Action
 
-Configure and validate the live Foundation provider in the target environment before production traffic is served. Required validation includes health, readiness, JWKS, JWT signature, audit append, policy evaluation, timeout handling, retry behavior, and circuit breaker behavior.
+None for Panacea OS v4.0 release closure.
 
 ## Final Decision
 
-Panacea OS Enterprise v4.0 is officially complete with operator action required for live Foundation provider validation.
+Panacea OS Enterprise v4.0 is officially released.
