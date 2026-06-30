@@ -1,7 +1,7 @@
 # Remaining Work
 
-Panacea OS Enterprise Version 3.0 GA source release is complete.
+Sprint 82 is complete.
 
-No remaining source-level work is required for Sprint 81.
+No remaining source-level implementation work is required for Panacea OS Enterprise Version 3.0 LTS stabilization.
 
-Operational rollout teams must still attach site-specific deployment wave evidence, production acceptance sign-off, and jurisdiction-specific interoperability evidence for each deployment environment.
+Operational teams should continue monitoring production rollouts, security advisories, dependency updates, and support trends under the LTS policy.
