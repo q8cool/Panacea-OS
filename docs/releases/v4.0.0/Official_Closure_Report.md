@@ -6,39 +6,18 @@ Branch: `develop/v4.0`
 
 ## Final Release Status
 
-RELEASED WITH ACCEPTED CONDITIONS.
+OFFICIALLY RELEASED WITH OPERATOR ACTION REQUIRED.
 
-Panacea OS Enterprise v4.0 release tags were created and pushed. The release is not recorded as unconditional because the live Foundation provider remains an accepted operator condition and the listed waivers are accepted operator conditions, not formal approvals.
+Panacea OS Enterprise v4.0 release closure is complete. The only remaining operator action is live Foundation provider validation before production traffic is served.
 
-## Release Tag Target
+## Release And Branch State
 
 | Field | Value |
 |---|---|
-| Tagged commit hash | `21b5d89a3923737b5b7afab50e8e2f7f1cc9f40d` |
-| Tagged commit message | `Update official release closure after remote CI validation` |
+| Latest validated closure commit | `8e16a63b287bd801afb8d8860ee52b872d007b56` |
+| Commit message | `Update GitHub Actions release workflow actions` |
 | Branch | `develop/v4.0` |
 | Remote | `https://github.com/q8cool/Panacea-OS.git` |
-
-This closure report is the post-tag administrative record.
-
-## Remote Status
-
-| Field | Status |
-|---|---|
-| Git remote configured | YES |
-| Remote URL verified | YES, `https://github.com/q8cool/Panacea-OS.git` |
-| Branch push result | PASS |
-| Remote branch | `origin/develop/v4.0` |
-
-## CI Status
-
-| Field | Status |
-|---|---|
-| Remote CI observed | YES |
-| Workflow | `Panacea OS CI` |
-| Final workflow URL | `https://github.com/q8cool/Panacea-OS/actions/runs/28449429819` |
-| Final workflow conclusion | PASS |
-| Failed jobs | None in observed passing run |
 
 ## Tag Status
 
@@ -48,29 +27,17 @@ This closure report is the post-tag administrative record.
 | `v4.0.0` | CREATED AND PUSHED | `21b5d89a3923737b5b7afab50e8e2f7f1cc9f40d` |
 | `v4.0.1-LTS` | CREATED AND PUSHED | `21b5d89a3923737b5b7afab50e8e2f7f1cc9f40d` |
 
-## Waiver Status
+No new release tags were created during final official closure.
 
-| Waiver | Status |
+## CI Status
+
+| Field | Status |
 |---|---|
-| Foundation external provider condition | ACCEPTED OPERATOR CONDITION |
-| Migration rollback waiver | ACCEPTED OPERATOR CONDITION |
-| Historical Sprint 1-72 evidence waiver | ACCEPTED OPERATOR CONDITION |
-| Remote CI limitation | CLOSED |
-
-No waiver is marked as formally approved in this checkout.
-
-## Foundation Provider Status
-
-| Check | Status |
-|---|---|
-| Live Foundation URL available | NO |
-| JWT or JWKS contract validated against live provider | NO |
-| Health endpoint validated against live provider | NO |
-| Readiness endpoint validated against live provider | NO |
-| Audit append endpoint validated against live provider | NO |
-| Policy endpoint validated against live provider | NO |
-| Local contract and wiring validation | PASS |
-| Release disposition | ACCEPTED OPERATOR CONDITION |
+| Remote CI observed | YES |
+| Workflow | `Panacea OS CI` |
+| Final workflow URL | `https://github.com/q8cool/Panacea-OS/actions/runs/28454342432` |
+| Final workflow conclusion | PASS |
+| Failed jobs | None |
 
 ## Validation Status
 
@@ -85,15 +52,44 @@ No waiver is marked as formally approved in this checkout.
 | `npm run quality:gate` | PASS |
 | `npm run runtime:orchestration` | PASS |
 | `npm run runtime:disaster-recovery` | PASS |
-| Dockerized gitleaks secret scan | PASS, no leaks found |
-| Remote CI final run | PASS |
+| Secret scan | PASS |
+| Remote CI final rerun | PASS |
 
-## Operator Actions Still Required
+## Waiver Status
 
-1. Validate the live Foundation provider before production traffic is served.
-2. Record formal governance approvals for accepted operator-condition waivers if the organization requires signed approval.
-3. Track the GitHub Actions Node.js 20 deprecation warnings for `actions/checkout@v4` and `actions/setup-node@v4` as a CI maintenance item.
+| Waiver | Status |
+|---|---|
+| Foundation external provider condition | OPERATOR ACTION REQUIRED |
+| Migration rollback backup and restore condition | ACCEPTED RISK |
+| Historical Sprint 1-72 evidence condition | ACCEPTED RISK |
+| Remote CI limitation | ACCEPTED RISK, closed by observed CI |
+
+## Foundation Provider Status
+
+| Check | Status |
+|---|---|
+| Live Foundation URL available | NO |
+| Live health endpoint validated | NO |
+| Live readiness endpoint validated | NO |
+| Live metrics endpoint validated | NO |
+| Live audit endpoint validated | NO |
+| Live policy endpoint validated | NO |
+| Local contract and wiring validation | PASS |
+| Release disposition | OPERATOR ACTION REQUIRED |
+
+## GitHub Actions Warning Status
+
+| Item | Status |
+|---|---|
+| `actions/checkout@v4` warning condition | RESOLVED by `actions/checkout@v7` |
+| `actions/setup-node@v4` warning condition | RESOLVED by `actions/setup-node@v6` |
+| Remote rerun after update | PASS |
+
+## Remaining Operator Actions
+
+1. Configure and validate the live Foundation provider before production traffic is served.
+2. Record formal approvals for accepted-risk waivers if required by organizational governance.
 
 ## Final Decision
 
-Panacea OS Enterprise v4.0 is released with accepted conditions. Do not begin new development from this closure task.
+Panacea OS Enterprise v4.0 is officially complete with operator action required for live Foundation provider validation.

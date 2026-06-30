@@ -3,27 +3,13 @@
 Report date: 2026-06-30
 Branch: `develop/v4.0`
 
-## Result
+## Final Result
 
-Live Foundation provider validation was not executed because no live Foundation provider configuration is present in this shell.
+FOUNDATION LIVE PROVIDER: NOT VALIDATED -- OPERATOR ACTION REQUIRED.
 
 ## Configuration Check
 
 No environment variables matching `FOUNDATION_`, `PANACEA_FOUNDATION_`, `JWT_`, or `JWKS_` were available for a live provider validation run.
-
-The following live values are still required from the operator or deployment environment:
-
-- Foundation base URL
-- JWT issuer
-- JWKS URL or public key
-- Audit append endpoint
-- Policy evaluation endpoint, where configured
-- Health endpoint
-- Readiness endpoint
-- Metrics endpoint
-- Timeout settings
-- Retry settings
-- Circuit breaker settings
 
 ## Local Contract Evidence
 
@@ -34,13 +20,7 @@ Foundation provider wiring and contract configuration are validated locally by:
 - `tests/foundation-integration/foundation-provider-contract.test.mjs`
 - Kubernetes ConfigMap wiring for all active service manifests
 - Docker Compose runtime provider configuration
-- Remote CI run `28448921412`
-
-## Accepted Operator Condition
-
-Status: `ACCEPTED OPERATOR CONDITION`
-
-The live provider condition is not marked as formally approved or live-validated. It is accepted for release closure only as an operator condition. The operator remains responsible for validating the approved Foundation provider in the target environment before production use.
+- Remote CI run `28454342432`
 
 ## Required Operator Validation
 
@@ -50,10 +30,11 @@ Before production traffic is served, validate:
 2. JWT issuer and JWKS or public key are valid.
 3. Health endpoint returns success.
 4. Readiness endpoint returns success.
-5. Audit append endpoint accepts the expected contract shape.
-6. Policy endpoint returns expected permit and deny responses, if configured.
-7. Timeout, retry, and circuit breaker settings behave as expected.
+5. Metrics endpoint returns success if configured.
+6. Audit append endpoint accepts the expected contract shape.
+7. Policy endpoint returns expected permit and deny responses if configured.
+8. Timeout, retry, and circuit breaker settings behave as expected.
 
-## Foundation Provider Status
+## Release Impact
 
-ACCEPTED OPERATOR CONDITION.
+This blocks unconditional `OFFICIALLY RELEASED`. It does not block `OFFICIALLY RELEASED WITH OPERATOR ACTION REQUIRED`.
