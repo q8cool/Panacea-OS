@@ -9,7 +9,15 @@ Remote CI was not observed.
 
 ## Reason
 
-No Git remote is configured in this checkout, and no official repository URL was provided. Push and remote workflow execution were therefore stopped.
+The official remote is configured, but branch push failed because GitHub authentication is not available in this environment.
+
+Exact push error:
+
+```text
+fatal: could not read Username for 'https://github.com': Device not configured
+```
+
+Remote workflow execution was therefore stopped.
 
 ## Local CI-Equivalent Evidence
 
@@ -28,17 +36,17 @@ The final pre-tag validation includes local execution of:
 
 ## Manual Remote CI Steps
 
-1. Configure the official remote:
+1. Configure GitHub authentication for this environment.
+2. Push the branch:
 
 ```bash
-git remote add origin <OFFICIAL_REPOSITORY_URL>
 git push -u origin develop/v4.0
 ```
 
-2. Open the official GitHub Actions page for the repository.
-3. Confirm the workflow for the pushed commit starts.
-4. Capture workflow URL, workflow status, failed jobs if any, and final result.
-5. Attach that evidence to the release record before publishing release tags.
+3. Open the official GitHub Actions page for the repository.
+4. Confirm the workflow for the pushed commit starts.
+5. Capture workflow URL, workflow status, failed jobs if any, and final result.
+6. Attach that evidence to the release record before publishing release tags.
 
 ## CI Status
 

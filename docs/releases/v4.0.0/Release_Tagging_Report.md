@@ -15,7 +15,8 @@ Branch: `develop/v4.0`
 
 Tag criteria are not fully satisfied:
 
-- Remote CI is not observed because no Git remote is configured.
+- Branch push failed with `fatal: could not read Username for 'https://github.com': Device not configured`.
+- Remote CI is not observed because branch push failed before GitHub Actions could start.
 - Foundation live provider validation is not observed because provider configuration is absent in this shell.
 - Waivers remain `PENDING APPROVAL`.
 - Release governance has not recorded explicit acceptance of the unresolved conditions.
@@ -32,4 +33,4 @@ git tag -a v4.0.1-LTS -m "Panacea OS Enterprise v4.0.1 Long-Term Support"
 
 ## Tagging Decision
 
-STOPPED BEFORE TAG CREATION. Later tags were not attempted because the first tag criteria are not satisfied.
+STOPPED BEFORE TAG CREATION. Later tags were not attempted because branch push failed before remote CI and tag criteria could be satisfied.
