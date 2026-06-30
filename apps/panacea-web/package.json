@@ -1,0 +1,25 @@
+{
+  "name": "@panacea/web-platform",
+  "version": "4.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Professional Panacea OS Enterprise web platform UI built on existing APIs, OpenAPI contracts, runtime endpoints, and release evidence.",
+  "scripts": {
+    "dev": "npm run generate:data && vite --host 0.0.0.0",
+    "build": "npm run generate:data && tsc --noEmit && vite build",
+    "check": "npm run generate:data && tsc --noEmit && vitest run",
+    "preview": "vite preview --host 0.0.0.0",
+    "generate:data": "node scripts/generate-data.mjs"
+  },
+  "dependencies": {
+    "lucide": "^1.22.0",
+    "marked": "^18.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vite": "^8.1.1",
+    "vitest": "^4.1.9",
+    "jsdom": "^29.1.1"
+  }
+}

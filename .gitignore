@@ -12,3 +12,4 @@ build/
 .npm/
 .cache/
 reports/tmp/
+apps/panacea-web/public/panacea-data.json
