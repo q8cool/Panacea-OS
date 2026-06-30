@@ -1,0 +1,108 @@
+name: Panacea OS CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
+      - develop/v4.0
+      - release/**
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck:
+    name: Typecheck all services
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run typecheck
+
+  build:
+    name: Build validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run build
+
+  tests:
+    name: Automated tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run test:unit
+      - run: npm run test:integration
+      - run: npm run test:contract
+      - run: npm run test:run
+
+  openapi:
+    name: OpenAPI validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run openapi
+      - run: git diff --exit-code -- services docs/contracts/openapi release
+
+  dependency-audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run audit
+
+  forbidden-marker-scan:
+    name: Forbidden marker scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/scan-forbidden-markers.mjs
+
+  docker-build-validation:
+    name: Docker build validation
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - autonomous-healthcare-intelligence-foundation
+          - global-ai-assurance-safety-model-risk-management-platform
+          - global-compliance-automation-regulatory-intelligence-platform
+          - global-customer-success-support-service-management-platform
+          - global-enterprise-data-privacy-consent-trust-platform
+          - global-legal-contracting-risk-governance-platform
+          - global-product-management-roadmap-innovation-portfolio-platform
+          - global-workforce-hr-credentialing-staff-experience-platform
+          - real-time-global-healthcare-command-intelligence-platform
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f services/${{ matrix.service }}/Dockerfile services/${{ matrix.service }}
+
+  kubernetes-manifest-validation:
+    name: Kubernetes manifest validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/validate-kubernetes.mjs

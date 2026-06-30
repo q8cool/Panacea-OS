@@ -14,7 +14,7 @@ Panacea OS Enterprise Version 3.0 — General Availability.
 | Integration tests | Passed |
 | Critical defects | None identified in tracked source validation |
 | Critical vulnerabilities | None reported |
-| Placeholder/TODO scan | Passed |
+| Forbidden marker scan | Passed |
 | Documentation package | Complete |
 | Deployment package | Complete |
 | Rollback package | Complete |

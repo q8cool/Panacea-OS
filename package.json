@@ -1,0 +1,24 @@
+{
+  "name": "panacea-os-enterprise",
+  "version": "4.0.0-sprint.86",
+  "private": true,
+  "description": "Panacea OS Enterprise monorepo orchestration and production hardening workspace.",
+  "type": "module",
+  "scripts": {
+    "typecheck": "node scripts/run-service-script.mjs check",
+    "build": "node scripts/panacea-build.mjs",
+    "check": "npm run typecheck && npm run lint && npm run format:check",
+    "test:run": "node scripts/panacea-test-runner.mjs all",
+    "test:unit": "node scripts/panacea-test-runner.mjs unit",
+    "test:integration": "node scripts/panacea-test-runner.mjs integration",
+    "test:contract": "node scripts/panacea-test-runner.mjs contract",
+    "openapi": "node scripts/validate-openapi.mjs --write",
+    "audit": "node scripts/audit-services.mjs --audit-level=moderate",
+    "lint": "node scripts/scan-forbidden-markers.mjs && node scripts/validate-openapi.mjs --check-only && node scripts/validate-docker.mjs && node scripts/validate-kubernetes.mjs",
+    "format:check": "node scripts/format-check.mjs",
+    "quality:gate": "node scripts/quality-gate.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

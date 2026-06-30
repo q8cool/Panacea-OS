@@ -1,0 +1,3051 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Panacea OS Autonomous Healthcare Intelligence Foundation API",
+    "version": "4.0.0",
+    "description": "Versioned API for governed, advisory, explainable, auditable autonomous healthcare intelligence foundation workflows. The platform does not diagnose, prescribe, bypass clinician approval, or execute clinical actions autonomously."
+  },
+  "servers": [
+    {
+      "url": "/api/v4/autonomous-healthcare-intelligence",
+      "description": "Versioned API base path"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Operations"
+    },
+    {
+      "name": "Integrations"
+    },
+    {
+      "name": "autonomous_intelligence_foundation"
+    },
+    {
+      "name": "clinical_intelligence_governance"
+    },
+    {
+      "name": "enterprise_intelligence_orchestration"
+    },
+    {
+      "name": "safety_control"
+    },
+    {
+      "name": "explainability_traceability"
+    }
+  ],
+  "paths": {
+    "/api/v4/autonomous-healthcare-intelligence/live": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getAutonomousHealthcareIntelligenceLive",
+        "summary": "Liveness probe",
+        "responses": {
+          "200": {
+            "description": "Service is live"
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/ready": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getAutonomousHealthcareIntelligenceReady",
+        "summary": "Readiness probe",
+        "responses": {
+          "200": {
+            "description": "Service is ready"
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/metrics": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getAutonomousHealthcareIntelligenceMetrics",
+        "summary": "Operational metrics summary",
+        "responses": {
+          "200": {
+            "description": "Metrics returned"
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/docs/openapi.json": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "operationId": "getAutonomousHealthcareIntelligenceOpenApi",
+        "summary": "OpenAPI document",
+        "responses": {
+          "200": {
+            "description": "OpenAPI document returned"
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/foundation/registries": {
+      "post": {
+        "tags": [
+          "autonomous_intelligence_foundation"
+        ],
+        "operationId": "createAutonomousIntelligenceRegistry",
+        "summary": "Create an autonomous intelligence registry record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/foundation/capabilities": {
+      "post": {
+        "tags": [
+          "autonomous_intelligence_foundation"
+        ],
+        "operationId": "registerIntelligenceCapability",
+        "summary": "Register an intelligence capability",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/foundation/policies": {
+      "post": {
+        "tags": [
+          "autonomous_intelligence_foundation"
+        ],
+        "operationId": "createIntelligencePolicy",
+        "summary": "Create an intelligence policy engine record",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/foundation/runtime-governance": {
+      "post": {
+        "tags": [
+          "autonomous_intelligence_foundation"
+        ],
+        "operationId": "createRuntimeGovernance",
+        "summary": "Create intelligence runtime governance",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/foundation/safety-layers": {
+      "post": {
+        "tags": [
+          "autonomous_intelligence_foundation"
+        ],
+        "operationId": "createIntelligenceSafetyLayer",
+        "summary": "Create an intelligence safety layer",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/foundation/approval-workflows": {
+      "post": {
+        "tags": [
+          "autonomous_intelligence_foundation"
+        ],
+        "operationId": "createIntelligenceApprovalWorkflow",
+        "summary": "Create an intelligence approval workflow",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/foundation/audit-trails": {
+      "post": {
+        "tags": [
+          "autonomous_intelligence_foundation"
+        ],
+        "operationId": "createIntelligenceAuditTrail",
+        "summary": "Create an intelligence audit trail",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/foundation/risk-classifications": {
+      "post": {
+        "tags": [
+          "autonomous_intelligence_foundation"
+        ],
+        "operationId": "createIntelligenceRiskClassification",
+        "summary": "Create an intelligence risk classification",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/clinical-governance/policies": {
+      "post": {
+        "tags": [
+          "clinical_intelligence_governance"
+        ],
+        "operationId": "createClinicalIntelligencePolicy",
+        "summary": "Create a clinical intelligence policy",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/clinical-governance/recommendations": {
+      "post": {
+        "tags": [
+          "clinical_intelligence_governance"
+        ],
+        "operationId": "startRecommendationGovernance",
+        "summary": "Start or complete recommendation governance",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/clinical-governance/review-rules": {
+      "post": {
+        "tags": [
+          "clinical_intelligence_governance"
+        ],
+        "operationId": "createClinicalReviewRule",
+        "summary": "Create clinical review rules",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/clinical-governance/human-approval-rules": {
+      "post": {
+        "tags": [
+          "clinical_intelligence_governance"
+        ],
+        "operationId": "createHumanApprovalRule",
+        "summary": "Create human approval rules",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/clinical-governance/safety-escalations": {
+      "post": {
+        "tags": [
+          "clinical_intelligence_governance"
+        ],
+        "operationId": "createSafetyEscalationRule",
+        "summary": "Create safety escalation rules",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/clinical-governance/overrides": {
+      "post": {
+        "tags": [
+          "clinical_intelligence_governance"
+        ],
+        "operationId": "createClinicalOverrideWorkflow",
+        "summary": "Create a clinical override workflow",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/clinical-governance/lifecycle": {
+      "post": {
+        "tags": [
+          "clinical_intelligence_governance"
+        ],
+        "operationId": "trackRecommendationLifecycle",
+        "summary": "Track recommendation lifecycle",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/orchestration/orchestrators": {
+      "post": {
+        "tags": [
+          "enterprise_intelligence_orchestration"
+        ],
+        "operationId": "createCrossPlatformOrchestrator",
+        "summary": "Create a cross-platform intelligence orchestrator",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/orchestration/context-brokers": {
+      "post": {
+        "tags": [
+          "enterprise_intelligence_orchestration"
+        ],
+        "operationId": "createEnterpriseContextBroker",
+        "summary": "Create an enterprise context broker",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/orchestration/event-routers": {
+      "post": {
+        "tags": [
+          "enterprise_intelligence_orchestration"
+        ],
+        "operationId": "createIntelligenceEventRouter",
+        "summary": "Create an intelligence event router",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/orchestration/recommendation-coordinators": {
+      "post": {
+        "tags": [
+          "enterprise_intelligence_orchestration"
+        ],
+        "operationId": "createRecommendationCoordinator",
+        "summary": "Create a recommendation coordinator",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/orchestration/decision-registries": {
+      "post": {
+        "tags": [
+          "enterprise_intelligence_orchestration"
+        ],
+        "operationId": "createMultiDomainDecisionRegistry",
+        "summary": "Create a multi-domain decision registry",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/orchestration/workflow-controllers": {
+      "post": {
+        "tags": [
+          "enterprise_intelligence_orchestration"
+        ],
+        "operationId": "createIntelligenceWorkflowController",
+        "summary": "Create an intelligence workflow controller",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/orchestration/status-dashboard": {
+      "post": {
+        "tags": [
+          "enterprise_intelligence_orchestration"
+        ],
+        "operationId": "createIntelligenceStatusDashboard",
+        "summary": "Create an intelligence status dashboard",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/safety/autonomous-action-prevention": {
+      "post": {
+        "tags": [
+          "safety_control"
+        ],
+        "operationId": "createAutonomousActionPrevention",
+        "summary": "Create autonomous action prevention controls",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/safety/unsafe-recommendation-blocking": {
+      "post": {
+        "tags": [
+          "safety_control"
+        ],
+        "operationId": "blockUnsafeRecommendation",
+        "summary": "Block unsafe recommendations",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/safety/human-in-the-loop": {
+      "post": {
+        "tags": [
+          "safety_control"
+        ],
+        "operationId": "enforceHumanInTheLoop",
+        "summary": "Enforce human-in-the-loop controls",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/safety/clinical-guardrails": {
+      "post": {
+        "tags": [
+          "safety_control"
+        ],
+        "operationId": "createClinicalSafetyGuardrails",
+        "summary": "Create clinical safety guardrails",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/safety/operational-guardrails": {
+      "post": {
+        "tags": [
+          "safety_control"
+        ],
+        "operationId": "createOperationalSafetyGuardrails",
+        "summary": "Create operational safety guardrails",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/safety/policy-violations": {
+      "post": {
+        "tags": [
+          "safety_control"
+        ],
+        "operationId": "detectPolicyViolation",
+        "summary": "Detect policy violations",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/safety/emergency-stops": {
+      "post": {
+        "tags": [
+          "safety_control"
+        ],
+        "operationId": "createEmergencyStopControls",
+        "summary": "Create emergency stop controls",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/traceability/intelligence-traces": {
+      "post": {
+        "tags": [
+          "explainability_traceability"
+        ],
+        "operationId": "createIntelligenceTrace",
+        "summary": "Create an intelligence trace",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/traceability/decision-traces": {
+      "post": {
+        "tags": [
+          "explainability_traceability"
+        ],
+        "operationId": "createDecisionTrace",
+        "summary": "Create a decision trace",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/traceability/evidence-traces": {
+      "post": {
+        "tags": [
+          "explainability_traceability"
+        ],
+        "operationId": "createEvidenceTrace",
+        "summary": "Create an evidence trace",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/traceability/policy-traces": {
+      "post": {
+        "tags": [
+          "explainability_traceability"
+        ],
+        "operationId": "createPolicyTrace",
+        "summary": "Create a policy trace",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/traceability/approval-traces": {
+      "post": {
+        "tags": [
+          "explainability_traceability"
+        ],
+        "operationId": "createApprovalTrace",
+        "summary": "Create an approval trace",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/traceability/recommendation-history": {
+      "post": {
+        "tags": [
+          "explainability_traceability"
+        ],
+        "operationId": "createRecommendationHistory",
+        "summary": "Create recommendation history",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/traceability/audit-packages": {
+      "post": {
+        "tags": [
+          "explainability_traceability"
+        ],
+        "operationId": "generateGovernanceAuditPackage",
+        "summary": "Generate a governance audit package",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intelligence governance record persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/autonomous-healthcare-intelligence/integrations/references": {
+      "post": {
+        "tags": [
+          "Integrations"
+        ],
+        "operationId": "createAutonomousHealthcareIntelligenceIntegrationReference",
+        "summary": "Create an auditable integration reference",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntegrationReferenceCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Integration reference persisted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationReferenceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "tenantHeaders": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-tenant-id",
+        "description": "Tenant isolation boundary supplied by the identity platform."
+      }
+    },
+    "schemas": {
+      "IntelligenceRecordCreate": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "tenantId",
+          "status",
+          "title",
+          "countryCode",
+          "jurisdictionCode",
+          "policyControls",
+          "governanceContext",
+          "workflowControls",
+          "evidence"
+        ],
+        "properties": {
+          "tenantId": {
+            "type": "string"
+          },
+          "recordGroup": {
+            "type": "string",
+            "enum": [
+              "autonomous_intelligence_foundation",
+              "clinical_intelligence_governance",
+              "enterprise_intelligence_orchestration",
+              "safety_control",
+              "explainability_traceability"
+            ]
+          },
+          "recordType": {
+            "type": "string",
+            "enum": [
+              "autonomous_intelligence_registry",
+              "intelligence_capability_registry",
+              "intelligence_policy_engine",
+              "intelligence_runtime_governance",
+              "intelligence_safety_layer",
+              "intelligence_approval_workflow",
+              "intelligence_audit_trail",
+              "intelligence_risk_classification",
+              "clinical_intelligence_policy_registry",
+              "recommendation_governance",
+              "clinical_review_rules",
+              "human_approval_rules",
+              "safety_escalation_rules",
+              "clinical_override_workflow",
+              "recommendation_lifecycle_tracking",
+              "cross_platform_intelligence_orchestrator",
+              "enterprise_context_broker",
+              "intelligence_event_router",
+              "recommendation_coordinator",
+              "multi_domain_decision_registry",
+              "intelligence_workflow_controller",
+              "intelligence_status_dashboard",
+              "autonomous_action_prevention",
+              "unsafe_recommendation_blocking",
+              "human_in_the_loop_enforcement",
+              "clinical_safety_guardrails",
+              "operational_safety_guardrails",
+              "policy_violation_detection",
+              "emergency_stop_controls",
+              "intelligence_trace",
+              "decision_trace",
+              "evidence_trace",
+              "policy_trace",
+              "approval_trace",
+              "recommendation_history",
+              "governance_audit_package"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "registered",
+              "created",
+              "active",
+              "classified",
+              "under_review",
+              "review_required",
+              "approval_required",
+              "approved",
+              "rejected",
+              "blocked",
+              "started",
+              "in_progress",
+              "completed",
+              "escalated",
+              "overridden",
+              "stopped",
+              "generated",
+              "archived"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "countryCode": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "regionCode": {
+            "type": "string"
+          },
+          "jurisdictionCode": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "intelligenceId": {
+            "type": "string"
+          },
+          "capabilityId": {
+            "type": "string"
+          },
+          "policyId": {
+            "type": "string"
+          },
+          "runtimeGovernanceId": {
+            "type": "string"
+          },
+          "safetyLayerId": {
+            "type": "string"
+          },
+          "approvalWorkflowId": {
+            "type": "string"
+          },
+          "recommendationId": {
+            "type": "string"
+          },
+          "reviewRuleId": {
+            "type": "string"
+          },
+          "escalationRuleId": {
+            "type": "string"
+          },
+          "overrideId": {
+            "type": "string"
+          },
+          "orchestratorId": {
+            "type": "string"
+          },
+          "contextBrokerId": {
+            "type": "string"
+          },
+          "eventRouterId": {
+            "type": "string"
+          },
+          "decisionRegistryId": {
+            "type": "string"
+          },
+          "workflowControllerId": {
+            "type": "string"
+          },
+          "traceId": {
+            "type": "string"
+          },
+          "evidenceTraceId": {
+            "type": "string"
+          },
+          "approvalTraceId": {
+            "type": "string"
+          },
+          "auditPackageId": {
+            "type": "string"
+          },
+          "emergencyStopId": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "approverId": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "riskLevel": {
+            "type": "string",
+            "enum": [
+              "minimal",
+              "low",
+              "moderate",
+              "high",
+              "critical"
+            ]
+          },
+          "riskScore": {
+            "type": "number"
+          },
+          "safetyScore": {
+            "type": "number"
+          },
+          "governanceScore": {
+            "type": "number"
+          },
+          "traceabilityScore": {
+            "type": "number"
+          },
+          "startedAt": {
+            "type": "string"
+          },
+          "completedAt": {
+            "type": "string"
+          },
+          "approvedAt": {
+            "type": "string"
+          },
+          "blockedAt": {
+            "type": "string"
+          },
+          "stoppedAt": {
+            "type": "string"
+          },
+          "policyControls": {
+            "type": "object"
+          },
+          "governanceContext": {
+            "type": "object"
+          },
+          "workflowControls": {
+            "type": "object"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "metrics": {
+            "type": "object"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      },
+      "IntelligenceRecordResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "event"
+        ],
+        "properties": {
+          "data": {
+            "type": "object"
+          },
+          "event": {
+            "type": "object",
+            "properties": {
+              "eventType": {
+                "type": "string",
+                "enum": [
+                  "intelligence.capability.registered",
+                  "intelligence.policy.created",
+                  "recommendation.governance.started",
+                  "recommendation.governance.completed",
+                  "human.approval.required",
+                  "unsafe.recommendation.blocked",
+                  "intelligence.trace.created",
+                  "governance.audit.generated"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "IntegrationReferenceCreate": {
+        "type": "object",
+        "required": [
+          "tenantId",
+          "sourceSystem",
+          "sourceResourceType",
+          "sourceResourceId",
+          "intelligenceResourceType",
+          "intelligenceResourceId",
+          "countryCode"
+        ],
+        "properties": {
+          "tenantId": {
+            "type": "string"
+          },
+          "sourceSystem": {
+            "type": "string",
+            "enum": [
+              "ai_runtime_v2",
+              "ahos_core",
+              "clinical_intelligence_platform",
+              "ai_assurance_platform",
+              "privacy_consent_platform",
+              "global_knowledge_network",
+              "enterprise_data_platform",
+              "audit_service",
+              "notification_service"
+            ]
+          },
+          "sourceResourceType": {
+            "type": "string"
+          },
+          "sourceResourceId": {
+            "type": "string"
+          },
+          "intelligenceResourceType": {
+            "type": "string"
+          },
+          "intelligenceResourceId": {
+            "type": "string"
+          },
+          "countryCode": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      },
+      "IntegrationReferenceResponse": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error",
+          "message"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  },
+  "x-panacea": {
+    "apiVersion": "v4",
+    "requiredEvents": [
+      "intelligence.capability.registered",
+      "intelligence.policy.created",
+      "recommendation.governance.started",
+      "recommendation.governance.completed",
+      "human.approval.required",
+      "unsafe.recommendation.blocked",
+      "intelligence.trace.created",
+      "governance.audit.generated"
+    ],
+    "advisoryOnly": true,
+    "clinicianApprovalRequired": true,
+    "autonomousDiagnosis": "not_permitted",
+    "autonomousTreatment": "not_permitted",
+    "productionClinicalBypass": "not_permitted",
+    "controls": [
+      "identity",
+      "rbac",
+      "abac",
+      "audit",
+      "tenant_isolation",
+      "ai_governance_permissions",
+      "clinical_approval_permissions",
+      "emergency_stop_permissions"
+    ]
+  }
+}

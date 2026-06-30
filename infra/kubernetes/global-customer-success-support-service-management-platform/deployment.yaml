@@ -1,3 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: panacea-global-customer-success-config
+  labels:
+    app.kubernetes.io/name: panacea-global-customer-success
+    app.kubernetes.io/part-of: panacea-os
+    app.kubernetes.io/component: customer-success-support-service-management
+    tenant-isolation: required
+data:
+  PANACEA_GLOBAL_CUSTOMER_SUCCESS_PORT: "8143"
+  PORT: "8143"
+  PANACEA_FOUNDATION_URL: "http://panacea-foundation:8080"
+  PANACEA_AUDIT_URL: "http://panacea-audit:8080"
+  PANACEA_NOTIFICATION_URL: "http://panacea-notification:8081"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,6 +22,7 @@ metadata:
     app.kubernetes.io/name: panacea-global-customer-success
     app.kubernetes.io/component: customer-success-support-service-management
     app.kubernetes.io/part-of: panacea-os
+    tenant-isolation: required
 spec:
   replicas: 3
   selector:
@@ -15,74 +32,50 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: panacea-global-customer-success
+        app.kubernetes.io/component: customer-success-support-service-management
+        app.kubernetes.io/part-of: panacea-os
+        tenant-isolation: required
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
-        - name: global-customer-success
+        - name: customer-success-support-service-management
           image: panacea/global-customer-success-support-service-management-platform:3.0.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 8143
+          envFrom:
+            - configMapRef:
+                name: panacea-global-customer-success-config
           env:
-            - name: PANACEA_GLOBAL_CUSTOMER_SUCCESS_PORT
-              value: "8143"
             - name: GLOBAL_CUSTOMER_SUCCESS_DATABASE_URL
               valueFrom:
                 secretKeyRef:
                   name: panacea-global-customer-success-db
                   key: database-url
-            - name: PANACEA_FOUNDATION_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: foundation-url
-            - name: PANACEA_ENTERPRISE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: enterprise-url
-            - name: PANACEA_DEVOPS_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: devops-url
-            - name: PANACEA_SECURITY_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: security-url
-            - name: PANACEA_LTS_MAINTENANCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: lts-maintenance-url
-            - name: PANACEA_GLOBAL_LEGAL_GOVERNANCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: global-legal-governance-url
-            - name: PANACEA_AUDIT_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: audit-url
-            - name: PANACEA_NOTIFICATION_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: notification-url
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           readinessProbe:
             httpGet:
               path: /api/v3/global-customer-success/ready
               port: http
             initialDelaySeconds: 10
             periodSeconds: 10
+            timeoutSeconds: 3
           livenessProbe:
             httpGet:
               path: /api/v3/global-customer-success/live
               port: http
             initialDelaySeconds: 20
             periodSeconds: 20
+            timeoutSeconds: 3
           resources:
             requests:
               cpu: 250m
@@ -97,6 +90,9 @@ metadata:
   name: panacea-global-customer-success
   labels:
     app.kubernetes.io/name: panacea-global-customer-success
+    app.kubernetes.io/component: customer-success-support-service-management
+    app.kubernetes.io/part-of: panacea-os
+    tenant-isolation: required
 spec:
   selector:
     app.kubernetes.io/name: panacea-global-customer-success

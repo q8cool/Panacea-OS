@@ -1,3 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: panacea-global-legal-governance-config
+  labels:
+    app.kubernetes.io/name: panacea-global-legal-governance
+    app.kubernetes.io/part-of: panacea-os
+    app.kubernetes.io/component: legal-contracting-risk-governance
+    tenant-isolation: required
+data:
+  PANACEA_GLOBAL_LEGAL_PORT: "8142"
+  PORT: "8142"
+  PANACEA_FOUNDATION_URL: "http://panacea-foundation:8080"
+  PANACEA_AUDIT_URL: "http://panacea-audit:8080"
+  PANACEA_NOTIFICATION_URL: "http://panacea-notification:8081"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,6 +22,7 @@ metadata:
     app.kubernetes.io/name: panacea-global-legal-governance
     app.kubernetes.io/component: legal-contracting-risk-governance
     app.kubernetes.io/part-of: panacea-os
+    tenant-isolation: required
 spec:
   replicas: 3
   selector:
@@ -15,84 +32,50 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: panacea-global-legal-governance
+        app.kubernetes.io/component: legal-contracting-risk-governance
+        app.kubernetes.io/part-of: panacea-os
+        tenant-isolation: required
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
-        - name: global-legal-governance
+        - name: legal-contracting-risk-governance
           image: panacea/global-legal-contracting-risk-governance-platform:3.0.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 8142
+          envFrom:
+            - configMapRef:
+                name: panacea-global-legal-governance-config
           env:
-            - name: PANACEA_GLOBAL_LEGAL_PORT
-              value: "8142"
             - name: GLOBAL_LEGAL_DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: panacea-global-legal-db
+                  name: panacea-global-legal-governance-db
                   key: database-url
-            - name: PANACEA_FOUNDATION_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: foundation-url
-            - name: PANACEA_SECURITY_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: security-url
-            - name: PANACEA_COMPLIANCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: compliance-url
-            - name: PANACEA_QUALITY_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: quality-url
-            - name: PANACEA_GLOBAL_WORKFORCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: global-workforce-url
-            - name: PANACEA_GLOBAL_SUPPLY_CHAIN_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: global-supply-chain-url
-            - name: PANACEA_REVENUE_CYCLE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: revenue-cycle-url
-            - name: PANACEA_ENTERPRISE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: enterprise-url
-            - name: PANACEA_AUDIT_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: audit-url
-            - name: PANACEA_NOTIFICATION_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: notification-url
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           readinessProbe:
             httpGet:
               path: /api/v3/global-legal-governance/ready
               port: http
             initialDelaySeconds: 10
             periodSeconds: 10
+            timeoutSeconds: 3
           livenessProbe:
             httpGet:
               path: /api/v3/global-legal-governance/live
               port: http
             initialDelaySeconds: 20
             periodSeconds: 20
+            timeoutSeconds: 3
           resources:
             requests:
               cpu: 250m
@@ -107,6 +90,9 @@ metadata:
   name: panacea-global-legal-governance
   labels:
     app.kubernetes.io/name: panacea-global-legal-governance
+    app.kubernetes.io/component: legal-contracting-risk-governance
+    app.kubernetes.io/part-of: panacea-os
+    tenant-isolation: required
 spec:
   selector:
     app.kubernetes.io/name: panacea-global-legal-governance

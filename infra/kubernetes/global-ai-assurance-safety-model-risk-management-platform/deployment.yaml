@@ -1,3 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: panacea-global-ai-assurance-config
+  labels:
+    app.kubernetes.io/name: panacea-global-ai-assurance
+    app.kubernetes.io/part-of: panacea-os
+    app.kubernetes.io/component: ai-assurance-safety-model-risk-management
+    tenant-isolation: required
+data:
+  PANACEA_GLOBAL_AI_ASSURANCE_PORT: "8146"
+  PORT: "8146"
+  PANACEA_FOUNDATION_URL: "http://panacea-foundation:8080"
+  PANACEA_AUDIT_URL: "http://panacea-audit:8080"
+  PANACEA_NOTIFICATION_URL: "http://panacea-notification:8081"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,6 +22,7 @@ metadata:
     app.kubernetes.io/name: panacea-global-ai-assurance
     app.kubernetes.io/component: ai-assurance-safety-model-risk-management
     app.kubernetes.io/part-of: panacea-os
+    tenant-isolation: required
 spec:
   replicas: 3
   selector:
@@ -15,84 +32,50 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: panacea-global-ai-assurance
+        app.kubernetes.io/component: ai-assurance-safety-model-risk-management
+        app.kubernetes.io/part-of: panacea-os
+        tenant-isolation: required
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
-        - name: global-ai-assurance
+        - name: ai-assurance-safety-model-risk-management
           image: panacea/global-ai-assurance-safety-model-risk-management-platform:3.0.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 8146
+          envFrom:
+            - configMapRef:
+                name: panacea-global-ai-assurance-config
           env:
-            - name: PANACEA_GLOBAL_AI_ASSURANCE_PORT
-              value: "8146"
             - name: GLOBAL_AI_ASSURANCE_DATABASE_URL
               valueFrom:
                 secretKeyRef:
                   name: panacea-global-ai-assurance-db
                   key: database-url
-            - name: PANACEA_FOUNDATION_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: foundation-url
-            - name: PANACEA_AI_FOUNDATION_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: ai-foundation-url
-            - name: PANACEA_AI_GOVERNANCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: ai-governance-url
-            - name: PANACEA_CLINICAL_INTELLIGENCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: clinical-intelligence-url
-            - name: PANACEA_MULTI_AGENT_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: multi-agent-url
-            - name: PANACEA_LEARNING_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: learning-url
-            - name: PANACEA_GLOBAL_COMPLIANCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: global-compliance-url
-            - name: PANACEA_SECURITY_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: security-url
-            - name: PANACEA_AUDIT_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: audit-url
-            - name: PANACEA_NOTIFICATION_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: notification-url
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           readinessProbe:
             httpGet:
               path: /api/v3/global-ai-assurance/ready
               port: http
             initialDelaySeconds: 10
             periodSeconds: 10
+            timeoutSeconds: 3
           livenessProbe:
             httpGet:
               path: /api/v3/global-ai-assurance/live
               port: http
             initialDelaySeconds: 20
             periodSeconds: 20
+            timeoutSeconds: 3
           resources:
             requests:
               cpu: 250m
@@ -107,6 +90,9 @@ metadata:
   name: panacea-global-ai-assurance
   labels:
     app.kubernetes.io/name: panacea-global-ai-assurance
+    app.kubernetes.io/component: ai-assurance-safety-model-risk-management
+    app.kubernetes.io/part-of: panacea-os
+    tenant-isolation: required
 spec:
   selector:
     app.kubernetes.io/name: panacea-global-ai-assurance

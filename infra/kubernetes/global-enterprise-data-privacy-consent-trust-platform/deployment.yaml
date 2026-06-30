@@ -1,3 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: panacea-global-privacy-config
+  labels:
+    app.kubernetes.io/name: panacea-global-privacy
+    app.kubernetes.io/part-of: panacea-os
+    app.kubernetes.io/component: data-privacy-consent-trust
+    tenant-isolation: required
+data:
+  PANACEA_GLOBAL_PRIVACY_PORT: "8147"
+  PORT: "8147"
+  PANACEA_FOUNDATION_URL: "http://panacea-foundation:8080"
+  PANACEA_AUDIT_URL: "http://panacea-audit:8080"
+  PANACEA_NOTIFICATION_URL: "http://panacea-notification:8081"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,6 +22,7 @@ metadata:
     app.kubernetes.io/name: panacea-global-privacy
     app.kubernetes.io/component: data-privacy-consent-trust
     app.kubernetes.io/part-of: panacea-os
+    tenant-isolation: required
 spec:
   replicas: 3
   selector:
@@ -15,84 +32,50 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: panacea-global-privacy
+        app.kubernetes.io/component: data-privacy-consent-trust
+        app.kubernetes.io/part-of: panacea-os
+        tenant-isolation: required
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
-        - name: global-privacy
+        - name: data-privacy-consent-trust
           image: panacea/global-enterprise-data-privacy-consent-trust-platform:3.0.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 8147
+          envFrom:
+            - configMapRef:
+                name: panacea-global-privacy-config
           env:
-            - name: PANACEA_GLOBAL_PRIVACY_PORT
-              value: "8147"
             - name: GLOBAL_PRIVACY_DATABASE_URL
               valueFrom:
                 secretKeyRef:
                   name: panacea-global-privacy-db
                   key: database-url
-            - name: PANACEA_FOUNDATION_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: foundation-url
-            - name: PANACEA_SECURITY_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: security-url
-            - name: PANACEA_GLOBAL_COMPLIANCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: global-compliance-url
-            - name: PANACEA_GLOBAL_HEALTHCARE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: global-healthcare-url
-            - name: PANACEA_FEDERATED_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: federated-url
-            - name: PANACEA_RESEARCH_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: research-url
-            - name: PANACEA_PATIENT_PORTAL_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: patient-portal-url
-            - name: PANACEA_AI_ASSURANCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: ai-assurance-url
-            - name: PANACEA_AUDIT_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: audit-url
-            - name: PANACEA_NOTIFICATION_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: panacea-platform-endpoints
-                  key: notification-url
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           readinessProbe:
             httpGet:
               path: /api/v3/global-privacy/ready
               port: http
             initialDelaySeconds: 10
             periodSeconds: 10
+            timeoutSeconds: 3
           livenessProbe:
             httpGet:
               path: /api/v3/global-privacy/live
               port: http
             initialDelaySeconds: 20
             periodSeconds: 20
+            timeoutSeconds: 3
           resources:
             requests:
               cpu: 250m
@@ -107,6 +90,9 @@ metadata:
   name: panacea-global-privacy
   labels:
     app.kubernetes.io/name: panacea-global-privacy
+    app.kubernetes.io/component: data-privacy-consent-trust
+    app.kubernetes.io/part-of: panacea-os
+    tenant-isolation: required
 spec:
   selector:
     app.kubernetes.io/name: panacea-global-privacy
