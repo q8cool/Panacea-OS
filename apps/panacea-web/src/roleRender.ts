@@ -157,6 +157,8 @@ function roleLiveConnection(context: RoleRenderContext): string {
             <article>
               <strong>${escapeHtml(state.result.httpStatus ? `HTTP ${state.result.httpStatus}` : state.result.state)}</strong>
               <span>${escapeHtml(state.result.detail)}</span>
+              ${state.result.blockedReason ? `<span>${escapeHtml(state.result.blockedReason)}</span>` : ""}
+              ${state.result.allowlistClassification ? `<span>${escapeHtml(state.result.allowlistClassification)}</span>` : ""}
               <span>${escapeHtml(state.result.requestId)}</span>
             </article>
           ` : `<article><strong>No response yet</strong><span>Refresh or navigate to retry read-only API execution.</span></article>`}

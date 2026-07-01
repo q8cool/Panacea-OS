@@ -1,4 +1,5 @@
 import { endpointBaseUrl, type EndpointRecord, flattenEndpoints } from "./apiExplorer";
+import { buildBrowserApiAllowlist, evaluateBrowserApiRequest, type BrowserApiAllowlistEntry } from "./apiAllowlist";
 import type {
   AppData,
   AuthSession,
@@ -26,6 +27,7 @@ export function findReadOnlyEndpoint(
   page: RolePageDefinition,
   config: PanaceaWebConfig
 ): LiveApiEndpointCandidate {
+  const allowlist = buildBrowserApiAllowlist(data, config);
   const keywords = [
     page.label,
     page.id.replace(/-/g, " "),
@@ -41,6 +43,10 @@ export function findReadOnlyEndpoint(
       const serviceMatch = [...serviceIds].some((serviceId) => endpoint.documentId.includes(serviceId));
       const haystack = `${endpoint.documentTitle} ${endpoint.path} ${endpoint.summary} ${endpoint.operationId} ${endpoint.tags.join(" ")}`.toLowerCase();
       return serviceMatch || keywords.some((keyword) => keyword && haystack.includes(keyword));
+    })
+    .filter((endpoint) => {
+      const url = `${baseUrlForEndpoint(endpoint, config)}${endpoint.path}`;
+      return evaluateBrowserApiRequest(allowlist, endpoint.method, url, undefined).allowed;
     });
 
   const selected = endpoints.find((endpoint) => endpoint.path.includes("/api/")) ?? endpoints[0];
@@ -69,6 +75,7 @@ export async function executeReadOnlyRequest(
   candidate: LiveApiEndpointCandidate,
   session: AuthSession,
   config: PanaceaWebConfig,
+  allowlist: BrowserApiAllowlistEntry[],
   fetchImpl: typeof fetch = fetch
 ): Promise<{ result: LiveApiResult; auditAction: BrowserAuditAction }> {
   if (!candidate.available || !candidate.url) {
@@ -76,7 +83,7 @@ export async function executeReadOnlyRequest(
     return { result, auditAction: auditFromResult(result, session, "live") };
   }
 
-  const result = await apiRequest(candidate.method, candidate.url, session, config, undefined, fetchImpl);
+  const result = await apiRequest(candidate.method, candidate.url, session, config, undefined, fetchImpl, allowlist);
   return { result, auditAction: auditFromResult(result, session, "live") };
 }
 
@@ -86,10 +93,24 @@ export async function apiRequest(
   session: AuthSession,
   config: PanaceaWebConfig,
   body?: unknown,
-  fetchImpl: typeof fetch = fetch
+  fetchImpl: typeof fetch = fetch,
+  allowlist: BrowserApiAllowlistEntry[] = []
 ): Promise<LiveApiResult> {
   const started = performance.now();
   const id = requestId();
+  const decision = evaluateBrowserApiRequest(allowlist, method, url, session);
+  if (!decision.allowed) {
+    return {
+      requestId: id,
+      method,
+      url,
+      state: "unavailable",
+      detail: "Browser API request blocked by allowlist.",
+      checkedAt: new Date().toISOString(),
+      blockedReason: decision.reason,
+      allowlistClassification: decision.classification
+    };
+  }
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), config.PANACEA_REQUEST_TIMEOUT_MS);
   const headers: Record<string, string> = {
@@ -172,6 +193,7 @@ export async function pollRuntimeStatus(
 export async function appendOperatorAuditTest(
   session: AuthSession,
   config: PanaceaWebConfig,
+  allowlist: BrowserApiAllowlistEntry[],
   fetchImpl: typeof fetch = fetch
 ): Promise<LiveApiResult> {
   const event = {
@@ -183,7 +205,7 @@ export async function appendOperatorAuditTest(
     action: "browser.readiness.audit-test",
     occurredAt: new Date().toISOString()
   };
-  return apiRequest("POST", config.FOUNDATION_AUDIT_APPEND_URL, session, config, event, fetchImpl);
+  return apiRequest("POST", config.FOUNDATION_AUDIT_APPEND_URL, session, config, event, fetchImpl, allowlist);
 }
 
 async function probeEndpoint(

@@ -66,6 +66,41 @@ The browser validates:
 
 If validation fails, Live Mode is not enabled.
 
+## Provider Login Discovery
+
+Sprint 105 checks Foundation login discovery endpoints:
+
+- `/.well-known/openid-configuration`
+- `/oauth/authorize`
+- `/authorize`
+- `/api/v1/auth/login`
+- `/api/v1/auth/token`
+- `/api/v1/auth/refresh`
+
+Current result: provider-hosted login is not available, so Operator JWT Mode remains required.
+
+See `Foundation_Provider_Login_Discovery.md`.
+
+## Browser API Allowlist
+
+Live Mode browser requests now require an allowlist decision.
+
+Allowed by default:
+
+- Existing OpenAPI `GET */live`
+- Existing OpenAPI `GET */ready`
+- Existing OpenAPI `GET */metrics`
+- Existing OpenAPI `GET */docs/openapi.json`
+
+Blocked by default:
+
+- Unknown endpoints.
+- Clinical action endpoints.
+- Dangerous administrative endpoints.
+- Non-GET requests unless explicitly allowlisted.
+
+See `Browser_API_Allowlist.md`.
+
 ## Live Workspace Behavior
 
 Authenticated workspaces show:
@@ -89,6 +124,7 @@ If APIs are unavailable, CORS blocks access, or no JWT is available:
 - The UI stays usable in Demo Mode.
 - Demo data remains clearly labeled.
 - Live panels show `Live API unavailable`.
+- Blocked browser requests show the allowlist classification and reason.
 - OpenAPI source information remains visible.
 
 Demo role switching never grants production access.

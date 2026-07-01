@@ -37,6 +37,20 @@ X-Request-Id
 X-Correlation-Id
 ```
 
+## Deployment Validation
+
+Use the detailed validation guide:
+
+```text
+docs/user-guides/Browser_CORS_Deployment_Validation.md
+```
+
+The web UI also exposes browser-visible CORS readiness through:
+
+```text
+http://localhost:5174/#/command/live-status
+```
+
 ## Exposed Headers
 
 Recommended:
@@ -76,3 +90,4 @@ Runtime services should allow browser access only for:
 - Do not expose secrets in metrics.
 - Do not allow credentialed browser requests from untrusted origins.
 - Keep tenant and authorization validation server-side.
+- Keep browser API allowlist enforcement enabled.

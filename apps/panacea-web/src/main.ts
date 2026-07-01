@@ -1,7 +1,9 @@
 import { createIcons, icons } from "lucide";
 import "./styles.css";
+import { allowlistSummary, buildBrowserApiAllowlist } from "./apiAllowlist";
 import { defaultRoute } from "./catalog";
 import { clearSession, persistSession, restoreSession, validateTokenWithFoundation } from "./auth";
+import { discoverFoundationLogin } from "./foundationLoginDiscovery";
 import { probeFoundation } from "./foundation";
 import { appendOperatorAuditTest, executeReadOnlyRequest, findReadOnlyEndpoint, pollRuntimeStatus } from "./liveApi";
 import { initialState, renderApp, type RenderState } from "./render";
@@ -132,8 +134,22 @@ function bindEvents() {
 
   document.querySelector<HTMLButtonElement>("#append-test-audit")?.addEventListener("click", async () => {
     if (!state.authSession || state.authSession.role !== "operator") return;
-    const result = await appendOperatorAuditTest(state.authSession, state.webConfig ?? buildWebConfig(data));
+    const config = state.webConfig ?? buildWebConfig(data);
+    const allowlist = buildBrowserApiAllowlist(data, config);
+    const result = await appendOperatorAuditTest(state.authSession, config, allowlist);
     state = { ...state, auditAppendResult: result };
+    render();
+  });
+
+  document.querySelector<HTMLButtonElement>("#discover-foundation-login")?.addEventListener("click", async () => {
+    const config = state.webConfig ?? buildWebConfig(data);
+    const result = await discoverFoundationLogin(config);
+    const allowlist = buildBrowserApiAllowlist(data, config);
+    state = {
+      ...state,
+      providerLoginDiscovery: result,
+      apiAllowlistSummary: allowlistSummary(allowlist)
+    };
     render();
   });
 
@@ -185,6 +201,7 @@ async function afterRender(route: string) {
   const page = pageFromRoute(route);
   if (!workspace || !page) return;
   const config = state.webConfig ?? buildWebConfig(data);
+  const allowlist = buildBrowserApiAllowlist(data, config);
   const endpoint = findReadOnlyEndpoint(data, workspace, page, config);
   if (route !== lastLiveRoute) {
     lastLiveRoute = route;
@@ -193,7 +210,7 @@ async function afterRender(route: string) {
     return;
   }
   liveWorkspaceInFlight = true;
-  const response = await executeReadOnlyRequest(endpoint, state.authSession, config);
+  const response = await executeReadOnlyRequest(endpoint, state.authSession, config, allowlist);
   liveWorkspaceInFlight = false;
   state = {
     ...state,

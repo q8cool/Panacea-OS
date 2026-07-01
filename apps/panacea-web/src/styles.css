@@ -1221,6 +1221,11 @@ pre {
   border-color: rgba(180, 83, 9, 0.28);
 }
 
+.alert.success {
+  background: rgba(23, 128, 60, 0.08);
+  border-color: rgba(23, 128, 60, 0.28);
+}
+
 .alert.danger {
   background: rgba(180, 35, 24, 0.08);
   border-color: rgba(180, 35, 24, 0.28);

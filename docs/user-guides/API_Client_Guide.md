@@ -6,6 +6,8 @@ The Panacea Web API client supports read-only browser calls to existing APIs.
 
 It does not create backend records except the optional operator-only Foundation audit test event marked `testOnly: true`.
 
+Sprint 105 adds a browser API allowlist. Unknown endpoints are blocked before browser transport.
+
 ## Headers
 
 Authenticated requests include:
@@ -29,6 +31,7 @@ Accept: application/json
 | 404 | `unavailable` |
 | 5xx | `offline` |
 | Network or CORS error | `unavailable` |
+| Allowlist block | `unavailable` with blocked reason and classification |
 
 ## Retry Policy
 
@@ -53,3 +56,14 @@ Every request receives a generated request ID. The UI displays:
 Workspace pages select read-only endpoints from the existing OpenAPI bundle where matching contracts are available.
 
 If no read-only endpoint exists, the UI displays `Live API unavailable` and links back to OpenAPI evidence.
+
+## Allowlist Enforcement
+
+Allowed browser reads are generated from existing OpenAPI contracts and limited to runtime and contract-read endpoints:
+
+- `GET */live`
+- `GET */ready`
+- `GET */metrics`
+- `GET */docs/openapi.json`
+
+Everything else is blocked unless explicitly classified as `ALLOWED_OPERATOR_TEST`.

@@ -1,5 +1,7 @@
 import { marked } from "marked";
+import type { BrowserApiClassification } from "./apiAllowlist";
 import { activeServiceModules, allModules, clinicalModules, enterpriseDocModules, innovationModules, navSections, searchNav } from "./catalog";
+import type { ProviderLoginDiscoveryResult } from "./foundationLoginDiscovery";
 import { buildCurl, filterEndpoints, flattenEndpoints, summarizeOpenApi, type EndpointRecord } from "./apiExplorer";
 import { isRoleRoute, renderRoleWorkspace, rolePageTitle } from "./roleRender";
 import { roleFromRoute, roleSwitcherOptions } from "./roleWorkspaces";
@@ -43,6 +45,8 @@ export interface RenderState {
   liveWorkspaceState?: LiveWorkspaceState;
   auditAppendResult?: LiveApiResult;
   lastAuditAction?: BrowserAuditAction;
+  providerLoginDiscovery?: ProviderLoginDiscoveryResult;
+  apiAllowlistSummary?: Record<BrowserApiClassification, number>;
 }
 
 export const initialState: RenderState = {
@@ -310,12 +314,16 @@ function renderAuthPage(data: AppData, state: RenderState): string {
   const missing = missingLiveConfig(config);
   const session = state.authSession;
   const validation = state.authValidation;
+  const discovery = state.providerLoginDiscovery;
+  const allowlist = state.apiAllowlistSummary;
   return `
     <div class="page-grid">
       ${renderPageHeader("Foundation Login", "Authenticate the web workspaces with a Foundation-issued JWT. Demo mode remains available when live APIs or credentials are unavailable.", session ? "LIVE SESSION" : "TOKEN MODE", "KeyRound")}
       <section class="metric-grid">
         ${metric("Mode", session ? "Live" : "Demo fallback", session ? "Claims verified from JWT" : "No authenticated session", "ShieldCheck", session ? "success" : "warn")}
         ${metric("Foundation", config.FOUNDATION_BASE_URL, "Configured provider", "Globe", "info")}
+        ${metric("Provider login", discovery?.providerHostedLoginAvailable ? "Available" : "Operator token", discovery ? discovery.recommendation : "Run login discovery", "LogIn", discovery?.providerHostedLoginAvailable ? "success" : "warn")}
+        ${metric("JWKS", validation?.ok ? "Validated" : "Required", validation?.ok ? "JWT validated against JWKS" : "Token validation has not completed", "KeyRound", validation?.ok ? "success" : "warn")}
         ${metric("Tenant", session?.tenantId ?? config.PANACEA_DEFAULT_TENANT, session ? "From JWT claim" : "Default/demo only", "Building2", session ? "success" : "warn")}
         ${metric("Role", session?.role ?? state.selectedRole, session ? "From JWT claim" : "Demo switcher only", "UserRoundCheck", session ? "success" : "warn")}
       </section>
@@ -356,6 +364,38 @@ function renderAuthPage(data: AppData, state: RenderState): string {
               <p>Use Demo Mode for visual review, or provide a real Foundation JWT for Live Mode. Demo role selection never grants production access.</p>
             </div>
           `}
+        </div>
+      </section>
+      <section class="band two-column">
+        <div>
+          <div class="section-title">
+            <div>
+              <h2>Provider Login Discovery</h2>
+              <p>Production login redirect is enabled only when Foundation exposes login or OAuth/OIDC endpoints. No login is simulated.</p>
+            </div>
+            <button class="button primary" id="discover-foundation-login"><i data-lucide="SearchCheck"></i> Discover Login</button>
+          </div>
+          ${discovery ? `
+            <div class="alert ${discovery.providerHostedLoginAvailable ? "success" : "warn"}">
+              <strong>${discovery.providerHostedLoginAvailable ? "Provider login available" : "Operator action required"}</strong>
+              <p>${escapeHtml(discovery.recommendation)}</p>
+            </div>
+            ${providerDiscoveryList(discovery)}
+          ` : `
+            <div class="empty-state compact">
+              <i data-lucide="Search"></i>
+              <p>Login discovery has not been run in this browser session.</p>
+            </div>
+          `}
+        </div>
+        <div>
+          <h2>Browser API Allowlist</h2>
+          <p>Unknown browser API calls and dangerous writes are blocked by default. Allowed reads come from existing OpenAPI runtime endpoints.</p>
+          ${allowlist ? allowlistSummaryGrid(allowlist) : `<div class="empty-state compact"><i data-lucide="ListChecks"></i><p>Run login discovery or open a live workspace to calculate allowlist status.</p></div>`}
+          <div class="alert warn">
+            <strong>CORS readiness</strong>
+            <p>Browser calls require allowed origin <code>http://localhost:5174</code>, Authorization, tenant, user, request ID, and correlation headers.</p>
+          </div>
         </div>
       </section>
       <section class="band">
@@ -916,6 +956,36 @@ function statusList(items: LiveStatusState["foundation"] | undefined, empty = "N
   `;
 }
 
+function providerDiscoveryList(discovery: ProviderLoginDiscoveryResult): string {
+  return `
+    <div class="status-list">
+      ${discovery.checks.map((check) => `
+        <article>
+          <span class="status-pill ${check.status === "available" ? "success" : check.status === "missing" ? "warn" : "danger"}">${escapeHtml(check.status)}</span>
+          <div>
+            <strong>${escapeHtml(check.label)}</strong>
+            <a href="${escapeAttribute(check.url)}" target="_blank" rel="noreferrer">${escapeHtml(check.url)}</a>
+            <small>${escapeHtml(check.httpStatus ? `HTTP ${check.httpStatus} · ${check.detail}` : check.detail)}</small>
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function allowlistSummaryGrid(summary: Record<BrowserApiClassification, number>): string {
+  return `
+    <div class="config-grid">
+      ${Object.entries(summary).map(([label, value]) => `
+        <article class="config-item">
+          <strong>${escapeHtml(label)}</strong>
+          <code>${escapeHtml(value)}</code>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
 function liveResultCard(result: LiveApiResult): string {
   return `
     <article class="live-result-card">
@@ -925,6 +995,8 @@ function liveResultCard(result: LiveApiResult): string {
       </div>
       <h3>${escapeHtml(result.method)} ${escapeHtml(result.url)}</h3>
       <p>${escapeHtml(result.detail)}</p>
+      ${result.blockedReason ? `<p><strong>Blocked reason:</strong> ${escapeHtml(result.blockedReason)}</p>` : ""}
+      ${result.allowlistClassification ? `<p><strong>Allowlist:</strong> ${escapeHtml(result.allowlistClassification)}</p>` : ""}
       <code>${escapeHtml(result.requestId)}</code>
       ${result.bodyPreview ? `<pre>${escapeHtml(result.bodyPreview)}</pre>` : ""}
     </article>

@@ -1,13 +1,16 @@
 import { describe, expect, it, vi } from "vitest";
 import dataJson from "../public/panacea-data.json";
+import { buildBrowserApiAllowlist, evaluateBrowserApiRequest } from "../src/apiAllowlist";
 import { createSessionFromClaimsForDisplay, validateTokenWithFoundation } from "../src/auth";
 import { flattenEndpoints, filterEndpoints } from "../src/apiExplorer";
 import { probeFoundation } from "../src/foundation";
-import { apiRequest } from "../src/liveApi";
+import { discoverFoundationLogin } from "../src/foundationLoginDiscovery";
+import { apiRequest, appendOperatorAuditTest } from "../src/liveApi";
 import { allRoleRoutes, roleDefaultRoute, roleSwitcherOptions, roleWorkspaces } from "../src/roleWorkspaces";
 import { initialState, renderApp, renderRoute } from "../src/render";
 import { buildWebConfig } from "../src/webConfig";
 import type { AppData, AuthSession, LiveStatusState, LiveWorkspaceState } from "../src/types";
+import { allowedReadFixture, blockedWriteFixture, operatorAuditFixture } from "./liveApiFixtures";
 
 const data = dataJson as AppData;
 const config = buildWebConfig(data);
@@ -155,6 +158,30 @@ describe("Panacea web platform", () => {
     expect(html).toContain("FOUNDATION_JWKS_URL");
   });
 
+  it("discovers provider login endpoints and falls back when they are missing", async () => {
+    const fetchImpl = vi.fn(async () => new Response(JSON.stringify({ error: "not_found" }), { status: 404 })) as unknown as typeof fetch;
+    const discovery = await discoverFoundationLogin(config, fetchImpl);
+    expect(discovery.providerHostedLoginAvailable).toBe(false);
+    expect(discovery.checks).toHaveLength(6);
+    expect(discovery.recommendation).toContain("Operator JWT mode");
+  });
+
+  it("detects provider-hosted login when OpenID discovery exists", async () => {
+    const fetchImpl = vi.fn(async (url: string) => {
+      if (url.includes("openid-configuration")) {
+        return new Response(JSON.stringify({
+          issuer: config.FOUNDATION_JWT_ISSUER,
+          authorization_endpoint: "https://foundation.utbe.ai/oauth/authorize",
+          token_endpoint: "https://foundation.utbe.ai/api/v1/auth/token"
+        }), { status: 200 });
+      }
+      return new Response(JSON.stringify({ error: "not_found" }), { status: 404 });
+    }) as unknown as typeof fetch;
+    const discovery = await discoverFoundationLogin(config, fetchImpl);
+    expect(discovery.providerHostedLoginAvailable).toBe(true);
+    expect(discovery.checks[0].detail).toContain("authorization_endpoint");
+  });
+
   it("extracts token-mode claims for display without treating them as signed live authentication", () => {
     const token = makeJwt({
       iss: config.FOUNDATION_JWT_ISSUER,
@@ -212,7 +239,7 @@ describe("Panacea web platform", () => {
       return new Response(JSON.stringify({ ok: true }), { status: 200 });
     }) as unknown as typeof fetch;
 
-    const result = await apiRequest("GET", "https://api.example.test/api/v4/live", sessionFor("administrator"), config, undefined, fetchImpl);
+    const result = await apiRequest("GET", allowedReadFixture.url, sessionFor("administrator"), config, undefined, fetchImpl, [allowedReadFixture]);
     expect(result.state).toBe("online");
     expect(headers).toMatchObject({
       Authorization: "Bearer test-token",
@@ -223,15 +250,44 @@ describe("Panacea web platform", () => {
 
   it("API client handles 401, 403, and unavailable APIs without throwing", async () => {
     const session = sessionFor("administrator");
-    const unauthorized = await apiRequest("GET", "https://api.example.test/401", session, config, undefined, vi.fn(async () => new Response("no", { status: 401 })) as unknown as typeof fetch);
-    const forbidden = await apiRequest("GET", "https://api.example.test/403", session, config, undefined, vi.fn(async () => new Response("no", { status: 403 })) as unknown as typeof fetch);
-    const unavailable = await apiRequest("GET", "https://api.example.test/down", session, config, undefined, vi.fn(async () => {
+    const unauthorized = await apiRequest("GET", allowedReadFixture.url, session, config, undefined, vi.fn(async () => new Response("no", { status: 401 })) as unknown as typeof fetch, [allowedReadFixture]);
+    const forbidden = await apiRequest("GET", allowedReadFixture.url, session, config, undefined, vi.fn(async () => new Response("no", { status: 403 })) as unknown as typeof fetch, [allowedReadFixture]);
+    const unavailable = await apiRequest("GET", allowedReadFixture.url, session, config, undefined, vi.fn(async () => {
       throw new TypeError("Failed to fetch");
-    }) as unknown as typeof fetch);
+    }) as unknown as typeof fetch, [allowedReadFixture]);
 
     expect(unauthorized.state).toBe("unauthorized");
     expect(forbidden.state).toBe("unauthorized");
     expect(unavailable.state).toBe("unavailable");
+  });
+
+  it("allowlist allows safe reads and blocks unknown endpoints", () => {
+    const allowlist = buildBrowserApiAllowlist(data, config);
+    const allowed = evaluateBrowserApiRequest(allowlist, "GET", allowedReadUrlFromAllowlist(allowlist), sessionFor("operator"));
+    const blocked = evaluateBrowserApiRequest(allowlist, "GET", "https://api.example.test/api/v4/not-in-openapi", sessionFor("operator"));
+    expect(allowed.allowed).toBe(true);
+    expect(allowed.classification).toBe("ALLOWED_READ");
+    expect(blocked.allowed).toBe(false);
+    expect(blocked.classification).toBe("UNKNOWN");
+  });
+
+  it("allowlist blocks dangerous write endpoints before browser transport", async () => {
+    const fetchImpl = vi.fn(async () => new Response("should not be called", { status: 200 })) as unknown as typeof fetch;
+    const result = await apiRequest("POST", blockedWriteFixture.url, sessionFor("operator"), config, { testOnly: true }, fetchImpl, [blockedWriteFixture]);
+    expect(result.state).toBe("unavailable");
+    expect(result.allowlistClassification).toBe("BLOCKED_WRITE");
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("operator audit test remains restricted to operator role", async () => {
+    const doctorResult = await appendOperatorAuditTest(sessionFor("doctor"), config, [operatorAuditFixture], vi.fn() as unknown as typeof fetch);
+    expect(doctorResult.allowlistClassification).toBe("ALLOWED_OPERATOR_TEST");
+    expect(doctorResult.blockedReason).toContain("operator role");
+
+    const fetchImpl = vi.fn(async () => new Response(JSON.stringify({ accepted: true }), { status: 201 })) as unknown as typeof fetch;
+    const operatorResult = await appendOperatorAuditTest(sessionFor("operator"), config, [operatorAuditFixture], fetchImpl);
+    expect(operatorResult.state).toBe("online");
+    expect(fetchImpl).toHaveBeenCalledOnce();
   });
 
   it("renders Foundation and service live/offline status states", () => {
@@ -256,6 +312,25 @@ describe("Panacea web platform", () => {
     expect(html).toContain("unavailable");
   });
 
+  it("renders allowlist and CORS readiness status on the login page", () => {
+    const html = renderRoute(data, "/auth/login", {
+      ...initialState,
+      webConfig: config,
+      apiAllowlistSummary: {
+        ALLOWED_READ: 10,
+        ALLOWED_OPERATOR_TEST: 1,
+        BLOCKED_WRITE: 50,
+        BLOCKED_CLINICAL_ACTION: 20,
+        BLOCKED_ADMIN_DANGEROUS: 5,
+        SERVER_ONLY: 0,
+        UNKNOWN: 0
+      }
+    });
+    expect(html).toContain("Browser API Allowlist");
+    expect(html).toContain("CORS readiness");
+    expect(html).toContain("ALLOWED_READ");
+  });
+
   it("renders live workspace unavailable states without presenting demo rows as live data", () => {
     const liveWorkspaceState: LiveWorkspaceState = {
       endpoint: {
@@ -272,7 +347,9 @@ describe("Panacea web platform", () => {
         url: "No matching read-only endpoint",
         state: "unavailable",
         detail: "Live API unavailable",
-        checkedAt: new Date().toISOString()
+        checkedAt: new Date().toISOString(),
+        allowlistClassification: "ALLOWED_READ",
+        blockedReason: "No browser-visible read model returned records."
       }
     };
     const html = renderRoute(data, "/workspace/patient/dashboard", {
@@ -283,9 +360,16 @@ describe("Panacea web platform", () => {
     expect(html).toContain("LIVE MODE -- AUTHENTICATED READ-ONLY SESSION");
     expect(html).toContain("Demo rows are hidden in Live Mode");
     expect(html).toContain("No live records are displayed");
+    expect(html).toContain("ALLOWED_READ");
     expect(html).not.toContain("Rows are UI-state examples");
   });
 });
+
+function allowedReadUrlFromAllowlist(allowlist: ReturnType<typeof buildBrowserApiAllowlist>): string {
+  const entry = allowlist.find((item) => item.classification === "ALLOWED_READ");
+  if (!entry) throw new Error("Expected generated allowlist to include at least one safe read endpoint.");
+  return entry.url;
+}
 
 function sessionFor(role: AuthSession["role"]): AuthSession {
   return {

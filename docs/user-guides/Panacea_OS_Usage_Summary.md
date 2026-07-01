@@ -128,6 +128,10 @@ Major capabilities include:
 - Foundation-backed operator token login.
 - JWT claim extraction, expiry handling, issuer checks, tenant and role mapping.
 - Read-only browser API client with Authorization, tenant, request ID, and correlation headers.
+- OpenAPI-generated browser API allowlist.
+- Foundation login discovery status.
+- CORS deployment validation guide.
+- Production test JWT workflow guidance.
 - Live API status polling and audit-aware browser action display.
 - Demo Role Switcher.
 - Live Foundation Provider validation at `https://foundation.utbe.ai`.
@@ -150,10 +154,10 @@ Recommended next UI sprint:
 
 Scope:
 
-- Add provider-hosted login redirect when Foundation exposes one.
-- Add live API endpoint allowlist once production services expose read-only browser routes.
-- Add CORS deployment verification.
-- Add operator test JWT issuance workflow.
+- Implement provider-hosted login redirect when Foundation exposes OAuth/OIDC endpoints.
+- Expand read-only browser allowlist only when production read-model APIs exist.
+- Complete CORS deployment verification in production.
+- Add operator test JWT issuance endpoint or admin process.
 - No clinical diagnosis, treatment, or autonomous AI expansion.
 
 ## 9. Is Panacea OS currently a backend platform, a full visual application, or both?

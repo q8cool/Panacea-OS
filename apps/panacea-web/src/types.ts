@@ -218,6 +218,8 @@ export interface LiveApiResult {
   checkedAt: string;
   durationMs?: number;
   bodyPreview?: string;
+  blockedReason?: string;
+  allowlistClassification?: string;
 }
 
 export interface LiveApiEndpointCandidate {

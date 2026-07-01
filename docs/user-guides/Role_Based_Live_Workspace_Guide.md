@@ -25,6 +25,8 @@ Each workspace page shows:
 - Live Data Connection.
 - OpenAPI endpoint candidate.
 - Endpoint source contract.
+- API allowlist classification.
+- Blocked request reason if the browser call is not allowed.
 - Request status.
 - Request ID.
 - User, role, tenant, timestamp, endpoint, and response status.
@@ -36,6 +38,7 @@ If a live read-only endpoint is not available:
 - The page states `Live API unavailable`.
 - Demo rows are not presented as live records.
 - The relevant OpenAPI and documentation source remains visible.
+- Unknown browser API calls are blocked by default.
 
 ## Security Rules
 
@@ -44,3 +47,4 @@ If a live read-only endpoint is not available:
 - Tenant scope is derived from token claims.
 - Browser requests include Authorization and tenant headers.
 - 401 and 403 responses are shown directly instead of being hidden.
+- Operator audit append is restricted to operator role sessions.
