@@ -83,3 +83,19 @@ test("CI includes live infrastructure validation using the runtime orchestration
   assert.match(workflow, /npm run runtime:disaster-recovery/);
   assert.match(workflow, /external-secret-scan:/);
 });
+
+test("root Panacea runtime commands control start, stop, status, restart, and health checks", () => {
+  const packageJson = JSON.parse(read("package.json"));
+  for (const script of ["panacea:start", "panacea:stop", "panacea:restart", "panacea:status", "panacea:health"]) {
+    assert.match(packageJson.scripts[script], /node scripts\/panacea-runtime\.mjs/, `${script} must use the runtime controller`);
+  }
+  const source = read("scripts/panacea-runtime.mjs");
+  assert.match(source, /compose\(\["up", "-d", "--build"\]/, "start command must build and start Docker runtime");
+  assert.match(source, /compose\(\["down", "--remove-orphans"\]/, "stop command must stop safely without deleting volumes");
+  assert.doesNotMatch(source, /down", "-v"/, "operator stop must not remove PostgreSQL volumes by default");
+  for (const endpoint of ["/live", "/ready", "/metrics", "/docs/openapi.json"]) {
+    assert.match(source, new RegExp(endpoint.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `${endpoint} must be included in health checks`);
+  }
+  assert.match(source, /pg_isready/, "health command must include PostgreSQL readiness");
+  assert.match(source, /container is .*run npm run panacea:start first/, "stopped-service failures must be clear");
+});
