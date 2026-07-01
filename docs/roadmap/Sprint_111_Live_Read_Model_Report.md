@@ -1,8 +1,10 @@
 # Sprint 111 Live Read Model Report
 
-Status: COMPLETED WITH RUNTIME INFRASTRUCTURE CONDITION
+Status: COMPLETED
 
 Branch: `develop/v4.0`
+
+Sprint 112 update: the runtime orchestration condition is CLOSED after Docker authentication and base-image access were repaired.
 
 ## Objective
 
@@ -51,7 +53,7 @@ No new clinical features, autonomous diagnosis, autonomous treatment, AI capabil
 | `npm run audit` | PASS, 0 moderate vulnerabilities |
 | `npm run web:build` | PASS |
 | `npm run quality:gate` | PASS |
-| `npm run runtime:orchestration` | BLOCKED BY LOCAL DOCKER IMAGE ACCESS |
+| `npm run runtime:orchestration` | PASS after Sprint 112 Docker credential fix |
 | `curl -I http://localhost:5174/` | PASS after starting web dev server, HTTP 200 |
 | `curl https://foundation.utbe.ai/health` | PASS, `{"status":"ok","service":"foundation-provider"}` |
 | `curl https://foundation.utbe.ai/ready` | PASS, `{"status":"ready","service":"foundation-provider"}` |
@@ -59,7 +61,7 @@ No new clinical features, autonomous diagnosis, autonomous treatment, AI capabil
 
 ## Runtime Orchestration Condition
 
-`npm run runtime:orchestration` did not reach service startup. Docker Compose failed while resolving the base image metadata for `node:22-bookworm-slim`:
+Sprint 111 originally could not complete `npm run runtime:orchestration` because Docker Compose failed while resolving the base image metadata for `node:22-bookworm-slim`:
 
 ```text
 DeadlineExceeded: context deadline exceeded
@@ -82,13 +84,19 @@ docker version
 29.5.3 / 29.5.3
 ```
 
-This is a local Docker Desktop / Docker Hub credential or image metadata access blocker. The implementation, contracts, tests, OpenAPI, build, audit, web build, and quality gate passed.
+This was a local Docker Desktop / Docker Hub credential or image metadata access blocker. The implementation, contracts, tests, OpenAPI, build, audit, web build, and quality gate passed.
 
-Mitigation:
+Sprint 112 closure evidence:
 
-1. Fix Docker Desktop credential helper or Docker Hub access on the operator machine.
-2. Run `docker pull node:22-bookworm-slim`.
-3. Rerun `npm run runtime:orchestration`.
+```text
+docker pull node:22-bookworm-slim
+Status: Image is up to date for node:22-bookworm-slim
+
+npm run runtime:orchestration
+Runtime orchestration validation passed.
+```
+
+The runtime run validated Docker image builds, PostgreSQL startup, forward and idempotent migrations, health endpoints, readiness endpoints, metrics endpoints, OpenAPI endpoints, protected write flow, unauthenticated rejection, unauthorized rejection, tenant mismatch rejection, structured lifecycle logs, and clean container shutdown.
 
 ## Remaining Boundaries
 
@@ -125,4 +133,4 @@ http://localhost:5174/#/auth/login
 
 ## Final Recommendation
 
-Proceed to a controlled read-model population sprint or operator sample-data sprint after the local Docker image access condition is resolved or formally accepted. Keep the next sprint read-only unless product governance explicitly approves write workflows.
+Proceed to a controlled read-model population sprint or operator sample-data sprint. Keep the next sprint read-only unless product governance explicitly approves write workflows.
