@@ -51,9 +51,18 @@ Open:
 http://localhost:5174/#/auth/login
 ```
 
-Paste a Foundation-issued JWT in Operator Token Mode.
+Use Provider Login when Foundation auth endpoints are available, or paste a Foundation-issued JWT in Operator Token Mode.
 
-The browser validates:
+Provider Login validates:
+
+- Login endpoint availability.
+- Username, password, and tenant response from Foundation.
+- RS256 access-token signature through JWKS.
+- Token expiry, issuer, tenant, role, and permissions.
+- Refresh-token rotation.
+- Logout through the provider when supported.
+
+Operator JWT Mode validates:
 
 - JWT structure.
 - Signed algorithm requirement.
@@ -68,16 +77,16 @@ If validation fails, Live Mode is not enabled.
 
 ## Provider Login Discovery
 
-Sprint 105 checks Foundation login discovery endpoints:
+Sprint 106 checks Foundation login discovery endpoints:
 
 - `/.well-known/openid-configuration`
-- `/oauth/authorize`
-- `/authorize`
 - `/api/v1/auth/login`
 - `/api/v1/auth/token`
 - `/api/v1/auth/refresh`
+- `/api/v1/auth/logout`
+- `/api/v1/auth/me`
 
-Current result: provider-hosted login is not available, so Operator JWT Mode remains required.
+Current behavior: Provider Login is enabled only when login/token endpoints are reachable from the browser. Otherwise Operator JWT Mode remains available.
 
 See `Foundation_Provider_Login_Discovery.md`.
 

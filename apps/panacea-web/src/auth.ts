@@ -128,6 +128,7 @@ export async function validateTokenWithFoundation(
       warnings,
       session: {
         token,
+        authMode: "operator-jwt",
         subject: claims.sub || "unknown-subject",
         displayName: claims.name || claims.preferred_username || claims.email || claims.sub || "Authenticated user",
         issuer: claims.iss,
@@ -163,6 +164,7 @@ export function createSessionFromClaimsForDisplay(token: string, config: Panacea
       warnings,
       session: {
         token,
+        authMode: "operator-jwt",
         subject: decoded.claims.sub || "unknown-subject",
         displayName: decoded.claims.name || decoded.claims.preferred_username || decoded.claims.sub || "Authenticated user",
         issuer: decoded.claims.iss,

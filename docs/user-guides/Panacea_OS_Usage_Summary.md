@@ -36,7 +36,7 @@ To test authenticated Live Mode, open:
 http://localhost:5174/#/auth/login
 ```
 
-Paste a Foundation-issued JWT. If the token validates against Foundation issuer and JWKS, the UI switches to Live Mode and derives role, tenant, and permissions from claims.
+Use Provider Login if Foundation auth endpoints are deployed. Otherwise paste a Foundation-issued JWT. If the token validates against Foundation issuer and JWKS, the UI switches to Live Mode and derives role, tenant, and permissions from claims.
 
 ## 2. What URL do I open?
 
@@ -125,6 +125,7 @@ Major capabilities include:
 
 - Professional Panacea web platform.
 - Role-based user workspaces.
+- Foundation Provider Login with token validation, refresh, and logout.
 - Foundation-backed operator token login.
 - JWT claim extraction, expiry handling, issuer checks, tenant and role mapping.
 - Read-only browser API client with Authorization, tenant, request ID, and correlation headers.
@@ -150,14 +151,14 @@ Major capabilities include:
 
 Recommended next UI sprint:
 
-**Authenticated Live Data Hardening Sprint**
+**Foundation Auth Deployment And Live Readiness Sprint**
 
 Scope:
 
-- Implement provider-hosted login redirect when Foundation exposes OAuth/OIDC endpoints.
+- Deploy and route Sprint 106 Foundation auth endpoints on `foundation.utbe.ai`.
 - Expand read-only browser allowlist only when production read-model APIs exist.
 - Complete CORS deployment verification in production.
-- Add operator test JWT issuance endpoint or admin process.
+- Add an approved operator credential rotation process.
 - No clinical diagnosis, treatment, or autonomous AI expansion.
 
 ## 9. Is Panacea OS currently a backend platform, a full visual application, or both?

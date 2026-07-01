@@ -1,7 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
+import crypto from "node:crypto";
 import dataJson from "../public/panacea-data.json";
 import { buildBrowserApiAllowlist, evaluateBrowserApiRequest } from "../src/apiAllowlist";
 import { createSessionFromClaimsForDisplay, validateTokenWithFoundation } from "../src/auth";
+import {
+  loginWithFoundationProvider,
+  logoutFoundationProviderSession,
+  providerAuthEndpoints,
+  refreshFoundationProviderSession
+} from "../src/foundationAuthClient";
 import { flattenEndpoints, filterEndpoints } from "../src/apiExplorer";
 import { probeFoundation } from "../src/foundation";
 import { discoverFoundationLogin } from "../src/foundationLoginDiscovery";
@@ -14,6 +21,11 @@ import { allowedReadFixture, blockedWriteFixture, operatorAuditFixture } from ".
 
 const data = dataJson as AppData;
 const config = buildWebConfig(data);
+const providerKeyPair = crypto.generateKeyPairSync("rsa", {
+  modulusLength: 2048,
+  publicKeyEncoding: { type: "spki", format: "pem" },
+  privateKeyEncoding: { type: "pkcs8", format: "pem" }
+});
 
 describe("Panacea web platform", () => {
   it("renders the executive overview with real release evidence", () => {
@@ -153,33 +165,132 @@ describe("Panacea web platform", () => {
       webConfig: config
     });
     expect(html).toContain("Foundation Login");
+    expect(html).toContain("Provider Login");
     expect(html).toContain("Operator Token Mode");
+    expect(html).toContain("Sign In With Foundation");
     expect(html).toContain("Paste Foundation-issued JWT");
     expect(html).toContain("FOUNDATION_JWKS_URL");
+  });
+
+  it("provider auth endpoints are derived from Foundation base URL", () => {
+    const endpoints = providerAuthEndpoints(config);
+    expect(endpoints.login).toBe("https://foundation.utbe.ai/api/v1/auth/login");
+    expect(endpoints.refresh).toBe("https://foundation.utbe.ai/api/v1/auth/refresh");
+    expect(endpoints.me).toBe("https://foundation.utbe.ai/api/v1/auth/me");
+  });
+
+  it("provider login validates the returned access token and stores provider session metadata", async () => {
+    const token = makeSignedJwt({
+      iss: config.FOUNDATION_JWT_ISSUER,
+      aud: "panacea-web",
+      sub: "foundation-operator",
+      userId: "foundation-operator",
+      username: "operator",
+      name: "operator",
+      exp: Math.floor(Date.now() / 1000) + 900,
+      iat: Math.floor(Date.now() / 1000),
+      tenantId: "default",
+      roles: ["operator"],
+      permissions: ["panacea:operate"]
+    });
+    const fetchImpl = vi.fn(async (url: string) => {
+      if (url.includes("/.well-known/jwks.json")) {
+        return new Response(JSON.stringify({ keys: [publicJwk()] }), { status: 200 });
+      }
+      if (url.includes("/api/v1/auth/login")) {
+        return new Response(JSON.stringify({
+          accessToken: token,
+          refreshToken: "refresh-provider-session",
+          expiresIn: 3600,
+          tokenType: "Bearer",
+          user: { username: "operator", tenantId: "default", roles: ["operator"] }
+        }), { status: 200 });
+      }
+      return new Response(JSON.stringify({ error: "not_found" }), { status: 404 });
+    }) as unknown as typeof fetch;
+
+    const result = await loginWithFoundationProvider({ username: "operator", password: "secret", tenantId: "default" }, config, fetchImpl);
+    expect(result.ok).toBe(true);
+    expect(result.session?.authMode).toBe("provider-login");
+    expect(result.session?.refreshToken).toBe("refresh-provider-session");
+    expect(result.session?.role).toBe("operator");
+  });
+
+  it("provider login surfaces structured authentication errors", async () => {
+    const fetchImpl = vi.fn(async () => new Response(JSON.stringify({
+      error: "invalid_credentials",
+      message: "Invalid username, password, or tenant."
+    }), { status: 401 })) as unknown as typeof fetch;
+
+    await expect(loginWithFoundationProvider({ username: "operator", password: "wrong", tenantId: "default" }, config, fetchImpl))
+      .rejects
+      .toThrow("Invalid username, password, or tenant.");
+  });
+
+  it("provider refresh flow returns a rotated provider session", async () => {
+    const refreshedToken = makeSignedJwt({
+      iss: config.FOUNDATION_JWT_ISSUER,
+      aud: "panacea-web",
+      sub: "foundation-operator",
+      userId: "foundation-operator",
+      username: "operator",
+      exp: Math.floor(Date.now() / 1000) + 1800,
+      iat: Math.floor(Date.now() / 1000),
+      tenantId: "default",
+      roles: ["operator"],
+      permissions: ["panacea:operate"]
+    });
+    const fetchImpl = vi.fn(async (url: string) => {
+      if (url.includes("/.well-known/jwks.json")) return new Response(JSON.stringify({ keys: [publicJwk()] }), { status: 200 });
+      if (url.includes("/api/v1/auth/refresh")) {
+        return new Response(JSON.stringify({
+          accessToken: refreshedToken,
+          refreshToken: "rotated-refresh-provider-session",
+          expiresIn: 3600,
+          tokenType: "Bearer",
+          user: { username: "operator", tenantId: "default", roles: ["operator"] }
+        }), { status: 200 });
+      }
+      return new Response(JSON.stringify({ error: "not_found" }), { status: 404 });
+    }) as unknown as typeof fetch;
+    const result = await refreshFoundationProviderSession({ ...sessionFor("operator"), refreshToken: "refresh-provider-session", authMode: "provider-login" }, config, fetchImpl);
+    expect(result.ok).toBe(true);
+    expect(result.session?.refreshToken).toBe("rotated-refresh-provider-session");
+    expect(result.session?.authMode).toBe("provider-login");
+  });
+
+  it("provider logout accepts provider response and clears local-session caller state", async () => {
+    const fetchImpl = vi.fn(async () => new Response(JSON.stringify({ status: "ok", loggedOut: true }), { status: 200 })) as unknown as typeof fetch;
+    const result = await logoutFoundationProviderSession({ ...sessionFor("operator"), refreshToken: "refresh-provider-session", authMode: "provider-login" }, config, fetchImpl);
+    expect(result.ok).toBe(true);
+    expect(result.detail).toContain("Provider logout accepted");
   });
 
   it("discovers provider login endpoints and falls back when they are missing", async () => {
     const fetchImpl = vi.fn(async () => new Response(JSON.stringify({ error: "not_found" }), { status: 404 })) as unknown as typeof fetch;
     const discovery = await discoverFoundationLogin(config, fetchImpl);
     expect(discovery.providerHostedLoginAvailable).toBe(false);
-    expect(discovery.checks).toHaveLength(6);
+    expect(discovery.checks).toHaveLength(8);
     expect(discovery.recommendation).toContain("Operator JWT mode");
   });
 
-  it("detects provider-hosted login when OpenID discovery exists", async () => {
+  it("detects provider-hosted login when OpenID and auth endpoints exist", async () => {
     const fetchImpl = vi.fn(async (url: string) => {
       if (url.includes("openid-configuration")) {
         return new Response(JSON.stringify({
           issuer: config.FOUNDATION_JWT_ISSUER,
-          authorization_endpoint: "https://foundation.utbe.ai/oauth/authorize",
-          token_endpoint: "https://foundation.utbe.ai/api/v1/auth/token"
+          token_endpoint: "https://foundation.utbe.ai/api/v1/auth/token",
+          userinfo_endpoint: "https://foundation.utbe.ai/api/v1/auth/me"
         }), { status: 200 });
+      }
+      if (url.includes("/api/v1/auth/login") || url.includes("/api/v1/auth/token")) {
+        return new Response(null, { status: 204 });
       }
       return new Response(JSON.stringify({ error: "not_found" }), { status: 404 });
     }) as unknown as typeof fetch;
     const discovery = await discoverFoundationLogin(config, fetchImpl);
     expect(discovery.providerHostedLoginAvailable).toBe(true);
-    expect(discovery.checks[0].detail).toContain("authorization_endpoint");
+    expect(discovery.checks[0].detail).toContain("token_endpoint");
   });
 
   it("extracts token-mode claims for display without treating them as signed live authentication", () => {
@@ -396,4 +507,23 @@ function makeJwt(claims: Record<string, unknown>): string {
 
 function base64Url(value: unknown): string {
   return Buffer.from(JSON.stringify(value), "utf8").toString("base64url");
+}
+
+function makeSignedJwt(claims: Record<string, unknown>): string {
+  const header = base64Url({ alg: "RS256", typ: "JWT", kid: "provider-test-key" });
+  const payload = base64Url(claims);
+  const signature = crypto.createSign("RSA-SHA256")
+    .update(`${header}.${payload}`)
+    .sign(providerKeyPair.privateKey)
+    .toString("base64url");
+  return `${header}.${payload}.${signature}`;
+}
+
+function publicJwk(): JsonWebKey & { kid: string; alg: string; use: string } {
+  return {
+    ...(crypto.createPublicKey(providerKeyPair.publicKey).export({ format: "jwk" }) as JsonWebKey),
+    kid: "provider-test-key",
+    alg: "RS256",
+    use: "sig"
+  };
 }

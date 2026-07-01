@@ -2,9 +2,20 @@
 
 ## Login Model
 
-Panacea Web uses Foundation-backed JWT validation for Live Mode.
+Panacea Web uses Foundation-backed authentication for Live Mode.
 
-Sprint 105 confirmed the Foundation Provider does not currently expose provider-hosted login endpoints. Use Operator Token Mode:
+Sprint 106 adds Provider Login support. Use Provider Login when Foundation exposes `/api/v1/auth/login` and `/api/v1/auth/token`.
+
+Provider Login:
+
+1. Open `http://localhost:5174/#/auth/login`.
+2. Click **Discover Login**.
+3. Confirm `Provider login: YES`.
+4. Enter Foundation username, password, and tenant ID.
+5. Submit.
+6. Confirm `Auth mode: Provider Login`.
+
+Operator Token Mode remains available:
 
 1. Obtain a test JWT from the Foundation Provider.
 2. Open `http://localhost:5174/#/auth/login`.
@@ -43,21 +54,21 @@ Supported role mappings:
 | JWKS unavailable | Foundation discovery could not be reached from the browser. |
 | Role missing | The token does not contain a supported Panacea role. |
 | Tenant missing | The token does not contain a tenant claim. |
-| Provider login unavailable | Continue Operator JWT Mode until Foundation exposes OAuth/OIDC or token endpoints. |
+| Provider login unavailable | Continue Operator JWT Mode until Foundation auth endpoints are deployed and CORS-enabled. |
 
 ## Provider Login Endpoints Checked
 
 | Endpoint | Current status |
 |---|---|
-| `/.well-known/openid-configuration` | HTTP 404 |
-| `/oauth/authorize` | HTTP 404 |
-| `/authorize` | HTTP 404 |
-| `/api/v1/auth/login` | HTTP 404 |
-| `/api/v1/auth/token` | HTTP 404 |
-| `/api/v1/auth/refresh` | HTTP 404 |
+| `/.well-known/openid-configuration` | Required |
+| `/api/v1/auth/login` | Required |
+| `/api/v1/auth/token` | Required |
+| `/api/v1/auth/refresh` | Required |
+| `/api/v1/auth/logout` | Required |
+| `/api/v1/auth/me` | Required |
 
 ## Logout
 
 Use the logout button in the top bar or login page.
 
-Logout clears the browser session and returns the UI to Demo Mode.
+For Provider Login, logout calls Foundation logout when a refresh token is available, then clears the browser session and returns the UI to Demo Mode.

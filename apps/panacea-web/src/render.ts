@@ -47,6 +47,7 @@ export interface RenderState {
   lastAuditAction?: BrowserAuditAction;
   providerLoginDiscovery?: ProviderLoginDiscoveryResult;
   apiAllowlistSummary?: Record<BrowserApiClassification, number>;
+  providerAuthStatus?: string;
 }
 
 export const initialState: RenderState = {
@@ -316,18 +317,41 @@ function renderAuthPage(data: AppData, state: RenderState): string {
   const validation = state.authValidation;
   const discovery = state.providerLoginDiscovery;
   const allowlist = state.apiAllowlistSummary;
+  const authMode = session?.authMode === "provider-login" ? "Provider Login" : session?.authMode === "operator-jwt" ? "Operator JWT" : "Demo";
+  const providerReady = discovery?.providerHostedLoginAvailable;
   return `
     <div class="page-grid">
-      ${renderPageHeader("Foundation Login", "Authenticate the web workspaces with a Foundation-issued JWT. Demo mode remains available when live APIs or credentials are unavailable.", session ? "LIVE SESSION" : "TOKEN MODE", "KeyRound")}
+      ${renderPageHeader("Foundation Login", "Authenticate the web workspaces with Foundation provider login or a Foundation-issued JWT. Demo mode remains available when live APIs or credentials are unavailable.", session ? "LIVE SESSION" : "AUTH READY", "KeyRound")}
       <section class="metric-grid">
-        ${metric("Mode", session ? "Live" : "Demo fallback", session ? "Claims verified from JWT" : "No authenticated session", "ShieldCheck", session ? "success" : "warn")}
+        ${metric("Auth mode", authMode, session ? "Live session active" : "No authenticated session", "ShieldCheck", session ? "success" : "warn")}
         ${metric("Foundation", config.FOUNDATION_BASE_URL, "Configured provider", "Globe", "info")}
-        ${metric("Provider login", discovery?.providerHostedLoginAvailable ? "Available" : "Operator token", discovery ? discovery.recommendation : "Run login discovery", "LogIn", discovery?.providerHostedLoginAvailable ? "success" : "warn")}
+        ${metric("Provider login", providerReady ? "YES" : "NO", discovery ? discovery.recommendation : "Run login discovery", "LogIn", providerReady ? "success" : "warn")}
         ${metric("JWKS", validation?.ok ? "Validated" : "Required", validation?.ok ? "JWT validated against JWKS" : "Token validation has not completed", "KeyRound", validation?.ok ? "success" : "warn")}
         ${metric("Tenant", session?.tenantId ?? config.PANACEA_DEFAULT_TENANT, session ? "From JWT claim" : "Default/demo only", "Building2", session ? "success" : "warn")}
         ${metric("Role", session?.role ?? state.selectedRole, session ? "From JWT claim" : "Demo switcher only", "UserRoundCheck", session ? "success" : "warn")}
       </section>
       <section class="band two-column">
+        <div>
+          <h2>Provider Login</h2>
+          <p>Use real Foundation credentials only when the provider exposes login/token endpoints. Credentials are sent directly to Foundation and are not stored by the browser UI.</p>
+          <form id="provider-login-form" class="auth-form">
+            <label>
+              <span>Username</span>
+              <input id="provider-username" type="text" autocomplete="username" aria-label="Foundation username" />
+            </label>
+            <label>
+              <span>Password</span>
+              <input id="provider-password" type="password" autocomplete="current-password" aria-label="Foundation password" />
+            </label>
+            <label>
+              <span>Tenant ID</span>
+              <input id="provider-tenant" type="text" value="${escapeAttribute(config.PANACEA_DEFAULT_TENANT === "demo-tenant" ? "default" : config.PANACEA_DEFAULT_TENANT)}" autocomplete="organization" aria-label="Foundation tenant ID" />
+            </label>
+            <button class="button primary" type="submit"><i data-lucide="LogIn"></i> Sign In With Foundation</button>
+          </form>
+          ${state.providerAuthStatus ? `<div class="alert success"><strong>Provider auth</strong><p>${escapeHtml(state.providerAuthStatus)}</p></div>` : ""}
+          ${state.authError ? `<div class="alert danger"><strong>Authentication error</strong><p>${escapeHtml(state.authError)}</p></div>` : ""}
+        </div>
         <div>
           <h2>Operator Token Mode</h2>
           <p>Panacea OS does not invent authentication. Paste a test JWT issued by the Foundation Provider. The browser validates expiry, issuer, tenant, role claims, JWKS discovery, and signature where the published key supports browser verification.</p>
@@ -338,13 +362,15 @@ function renderAuthPage(data: AppData, state: RenderState): string {
             </label>
             <button class="button primary" type="submit"><i data-lucide="ShieldCheck"></i> Validate Token</button>
           </form>
-          ${state.authError ? `<div class="alert danger"><strong>Authentication error</strong><p>${escapeHtml(state.authError)}</p></div>` : ""}
           ${validation?.warnings.length ? `<div class="alert warn"><strong>Validation note</strong><p>${escapeHtml(validation.warnings.join(" "))}</p></div>` : ""}
         </div>
+      </section>
+      <section class="band two-column">
         <div>
           <h2>Current Session</h2>
           ${session ? `
             <div class="session-detail">
+              ${releaseFact("Auth mode", authMode, "SESSION")}
               ${releaseFact("User", session.displayName, "AUTHENTICATED")}
               ${releaseFact("Subject", session.subject, "CLAIM")}
               ${releaseFact("Issuer", session.issuer, "CLAIM")}
@@ -355,6 +381,7 @@ function renderAuthPage(data: AppData, state: RenderState): string {
             </div>
             <div class="quick-actions">
               <a class="button primary" href="#/workspace/${session.role === "operator" ? "administrator" : session.role}/dashboard"><i data-lucide="LayoutDashboard"></i> Open role workspace</a>
+              ${session.authMode === "provider-login" ? `<button class="button" id="refresh-provider-session"><i data-lucide="RefreshCw"></i> Refresh Session</button>` : ""}
               <button class="button" id="logout-button"><i data-lucide="LogOut"></i> Logout</button>
             </div>
           ` : `
@@ -365,8 +392,6 @@ function renderAuthPage(data: AppData, state: RenderState): string {
             </div>
           `}
         </div>
-      </section>
-      <section class="band two-column">
         <div>
           <div class="section-title">
             <div>

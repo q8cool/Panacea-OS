@@ -143,6 +143,8 @@ export type RoleId = "operator" | "doctor" | "patient" | "laboratory" | "radiolo
 
 export type DataMode = "demo" | "live";
 
+export type AuthMode = "provider-login" | "operator-jwt";
+
 export type ConnectionState = "online" | "degraded" | "offline" | "unauthorized" | "unavailable";
 
 export interface PanaceaWebConfig {
@@ -163,6 +165,9 @@ export interface PanaceaWebConfig {
 
 export interface AuthSession {
   token: string;
+  refreshToken?: string;
+  tokenType?: "Bearer";
+  authMode?: AuthMode;
   subject: string;
   displayName: string;
   issuer: string;

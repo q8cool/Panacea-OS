@@ -19,6 +19,7 @@
     "quality:gate": "node scripts/quality-gate.mjs",
     "runtime:orchestration": "node scripts/runtime-orchestration-validate.mjs",
     "runtime:disaster-recovery": "node scripts/disaster-recovery-mini-drill.mjs",
+    "foundation:auth-provider": "node scripts/start-foundation-auth-provider.mjs",
     "web:dev": "npm --prefix apps/panacea-web run dev",
     "web:build": "npm --prefix apps/panacea-web run build",
     "web:check": "npm --prefix apps/panacea-web run check",

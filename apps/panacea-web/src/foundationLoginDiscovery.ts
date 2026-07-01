@@ -6,7 +6,9 @@ export type ProviderLoginEndpointKind =
   | "authorize"
   | "login"
   | "token"
-  | "refresh";
+  | "refresh"
+  | "logout"
+  | "me";
 
 export interface ProviderLoginEndpointCheck {
   kind: ProviderLoginEndpointKind;
@@ -31,7 +33,9 @@ const DISCOVERY_PATHS: Array<{ kind: ProviderLoginEndpointKind; label: string; p
   { kind: "authorize", label: "Authorize", path: "/authorize" },
   { kind: "login", label: "Login", path: "/api/v1/auth/login" },
   { kind: "token", label: "Token", path: "/api/v1/auth/token" },
-  { kind: "refresh", label: "Refresh", path: "/api/v1/auth/refresh" }
+  { kind: "refresh", label: "Refresh", path: "/api/v1/auth/refresh" },
+  { kind: "logout", label: "Logout", path: "/api/v1/auth/logout" },
+  { kind: "me", label: "Current user", path: "/api/v1/auth/me" }
 ];
 
 export function providerLoginDiscoveryTargets(config: PanaceaWebConfig): ProviderLoginEndpointCheck[] {
@@ -52,17 +56,19 @@ export async function discoverFoundationLogin(
   const checks = await Promise.all(
     providerLoginDiscoveryTargets(config).map(async (target) => {
       try {
+        const method = discoveryMethod(target.kind);
         const response = await fetchImpl(target.url, {
-          method: "GET",
+          method,
           mode: "cors",
           cache: "no-store"
         });
         const text = await response.text();
+        const available = isAvailableDiscoveryResponse(target.kind, response.status);
         return {
           ...target,
-          status: response.ok ? "available" as const : response.status === 404 ? "missing" as const : "unavailable" as const,
+          status: available ? "available" as const : response.status === 404 ? "missing" as const : "unavailable" as const,
           httpStatus: response.status,
-          detail: response.ok ? discoveryDetail(target.kind, text) : `HTTP ${response.status}`,
+          detail: available ? discoveryDetail(target.kind, text, method) : `HTTP ${response.status}`,
           checkedAt: new Date().toISOString()
         };
       } catch (error) {
@@ -75,18 +81,32 @@ export async function discoverFoundationLogin(
       }
     })
   );
-  const providerHostedLoginAvailable = checks.some((check) => check.status === "available");
+  const providerHostedLoginAvailable = checks.some((check) => ["login", "token"].includes(check.kind) && check.status === "available");
   return {
     providerHostedLoginAvailable,
     checkedAt: new Date().toISOString(),
     checks,
     recommendation: providerHostedLoginAvailable
-      ? "Provider-hosted login endpoints are available. Configure redirect handling before enabling production login."
+      ? "Foundation provider login endpoints are available. Use provider login for Live Mode or Operator JWT mode for issued test tokens."
       : "Provider-hosted login endpoints are not available. Continue Operator JWT mode and require a Foundation-issued test token workflow."
   };
 }
 
-function discoveryDetail(kind: ProviderLoginEndpointKind, body: string): string {
+function discoveryMethod(kind: ProviderLoginEndpointKind): "GET" | "OPTIONS" {
+  return ["login", "token", "refresh", "logout"].includes(kind) ? "OPTIONS" : "GET";
+}
+
+function isAvailableDiscoveryResponse(kind: ProviderLoginEndpointKind, status: number): boolean {
+  if (["login", "token", "refresh", "logout"].includes(kind)) {
+    return [200, 204, 401, 405].includes(status);
+  }
+  if (kind === "me") {
+    return [200, 401, 403].includes(status);
+  }
+  return status >= 200 && status < 300;
+}
+
+function discoveryDetail(kind: ProviderLoginEndpointKind, body: string, method: string): string {
   if (kind === "openidConfiguration") {
     try {
       const parsed = JSON.parse(body) as { authorization_endpoint?: string; token_endpoint?: string; issuer?: string };
@@ -95,6 +115,9 @@ function discoveryDetail(kind: ProviderLoginEndpointKind, body: string): string 
     } catch {
       return "OpenID metadata was not JSON";
     }
+  }
+  if (method === "OPTIONS") {
+    return "CORS preflight is available for this auth endpoint";
   }
   return body.trim() ? "Endpoint responded" : "Endpoint responded with an empty body";
 }

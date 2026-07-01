@@ -3,6 +3,7 @@ import "./styles.css";
 import { allowlistSummary, buildBrowserApiAllowlist } from "./apiAllowlist";
 import { defaultRoute } from "./catalog";
 import { clearSession, persistSession, restoreSession, validateTokenWithFoundation } from "./auth";
+import { loginWithFoundationProvider, logoutFoundationProviderSession, refreshFoundationProviderSession } from "./foundationAuthClient";
 import { discoverFoundationLogin } from "./foundationLoginDiscovery";
 import { probeFoundation } from "./foundation";
 import { appendOperatorAuditTest, executeReadOnlyRequest, findReadOnlyEndpoint, pollRuntimeStatus } from "./liveApi";
@@ -96,6 +97,7 @@ function bindEvents() {
       render();
       return;
     }
+    validation.session.authMode = "operator-jwt";
     persistSession(validation.session);
     lastLiveRoute = "";
     state = {
@@ -113,6 +115,14 @@ function bindEvents() {
 
   document.querySelectorAll<HTMLButtonElement>("#logout-button").forEach((button) => {
     button.addEventListener("click", () => {
+      const session = state.authSession;
+      const config = state.webConfig ?? buildWebConfig(data);
+      if (session?.authMode === "provider-login") {
+        void logoutFoundationProviderSession(session, config).then((result) => {
+          state = { ...state, providerAuthStatus: result.detail };
+          render();
+        });
+      }
       clearSession();
       lastLiveRoute = "";
       state = {
@@ -120,12 +130,93 @@ function bindEvents() {
         authSession: undefined,
         authError: "",
         authValidation: undefined,
+        providerAuthStatus: session?.authMode === "provider-login" ? "Provider logout requested; local session cleared." : "",
         liveWorkspaceState: undefined,
         auditAppendResult: undefined
       };
       window.location.hash = "/auth/login";
       render();
     });
+  });
+
+  document.querySelector<HTMLFormElement>("#provider-login-form")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const config = state.webConfig ?? buildWebConfig(data);
+    const username = document.querySelector<HTMLInputElement>("#provider-username")?.value.trim() ?? "";
+    const password = document.querySelector<HTMLInputElement>("#provider-password")?.value ?? "";
+    const tenantId = document.querySelector<HTMLInputElement>("#provider-tenant")?.value.trim() ?? "";
+    if (!username || !password || !tenantId) {
+      state = { ...state, authError: "Username, password, and tenant are required for Foundation provider login." };
+      render();
+      return;
+    }
+    state = { ...state, authError: "Checking Foundation provider login endpoints...", providerAuthStatus: undefined };
+    render();
+    const discovery = state.providerLoginDiscovery ?? await discoverFoundationLogin(config);
+    if (!discovery.providerHostedLoginAvailable) {
+      state = {
+        ...state,
+        providerLoginDiscovery: discovery,
+        authError: "Foundation provider login endpoint is not available. Use Operator JWT mode until the provider exposes login/token endpoints."
+      };
+      render();
+      return;
+    }
+    state = { ...state, providerLoginDiscovery: discovery, authError: "Signing in with Foundation provider..." };
+    render();
+    try {
+      const result = await loginWithFoundationProvider({ username, password, tenantId }, config);
+      if (!result.ok || !result.session) {
+        state = { ...state, authError: result.error ?? "Foundation provider login failed.", authValidation: result };
+        render();
+        return;
+      }
+      persistSession(result.session);
+      lastLiveRoute = "";
+      state = {
+        ...state,
+        authSession: result.session,
+        authError: "",
+        authValidation: result,
+        providerAuthStatus: "Foundation provider login succeeded.",
+        selectedRole: result.session.role,
+        liveWorkspaceState: undefined
+      };
+      window.location.hash = roleDefaultRoute(result.session.role);
+      render();
+      void refreshLiveStatus();
+    } catch (error) {
+      state = {
+        ...state,
+        authError: error instanceof Error ? error.message : "Foundation provider login failed.",
+        providerAuthStatus: undefined
+      };
+      render();
+    }
+  });
+
+  document.querySelector<HTMLButtonElement>("#refresh-provider-session")?.addEventListener("click", async () => {
+    const session = state.authSession;
+    if (!session) return;
+    const config = state.webConfig ?? buildWebConfig(data);
+    state = { ...state, providerAuthStatus: "Refreshing Foundation provider session..." };
+    render();
+    const result = await refreshFoundationProviderSession(session, config);
+    if (!result.ok || !result.session) {
+      state = { ...state, authError: result.error ?? "Foundation provider refresh failed.", authValidation: result, providerAuthStatus: undefined };
+      render();
+      return;
+    }
+    persistSession(result.session);
+    state = {
+      ...state,
+      authSession: result.session,
+      authError: "",
+      authValidation: result,
+      providerAuthStatus: "Foundation provider session refreshed."
+    };
+    render();
+    void refreshLiveStatus();
   });
 
   document.querySelector<HTMLButtonElement>("#refresh-live-status")?.addEventListener("click", () => {
