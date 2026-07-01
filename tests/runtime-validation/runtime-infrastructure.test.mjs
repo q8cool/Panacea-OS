@@ -44,6 +44,19 @@ test("runtime endpoints are present for health, readiness, metrics, and OpenAPI 
   }
 });
 
+test("runtime services expose trusted-origin CORS preflight for browser live integration", () => {
+  for (const servicePath of serviceDirectories()) {
+    const { server } = filesFor(servicePath);
+    const source = read(server);
+    assert.match(source, /handleCorsPreflight/, `${servicePath} must handle OPTIONS preflight`);
+    assert.match(source, /http:\/\/localhost:5174/, `${servicePath} must default to the trusted local web origin`);
+    for (const header of ["Authorization", "Content-Type", "X-Tenant-Id", "X-User-Id", "X-Request-Id", "X-Correlation-Id"]) {
+      assert.match(source, new RegExp(header), `${servicePath} CORS allowlist missing ${header}`);
+    }
+    assert.doesNotMatch(source, /Access-Control-Allow-Origin", "\*"/, `${servicePath} must not allow wildcard credential-style CORS`);
+  }
+});
+
 test("Dockerfiles define production health checks without duplicate environment declarations", () => {
   for (const servicePath of serviceDirectories()) {
     const { dockerfile } = filesFor(servicePath);

@@ -22,7 +22,7 @@ export function renderRoleWorkspace(data: AppData, route: string, context: RoleR
         ${roleNavigation(workspace, page)}
         <div class="role-content">
           ${modeNotice(workspace, context)}
-          ${roleLiveConnection(context)}
+          ${roleLiveConnection(workspace, page, context)}
           ${roleMetrics(page)}
           ${roleMainPanels(workspace, page)}
           ${roleWorkflow(page)}
@@ -42,6 +42,7 @@ export function rolePageTitle(route: string): string | undefined {
 }
 
 function roleHeader(workspace: RoleWorkspaceDefinition, page: RolePageDefinition, serviceCount: number, docCount: number, context: RoleRenderContext): string {
+  const connection = workspaceConnectionStatus(context);
   return `
     <section class="page-header role-hero">
       <div>
@@ -56,7 +57,7 @@ function roleHeader(workspace: RoleWorkspaceDefinition, page: RolePageDefinition
       </div>
       <div class="header-status">
         <i data-lucide="${workspace.icon}"></i>
-        <span>${context.mode === "live" ? "LIVE DATA MODE" : escapeHtml(workspace.dataMode)}</span>
+        <span>${escapeHtml(connection.label)}</span>
       </div>
     </section>
   `;
@@ -107,15 +108,17 @@ function modeNotice(workspace: RoleWorkspaceDefinition, context: RoleRenderConte
   `;
 }
 
-function roleLiveConnection(context: RoleRenderContext): string {
+function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDefinition, context: RoleRenderContext): string {
+  const connection = workspaceConnectionStatus(context);
   if (context.mode !== "live") {
     return `
       <section class="band live-connection">
         <div class="section-title">
           <div>
             <h2>Live Data Connection</h2>
-            <p>Demo Mode is active. Open Foundation Login and provide a valid JWT to execute read-only API checks.</p>
+            <p>Data source: ${escapeHtml(page.source)}. Demo Mode is active. Open Foundation Login and provide a valid JWT to execute read-only API checks.</p>
           </div>
+          <span class="status-pill ${connection.className}">${escapeHtml(connection.label)}</span>
           <a class="button compact" href="#/auth/login"><i data-lucide="KeyRound"></i> Foundation Login</a>
         </div>
       </section>
@@ -128,9 +131,9 @@ function roleLiveConnection(context: RoleRenderContext): string {
         <div class="section-title">
           <div>
             <h2>Live Data Connection</h2>
-            <p>Waiting for read-only API evaluation for this workspace page.</p>
+            <p>Data source: ${escapeHtml(page.source)}. Waiting for read-only API evaluation for this workspace page.</p>
           </div>
-          <span class="status-pill warn">Pending</span>
+          <span class="status-pill ${connection.className}">${escapeHtml(connection.label)}</span>
         </div>
       </section>
     `;
@@ -138,11 +141,11 @@ function roleLiveConnection(context: RoleRenderContext): string {
   return `
     <section class="band live-connection">
       <div class="section-title">
-        <div>
-          <h2>Live Data Connection</h2>
-          <p>${escapeHtml(state.endpoint.reason)}</p>
+          <div>
+            <h2>Live Data Connection</h2>
+            <p>Data source: ${escapeHtml(page.source)}. ${escapeHtml(state.endpoint.reason)}</p>
         </div>
-        <span class="status-pill ${statusClass(state.result?.state ?? (state.endpoint.available ? "pending" : "unavailable"))}">${escapeHtml(state.result?.state ?? (state.endpoint.available ? "pending" : "unavailable"))}</span>
+        <span class="status-pill ${connection.className}">${escapeHtml(connection.label)}</span>
       </div>
       <div class="role-source-grid">
         <div class="source-list">
@@ -252,7 +255,7 @@ function roleTable(page: RolePageDefinition, mode: DataMode): string {
             <h2>${escapeHtml(page.label)} Worklist</h2>
             <p>Demo rows are hidden in Live Mode. Real records appear only when an existing authenticated read-only API returns data.</p>
           </div>
-          <span class="status-pill warn">Live API unavailable</span>
+          <span class="status-pill warn">LIVE API UNAVAILABLE</span>
         </div>
         <div class="empty-state compact">
           <i data-lucide="DatabaseZap"></i>
@@ -373,10 +376,45 @@ function metricIcon(metric: RoleMetric): string {
 function statusClass(status: string): string {
   const normalized = status.toLowerCase();
   if (normalized.includes("unavailable") || normalized.includes("unauthorized")) return "danger";
-  if (normalized.includes("online") || normalized.includes("available")) return "success";
+  if (normalized.includes("cors") || normalized.includes("auth")) return "danger";
+  if (normalized.includes("connected") || normalized.includes("online") || normalized.includes("available")) return "success";
   if (normalized.includes("action")) return "danger";
-  if (normalized.includes("documentation") || normalized.includes("pending") || normalized.includes("degraded")) return "warn";
+  if (normalized.includes("partial") || normalized.includes("demo") || normalized.includes("documentation") || normalized.includes("pending") || normalized.includes("degraded")) return "warn";
   return "neutral";
+}
+
+function workspaceConnectionStatus(context: RoleRenderContext): { label: string; className: string } {
+  if (context.mode !== "live") {
+    return { label: "DEMO MODE", className: "warn" };
+  }
+  const state = context.workspaceState;
+  if (!state) {
+    return { label: "LIVE PARTIAL", className: "warn" };
+  }
+  if (!state.endpoint.available) {
+    return { label: "LIVE API UNAVAILABLE", className: "warn" };
+  }
+  const result = state.result;
+  if (!result) {
+    return { label: "LIVE PARTIAL", className: "warn" };
+  }
+  if (result.httpStatus === 401 || result.httpStatus === 403 || result.state === "unauthorized") {
+    return { label: "BLOCKED BY AUTH", className: "danger" };
+  }
+  if (result.state === "unavailable") {
+    const detail = `${result.detail} ${result.blockedReason ?? ""}`.toLowerCase();
+    if (detail.includes("cors") || detail.includes("failed to fetch")) {
+      return { label: "BLOCKED BY CORS", className: "danger" };
+    }
+    return { label: "LIVE API UNAVAILABLE", className: "warn" };
+  }
+  if (result.state === "online") {
+    const runtimeOnly = /\/(live|ready|metrics)$|\/docs\/openapi\.json$/.test(state.endpoint.url);
+    return runtimeOnly
+      ? { label: "LIVE PARTIAL", className: "warn" }
+      : { label: "LIVE CONNECTED", className: "success" };
+  }
+  return { label: "LIVE PARTIAL", className: "warn" };
 }
 
 export function isRoleRoute(route: string): boolean {

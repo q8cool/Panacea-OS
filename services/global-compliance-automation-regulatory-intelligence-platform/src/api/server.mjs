@@ -17,6 +17,47 @@ const groupMethodName = {
   regulatory_reporting: "recordRegulatoryReporting"
 };
 
+const CORS_ALLOWED_HEADERS = [
+  "Authorization",
+  "Content-Type",
+  "X-Tenant-Id",
+  "X-User-Id",
+  "X-Actor-Id",
+  "X-Request-Id",
+  "X-Correlation-Id",
+  "X-Permissions",
+  "X-Roles",
+  "X-Country-Codes"
+];
+
+function allowedCorsOrigins() {
+  return (process.env.PANACEA_CORS_ALLOWED_ORIGINS ?? process.env.PANACEA_CORS_ORIGIN ?? "http://localhost:5174")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+}
+
+function applyCors(response, request) {
+  const origin = request.headers.origin;
+  if (typeof origin === "string" && allowedCorsOrigins().includes(origin)) {
+    response.setHeader("Access-Control-Allow-Origin", origin);
+    response.setHeader("Vary", "Origin");
+    response.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    response.setHeader("Access-Control-Allow-Headers", CORS_ALLOWED_HEADERS.join(", "));
+    response.setHeader("Access-Control-Max-Age", "600");
+  }
+}
+
+function handleCorsPreflight(request, response) {
+  applyCors(response, request);
+  if (request.method === "OPTIONS") {
+    response.writeHead(204, { "cache-control": "no-store" });
+    response.end();
+    return true;
+  }
+  return false;
+}
+
 function jsonResponse(response, statusCode, body) {
   const payload = JSON.stringify(body);
   response.writeHead(statusCode, {
@@ -78,6 +119,7 @@ export function createGlobalComplianceRequestHandler({
 }) {
   return async function handleGlobalComplianceRequest(request, response) {
     try {
+      if (handleCorsPreflight(request, response)) return;
       const url = new URL(request.url, "http://localhost");
       if (request.method === "GET" && url.pathname === `${API_BASE_PATH}/live`) {
         return jsonResponse(response, 200, { status: "live", service: SERVICE_NAME });

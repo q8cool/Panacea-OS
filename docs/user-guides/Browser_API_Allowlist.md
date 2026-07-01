@@ -26,7 +26,7 @@ apps/panacea-web/src/apiAllowlist.ts
 
 ## Current Generated Summary
 
-Based on 26 OpenAPI documents and 1,352 endpoints:
+Based on 26 OpenAPI documents and generated browser rules:
 
 | Classification | Count |
 |---|---:|
@@ -46,6 +46,19 @@ The current safe browser read set is limited to existing runtime and contract en
 - `GET */ready`
 - `GET */metrics`
 - `GET */docs/openapi.json`
+
+## Sprint 108 Note
+
+No new role-specific clinical, laboratory, radiology, pharmacy, or administrative record endpoint was added to the browser allowlist because those GET read models do not exist in the active OpenAPI contracts. The browser remains read-only except for the operator-only audit test.
+
+Live Mode requests include:
+
+- `Authorization`
+- `X-Tenant-Id`
+- `X-User-Id`
+- `X-Actor-Id`
+- `X-Request-Id`
+- `X-Correlation-Id`
 
 ## Workspace Coverage
 

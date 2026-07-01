@@ -86,6 +86,19 @@ test("Foundation auth JWKS exposes a public RS256 key", async () => {
   }
 });
 
+test("Foundation auth read endpoints support HEAD for proxy and browser validation", async () => {
+  const { server, baseUrl } = await startAuthProvider();
+  try {
+    for (const path of ["/health", "/ready", "/metrics", "/.well-known/jwks.json"]) {
+      const response = await fetch(`${baseUrl}${path}`, { method: "HEAD" });
+      assert.equal(response.status, 200, `${path} should support HEAD`);
+      assert.equal(await response.text(), "");
+    }
+  } finally {
+    await close(server);
+  }
+});
+
 test("Foundation auth login succeeds with bootstrap credentials and issues signed tokens", async () => {
   const { server, baseUrl, config } = await startAuthProvider();
   try {
@@ -188,18 +201,20 @@ test("Foundation auth me returns authenticated user context", async () => {
 test("Foundation auth CORS preflight allows Panacea web origin and required headers", async () => {
   const { server, baseUrl } = await startAuthProvider();
   try {
-    const response = await fetch(`${baseUrl}/api/v1/auth/login`, {
-      method: "OPTIONS",
-      headers: {
-        origin: "http://localhost:5174",
-        "access-control-request-method": "POST",
-        "access-control-request-headers": "Authorization,Content-Type,X-Tenant-Id,X-User-Id,X-Request-Id,X-Correlation-Id"
-      }
-    });
-    assert.equal(response.status, 204);
-    assert.equal(response.headers.get("access-control-allow-origin"), "http://localhost:5174");
-    assert.match(response.headers.get("access-control-allow-methods") || "", /GET,POST,OPTIONS/);
-    assert.match(response.headers.get("access-control-allow-headers") || "", /X-Tenant-Id/);
+    for (const path of ["/api/v1/auth/login", "/api/v1/audit-records", "/api/v1/policy/evaluate"]) {
+      const response = await fetch(`${baseUrl}${path}`, {
+        method: "OPTIONS",
+        headers: {
+          origin: "http://localhost:5174",
+          "access-control-request-method": "POST",
+          "access-control-request-headers": "Authorization,Content-Type,X-Tenant-Id,X-User-Id,X-Request-Id,X-Correlation-Id"
+        }
+      });
+      assert.equal(response.status, 204, `${path} should support OPTIONS`);
+      assert.equal(response.headers.get("access-control-allow-origin"), "http://localhost:5174");
+      assert.match(response.headers.get("access-control-allow-methods") || "", /GET,POST,OPTIONS/);
+      assert.match(response.headers.get("access-control-allow-headers") || "", /X-Tenant-Id/);
+    }
   } finally {
     await close(server);
   }

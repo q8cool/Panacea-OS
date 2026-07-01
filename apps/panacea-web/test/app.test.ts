@@ -354,9 +354,12 @@ describe("Panacea web platform", () => {
     expect(result.state).toBe("online");
     expect(headers).toMatchObject({
       Authorization: "Bearer test-token",
-      "X-Tenant-Id": "tenant-a"
+      "X-Tenant-Id": "tenant-a",
+      "X-User-Id": "administrator-subject",
+      "X-Actor-Id": "administrator-subject"
     });
     expect((headers as Record<string, string>)["X-Request-Id"]).toBeTruthy();
+    expect((headers as Record<string, string>)["X-Correlation-Id"]).toBeTruthy();
   });
 
   it("API client handles 401, 403, and unavailable APIs without throwing", async () => {
@@ -469,10 +472,76 @@ describe("Panacea web platform", () => {
       liveWorkspaceState
     });
     expect(html).toContain("LIVE MODE -- AUTHENTICATED READ-ONLY SESSION");
+    expect(html).toContain("LIVE API UNAVAILABLE");
     expect(html).toContain("Demo rows are hidden in Live Mode");
     expect(html).toContain("No live records are displayed");
     expect(html).toContain("ALLOWED_READ");
     expect(html).not.toContain("Rows are UI-state examples");
+  });
+
+  it("renders live workspace status labels for partial, auth, and CORS outcomes", () => {
+    const endpoint = {
+      label: "Runtime health",
+      method: "GET" as const,
+      url: "http://localhost:18094/api/v4/autonomous-healthcare-intelligence/live",
+      source: "services/autonomous-healthcare-intelligence-foundation/docs/openapi.json",
+      available: true,
+      reason: "Runtime endpoint selected from existing OpenAPI."
+    };
+    const baseState = {
+      ...initialState,
+      authSession: sessionFor("doctor")
+    };
+
+    const partial = renderRoute(data, "/workspace/doctor/dashboard", {
+      ...baseState,
+      liveWorkspaceState: {
+        endpoint,
+        result: {
+          requestId: "req-partial",
+          method: "GET",
+          url: endpoint.url,
+          state: "online",
+          httpStatus: 200,
+          detail: "OK",
+          checkedAt: new Date().toISOString()
+        }
+      }
+    });
+    expect(partial).toContain("LIVE PARTIAL");
+
+    const authBlocked = renderRoute(data, "/workspace/doctor/dashboard", {
+      ...baseState,
+      liveWorkspaceState: {
+        endpoint,
+        result: {
+          requestId: "req-auth",
+          method: "GET",
+          url: endpoint.url,
+          state: "unauthorized",
+          httpStatus: 401,
+          detail: "Unauthorized",
+          checkedAt: new Date().toISOString()
+        }
+      }
+    });
+    expect(authBlocked).toContain("BLOCKED BY AUTH");
+
+    const corsBlocked = renderRoute(data, "/workspace/doctor/dashboard", {
+      ...baseState,
+      liveWorkspaceState: {
+        endpoint,
+        result: {
+          requestId: "req-cors",
+          method: "GET",
+          url: endpoint.url,
+          state: "unavailable",
+          detail: "Failed to fetch",
+          checkedAt: new Date().toISOString()
+        }
+      }
+    });
+    expect(corsBlocked).toContain("BLOCKED BY CORS");
   });
 });
 

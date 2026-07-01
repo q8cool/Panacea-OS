@@ -118,6 +118,7 @@ export async function apiRequest(
     Authorization: `Bearer ${session.token}`,
     "X-Tenant-Id": session.tenantId,
     "X-User-Id": session.subject,
+    "X-Actor-Id": session.subject,
     "X-Request-Id": id,
     "X-Correlation-Id": id
   };

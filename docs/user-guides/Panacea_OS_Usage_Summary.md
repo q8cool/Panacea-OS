@@ -4,6 +4,14 @@ Audit date: 2026-06-30
 Release status: Panacea OS Enterprise v4.0 officially released
 UI status: Professional operator and role-based web platform available
 
+## Sprint 108 Live Integration Update
+
+Panacea OS now has local live runtime validation for all 9 active services and trusted-origin CORS preflight for `http://localhost:5174`. The web client sends Authorization, tenant, user, actor, request ID, and correlation ID headers for allowed Live Mode requests.
+
+Important: the platform is still hybrid. Role workspaces can show runtime/OpenAPI connectivity, but page-level patient, laboratory, radiology, pharmacy, and administrative record read APIs are not yet exposed. The UI therefore uses `LIVE PARTIAL` or `LIVE API UNAVAILABLE` instead of pretending demo rows are live records.
+
+The deployed `https://foundation.utbe.ai` provider still needs remote routing updates for HEAD, OpenID discovery, auth, audit preflight, and policy preflight. Repository-local provider tests pass for those behaviors.
+
 ## 1. How do I use Panacea OS today?
 
 Use the web platform first:

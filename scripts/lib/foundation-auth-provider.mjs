@@ -393,11 +393,12 @@ export function createFoundationAuthProviderServer({ config, provider = new Foun
       }
 
       const url = new URL(request.url || "/", config.baseUrl);
-      if (request.method === "GET" && url.pathname === "/health") return json(response, 200, { status: "ok", service: "foundation-auth-provider" });
-      if (request.method === "GET" && url.pathname === "/ready") return json(response, 200, { status: "ready", auth: "enabled" });
-      if (request.method === "GET" && url.pathname === "/metrics") return text(response, 200, "foundation_auth_provider_up 1\nfoundation_auth_provider_auth_enabled 1\n", "text/plain; charset=utf-8");
-      if (request.method === "GET" && url.pathname === "/.well-known/jwks.json") return json(response, 200, authProvider.jwks());
-      if (request.method === "GET" && url.pathname === "/.well-known/openid-configuration") return json(response, 200, authProvider.discovery());
+      const readMethod = request.method === "HEAD" ? "GET" : request.method;
+      if (readMethod === "GET" && url.pathname === "/health") return json(response, 200, { status: "ok", service: "foundation-auth-provider" }, request.method);
+      if (readMethod === "GET" && url.pathname === "/ready") return json(response, 200, { status: "ready", auth: "enabled" }, request.method);
+      if (readMethod === "GET" && url.pathname === "/metrics") return text(response, 200, "foundation_auth_provider_up 1\nfoundation_auth_provider_auth_enabled 1\n", "text/plain; charset=utf-8", request.method);
+      if (readMethod === "GET" && url.pathname === "/.well-known/jwks.json") return json(response, 200, authProvider.jwks(), request.method);
+      if (readMethod === "GET" && url.pathname === "/.well-known/openid-configuration") return json(response, 200, authProvider.discovery(), request.method);
       if (request.method === "POST" && url.pathname === "/api/v1/audit-records") return json(response, 200, authProvider.appendAudit(await readJson(request)));
       if (request.method === "POST" && url.pathname === "/api/v1/policy/evaluate") return json(response, 200, authProvider.evaluatePolicy(await readJson(request)));
       if (request.method === "POST" && url.pathname === "/api/v1/auth/login") {
@@ -569,14 +570,14 @@ function applyCors(response, request, config) {
   }
 }
 
-function json(response, status, body) {
+function json(response, status, body, method = "GET") {
   response.writeHead(status, { "content-type": JSON_CONTENT_TYPE });
-  response.end(JSON.stringify(body));
+  response.end(method === "HEAD" ? undefined : JSON.stringify(body));
 }
 
-function text(response, status, body, contentType) {
+function text(response, status, body, contentType, method = "GET") {
   response.writeHead(status, { "content-type": contentType });
-  response.end(body);
+  response.end(method === "HEAD" ? undefined : body);
 }
 
 function normalizeError(error) {

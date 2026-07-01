@@ -31,6 +31,20 @@ Each workspace page shows:
 - Request ID.
 - User, role, tenant, timestamp, endpoint, and response status.
 
+## Sprint 108 Connection Labels
+
+Role workspace pages now show one of these explicit labels:
+
+| Label | Meaning |
+|---|---|
+| `LIVE CONNECTED` | A page-level read API returned live data. |
+| `LIVE PARTIAL` | Runtime/OpenAPI status is reachable, but page-level record data is not available. |
+| `LIVE API UNAVAILABLE` | No safe matching read endpoint exists or it cannot be reached. |
+| `BLOCKED BY AUTH` | Authentication or authorization blocked access. |
+| `BLOCKED BY CORS` | Browser CORS blocked access before a usable response. |
+| `DEMO MODE` | Demo-only UI data is visible and clearly marked. |
+| `DOCUMENTATION ONLY` | The page is backed by documentation or release evidence. |
+
 ## Unavailable Data Rules
 
 If a live read-only endpoint is not available:
@@ -46,5 +60,6 @@ If a live read-only endpoint is not available:
 - Role navigation is derived from token claims.
 - Tenant scope is derived from token claims.
 - Browser requests include Authorization and tenant headers.
+- Browser requests include user, actor, request ID, and correlation ID headers.
 - 401 and 403 responses are shown directly instead of being hidden.
 - Operator audit append is restricted to operator role sessions.
