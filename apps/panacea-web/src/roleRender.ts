@@ -1,5 +1,22 @@
 import { pageFromRoute, roleDefaultRoute, roleWorkspaces, workspaceFromRoute } from "./roleWorkspaces";
 import { translate, type Locale } from "./locales";
+import {
+  DEMO_DATA_LABEL,
+  DEMO_DATA_LABEL_DISPLAY,
+  demoAuditLogs,
+  demoHospital,
+  demoInventory,
+  demoLabOrders,
+  demoMedicationCatalog,
+  demoPatients,
+  demoPharmacyRecords,
+  demoRadiologyStudies,
+  demoSystemHealth,
+  demoUsers,
+  findDemoPatient,
+  type DemoPatient,
+  type DemoSeverity
+} from "./demoData";
 import type { AppData, AuthSession, DataMode, LiveWorkspaceState, RoleMetric, RolePageDefinition, RolePanel, RoleWorkspaceDefinition } from "./types";
 
 export interface RoleRenderContext {
@@ -32,6 +49,7 @@ export function renderRoleWorkspace(data: AppData, route: string, context: RoleR
         <div class="role-content">
           ${modeNotice(workspace, context)}
           ${roleLiveConnection(workspace, page, context)}
+          ${roleOperationalDemo(data, route, workspace, page, context)}
           ${roleMetrics(page)}
           ${roleMainPanels(workspace, page)}
           ${roleWorkflow(page)}
@@ -110,7 +128,7 @@ function modeNotice(workspace: RoleWorkspaceDefinition, context: RoleRenderConte
     <section class="demo-notice">
       <i data-lucide="Info"></i>
       <div>
-        <strong>${escapeHtml(l("DEMO DATA -- NOT REAL PATIENT DATA"))}</strong>
+        <strong>${escapeHtml(l(DEMO_DATA_LABEL))}</strong>
         <p>${escapeHtml(l(workspace.dataMode))} ${escapeHtml(l("Demo Role Switcher is for presentation only and does not bypass real security in production."))}</p>
       </div>
     </section>
@@ -179,6 +197,412 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
       ${state.auditAction ? auditAction(state.auditAction) : ""}
     </section>
   `;
+}
+
+function roleOperationalDemo(data: AppData, route: string, workspace: RoleWorkspaceDefinition, page: RolePageDefinition, context: RoleRenderContext): string {
+  const source = demoSourceBanner(context);
+  if (workspace.id === "doctor") return `${source}${doctorExperience(route, page)}`;
+  if (workspace.id === "patient") return `${source}${patientPortalExperience(page)}`;
+  if (workspace.id === "laboratory") return `${source}${laboratoryExperience(page)}`;
+  if (workspace.id === "radiology") return `${source}${radiologyExperience(page)}`;
+  if (workspace.id === "pharmacy") return `${source}${pharmacyExperience(page)}`;
+  if (workspace.id === "administrator") return `${source}${adminExperience(data, page)}`;
+  return source;
+}
+
+function demoSourceBanner(context: RoleRenderContext): string {
+  const status = context.mode === "live" ? "LIVE PARTIAL" : "DEMO DATA";
+  const detail = context.mode === "live"
+    ? "Live API was evaluated where allowed. These records are frontend demo fallback data and are not persisted to the production backend."
+    : "Frontend demo seed data. These records are synthetic and are not real patient data.";
+  return `
+    <section class="demo-data-banner">
+      <div>
+        <strong>${escapeHtml(l(DEMO_DATA_LABEL_DISPLAY))}</strong>
+        <p>${escapeHtml(l(detail))}</p>
+      </div>
+      <span class="status-pill warn">${escapeHtml(l(status))}</span>
+    </section>
+  `;
+}
+
+function doctorExperience(route: string, page: RolePageDefinition): string {
+  const patient = findDemoPatient(route.split("/")[4]);
+  if (page.id === "dashboard") {
+    return `
+      <section class="operational-grid two-column">
+        ${patientSearchPanel("Doctor Patient Search", "Search by synthetic MRN, name, ward, or risk status.")}
+        ${clinicalAlertsPanel()}
+      </section>
+      ${patientChart(patient, "clinical-summary")}
+    `;
+  }
+  if (page.id === "patient-search") return patientSearchPanel("Patient Search", "Click a synthetic patient to open a complete demo chart.", true);
+  if (["patient-profile", "clinical-timeline", "allergies", "conditions", "medications", "vital-signs", "encounters", "clinical-notes", "lab-results", "radiology-reports", "pharmacy-review", "ai-recommendations", "clinical-alerts", "care-team"].includes(page.id)) {
+    return patientChart(patient, page.id);
+  }
+  if (page.id === "orders-overview") return ordersPanel(patient);
+  if (page.id === "task-list") return taskPanel(patient);
+  return patientChart(patient, "clinical-summary");
+}
+
+function patientPortalExperience(page: RolePageDefinition): string {
+  const patient = demoPatients[0];
+  const portalCards = [
+    ["Next appointment", patient.appointments[0].date, patient.appointments[0].clinic],
+    ["Medication count", String(patient.medications.length), "Review with your care team"],
+    ["Unread messages", String(patient.messages.filter((message) => message.status === "Unread").length), "Demo inbox"],
+    ["Balance", patient.billing.balance, patient.billing.insurance]
+  ];
+  const content = page.id === "appointments"
+    ? simpleTable(["Date", "Clinic", "Status"], patient.appointments.map((item) => [item.date, item.clinic, item.status]))
+    : page.id === "visit-history"
+      ? simpleTable(["Date", "Type", "Provider", "Reason"], patient.encounters.map((item) => [item.date, item.type, item.provider, item.reason]))
+      : page.id === "medications"
+        ? simpleTable(["Medication", "Instruction"], patient.medications.map((item) => [item, "Follow clinician instructions"]))
+        : page.id === "lab-results"
+          ? simpleTable(["Test", "Status", "Value", "Flag"], patient.labs.map((item) => [item.test, item.status, item.value, item.flag]))
+          : page.id === "radiology-reports"
+            ? simpleTable(["Study", "Status", "Report"], patient.radiology.map((item) => [item.modality, item.status, item.report]))
+            : page.id === "invoices-payments"
+              ? simpleTable(["Invoice", "Balance", "Coverage"], [[patient.billing.lastInvoice, patient.billing.balance, patient.billing.insurance]])
+              : page.id === "secure-messages"
+                ? simpleTable(["From", "Subject", "Status"], patient.messages.map((item) => [item.from, item.subject, item.status]))
+                : page.id === "care-instructions"
+                  ? bulletList(patient.careInstructions)
+                  : patientSummaryCards(patient);
+  return `
+    <section class="band">
+      <div class="section-title">
+        <div>
+          <h2>${escapeHtml(l("Patient Portal Demo"))}</h2>
+          <p>${escapeHtml(l("Simple patient-facing demo data. This does not replace clinician advice."))}</p>
+        </div>
+        <span class="status-pill warn">${escapeHtml(l("DEMO DATA"))}</span>
+      </div>
+      <div class="metric-grid">${portalCards.map(([label, value, detail]) => metricMini(label, value, detail)).join("")}</div>
+      <div class="demo-section-spacer">${content}</div>
+    </section>
+  `;
+}
+
+function laboratoryExperience(page: RolePageDefinition): string {
+  const critical = demoLabOrders.filter((order) => order.flag === "critical");
+  const pending = demoLabOrders.filter((order) => order.status.includes("Pending")).slice(0, 8);
+  const rows = page.id === "critical-results"
+    ? critical.map((order) => [order.orderId, order.patientName, order.test, order.value, order.priority])
+    : page.id === "result-entry"
+      ? pending.map((order) => [order.orderId, order.patientName, order.test, "Demo entry only -- not persisted to production backend"])
+      : demoLabOrders.slice(0, 10).map((order) => [order.orderId, order.patientName, order.test, order.status, order.value]);
+  return `
+    <section class="band">
+      <div class="section-title">
+        <div>
+          <h2>${escapeHtml(l("Laboratory Operations Demo"))}</h2>
+          <p>${escapeHtml(l(page.id === "result-entry" ? "Demo entry only -- not persisted to production backend" : "Pending orders, specimen status, validation, QC, and critical result visibility."))}</p>
+        </div>
+        <span class="status-pill ${critical.length ? "danger" : "success"}">${critical.length} ${escapeHtml(l("critical"))}</span>
+      </div>
+      <div class="metric-grid">
+        ${metricMini("Pending orders", String(pending.length), "Specimen and validation queue")}
+        ${metricMini("Turnaround", "42 min", "Synthetic median TAT")}
+        ${metricMini("QC status", "Passing", "Demo analyzer controls")}
+      </div>
+      ${simpleTable(page.id === "result-entry" ? ["Order", "Patient", "Test", "Entry state"] : ["Order", "Patient", "Test", "Status", "Result"], rows)}
+    </section>
+  `;
+}
+
+function radiologyExperience(page: RolePageDefinition): string {
+  const rows = page.id === "dicom-metadata"
+    ? demoRadiologyStudies.slice(0, 8).map((study) => [study.studyId, study.modality, study.bodyPart, "StudyInstanceUID-DEMO", study.pacsStatus])
+    : demoRadiologyStudies.slice(0, 10).map((study) => [study.studyId, study.patientName, study.modality, study.status, study.report]);
+  return `
+    <section class="band">
+      <div class="section-title">
+        <div>
+          <h2>${escapeHtml(l("Radiology Operations Demo"))}</h2>
+          <p>${escapeHtml(l("Imaging orders, study list, metadata, reports, approvals, and critical findings using synthetic records."))}</p>
+        </div>
+        <span class="status-pill warn">${escapeHtml(l("DICOM image viewer not implemented yet."))}</span>
+      </div>
+      <div class="metric-grid">
+        ${metricMini("Studies today", String(demoRadiologyStudies.length), "Synthetic worklist")}
+        ${metricMini("PACS status", "Metadata available", "No image viewer")}
+        ${metricMini("Critical findings", String(demoRadiologyStudies.filter((study) => study.priority === "Urgent").length), "Demo escalation list")}
+      </div>
+      ${simpleTable(page.id === "dicom-metadata" ? ["Study", "Modality", "Body Part", "DICOM UID", "PACS"] : ["Study", "Patient", "Modality", "Status", "Report"], rows)}
+    </section>
+  `;
+}
+
+function pharmacyExperience(page: RolePageDefinition): string {
+  const rows = page.id === "inventory" || page.id === "batch-lot-tracking" || page.id === "expiration-tracking"
+    ? demoInventory.map((item) => [item.item, item.lot, item.expiry, String(item.quantity), item.status])
+    : page.id === "medication-catalog"
+      ? demoMedicationCatalog.map((item) => [item.code, item.name, item.form, String(item.stock), item.status])
+      : demoPharmacyRecords.slice(0, 10).map((rx) => [rx.id, rx.patientName, rx.medication, rx.status, rx.safety]);
+  return `
+    <section class="band">
+      <div class="section-title">
+        <div>
+          <h2>${escapeHtml(l("Pharmacy Operations Demo"))}</h2>
+          <p>${escapeHtml(l("Prescription queue, dispensing workflow, inventory, batch tracking, and safety alert visibility."))}</p>
+        </div>
+        <span class="status-pill warn">${escapeHtml(l("Demo safety rules only"))}</span>
+      </div>
+      <div class="metric-grid">
+        ${metricMini("Prescription queue", String(demoPharmacyRecords.length), "Synthetic prescriptions")}
+        ${metricMini("Inventory items", String(demoInventory.length), "Demo stock")}
+        ${metricMini("Safety alerts", String(demoPharmacyRecords.filter((rx) => rx.safety.includes("Review")).length), "Review labels only")}
+      </div>
+      ${simpleTable(page.id === "inventory" || page.id === "batch-lot-tracking" || page.id === "expiration-tracking" ? ["Item", "Lot", "Expiry", "Qty", "Status"] : page.id === "medication-catalog" ? ["Code", "Medication", "Form", "Stock", "Status"] : ["Rx", "Patient", "Medication", "Status", "Safety"], rows)}
+    </section>
+  `;
+}
+
+function adminExperience(data: AppData, page: RolePageDefinition): string {
+  const table = page.id === "users"
+    ? simpleTable(["User", "Role", "Department", "Tenant", "Status"], demoUsers.map((user) => [user.name, user.role, user.department, user.tenant, user.status]))
+    : page.id === "roles"
+      ? simpleTable(["Role", "Users", "Workspace"], ["doctor", "patient", "laboratory", "radiology", "pharmacy", "administrator", "operator"].map((role) => [role, String(demoUsers.filter((user) => user.role === role).length), role === "operator" ? "Command Center" : `${role} workspace`]))
+      : page.id === "tenants"
+        ? simpleTable(["Tenant", "Name", "Country", "Status"], demoHospital.tenants.map((tenant) => [tenant.id, tenant.name, tenant.country, tenant.status]))
+        : page.id === "departments"
+          ? simpleTable(["Department", "Users", "Status"], demoHospital.departments.map((department) => [department, String(demoUsers.filter((user) => user.department === department).length), "Demo active"]))
+          : page.id === "audit-logs"
+            ? simpleTable(["Event", "Actor", "Action", "Tenant", "Status"], demoAuditLogs.map((log) => [log.id, log.actor, log.action, log.tenant, log.status]))
+            : page.id === "system-health"
+              ? simpleTable(["Service", "Status", "Detail"], demoSystemHealth.map((item) => [item.service, item.status, item.detail]))
+              : simpleTable(["Area", "Value", "Status"], [
+                ["Hospital", demoHospital.name, "Demo configured"],
+                ["Services", String(data.services.length), "Runtime contracts available"],
+                ["OpenAPI documents", String(data.openApiDocuments.length), "Validated"],
+                ["Users", String(demoUsers.length), "Synthetic"]
+              ]);
+  return `
+    <section class="band">
+      <div class="section-title">
+        <div>
+          <h2>${escapeHtml(l("Administration Demo Console"))}</h2>
+          <p>${escapeHtml(l("Users, roles, tenants, organizations, configuration, audit, security, privacy, and compliance using safe demo records."))}</p>
+        </div>
+        <span class="status-pill warn">${escapeHtml(l("Read-only admin demo"))}</span>
+      </div>
+      <div class="metric-grid">
+        ${metricMini("Demo users", String(demoUsers.length), "Role mapped")}
+        ${metricMini("Tenants", String(demoHospital.tenants.length), "Synthetic")}
+        ${metricMini("Audit events", String(demoAuditLogs.length), "Demo only")}
+      </div>
+      ${table}
+    </section>
+  `;
+}
+
+function patientSearchPanel(title: string, detail: string, full = false): string {
+  const rows = demoPatients.slice(0, full ? 20 : 8).map((patient) => [
+    `<a href="#/workspace/doctor/patient-profile/${patient.id}">${escapeHtml(patient.name)}</a>`,
+    patient.mrn,
+    patient.ward,
+    patient.status,
+    patient.risk
+  ]);
+  return `
+    <section class="band">
+      <div class="section-title">
+        <div>
+          <h2>${escapeHtml(l(title))}</h2>
+          <p>${escapeHtml(l(detail))}</p>
+        </div>
+        <label class="field compact-field">
+          <span>${escapeHtml(l("Search"))}</span>
+          <input type="search" value="" aria-label="${escapeAttribute(l("Synthetic patient search"))}" />
+        </label>
+      </div>
+      ${simpleTable(["Patient", "MRN", "Ward", "Status", "Risk"], rows, true)}
+    </section>
+  `;
+}
+
+function patientChart(patient: DemoPatient, focus: string): string {
+  const body = focus === "clinical-timeline"
+    ? timeline(patient.timeline)
+    : focus === "allergies"
+      ? bulletList(patient.allergies)
+      : focus === "conditions"
+        ? bulletList(patient.conditions)
+        : focus === "medications"
+          ? bulletList(patient.medications)
+          : focus === "vital-signs"
+            ? simpleTable(["Time", "BP", "HR", "Temp", "SpO2"], patient.vitals.map((item) => [item.time, item.bp, String(item.hr), String(item.temp), `${item.spo2}%`]))
+            : focus === "encounters"
+              ? simpleTable(["Date", "Type", "Provider", "Reason"], patient.encounters.map((item) => [item.date, item.type, item.provider, item.reason]))
+              : focus === "clinical-notes"
+                ? simpleTable(["Date", "Author", "Note"], patient.notes.map((item) => [item.date, item.author, item.note]))
+                : focus === "lab-results"
+                  ? simpleTable(["Order", "Test", "Status", "Value", "Flag"], patient.labs.map((item) => [item.orderId, item.test, item.status, item.value, item.flag]))
+                  : focus === "radiology-reports"
+                    ? simpleTable(["Study", "Modality", "Status", "Report"], patient.radiology.map((item) => [item.studyId, item.modality, item.status, item.report]))
+                    : focus === "pharmacy-review"
+                      ? simpleTable(["Medication", "Status", "Route", "Safety"], patient.pharmacy.map((item) => [item.medication, item.status, item.route, item.safety]))
+                      : focus === "ai-recommendations"
+                        ? advisoryPanel(patient)
+                        : patientSummaryCards(patient);
+  return `
+    <section class="band patient-chart">
+      <div class="section-title">
+        <div>
+          <h2>${escapeHtml(patient.name)}</h2>
+          <p>${escapeHtml(patient.mrn)} · ${escapeHtml(patient.ward)} · ${escapeHtml(patient.room)} · ${escapeHtml(l(patient.status))}</p>
+        </div>
+        <span class="status-pill ${severityClass(patient.risk)}">${escapeHtml(l(patient.risk))}</span>
+      </div>
+      <div class="patient-tabs">
+        ${["patient-profile", "clinical-timeline", "allergies", "conditions", "medications", "vital-signs", "lab-results", "radiology-reports", "pharmacy-review", "ai-recommendations"].map((tab) => `
+          <a class="${focus === tab ? "active" : ""}" href="#/workspace/doctor/${tab}/${patient.id}">${escapeHtml(l(labelForPatientTab(tab)))}</a>
+        `).join("")}
+      </div>
+      ${body}
+    </section>
+  `;
+}
+
+function patientSummaryCards(patient: DemoPatient): string {
+  return `
+    <div class="operational-cards">
+      ${metricMini("Age / Sex", `${patient.age} / ${patient.sex}`, patient.attending)}
+      ${metricMini("Allergies", patient.allergies.join(", "), "Demo allergy list")}
+      ${metricMini("Conditions", patient.conditions.join(", "), "Synthetic conditions")}
+      ${metricMini("Billing", patient.billing.balance, patient.billing.lastInvoice)}
+    </div>
+    ${simpleTable(["Area", "Summary"], [
+      ["Medications", patient.medications.join(", ")],
+      ["Latest lab", `${patient.labs[0].test}: ${patient.labs[0].value}`],
+      ["Radiology", `${patient.radiology[0].modality} ${patient.radiology[0].status}`],
+      ["Next appointment", `${patient.appointments[0].date} ${patient.appointments[0].clinic}`]
+    ])}
+  `;
+}
+
+function clinicalAlertsPanel(): string {
+  const rows = demoPatients.filter((patient) => patient.risk !== "normal").slice(0, 6).map((patient) => [
+    patient.name,
+    patient.room,
+    patient.status,
+    patient.risk
+  ]);
+  return `
+    <section class="band">
+      <h2>${escapeHtml(l("Clinical Alerts"))}</h2>
+      <p>${escapeHtml(l("Synthetic watchlist for operational demo. No autonomous diagnosis or treatment."))}</p>
+      ${simpleTable(["Patient", "Room", "Status", "Risk"], rows)}
+    </section>
+  `;
+}
+
+function ordersPanel(patient: DemoPatient): string {
+  return `
+    <section class="band">
+      <h2>${escapeHtml(l("Orders Overview"))}</h2>
+      ${simpleTable(["Order", "Patient", "Type", "Status"], [
+        [patient.labs[0].orderId, patient.name, "Laboratory", patient.labs[0].status],
+        [patient.radiology[0].studyId, patient.name, "Radiology", patient.radiology[0].status],
+        [`RX-${patient.id}`, patient.name, "Pharmacy", patient.pharmacy[0].status]
+      ])}
+    </section>
+  `;
+}
+
+function taskPanel(patient: DemoPatient): string {
+  return `
+    <section class="band">
+      <h2>${escapeHtml(l("Task List"))}</h2>
+      ${simpleTable(["Task", "Owner", "Status"], [
+        ["Review demo lab trend", patient.attending, "Open"],
+        ["Confirm medication reconciliation", "Demo Pharmacist", "In progress"],
+        ["Patient portal education check", "Demo Nurse", "Scheduled"]
+      ])}
+    </section>
+  `;
+}
+
+function advisoryPanel(patient: DemoPatient): string {
+  return `
+    <div class="alert warn">
+      <strong>${escapeHtml(l("Advisory only. Clinician remains final decision maker."))}</strong>
+      <p>${escapeHtml(l("Demo recommendation cards are educational UI examples. They are not diagnosis, treatment, or production AI output."))}</p>
+    </div>
+    ${simpleTable(["Recommendation", "Reason", "Required action"], [
+      ["Review demo allergy list", patient.allergies.join(", "), "Clinician review"],
+      ["Check pending demo lab result", patient.labs[0].status, "Wait for validated result"],
+      ["Review medication reconciliation", patient.medications.join(", "), "Pharmacist/clinician review"]
+    ])}
+  `;
+}
+
+function timeline(events: DemoPatient["timeline"]): string {
+  return `
+    <ol class="timeline demo-timeline">
+      ${events.map((event, index) => `
+        <li>
+          <span>${index + 1}</span>
+          <p><strong>${escapeHtml(event.time)} · ${escapeHtml(l(event.type))}</strong><br />${escapeHtml(l(event.title))}<br /><small>${escapeHtml(l(event.detail))}</small></p>
+        </li>
+      `).join("")}
+    </ol>
+  `;
+}
+
+function bulletList(items: string[]): string {
+  return `<ul class="demo-bullet-list">${items.map((item) => `<li>${escapeHtml(l(item))}</li>`).join("")}</ul>`;
+}
+
+function simpleTable(headers: string[], rows: string[][], htmlCells = false): string {
+  return `
+    <div class="table-wrap demo-table">
+      <table>
+        <thead><tr>${headers.map((header) => `<th>${escapeHtml(l(header))}</th>`).join("")}</tr></thead>
+        <tbody>
+          ${rows.map((row) => `<tr>${row.map((cell) => `<td>${htmlCells ? cell : escapeHtml(l(cell))}</td>`).join("")}</tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function metricMini(label: string, value: string, detail: string): string {
+  return `
+    <article class="metric-card info">
+      <i data-lucide="Gauge"></i>
+      <div>
+        <span>${escapeHtml(l(label))}</span>
+        <strong>${escapeHtml(l(value))}</strong>
+        <small>${escapeHtml(l(detail))}</small>
+      </div>
+    </article>
+  `;
+}
+
+function severityClass(severity: DemoSeverity): string {
+  if (severity === "critical") return "danger";
+  if (severity === "watch") return "warn";
+  return "success";
+}
+
+function labelForPatientTab(tab: string): string {
+  const labels: Record<string, string> = {
+    "patient-profile": "Patient Profile",
+    "clinical-timeline": "Clinical Timeline",
+    allergies: "Allergies",
+    conditions: "Conditions",
+    medications: "Medications",
+    "vital-signs": "Vital Signs",
+    "lab-results": "Lab Results",
+    "radiology-reports": "Radiology Reports",
+    "pharmacy-review": "Pharmacy Review",
+    "ai-recommendations": "AI Recommendations"
+  };
+  return labels[tab] ?? tab;
 }
 
 function roleMetrics(page: RolePageDefinition): string {

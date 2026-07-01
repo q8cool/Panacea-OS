@@ -4,6 +4,18 @@ Audit date: 2026-06-30
 Release status: Panacea OS Enterprise v4.0 officially released
 UI status: Professional operator and role-based web platform available
 
+## Sprint 110 Operational Demo Update
+
+Panacea OS now includes a visible operational demo layer for the web platform. The role workspaces no longer feel like document-only pages: they render synthetic hospital data for operator review, patient search, chart summaries, patient portal views, laboratory queues, radiology study lists, pharmacy inventory, administration tables, and command-center quick access.
+
+Every synthetic record is labeled:
+
+```text
+DEMO DATA — NOT REAL PATIENT DATA
+```
+
+The demo data is frontend-only and is not persisted to the production backend. Live Mode remains available for authenticated read-only API evaluation when a Foundation-issued JWT and browser-accessible service endpoints exist.
+
 ## Sprint 108 Live Integration Update
 
 Panacea OS now has local live runtime validation for all 9 active services and trusted-origin CORS preflight for `http://localhost:5174`. The web client sends Authorization, tenant, user, actor, request ID, and correlation ID headers for allowed Live Mode requests.
@@ -57,6 +69,18 @@ Use the **Demo Role Switcher** to open:
 - Operator dashboard.
 
 Use the **Language** selector to switch between English and Arabic.
+
+For an operational walkthrough, use:
+
+```text
+http://localhost:5174/#/command/executive-overview
+http://localhost:5174/#/workspace/doctor/patient-search
+http://localhost:5174/#/workspace/patient/appointments
+http://localhost:5174/#/workspace/laboratory/result-entry
+http://localhost:5174/#/workspace/radiology/dicom-metadata
+http://localhost:5174/#/workspace/pharmacy/inventory
+http://localhost:5174/#/workspace/administrator/users
+```
 
 To test authenticated Live Mode, open:
 

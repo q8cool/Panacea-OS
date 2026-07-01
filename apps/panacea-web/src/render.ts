@@ -8,6 +8,7 @@ import { roleFromRoute, roleSwitcherOptions } from "./roleWorkspaces";
 import { isSessionExpired, tokenSecondsRemaining } from "./auth";
 import { buildWebConfig, missingLiveConfig } from "./webConfig";
 import { languageOptions, localeDirection, translate, type Locale } from "./locales";
+import { DEMO_DATA_LABEL_DISPLAY, demoHospital, demoPatients, demoSystemHealth, demoUsers } from "./demoData";
 import type {
   AppData,
   AuthSession,
@@ -219,6 +220,7 @@ function renderExecutiveOverview(data: AppData): string {
         ${metric("Tests", data.validation.tests.replace("PASS, ", ""), "Latest quality evidence", "TestTube2", "success")}
         ${metric("Foundation", data.release.foundationProvider, data.foundation.baseUrl, "KeyRound", "success")}
       </section>
+      ${renderOperatorDemoBoard(data)}
       <section class="band two-column">
         <div>
           <h2>${escapeHtml(l("What You Can Use Now"))}</h2>
@@ -256,6 +258,55 @@ function renderExecutiveOverview(data: AppData): string {
         ${renderModuleTiles(activeServiceModules.slice(0, 6), data)}
       </section>
     </div>
+  `;
+}
+
+function renderOperatorDemoBoard(data: AppData): string {
+  const quickLinks = [
+    ["/workspace/doctor/dashboard", "Doctor / Clinician", "Stethoscope"],
+    ["/workspace/patient/dashboard", "Patient Portal", "HeartHandshake"],
+    ["/workspace/laboratory/dashboard", "Laboratory", "TestTube2"],
+    ["/workspace/radiology/dashboard", "Radiology", "ScanLine"],
+    ["/workspace/pharmacy/dashboard", "Pharmacy", "Pill"],
+    ["/workspace/administrator/dashboard", "Administration", "Settings"]
+  ];
+  return `
+    <section class="band operator-board">
+      <div class="section-title">
+        <div>
+          <h2>${escapeHtml(l("Operator Live Demo Board"))}</h2>
+          <p>${escapeHtml(l("Operational demo view with synthetic hospital data, service status, Foundation status, and quick workspace access."))}</p>
+        </div>
+        <span class="status-pill warn">${escapeHtml(l(DEMO_DATA_LABEL_DISPLAY))}</span>
+      </div>
+      <div class="metric-grid">
+        ${metric("Demo hospital", demoHospital.name, `${demoHospital.beds} beds`, "Hospital", "info")}
+        ${metric("Demo patients", String(demoPatients.length), "Synthetic records", "UsersRound", "warn")}
+        ${metric("Demo users", String(demoUsers.length), "Role mapped", "UserRoundCheck", "info")}
+      </div>
+      <div class="operator-grid">
+        <div class="status-list">
+          ${demoSystemHealth.map((item) => `
+            <article>
+              <span class="status-pill ${statusClass(item.status)}">${escapeHtml(l(item.status))}</span>
+              <div>
+                <strong>${escapeHtml(l(item.service))}</strong>
+                <small>${escapeHtml(l(item.detail))}</small>
+              </div>
+            </article>
+          `).join("")}
+        </div>
+        <div class="workspace-quick-grid">
+          ${quickLinks.map(([route, label, icon]) => `
+            <a class="workspace-quick-card" href="#${route}">
+              <i data-lucide="${icon}"></i>
+              <strong>${escapeHtml(l(label))}</strong>
+              <span>${escapeHtml(l("Open workspace"))}</span>
+            </a>
+          `).join("")}
+        </div>
+      </div>
+    </section>
   `;
 }
 

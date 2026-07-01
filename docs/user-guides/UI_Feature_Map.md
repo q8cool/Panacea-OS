@@ -6,6 +6,8 @@ Panacea OS v4.0 now includes a professional operator platform and role-based use
 
 Sprint 109 adds bilingual English/Arabic UI support, a persistent language selector, and RTL layout for Arabic. Technical artifacts such as API paths, URLs, cURL commands, service IDs, and markdown document bodies remain English/LTR by design.
 
+Sprint 110 adds an operational demo data layer for visible role workspaces. Doctor, patient, laboratory, radiology, pharmacy, administration, and operator areas now render synthetic records for product review. The data is frontend-only and clearly marked as not real patient data.
+
 | UI area | Route | Active now | Backing evidence |
 |---|---|---:|---|
 | Executive Overview | `#/command/executive-overview` | YES | Release docs, service inventory, OpenAPI docs |
@@ -52,6 +54,18 @@ Sprint 109 adds bilingual English/Arabic UI support, a persistent language selec
 | Radiology | 11 |
 | Pharmacy | 12 |
 | Administration | 17 |
+
+## Operational Demo Visibility
+
+| Workspace | Demo data visible? | Example route |
+|---|---:|---|
+| Operator | YES | `#/command/executive-overview` |
+| Doctor / Clinician | YES | `#/workspace/doctor/patient-search` |
+| Patient Portal | YES | `#/workspace/patient/appointments` |
+| Laboratory | YES | `#/workspace/laboratory/result-entry` |
+| Radiology | YES | `#/workspace/radiology/dicom-metadata` |
+| Pharmacy | YES | `#/workspace/pharmacy/inventory` |
+| Administration | YES | `#/workspace/administrator/users` |
 
 ## Current Boundary
 

@@ -603,6 +603,81 @@ describe("Panacea web platform", () => {
     });
     expect(corsBlocked).toContain("BLOCKED BY CORS");
   });
+
+  it("renders the operator operational demo board with quick workspace access", () => {
+    const html = renderRoute(data, "/command/executive-overview", initialState);
+    expect(html).toContain("Operator Live Demo Board");
+    expect(html).toContain("Panacea Gulf Demo Hospital");
+    expect(html).toContain("DEMO DATA — NOT REAL PATIENT DATA");
+    expect(html).toContain("#/workspace/doctor/dashboard");
+    expect(html).toContain("#/workspace/administrator/dashboard");
+  });
+
+  it("renders doctor patient search, chart, and advisory-only demo content", () => {
+    const search = renderRoute(data, "/workspace/doctor/patient-search", {
+      ...initialState,
+      selectedRole: "doctor"
+    });
+    expect(search).toContain("Demo Patient Alpha");
+    expect(search).toContain("DEMO-MRN-1001");
+    expect(search).toContain("#/workspace/doctor/patient-profile/demo-patient-001");
+
+    const chart = renderRoute(data, "/workspace/doctor/clinical-timeline/demo-patient-001", {
+      ...initialState,
+      selectedRole: "doctor"
+    });
+    expect(chart).toContain("Demo specimen collected");
+    expect(chart).toContain("Demo medication review queued");
+
+    const advisory = renderRoute(data, "/workspace/doctor/ai-recommendations/demo-patient-001", {
+      ...initialState,
+      selectedRole: "doctor"
+    });
+    expect(advisory).toContain("Advisory only. Clinician remains final decision maker.");
+    expect(advisory).toContain("They are not diagnosis, treatment, or production AI output.");
+  });
+
+  it("renders patient portal demo records without replacing clinician advice", () => {
+    const html = renderRoute(data, "/workspace/patient/appointments", {
+      ...initialState,
+      selectedRole: "patient"
+    });
+    expect(html).toContain("Patient Portal Demo");
+    expect(html).toContain("Simple patient-facing demo data. This does not replace clinician advice.");
+    expect(html).toContain("Cardiology Clinic");
+    expect(html).toContain("DEMO DATA");
+  });
+
+  it("renders operational records for lab, radiology, pharmacy, and administration", () => {
+    const lab = renderRoute(data, "/workspace/laboratory/result-entry", initialState);
+    expect(lab).toContain("Laboratory Operations Demo");
+    expect(lab).toContain("Demo entry only -- not persisted to production backend");
+
+    const radiology = renderRoute(data, "/workspace/radiology/dicom-metadata", initialState);
+    expect(radiology).toContain("Radiology Operations Demo");
+    expect(radiology).toContain("StudyInstanceUID-DEMO");
+
+    const pharmacy = renderRoute(data, "/workspace/pharmacy/inventory", initialState);
+    expect(pharmacy).toContain("Pharmacy Operations Demo");
+    expect(pharmacy).toContain("LOT-DEMO-410");
+
+    const admin = renderRoute(data, "/workspace/administrator/users", initialState);
+    expect(admin).toContain("Administration Demo Console");
+    expect(admin).toContain("Demo Doctor");
+    expect(admin).toContain("demo-tenant");
+  });
+
+  it("localizes operational demo labels in Arabic", () => {
+    const html = renderRoute(data, "/workspace/doctor/patient-search", {
+      ...initialState,
+      language: "ar",
+      selectedRole: "doctor"
+    });
+    expect(html).toContain("بيانات تجريبية — ليست بيانات مرضى حقيقية");
+    expect(html).toContain("بحث المرضى");
+    expect(html).toContain("بحث مريض صناعي");
+    expect(html).toContain("Demo Patient Alpha");
+  });
 });
 
 function allowedReadUrlFromAllowlist(allowlist: ReturnType<typeof buildBrowserApiAllowlist>): string {

@@ -1358,6 +1358,139 @@ pre {
   padding: 12px;
 }
 
+.demo-data-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(180, 83, 9, 0.32);
+  border-radius: 8px;
+  background: #fff7ed;
+  color: #7c2d12;
+}
+
+.app-shell[data-theme="dark"] .demo-data-banner {
+  background: rgba(180, 83, 9, 0.14);
+  color: #fed7aa;
+}
+
+.demo-data-banner p {
+  margin: 4px 0 0;
+}
+
+.operational-grid,
+.operator-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
+  gap: 18px;
+}
+
+.operator-board {
+  display: grid;
+  gap: 16px;
+}
+
+.workspace-quick-grid,
+.operational-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.workspace-quick-card {
+  min-height: 88px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-strong);
+  padding: 12px;
+  text-decoration: none;
+}
+
+.workspace-quick-card svg {
+  width: 34px;
+  height: 34px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--blue);
+}
+
+.workspace-quick-card strong,
+.workspace-quick-card span {
+  display: block;
+}
+
+.workspace-quick-card span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.demo-table {
+  margin-top: 14px;
+}
+
+.demo-table a {
+  color: var(--blue);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.compact-field {
+  min-width: min(280px, 100%);
+}
+
+.patient-chart {
+  display: grid;
+  gap: 14px;
+}
+
+.patient-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.patient-tabs a {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 10px;
+  background: var(--panel-strong);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.patient-tabs a.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+.demo-section-spacer {
+  margin-top: 16px;
+}
+
+.demo-bullet-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-inline-start: 22px;
+}
+
+.demo-timeline small {
+  color: var(--muted);
+}
+
 .audit-strip {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -1413,6 +1546,8 @@ pre {
   .api-layout,
   .docs-workspace,
   .two-column,
+  .operational-grid,
+  .operator-grid,
   .role-shell,
   .role-dashboard-grid,
   .role-source-grid {
@@ -1464,6 +1599,8 @@ pre {
     .endpoint-grid,
     .evidence-grid,
     .role-panel-grid,
+    .workspace-quick-grid,
+    .operational-cards,
     .api-controls,
     .nav {
     grid-template-columns: 1fr;

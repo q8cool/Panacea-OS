@@ -23,6 +23,7 @@ http://localhost:5174
    - Show active service count.
    - Show OpenAPI and test evidence.
    - Show Foundation Provider status.
+   - Show the Operator Live Demo Board and quick links into role workspaces.
    - Switch the language selector from English to `العربية` and show the RTL layout.
 
 2. **Demo Role Switcher**
@@ -43,7 +44,8 @@ http://localhost:5174
    - Explain CORS requirements if browser calls are blocked.
 
 5. **Doctor / Clinician Workspace**
-   - Show patient context panel, timeline, allergies, medications, lab/radiology summaries, AI recommendations, alerts, tasks, and care team pages.
+   - Open Patient Search and select `Demo Patient Alpha`.
+   - Show the patient chart, timeline, allergies, medications, vital signs, lab/radiology summaries, AI recommendations, alerts, tasks, and care team pages.
    - Point out: `Advisory only. Clinician remains final decision maker.`
 
 6. **Patient Portal Workspace**
@@ -51,7 +53,7 @@ http://localhost:5174
    - Explain that educational content is not medical advice.
 
 7. **Laboratory Workspace**
-   - Show order status, specimen status, turnaround time, critical result flag, validation/approval state, auditability, and integration status.
+   - Show order status, specimen status, turnaround time, result entry visibility, critical result flag, validation/approval state, auditability, and integration status.
 
 8. **Radiology Workspace**
    - Show imaging orders, study list, DICOM metadata, PACS status, reporting worklist, report editor shell, approvals, critical findings, timeline, and analytics.
@@ -78,6 +80,7 @@ http://localhost:5174
 
 - Use only demo/operator mode.
 - Do not enter patient information.
+- Treat all visible demo rows as synthetic and frontend-only.
 - Do not claim live patient records are loaded.
 - Do not claim documentation-backed modules are active runtime services.
 - Do not claim Live Mode is active unless a Foundation-issued JWT validates.

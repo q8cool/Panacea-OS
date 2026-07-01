@@ -51,7 +51,21 @@ Role workspaces display:
 DEMO DATA -- NOT REAL PATIENT DATA
 ```
 
-The UI does not load real patient data.
+The UI does not load real patient data in Demo Mode. Sprint 110 adds frontend-only synthetic operational records so that every role workspace can be inspected visually.
+
+## Operational Demo Data
+
+The demo includes:
+
+- 20 synthetic patient records.
+- Demo hospital, departments, wards, rooms, beds, clinics, and tenants.
+- Demo users mapped to each role.
+- Laboratory orders and result states.
+- Radiology studies and DICOM metadata.
+- Pharmacy prescription queue, medication catalog, inventory, lot, and expiry records.
+- Administration users, tenants, departments, audit logs, and system health records.
+
+These records are for product review only and are not persisted to the production backend.
 
 ## Data Sources
 
