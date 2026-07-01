@@ -766,6 +766,139 @@ describe("Panacea web platform", () => {
     expect(html).not.toContain("Doctor Patient Search");
   });
 
+  it("renders Sprint 115 pilot journey evidence across live role workspaces", () => {
+    const roles = [
+      {
+        route: "/workspace/doctor/dashboard",
+        role: "doctor" as const,
+        title: "Sprint 115 Live Patient",
+        modelKey: "patients",
+        endpoint: "/read-models/clinical/patients",
+        write: "patient.created",
+        projection: "clinical.patients.patient-pilot-115"
+      },
+      {
+        route: "/workspace/patient/appointments",
+        role: "patient" as const,
+        title: "Sprint 115 Appointment Request",
+        modelKey: "appointments",
+        endpoint: "/read-models/patient-portal/me/appointments",
+        write: "patient.appointment.requested",
+        projection: "patient_portal.appointments.patient-pilot-115"
+      },
+      {
+        route: "/workspace/laboratory/result-entry",
+        role: "laboratory" as const,
+        title: "Sprint 115 Critical Lab Result",
+        modelKey: "critical_results",
+        endpoint: "/read-models/laboratory/critical-results",
+        write: "critical.lab.result.flagged",
+        projection: "laboratory.critical_results.result-pilot-115-critical"
+      },
+      {
+        route: "/workspace/radiology/reporting",
+        role: "radiology" as const,
+        title: "Sprint 115 Critical Finding",
+        modelKey: "critical_findings",
+        endpoint: "/read-models/radiology/critical-findings",
+        write: "critical.finding.flagged",
+        projection: "radiology.critical_findings.report-pilot-115-critical"
+      },
+      {
+        route: "/workspace/pharmacy/prescriptions",
+        role: "pharmacy" as const,
+        title: "Sprint 115 Prescription",
+        modelKey: "prescriptions",
+        endpoint: "/read-models/pharmacy/prescriptions",
+        write: "prescription.created",
+        projection: "pharmacy.prescriptions.prescription-pilot-115"
+      },
+      {
+        route: "/workspace/administrator/users",
+        role: "administrator" as const,
+        title: "Sprint 115 User",
+        modelKey: "users",
+        endpoint: "/read-models/admin/users",
+        write: "user.created",
+        projection: "admin.users.user-pilot-115"
+      }
+    ];
+
+    for (const item of roles) {
+      const liveWorkspaceState: LiveWorkspaceState = {
+        endpoint: {
+          label: `Sprint 115 ${item.role} live read model`,
+          method: "GET",
+          url: `http://localhost:18095/api/v4/global-command-intelligence${item.endpoint}`,
+          source: "docs/contracts/openapi/real-time-global-healthcare-command-intelligence-platform.openapi.json",
+          available: true,
+          reason: "Sprint 115 live read-model evidence selected from the OpenAPI contract."
+        },
+        result: {
+          requestId: `sprint115-read-${item.role}`,
+          method: "GET",
+          url: `http://localhost:18095/api/v4/global-command-intelligence${item.endpoint}`,
+          state: "online",
+          httpStatus: 200,
+          detail: "Request completed.",
+          checkedAt: new Date().toISOString(),
+          jsonBody: {
+            data: {
+              source: "live-read-model",
+              demoData: false,
+              tenantId: "tenant-a",
+              workspace: item.role === "doctor" ? "clinical" : item.role,
+              modelKey: item.modelKey,
+              pagination: { limit: 25, offset: 0, total: 1 },
+              items: [
+                {
+                  id: `read-sprint115-${item.role}`,
+                  title: item.title,
+                  status: "active",
+                  subjectId: item.projection.split(".").at(-1),
+                  updatedAt: "2026-07-01T10:00:00.000Z",
+                  payload: { source: "live-write-projection", eventType: item.write }
+                }
+              ]
+            }
+          }
+        },
+        writeEndpoint: {
+          label: `Sprint 115 ${item.write}`,
+          method: "POST",
+          url: "http://localhost:18095/api/v4/global-command-intelligence/write-workflows/events",
+          source: "docs/contracts/openapi/real-time-global-healthcare-command-intelligence-platform.openapi.json",
+          available: true,
+          reason: "Approved live transactional workflow evidence."
+        },
+        writeResult: {
+          requestId: `sprint115-write-${item.role}`,
+          method: "POST",
+          url: "http://localhost:18095/api/v4/global-command-intelligence/write-workflows/events",
+          state: "online",
+          httpStatus: 201,
+          detail: "Request completed.",
+          checkedAt: new Date().toISOString(),
+          jsonBody: {
+            data: { workflowKey: item.write.replaceAll(".", "_"), eventType: item.write },
+            projections: [{ projectionTarget: item.projection, status: "projected" }]
+          }
+        }
+      };
+      const html = renderRoute(data, item.route, {
+        ...initialState,
+        authSession: { ...sessionFor(item.role), permissions: ["read", "global_command_intelligence.write_workflows.write"] },
+        liveWorkspaceState
+      });
+      expect(html).toContain("LIVE MODE -- AUTHENTICATED READ-ONLY SESSION");
+      expect(html).toContain("Live Read Model");
+      expect(html).toContain(item.title);
+      expect(html).toContain(item.write);
+      expect(html).toContain(item.projection);
+      expect(html).not.toContain("Rows are UI-state examples");
+    }
+  });
+
   it("renders operator transaction review with projection labels and Arabic text", () => {
     const html = renderRoute(data, "/command/transaction-review", {
       ...initialState,
