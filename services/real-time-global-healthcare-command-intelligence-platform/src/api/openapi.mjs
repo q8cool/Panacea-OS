@@ -15,6 +15,11 @@ import {
   writeWorkflowDefinitions,
   writeWorkflowPermission
 } from "../domain/write-workflows.mjs";
+import {
+  projectionReadPermission,
+  projectionRetryPermission,
+  projectionStatuses
+} from "../domain/write-projections.mjs";
 import { routeDefinitions } from "./routes.mjs";
 
 function schemaRef(name) {
@@ -131,6 +136,99 @@ function createWriteWorkflowPath(definition) {
   };
 }
 
+function createProjectionListPath(kind) {
+  const isEvents = kind === "events";
+  return {
+    get: {
+      tags: ["live_event_projection"],
+      operationId: isEvents ? "listLiveWriteWorkflowEvents" : "listLiveWriteWorkflowProjections",
+      summary: isEvents ? "List accepted live write workflow events" : "List live write workflow projection statuses",
+      description: "Operator and administrator review endpoint for tenant-scoped live write events and read-model projections. It is read-only, fully auditable, and does not re-execute clinical decisions.",
+      security: [{ bearerAuth: [] }, { tenantHeaders: [] }],
+      parameters: [
+        {
+          name: "limit",
+          in: "query",
+          required: false,
+          schema: { type: "integer", minimum: 1, maximum: 100, default: 25 }
+        },
+        {
+          name: "offset",
+          in: "query",
+          required: false,
+          schema: { type: "integer", minimum: 0, maximum: 10000, default: 0 }
+        },
+        ...(isEvents ? [] : [{
+          name: "status",
+          in: "query",
+          required: false,
+          schema: { type: "string", enum: projectionStatuses }
+        }]),
+        {
+          name: "eventType",
+          in: "query",
+          required: false,
+          schema: { type: "string", enum: requiredWriteWorkflowEvents() }
+        }
+      ],
+      responses: {
+        "200": { description: "Tenant-scoped transaction review records returned", content: { "application/json": { schema: schemaRef(isEvents ? "WriteWorkflowEventListResponse" : "WriteWorkflowProjectionListResponse") } } },
+        "400": { description: "Validation failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } },
+        "401": { description: "Authentication failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } },
+        "403": { description: "Authorization failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } }
+      }
+    }
+  };
+}
+
+function createProjectionDetailPath() {
+  return {
+    get: {
+      tags: ["live_event_projection"],
+      operationId: "getLiveWriteWorkflowProjection",
+      summary: "Get a live write workflow projection",
+      description: "Returns one tenant-scoped projection tracking record for operator review.",
+      security: [{ bearerAuth: [] }, { tenantHeaders: [] }],
+      parameters: [projectionIdParameter()],
+      responses: {
+        "200": { description: "Projection returned", content: { "application/json": { schema: schemaRef("WriteWorkflowProjectionResponse") } } },
+        "400": { description: "Validation failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } },
+        "401": { description: "Authentication failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } },
+        "403": { description: "Authorization failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } }
+      }
+    }
+  };
+}
+
+function createProjectionRetryPath() {
+  return {
+    post: {
+      tags: ["live_event_projection"],
+      operationId: "retryLiveWriteWorkflowProjection",
+      summary: "Retry a failed read-model projection",
+      description: "Operator/admin-only replay of a failed projection into an existing read model. The endpoint never re-executes diagnosis, treatment, prescribing, or clinical decisions and uses idempotent read-model upserts.",
+      security: [{ bearerAuth: [] }, { tenantHeaders: [] }],
+      parameters: [projectionIdParameter()],
+      responses: {
+        "200": { description: "Projection safely replayed", content: { "application/json": { schema: schemaRef("WriteWorkflowProjectionResponse") } } },
+        "400": { description: "Validation failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } },
+        "401": { description: "Authentication failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } },
+        "403": { description: "Authorization failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } }
+      }
+    }
+  };
+}
+
+function projectionIdParameter() {
+  return {
+    name: "projectionId",
+    in: "path",
+    required: true,
+    schema: { type: "string", minLength: 1 },
+    description: "Projection tracking identifier."
+  };
+}
+
 export function buildOpenApiDocument() {
   const paths = {
     [`${API_BASE_PATH}/live`]: {
@@ -175,6 +273,10 @@ export function buildOpenApiDocument() {
   for (const definition of writeWorkflowDefinitions) {
     paths[`${API_BASE_PATH}${definition.path}`] = createWriteWorkflowPath(definition);
   }
+  paths[`${API_BASE_PATH}/write-workflows/events`] = createProjectionListPath("events");
+  paths[`${API_BASE_PATH}/write-workflows/projections`] = createProjectionListPath("projections");
+  paths[`${API_BASE_PATH}/write-workflows/projections/{projectionId}`] = createProjectionDetailPath();
+  paths[`${API_BASE_PATH}/write-workflows/projections/{projectionId}/retry`] = createProjectionRetryPath();
   paths[`${API_BASE_PATH}/integrations/references`] = {
     post: {
       tags: ["Integrations"],
@@ -216,7 +318,8 @@ export function buildOpenApiDocument() {
       { name: "command_decision_support" },
       { name: "executive_intelligence" },
       { name: "live_read_models" },
-      { name: "live_write_workflows" }
+      { name: "live_write_workflows" },
+      { name: "live_event_projection" }
     ],
     paths,
     components: {
@@ -418,10 +521,107 @@ export function buildOpenApiDocument() {
         },
         WriteWorkflowResponse: {
           type: "object",
-          required: ["data", "event"],
+          required: ["data", "event", "projections"],
           properties: {
             data: schemaRef("WriteWorkflowRecord"),
-            event: { type: "object", properties: { eventType: { type: "string", enum: requiredWriteWorkflowEvents() } } }
+            event: { type: "object", properties: { eventType: { type: "string", enum: requiredWriteWorkflowEvents() } } },
+            projections: { type: "array", items: schemaRef("WriteWorkflowProjectionSummary") }
+          }
+        },
+        WriteWorkflowEventReview: {
+          type: "object",
+          additionalProperties: true,
+          required: ["id", "tenantId", "eventType", "actorId", "occurredAt", "projections"],
+          properties: {
+            id: { type: "string" },
+            tenantId: { type: "string" },
+            eventType: { type: "string", enum: requiredWriteWorkflowEvents() },
+            aggregateId: { type: "string" },
+            aggregateType: { type: "string" },
+            actorId: { type: "string" },
+            occurredAt: { type: "string", format: "date-time" },
+            workflowGroup: { type: "string" },
+            workflowKey: { type: "string" },
+            subjectId: { type: "string" },
+            title: { type: "string" },
+            requestContext: { type: "object", additionalProperties: true },
+            projections: { type: "array", items: schemaRef("WriteWorkflowProjectionSummary") }
+          }
+        },
+        WriteWorkflowProjectionSummary: {
+          type: "object",
+          required: ["id", "eventId", "eventType", "projectionTarget", "readModelId", "status"],
+          properties: {
+            id: { type: "string" },
+            eventId: { type: "string" },
+            eventType: { type: "string", enum: requiredWriteWorkflowEvents() },
+            workflowId: { type: "string" },
+            projectionTarget: { type: "string" },
+            readModelId: { type: "string" },
+            status: { type: "string", enum: projectionStatuses },
+            processedAt: { type: "string", format: "date-time" },
+            failureReason: { type: "string" },
+            retryCount: { type: "integer", minimum: 0 },
+            correlationId: { type: "string" },
+            requestId: { type: "string" },
+            actorId: { type: "string" }
+          }
+        },
+        WriteWorkflowProjection: {
+          allOf: [
+            schemaRef("WriteWorkflowProjectionSummary"),
+            {
+              type: "object",
+              properties: {
+                tenantId: { type: "string" },
+                payload: { type: "object", additionalProperties: true },
+                createdBy: { type: "string" },
+                updatedBy: { type: "string" },
+                createdAt: { type: "string", format: "date-time" },
+                updatedAt: { type: "string", format: "date-time" }
+              }
+            }
+          ]
+        },
+        WriteWorkflowEventListResponse: {
+          type: "object",
+          required: ["data"],
+          properties: {
+            data: {
+              type: "object",
+              required: ["source", "demoData", "tenantId", "pagination", "items"],
+              properties: {
+                source: { type: "string", enum: ["live-write-workflow-events"] },
+                demoData: { type: "boolean", enum: [false] },
+                tenantId: { type: "string" },
+                pagination: schemaRef("Pagination"),
+                items: { type: "array", items: schemaRef("WriteWorkflowEventReview") }
+              }
+            }
+          }
+        },
+        WriteWorkflowProjectionListResponse: {
+          type: "object",
+          required: ["data"],
+          properties: {
+            data: {
+              type: "object",
+              required: ["source", "demoData", "tenantId", "pagination", "items"],
+              properties: {
+                source: { type: "string", enum: ["live-write-workflow-projections"] },
+                demoData: { type: "boolean", enum: [false] },
+                tenantId: { type: "string" },
+                pagination: schemaRef("Pagination"),
+                items: { type: "array", items: schemaRef("WriteWorkflowProjection") }
+              }
+            }
+          }
+        },
+        WriteWorkflowProjectionResponse: {
+          type: "object",
+          required: ["data"],
+          properties: {
+            data: schemaRef("WriteWorkflowProjection")
           }
         },
         ErrorResponse: {
@@ -455,7 +655,9 @@ export function buildOpenApiDocument() {
         "regional_governance_policies",
         "country_level_policy_controls",
         "live_read_models",
-        "live_write_workflows"
+        "live_write_workflows",
+        "live_event_projection",
+        "transaction_review"
       ],
       liveReadModels: readModelDefinitions.map((definition) => ({
         workspace: definition.workspace,
@@ -471,7 +673,15 @@ export function buildOpenApiDocument() {
         path: `${API_BASE_PATH}${definition.path}`,
         roles: definition.allowedRoles,
         permission: writeWorkflowPermission
-      }))
+      })),
+      liveEventProjection: {
+        eventsPath: `${API_BASE_PATH}/write-workflows/events`,
+        projectionsPath: `${API_BASE_PATH}/write-workflows/projections`,
+        retryPath: `${API_BASE_PATH}/write-workflows/projections/{projectionId}/retry`,
+        reviewPermission: projectionReadPermission,
+        retryPermission: projectionRetryPermission,
+        statuses: projectionStatuses
+      }
     }
   };
 }

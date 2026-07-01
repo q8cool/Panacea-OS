@@ -3,6 +3,7 @@ import test from "node:test";
 import { createRealTimeGlobalCommandIntelligenceServer } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/api/server.mjs";
 import { API_BASE_PATH } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/domain/command-domain.mjs";
 import { writeWorkflowPermission } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/domain/write-workflows.mjs";
+import { projectionReadPermission, projectionRetryPermission } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/domain/write-projections.mjs";
 import { baseRecord, baseWriteWorkflow, createServiceWithRepository } from "./fixtures.mjs";
 
 function startServer() {
@@ -241,8 +242,11 @@ test("REST API accepts approved Sprint 113 transactional write workflows and rej
     assert.equal(created.json.event.eventType, "patient.created");
     assert.equal(created.json.data.workflowKey, "create_patient");
     assert.equal(created.json.data.workflowControls.demoData, false);
+    assert.ok(created.json.projections.length >= 1);
     assert.equal(repository.writeWorkflows.length, 1);
     assert.equal(repository.writeWorkflowEvents[0].eventType, "patient.created");
+    assert.equal(repository.writeWorkflowProjections[0].eventType, "patient.created");
+    assert.equal(repository.readModels.some((record) => record.modelKey === "patients"), true);
     assert.equal(repository.audits.at(-1).metadata.eventType, "patient.created");
 
     const forbidden = await postJson(
@@ -266,6 +270,67 @@ test("REST API accepts approved Sprint 113 transactional write workflows and rej
       }
     );
     assert.equal(rejectedDemo.response.status, 400);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("REST API exposes Sprint 114 transaction review and safe projection retry", async () => {
+  const { server, repository, baseUrl } = await startServer();
+  try {
+    const created = await postJson(
+      baseUrl,
+      "/write-workflows/clinical/patients",
+      baseWriteWorkflow({ subjectId: "patient-projection-001" }),
+      {
+        "x-roles": "doctor",
+        "x-permissions": writeWorkflowPermission,
+        "x-request-id": "api-projection-request",
+        "x-correlation-id": "api-projection-correlation"
+      }
+    );
+    assert.equal(created.response.status, 201);
+
+    const events = await getJson(baseUrl, "/write-workflows/events", {
+      "x-roles": "operator",
+      "x-permissions": projectionReadPermission
+    });
+    assert.equal(events.response.status, 200);
+    assert.equal(events.json.data.source, "live-write-workflow-events");
+    assert.equal(events.json.data.items.length, 1);
+    assert.equal(events.json.data.items[0].projections.length >= 1, true);
+
+    const projections = await getJson(baseUrl, "/write-workflows/projections", {
+      "x-roles": "operator",
+      "x-permissions": projectionReadPermission
+    });
+    assert.equal(projections.response.status, 200);
+    assert.equal(projections.json.data.source, "live-write-workflow-projections");
+    assert.equal(projections.json.data.items[0].requestId, "api-projection-request");
+
+    const projection = repository.writeWorkflowProjections[0];
+    const detail = await getJson(baseUrl, `/write-workflows/projections/${encodeURIComponent(projection.id)}`, {
+      "x-roles": "operator",
+      "x-permissions": projectionReadPermission
+    });
+    assert.equal(detail.response.status, 200);
+    assert.equal(detail.json.data.id, projection.id);
+
+    projection.projectionStatus = "failed";
+    projection.status = "failed";
+    projection.failureReason = "api retry validation failure";
+    const retry = await postJson(baseUrl, `/write-workflows/projections/${encodeURIComponent(projection.id)}/retry`, {}, {
+      "x-roles": "operator",
+      "x-permissions": `${projectionReadPermission},${projectionRetryPermission}`
+    });
+    assert.equal(retry.response.status, 200);
+    assert.equal(retry.json.data.projectionStatus, "replayed");
+
+    const forbidden = await getJson(baseUrl, "/write-workflows/projections", {
+      "x-roles": "patient",
+      "x-permissions": "read"
+    });
+    assert.equal(forbidden.response.status, 403);
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }

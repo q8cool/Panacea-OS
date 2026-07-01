@@ -6,7 +6,16 @@ import { clearSession, persistSession, restoreSession, validateTokenWithFoundati
 import { loginWithFoundationProvider, logoutFoundationProviderSession, refreshFoundationProviderSession } from "./foundationAuthClient";
 import { discoverFoundationLogin } from "./foundationLoginDiscovery";
 import { probeFoundation } from "./foundation";
-import { appendOperatorAuditTest, executeReadOnlyRequest, executeWriteWorkflowRequest, findReadOnlyEndpoint, findWriteWorkflowEndpoint, pollRuntimeStatus } from "./liveApi";
+import {
+  appendOperatorAuditTest,
+  executeReadOnlyRequest,
+  executeWriteWorkflowRequest,
+  fetchTransactionReview,
+  findReadOnlyEndpoint,
+  findWriteWorkflowEndpoint,
+  pollRuntimeStatus,
+  retryProjectionReview
+} from "./liveApi";
 import { initialState, renderApp, type RenderState } from "./render";
 import { isRoleRoute } from "./roleRender";
 import { pageFromRoute, roleDefaultRoute, workspaceFromRoute } from "./roleWorkspaces";
@@ -18,6 +27,7 @@ const root = document.querySelector<HTMLDivElement>("#app");
 
 let data: AppData;
 let lastLiveRoute = "";
+let transactionReviewInFlight = false;
 let liveWorkspaceInFlight = false;
 let state: RenderState = {
   ...initialState,
@@ -227,6 +237,44 @@ function bindEvents() {
     void refreshLiveStatus();
   });
 
+  document.querySelector<HTMLButtonElement>("#refresh-transaction-review")?.addEventListener("click", () => {
+    void refreshTransactionReview();
+  });
+
+  document.querySelectorAll<HTMLButtonElement>("[data-retry-projection-id]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      if (!state.authSession) return;
+      const session = state.authSession;
+      const projectionId = button.dataset.retryProjectionId ?? "";
+      if (!projectionId) return;
+      const config = state.webConfig ?? buildWebConfig(data);
+      state = {
+        ...state,
+        transactionReview: {
+          ...state.transactionReview,
+          retryResult: {
+            requestId: "pending",
+            method: "POST",
+            url: `${config.PANACEA_API_BASE_URL}/api/v4/global-command-intelligence/write-workflows/projections/${projectionId}/retry`,
+            state: "degraded",
+            detail: "Retrying failed projection...",
+            checkedAt: new Date().toISOString()
+          }
+        }
+      };
+      render();
+      const retryResult = await retryProjectionReview(data, session, config, projectionId);
+      state = {
+        ...state,
+        transactionReview: {
+          ...(await fetchTransactionReview(data, session, config)),
+          retryResult
+        }
+      };
+      render();
+    });
+  });
+
   document.querySelector<HTMLButtonElement>("#append-test-audit")?.addEventListener("click", async () => {
     if (!state.authSession || state.authSession.role !== "operator") return;
     const config = state.webConfig ?? buildWebConfig(data);
@@ -345,6 +393,11 @@ function bindEvents() {
 }
 
 async function afterRender(route: string) {
+  if (route === "/command/transaction-review") {
+    if (!state.authSession || transactionReviewInFlight || state.transactionReview?.lastUpdated) return;
+    void refreshTransactionReview();
+    return;
+  }
   if (!state.authSession || !isRoleRoute(route) || liveWorkspaceInFlight) return;
   if (route === lastLiveRoute && state.liveWorkspaceState?.result) return;
   const workspace = workspaceFromRoute(route);
@@ -375,6 +428,25 @@ async function afterRender(route: string) {
     },
     lastAuditAction: response.auditAction
   };
+  render();
+}
+
+async function refreshTransactionReview() {
+  if (!state.authSession || transactionReviewInFlight) return;
+  const session = state.authSession;
+  transactionReviewInFlight = true;
+  state = {
+    ...state,
+    transactionReview: {
+      ...state.transactionReview,
+      lastUpdated: new Date().toISOString()
+    }
+  };
+  render();
+  const config = state.webConfig ?? buildWebConfig(data);
+  const transactionReview = await fetchTransactionReview(data, session, config);
+  transactionReviewInFlight = false;
+  state = { ...state, transactionReview };
   render();
 }
 

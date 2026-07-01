@@ -22,6 +22,7 @@ export const navSections: NavSection[] = [
       { label: "System Health", route: "/command/system-health", icon: "Activity", keywords: ["health", "readiness", "metrics"] },
       { label: "Live API Status", route: "/command/live-status", icon: "Wifi", keywords: ["live", "api", "cors", "polling"] },
       { label: "Command Intelligence", route: "/command/global-command", icon: "Radar", keywords: ["command", "alerts", "crisis"] },
+      { label: "Transaction Review", route: "/command/transaction-review", icon: "ListChecks", keywords: ["projection", "event", "transaction", "audit"] },
       { label: "Foundation Provider", route: "/command/foundation-provider", icon: "ShieldCheck", keywords: ["foundation", "jwks", "audit", "policy"] }
     ]
   },

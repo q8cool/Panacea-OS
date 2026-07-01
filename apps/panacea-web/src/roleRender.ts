@@ -397,6 +397,7 @@ function roleDemoWriteBoundary(_workspace: RoleWorkspaceDefinition, _page: RoleP
 
 function liveWriteResult(result: NonNullable<LiveWorkspaceState["writeResult"]>): string {
   const record = extractWriteRecord(result.jsonBody);
+  const projections = extractWriteProjections(result.jsonBody);
   return `
     <div class="live-write-result ${result.state}">
       <strong>${escapeHtml(result.httpStatus ? `HTTP ${result.httpStatus}` : result.state)}</strong>
@@ -406,6 +407,8 @@ function liveWriteResult(result: NonNullable<LiveWorkspaceState["writeResult"]>)
         <span>${escapeHtml(l("Persisted workflow"))}: ${escapeHtml(String(record.workflowKey ?? "accepted"))}</span>
         <span>${escapeHtml(l("Event"))}: ${escapeHtml(String(record.eventType ?? ""))}</span>
       ` : ""}
+      ${projections.length ? `<span>${escapeHtml(l("Projection Status"))}: ${escapeHtml(projections.map((projection) => `${String(projection.projectionTarget ?? "")}=${String(projection.status ?? projection.projectionStatus ?? "")}`).join(", "))}</span>` : ""}
+      <span>${escapeHtml(l("Last updated"))}: ${escapeHtml(result.checkedAt)}</span>
       <span class="ltr-text" dir="ltr">${escapeHtml(result.requestId)}</span>
     </div>
   `;
@@ -415,6 +418,13 @@ function extractWriteRecord(value: unknown): Record<string, unknown> | undefined
   const envelope = asRecord(value);
   const data = asRecord(envelope.data);
   return Object.keys(data).length ? data : undefined;
+}
+
+function extractWriteProjections(value: unknown): Array<Record<string, unknown>> {
+  const envelope = asRecord(value);
+  return Array.isArray(envelope.projections)
+    ? envelope.projections.map((item) => asRecord(item)).filter((item) => Object.keys(item).length > 0)
+    : [];
 }
 
 function defaultSubjectForPage(page: RolePageDefinition): string {

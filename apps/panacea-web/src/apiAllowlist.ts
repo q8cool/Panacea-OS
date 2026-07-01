@@ -5,6 +5,7 @@ export type BrowserApiClassification =
   | "ALLOWED_READ"
   | "ALLOWED_LIVE_WRITE"
   | "ALLOWED_OPERATOR_TEST"
+  | "ALLOWED_OPERATOR_ACTION"
   | "BLOCKED_WRITE"
   | "BLOCKED_CLINICAL_ACTION"
   | "BLOCKED_ADMIN_DANGEROUS"
@@ -122,6 +123,16 @@ export function evaluateBrowserApiRequest(
     };
   }
 
+  if (entry.classification === "ALLOWED_OPERATOR_ACTION") {
+    const isOperatorOrAdmin = session?.role === "operator" || session?.role === "administrator";
+    return {
+      allowed: Boolean(isOperatorOrAdmin),
+      classification: entry.classification,
+      reason: isOperatorOrAdmin ? entry.reason : "Operator/admin-only action requires an operator or administrator role claim.",
+      entry
+    };
+  }
+
   return {
     allowed: false,
     classification: entry.classification,
@@ -138,6 +149,7 @@ export function allowlistSummary(entries: BrowserApiAllowlistEntry[]): Record<Br
     ALLOWED_READ: 0,
     ALLOWED_LIVE_WRITE: 0,
     ALLOWED_OPERATOR_TEST: 0,
+    ALLOWED_OPERATOR_ACTION: 0,
     BLOCKED_WRITE: 0,
     BLOCKED_CLINICAL_ACTION: 0,
     BLOCKED_ADMIN_DANGEROUS: 0,
@@ -159,6 +171,14 @@ function classifyEndpoint(endpoint: EndpointRecord, config: PanaceaWebConfig): B
 
   if (method === "GET" && path.includes("/read-models/")) {
     return entry(endpoint, url, "ALLOWED_READ", workspaceScopes, "Authenticated browser Live Mode may call versioned backend read-model endpoints only. Responses must be tenant scoped and read-only.");
+  }
+
+  if (method === "GET" && (path.endsWith("/write-workflows/events") || path.includes("/write-workflows/projections"))) {
+    return entry(endpoint, url, "ALLOWED_READ", ["operator", "administrator"], "Authenticated operator/admin Live Mode may review tenant-scoped write events and projection status.");
+  }
+
+  if (method === "POST" && path.includes("/write-workflows/projections/") && path.endsWith("/retry")) {
+    return entry(endpoint, url, "ALLOWED_OPERATOR_ACTION", ["operator", "administrator"], "Operator/admin Live Mode may retry failed projection tracking records through the backend-safe replay endpoint.");
   }
 
   if (method === "POST" && path.includes("/write-workflows/")) {

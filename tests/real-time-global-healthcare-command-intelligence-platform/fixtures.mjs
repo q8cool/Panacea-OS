@@ -9,6 +9,7 @@ export function createRepositoryDouble() {
     readModels: [],
     writeWorkflows: [],
     writeWorkflowEvents: [],
+    writeWorkflowProjections: [],
     async saveCommandRecord(record, event) {
       this.records.push(record);
       this.events.push(event);
@@ -16,10 +17,89 @@ export function createRepositoryDouble() {
     async saveIntegrationReference(reference) {
       this.references.push(reference);
     },
-    async saveWriteWorkflow(record, event, auditEntry) {
+    async saveWriteWorkflow(record, event, auditEntry, projections = []) {
       this.writeWorkflows.push(record);
       this.writeWorkflowEvents.push(event);
+      for (const projection of projections) {
+        const readIndex = this.readModels.findIndex((item) => item.id === projection.readModel.id);
+        if (readIndex >= 0) this.readModels[readIndex] = projection.readModel;
+        else this.readModels.push(projection.readModel);
+        const projectionRecord = { ...projection, status: projection.projectionStatus };
+        const projectionIndex = this.writeWorkflowProjections.findIndex((item) => (
+          item.tenantId === projection.tenantId &&
+          item.eventId === projection.eventId &&
+          item.projectionTarget === projection.projectionTarget
+        ));
+        if (projectionIndex >= 0) this.writeWorkflowProjections[projectionIndex] = { ...projectionRecord, projectionStatus: "replayed", status: "replayed" };
+        else this.writeWorkflowProjections.push(projectionRecord);
+      }
       this.audits.push(auditEntry);
+    },
+    async listWriteWorkflowEvents({ tenantId, eventType, limit, offset }) {
+      const filtered = this.writeWorkflowEvents.filter((event) => (
+        event.tenantId === tenantId &&
+        (!eventType || event.eventType === eventType)
+      ));
+      return {
+        total: filtered.length,
+        items: filtered.slice(offset, offset + limit).map((event) => {
+          const workflow = this.writeWorkflows.find((record) => record.id === event.aggregateId);
+          return {
+            ...event,
+            workflowGroup: workflow?.workflowGroup,
+            workflowKey: workflow?.workflowKey,
+            workflowStatus: workflow?.status,
+            subjectId: workflow?.subjectId,
+            title: workflow?.title,
+            requestContext: workflow?.requestContext,
+            projections: this.writeWorkflowProjections
+              .filter((projection) => projection.tenantId === tenantId && projection.eventId === event.id)
+              .map((projection) => ({
+                id: projection.id,
+                projectionTarget: projection.projectionTarget,
+                readModelId: projection.readModelId,
+                status: projection.projectionStatus,
+                processedAt: projection.processedAt,
+                failureReason: projection.failureReason,
+                retryCount: projection.retryCount
+              }))
+          };
+        })
+      };
+    },
+    async listWriteWorkflowProjections({ tenantId, status, eventType, limit, offset }) {
+      const filtered = this.writeWorkflowProjections.filter((projection) => (
+        projection.tenantId === tenantId &&
+        (!status || projection.projectionStatus === status) &&
+        (!eventType || projection.eventType === eventType)
+      ));
+      return {
+        total: filtered.length,
+        items: filtered.slice(offset, offset + limit)
+      };
+    },
+    async getWriteWorkflowProjection({ tenantId, projectionId }) {
+      return this.writeWorkflowProjections.find((projection) => projection.tenantId === tenantId && projection.id === projectionId) ?? null;
+    },
+    async retryWriteWorkflowProjection(projection, auditEntry, replayedAt) {
+      const targetReadModel = projection.payload.targetReadModel;
+      const readIndex = this.readModels.findIndex((item) => item.id === targetReadModel.id);
+      if (readIndex >= 0) this.readModels[readIndex] = { ...targetReadModel, updatedAt: replayedAt };
+      else this.readModels.push({ ...targetReadModel, updatedAt: replayedAt });
+      const index = this.writeWorkflowProjections.findIndex((item) => item.id === projection.id);
+      const updated = {
+        ...projection,
+        projectionStatus: "replayed",
+        status: "replayed",
+        processedAt: replayedAt,
+        failureReason: null,
+        retryCount: projection.retryCount + 1,
+        updatedBy: auditEntry.actorId,
+        updatedAt: replayedAt
+      };
+      this.writeWorkflowProjections[index] = updated;
+      this.audits.push(auditEntry);
+      return updated;
     },
     async listReadModels({ tenantId, workspace, modelKey, subjectId, limit, offset }) {
       const filtered = this.readModels.filter((record) => (

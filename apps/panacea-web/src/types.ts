@@ -246,6 +246,13 @@ export interface LiveWorkspaceState {
   writeAuditAction?: BrowserAuditAction;
 }
 
+export interface TransactionReviewState {
+  events?: LiveApiResult;
+  projections?: LiveApiResult;
+  lastUpdated?: string;
+  retryResult?: LiveApiResult;
+}
+
 export interface LiveStatusState {
   foundation: RuntimeEndpointStatus[];
   services: RuntimeEndpointStatus[];

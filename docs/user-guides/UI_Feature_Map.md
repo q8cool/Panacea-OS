@@ -12,6 +12,8 @@ Sprint 111 adds authenticated live read-model APIs for the role workspaces. In L
 
 Sprint 113 adds approved transactional write workflow panels for clinician, laboratory, radiology, pharmacy, scheduling, administration, and patient portal request workflows. In Live Mode, these panels submit only OpenAPI-listed POST endpoints under `/api/v4/global-command-intelligence/write-workflows/...`. In Demo Mode, they display the explicit non-persistence boundary.
 
+Sprint 114 adds the Transaction Review page for event projection visibility. Operators can review live write workflow events, read-model projection state, request and correlation IDs, failure reasons, and safe retry controls for failed projections.
+
 | UI area | Route | Active now | Backing evidence |
 |---|---|---:|---|
 | Executive Overview | `#/command/executive-overview` | YES | Release docs, service inventory, OpenAPI docs |
@@ -19,6 +21,7 @@ Sprint 113 adds approved transactional write workflow panels for clinician, labo
 | System Health | `#/command/system-health` | YES | Docker Compose ports, service package metadata |
 | Live API Status | `#/command/live-status` | YES | Browser polling for Foundation and service endpoints |
 | Global Command Intelligence | `#/command/global-command` | YES | Active v4 service and OpenAPI |
+| Transaction Review | `#/command/transaction-review` | YES | Sprint 114 write-event projection APIs and read-model synchronization |
 | Foundation Provider | `#/command/foundation-provider` | YES | Live Foundation reports and configured URLs |
 | Doctor / Clinician Workspace | `#/workspace/doctor/dashboard` | YES | OpenAPI, clinical docs, AI governance evidence |
 | Patient Portal Workspace | `#/workspace/patient/dashboard` | YES | Patient experience docs, privacy and consent evidence |
@@ -96,7 +99,7 @@ Sprint 113 adds approved transactional write workflow panels for clinician, labo
 
 ## Current Boundary
 
-The role workspaces are now professional, responsive UI experiences backed by OpenAPI, documentation, runtime status, Foundation Provider status, release evidence, live read models, and approved Sprint 113 write workflows.
+The role workspaces are now professional, responsive UI experiences backed by OpenAPI, documentation, runtime status, Foundation Provider status, release evidence, live read models, approved Sprint 113 write workflows, and Sprint 114 projection review.
 
 Live Mode adds Foundation JWT validation, role and tenant claims, read-model API calls, approved write workflow submission, and browser endpoint polling.
 

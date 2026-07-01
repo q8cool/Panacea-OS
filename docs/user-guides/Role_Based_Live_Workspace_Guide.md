@@ -6,6 +6,8 @@ Sprint 111 upgrades the role workspaces with authenticated backend read-model AP
 
 Sprint 113 adds approved authenticated transactional write workflow panels to the same workspaces.
 
+Sprint 114 projects accepted live write events into backend read models and adds operator transaction review at `#/command/transaction-review`.
+
 Each workspace still prevents autonomous clinical action. Live write workflows are limited to approved transactional operations and require human user action, tenant scope, RBAC/ABAC, audit, and event persistence.
 
 ## Workspaces
@@ -30,7 +32,10 @@ Each eligible workspace page now shows:
 - Live/Demo persistence boundary.
 - Workflow controls.
 - Submit status and request ID.
+- Projection status for accepted writes.
 - Audit action metadata when a write is attempted.
+
+Accepted live writes now emit projection summaries. Operators can review the same event and projection rows in the Transaction Review page using request ID and correlation ID.
 
 Live write panels are visible for:
 

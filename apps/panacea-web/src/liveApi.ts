@@ -12,11 +12,14 @@ import type {
   PanaceaWebConfig,
   RolePageDefinition,
   RoleWorkspaceDefinition,
-  RuntimeEndpointStatus
+  RuntimeEndpointStatus,
+  TransactionReviewState
 } from "./types";
 
 const SAFE_RETRY_METHODS = new Set<HttpMethod>(["GET"]);
 const GLOBAL_COMMAND_API_BASE = "/api/v4/global-command-intelligence";
+const TRANSACTION_EVENTS_PATH = `${GLOBAL_COMMAND_API_BASE}/write-workflows/events`;
+const TRANSACTION_PROJECTIONS_PATH = `${GLOBAL_COMMAND_API_BASE}/write-workflows/projections`;
 
 const roleReadModelPaths: Record<string, Record<string, string>> = {
   doctor: {
@@ -328,6 +331,34 @@ export async function executeWriteWorkflowRequest(
   return { result, auditAction: auditFromResult(result, session, "live") };
 }
 
+export async function fetchTransactionReview(
+  data: AppData,
+  session: AuthSession,
+  config: PanaceaWebConfig,
+  fetchImpl: typeof fetch = fetch
+): Promise<TransactionReviewState> {
+  const allowlist = buildBrowserApiAllowlist(data, config);
+  const baseUrl = baseUrlForGlobalCommand(data, config);
+  const [events, projections] = await Promise.all([
+    apiRequest("GET", `${baseUrl}${TRANSACTION_EVENTS_PATH}?limit=25&offset=0`, session, config, undefined, fetchImpl, allowlist),
+    apiRequest("GET", `${baseUrl}${TRANSACTION_PROJECTIONS_PATH}?limit=50&offset=0`, session, config, undefined, fetchImpl, allowlist)
+  ]);
+  return { events, projections, lastUpdated: new Date().toISOString() };
+}
+
+export async function retryProjectionReview(
+  data: AppData,
+  session: AuthSession,
+  config: PanaceaWebConfig,
+  projectionId: string,
+  fetchImpl: typeof fetch = fetch
+): Promise<LiveApiResult> {
+  const allowlist = buildBrowserApiAllowlist(data, config);
+  const baseUrl = baseUrlForGlobalCommand(data, config);
+  const encodedProjectionId = encodeURIComponent(projectionId);
+  return apiRequest("POST", `${baseUrl}${TRANSACTION_PROJECTIONS_PATH}/${encodedProjectionId}/retry`, session, config, {}, fetchImpl, allowlist);
+}
+
 export async function apiRequest(
   method: HttpMethod,
   url: string,
@@ -410,6 +441,12 @@ export async function apiRequest(
 
 function readModelPathForWorkspacePage(workspaceId: string, pageId: string): string | undefined {
   return roleReadModelPaths[workspaceId]?.[pageId];
+}
+
+function baseUrlForGlobalCommand(data: AppData, config: PanaceaWebConfig): string {
+  const endpoint = flattenEndpoints(data.openApiDocuments).find((item) => item.path === `${GLOBAL_COMMAND_API_BASE}/live`);
+  if (endpoint) return baseUrlForEndpoint(endpoint, config);
+  return config.PANACEA_API_BASE_URL || "http://localhost:18095";
 }
 
 function resolveReadModelPath(templatePath: string, route: string): string {

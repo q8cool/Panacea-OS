@@ -26,10 +26,30 @@ The backend persists live writes in PostgreSQL:
 
 - `global_command_intelligence_write_workflows`
 - `global_command_intelligence_write_workflow_events`
+- `global_command_intelligence_write_workflow_projections`
 
 Each accepted workflow also writes an audit entry to:
 
 - `global_command_intelligence_audit_entries`
+
+## Sprint 114 Projection Update
+
+Accepted live write events are now projected into live read models immediately. The write response includes projection summaries, and the operator can review event/projection state at:
+
+```text
+http://localhost:5174/#/command/transaction-review
+```
+
+Projection review endpoints:
+
+```text
+GET  /api/v4/global-command-intelligence/write-workflows/events
+GET  /api/v4/global-command-intelligence/write-workflows/projections
+GET  /api/v4/global-command-intelligence/write-workflows/projections/{projectionId}
+POST /api/v4/global-command-intelligence/write-workflows/projections/{projectionId}/retry
+```
+
+Retry is allowed only for failed projections and uses idempotent read-model upsert. It never re-executes diagnosis, treatment, prescribing, or autonomous clinical decisions.
 
 ## How To Test
 
@@ -58,6 +78,7 @@ global_command_intelligence.write_workflows.write
 ```
 
 5. Open a role workspace and use the Transactional Write Workflow panel.
+6. Open `#/command/transaction-review` and verify the accepted event, projection target, request ID, correlation ID, and read-model status.
 
 ## Demo Mode Boundary
 

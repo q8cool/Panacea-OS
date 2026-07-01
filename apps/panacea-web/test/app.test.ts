@@ -566,6 +566,7 @@ describe("Panacea web platform", () => {
         ALLOWED_READ: 10,
         ALLOWED_LIVE_WRITE: 4,
         ALLOWED_OPERATOR_TEST: 1,
+        ALLOWED_OPERATOR_ACTION: 1,
         BLOCKED_WRITE: 50,
         BLOCKED_CLINICAL_ACTION: 20,
         BLOCKED_ADMIN_DANGEROUS: 5,
@@ -640,7 +641,12 @@ describe("Panacea web platform", () => {
         httpStatus: 201,
         detail: "Request completed.",
         checkedAt: new Date().toISOString(),
-        jsonBody: { data: { workflowKey: "create_patient", eventType: "patient.created" } }
+        jsonBody: {
+          data: { workflowKey: "create_patient", eventType: "patient.created" },
+          projections: [
+            { projectionTarget: "clinical.patients.patient-live-001", status: "projected" }
+          ]
+        }
       }
     };
     const live = renderRoute(data, "/workspace/doctor/patient-search", {
@@ -651,6 +657,8 @@ describe("Panacea web platform", () => {
     expect(live).toContain("Transactional Write Workflow");
     expect(live).toContain("Submit Live Write");
     expect(live).toContain("patient.created");
+    expect(live).toContain("Projection Status");
+    expect(live).toContain("clinical.patients.patient-live-001=projected");
 
     const arabicDemo = renderRoute(data, "/workspace/laboratory/result-entry", {
       ...initialState,
@@ -710,6 +718,92 @@ describe("Panacea web platform", () => {
     expect(html).toContain("LIVE READ MODEL");
     expect(html).not.toContain("Demo Patient Alpha");
     expect(html).not.toContain("Doctor Patient Search");
+  });
+
+  it("renders operator transaction review with projection labels and Arabic text", () => {
+    const html = renderRoute(data, "/command/transaction-review", {
+      ...initialState,
+      authSession: sessionFor("operator"),
+      transactionReview: {
+        lastUpdated: "2026-07-01T10:00:00.000Z",
+        events: {
+          requestId: "req-events",
+          method: "GET",
+          url: "http://localhost:18095/api/v4/global-command-intelligence/write-workflows/events",
+          state: "online",
+          httpStatus: 200,
+          detail: "Request completed.",
+          checkedAt: "2026-07-01T10:00:00.000Z",
+          jsonBody: {
+            data: {
+              source: "live-write-workflow-events",
+              demoData: false,
+              tenantId: "tenant-global-command",
+              pagination: { limit: 25, offset: 0, total: 1 },
+              items: [
+                {
+                  id: "event-001",
+                  tenantId: "tenant-global-command",
+                  eventType: "patient.created",
+                  actorId: "doctor-001",
+                  workflowKey: "create_patient",
+                  subjectId: "patient-live-001",
+                  occurredAt: "2026-07-01T10:00:00.000Z",
+                  requestContext: { requestId: "req-events", correlationId: "corr-events" },
+                  projections: [{ status: "projected", projectionTarget: "clinical.patients.patient-live-001" }]
+                }
+              ]
+            }
+          }
+        },
+        projections: {
+          requestId: "req-projections",
+          method: "GET",
+          url: "http://localhost:18095/api/v4/global-command-intelligence/write-workflows/projections",
+          state: "online",
+          httpStatus: 200,
+          detail: "Request completed.",
+          checkedAt: "2026-07-01T10:00:00.000Z",
+          jsonBody: {
+            data: {
+              source: "live-write-workflow-projections",
+              demoData: false,
+              tenantId: "tenant-global-command",
+              pagination: { limit: 50, offset: 0, total: 1 },
+              items: [
+                {
+                  id: "projection-001",
+                  tenantId: "tenant-global-command",
+                  eventId: "event-001",
+                  eventType: "patient.created",
+                  projectionTarget: "clinical.patients.patient-live-001",
+                  readModelId: "read-event-clinical-patient",
+                  projectionStatus: "failed",
+                  failureReason: "validation failure",
+                  retryCount: 0,
+                  actorId: "doctor-001",
+                  correlationId: "corr-events",
+                  requestId: "req-events",
+                  processedAt: "2026-07-01T10:00:00.000Z"
+                }
+              ]
+            }
+          }
+        }
+      }
+    });
+    expect(html).toContain("Transaction Review");
+    expect(html).toContain("Projection Status");
+    expect(html).toContain("patient.created");
+    expect(html).toContain("Retry");
+
+    const arabicHtml = renderRoute(data, "/command/transaction-review", {
+      ...initialState,
+      language: "ar",
+      authSession: sessionFor("operator")
+    });
+    expect(arabicHtml).toContain("مراجعة المعاملات");
+    expect(arabicHtml).toContain("تحديث المعاملات");
   });
 
   it("renders live workspace status labels for partial, auth, and CORS outcomes", () => {

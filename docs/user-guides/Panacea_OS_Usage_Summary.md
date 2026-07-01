@@ -47,6 +47,23 @@ Every live write requires:
 
 Accepted writes are persisted in PostgreSQL and emit auditable events.
 
+## Sprint 114 Projection and Transaction Review Update
+
+Accepted live writes now project into backend read models immediately. The operator can review the full write-to-read synchronization path at:
+
+```text
+http://localhost:5174/#/command/transaction-review
+```
+
+The review page shows recent write events, projection targets, projection status, actor, tenant, request ID, correlation ID, timestamps, and failure details. Failed projections can be retried only by operator/admin roles with retry permission. Retry is replay-safe and never re-executes clinical decisions.
+
+New Sprint 114 guides:
+
+- `docs/user-guides/Transaction_Review_Guide.md`
+- `docs/user-guides/Event_Projection_Guide.md`
+- `docs/user-guides/Read_Model_Synchronization_Guide.md`
+- `docs/user-guides/Projection_Retry_Guide.md`
+
 New Sprint 113 guides:
 
 - `docs/user-guides/Live_Write_Workflows_Guide.md`

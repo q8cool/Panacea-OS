@@ -9,6 +9,7 @@ import { buildOpenApiDocument } from "./openapi.mjs";
 import { routeByFullPath } from "./routes.mjs";
 import { matchReadModelRoute, normalizeReadModelQuery } from "../domain/read-models.mjs";
 import { matchWriteWorkflowRoute } from "../domain/write-workflows.mjs";
+import { normalizeProjectionListQuery } from "../domain/write-projections.mjs";
 
 const groupMethodName = {
   global_command_intelligence: "recordCommandIntelligence",
@@ -150,6 +151,30 @@ export function createRealTimeGlobalCommandIntelligenceRequestHandler({
         return jsonResponse(response, 404, { error: "not_found", message: "Route is outside the global command intelligence API." });
       }
       const relativePath = url.pathname.slice(API_BASE_PATH.length);
+      if (request.method === "GET" && relativePath === "/write-workflows/events") {
+        const principal = authenticator.authenticate(request);
+        const query = normalizeProjectionListQuery(url.searchParams);
+        const result = await service.listWriteWorkflowEvents(query, principal);
+        return jsonResponse(response, 200, { data: result });
+      }
+      if (request.method === "GET" && relativePath === "/write-workflows/projections") {
+        const principal = authenticator.authenticate(request);
+        const query = normalizeProjectionListQuery(url.searchParams);
+        const result = await service.listWriteWorkflowProjections(query, principal);
+        return jsonResponse(response, 200, { data: result });
+      }
+      const projectionDetailMatch = /^\/write-workflows\/projections\/([^/]+)$/.exec(relativePath);
+      if (request.method === "GET" && projectionDetailMatch) {
+        const principal = authenticator.authenticate(request);
+        const result = await service.getWriteWorkflowProjection(decodeURIComponent(projectionDetailMatch[1]), principal);
+        return jsonResponse(response, 200, { data: result });
+      }
+      const projectionRetryMatch = /^\/write-workflows\/projections\/([^/]+)\/retry$/.exec(relativePath);
+      if (request.method === "POST" && projectionRetryMatch) {
+        const principal = authenticator.authenticate(request);
+        const result = await service.retryWriteWorkflowProjection(decodeURIComponent(projectionRetryMatch[1]), principal);
+        return jsonResponse(response, 200, { data: result });
+      }
       if (request.method === "GET") {
         const match = matchReadModelRoute(relativePath);
         if (match) {
@@ -177,7 +202,7 @@ export function createRealTimeGlobalCommandIntelligenceRequestHandler({
             correlationId: request.headers["x-correlation-id"] ?? null,
             userAgent: request.headers["user-agent"] ?? null
           });
-          return jsonResponse(response, 201, { data: result.record, event: result.event });
+          return jsonResponse(response, 201, { data: result.record, event: result.event, projections: result.projections });
         }
       }
 

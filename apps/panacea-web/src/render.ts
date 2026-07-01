@@ -22,6 +22,7 @@ import type {
   ReleaseEvidence,
   RoleId,
   ServiceRecord,
+  TransactionReviewState,
   TokenValidationResult
 } from "./types";
 import type { FoundationProbeResult } from "./foundation";
@@ -60,6 +61,7 @@ export interface RenderState {
   providerLoginDiscovery?: ProviderLoginDiscoveryResult;
   apiAllowlistSummary?: Record<BrowserApiClassification, number>;
   providerAuthStatus?: string;
+  transactionReview?: TransactionReviewState;
 }
 
 export const initialState: RenderState = {
@@ -93,6 +95,7 @@ export function renderRoute(data: AppData, route: string, state: RenderState = i
   setActiveLocale(state.language);
   if (route === "/auth/login") return renderAuthPage(data, state);
   if (route === "/command/live-status") return renderLiveStatusPage(data, state);
+  if (route === "/command/transaction-review") return renderTransactionReviewPage(state);
   if (isRoleRoute(route)) return renderRoleWorkspace(data, route, {
     mode: state.authSession ? "live" : "demo",
     session: state.authSession,
@@ -569,6 +572,125 @@ function renderLiveStatusPage(data: AppData, state: RenderState): string {
       ` : ""}
     </div>
   `;
+}
+
+function renderTransactionReviewPage(state: RenderState): string {
+  const review = state.transactionReview;
+  const events = resultItems(review?.events);
+  const projections = resultItems(review?.projections);
+  const failed = projections.filter((item) => String(readField(item, "projectionStatus", "status")) === "failed");
+  const projected = projections.filter((item) => ["projected", "replayed"].includes(String(readField(item, "projectionStatus", "status"))));
+  if (!state.authSession) {
+    return `
+      <div class="page-grid">
+        ${renderPageHeader("Transaction Review", "Authenticated operator review for live write workflow events and read-model projections.", "LIVE MODE REQUIRED", "ListChecks")}
+        <section class="band">
+          <div class="empty-state compact">
+            <i data-lucide="LockKeyhole"></i>
+            <p>${escapeHtml(l("Sign in with a Foundation-issued token to review live transaction projections."))}</p>
+            <a class="button primary" href="#/auth/login"><i data-lucide="KeyRound"></i> ${escapeHtml(l("Foundation Login"))}</a>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+  return `
+    <div class="page-grid">
+      ${renderPageHeader("Transaction Review", "Operator-safe review of accepted write workflow events, read-model projection state, audit lineage, and replay-safe retry controls.", review?.lastUpdated ? "LIVE REVIEW" : "NOT LOADED", "ListChecks")}
+      <section class="metric-grid">
+        ${metric("Events", String(events.length), "Recent accepted write workflow events", "RadioTower", events.length ? "success" : "warn")}
+        ${metric("Projected", String(projected.length), "Projected or replayed read-model targets", "DatabaseZap", projected.length ? "success" : "warn")}
+        ${metric("Failed", String(failed.length), "Retryable projection failures", "TriangleAlert", failed.length ? "warn" : "success")}
+        ${metric("Last updated", review?.lastUpdated ? new Date(review.lastUpdated).toLocaleString() : "Not refreshed", "Manual refresh available", "RefreshCw", review?.lastUpdated ? "success" : "warn")}
+      </section>
+      <section class="band">
+        <div class="section-title">
+          <div>
+            <h2>${escapeHtml(l("Transaction Projection Review"))}</h2>
+            <p>${escapeHtml(l("Review is read-only except for safe retry of failed projections. Retry upserts read models and never re-executes clinical decisions."))}</p>
+          </div>
+          <button class="button primary" id="refresh-transaction-review"><i data-lucide="RefreshCw"></i> ${escapeHtml(l("Refresh Transactions"))}</button>
+        </div>
+        ${review?.retryResult ? liveResultCard(review.retryResult) : ""}
+      </section>
+      <section class="band">
+        <h2>${escapeHtml(l("Recent Workflow Events"))}</h2>
+        ${events.length ? transactionEventsTable(events) : emptyTransactionState(review?.events, "No live write workflow events returned for this tenant.")}
+      </section>
+      <section class="band">
+        <h2>${escapeHtml(l("Projection Status"))}</h2>
+        ${projections.length ? projectionTable(projections) : emptyTransactionState(review?.projections, "No projection tracking rows returned for this tenant.")}
+      </section>
+    </div>
+  `;
+}
+
+function transactionEventsTable(items: unknown[]): string {
+  return `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            ${["Event", "Workflow", "Actor", "Tenant", "Projection", "Request", "Occurred"].map((header) => `<th>${escapeHtml(l(header))}</th>`).join("")}
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map((item) => {
+            const projections = Array.isArray(readField(item, "projections")) ? readField(item, "projections") as unknown[] : [];
+            const statuses = projections.map((projection) => String(readField(projection, "status", "projectionStatus") ?? "")).filter(Boolean);
+            return `
+              <tr>
+                <td><strong>${escapeHtml(String(readField(item, "eventType") ?? ""))}</strong><br><small>${escapeHtml(String(readField(item, "id") ?? ""))}</small></td>
+                <td>${escapeHtml(String(readField(item, "workflowKey") ?? ""))}<br><small>${escapeHtml(String(readField(item, "subjectId") ?? ""))}</small></td>
+                <td>${escapeHtml(String(readField(item, "actorId") ?? ""))}</td>
+                <td>${escapeHtml(String(readField(item, "tenantId") ?? ""))}</td>
+                <td>${escapeHtml(statuses.join(", ") || "none")}</td>
+                <td><small>${escapeHtml(String(readNested(item, ["requestContext", "requestId"]) ?? ""))}</small><br><small>${escapeHtml(String(readNested(item, ["requestContext", "correlationId"]) ?? ""))}</small></td>
+                <td>${escapeHtml(String(readField(item, "occurredAt") ?? ""))}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function projectionTable(items: unknown[]): string {
+  return `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            ${["Target", "Event", "Status", "Actor", "Tenant", "Correlation", "Failure", "Action"].map((header) => `<th>${escapeHtml(l(header))}</th>`).join("")}
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map((item) => {
+            const id = String(readField(item, "id") ?? "");
+            const status = String(readField(item, "projectionStatus", "status") ?? "");
+            return `
+              <tr>
+                <td><strong>${escapeHtml(String(readField(item, "projectionTarget") ?? ""))}</strong><br><small>${escapeHtml(String(readField(item, "readModelId") ?? ""))}</small></td>
+                <td>${escapeHtml(String(readField(item, "eventType") ?? ""))}<br><small>${escapeHtml(String(readField(item, "eventId") ?? ""))}</small></td>
+                <td><span class="status-pill ${statusClass(status)}">${escapeHtml(l(status || "unknown"))}</span><br><small>${escapeHtml(String(readField(item, "processedAt") ?? ""))}</small></td>
+                <td>${escapeHtml(String(readField(item, "actorId") ?? ""))}</td>
+                <td>${escapeHtml(String(readField(item, "tenantId") ?? ""))}</td>
+                <td><small>${escapeHtml(String(readField(item, "correlationId") ?? ""))}</small><br><small>${escapeHtml(String(readField(item, "requestId") ?? ""))}</small></td>
+                <td>${escapeHtml(String(readField(item, "failureReason") ?? ""))}</td>
+                <td>${status === "failed" ? `<button class="button compact" data-retry-projection-id="${escapeAttribute(id)}"><i data-lucide="RotateCcw"></i> ${escapeHtml(l("Retry"))}</button>` : `<span>${escapeHtml(l("Review only"))}</span>`}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function emptyTransactionState(result: LiveApiResult | undefined, emptyText: string): string {
+  if (result && result.state !== "online") return liveResultCard(result);
+  return `<div class="empty-state compact"><i data-lucide="Database"></i><p>${escapeHtml(l(emptyText))}</p></div>`;
 }
 
 function renderModuleGroupPage(title: string, description: string, modules: ModuleVisibility[], data: AppData): string {
@@ -1096,6 +1218,33 @@ function liveResultCard(result: LiveApiResult): string {
       ${result.bodyPreview ? `<pre>${escapeHtml(result.bodyPreview)}</pre>` : ""}
     </article>
   `;
+}
+
+function resultItems(result: LiveApiResult | undefined): unknown[] {
+  const body = asObject(result?.jsonBody);
+  const data = asObject(body.data);
+  return Array.isArray(data.items) ? data.items : [];
+}
+
+function readField(value: unknown, ...keys: string[]): unknown {
+  const record = asObject(value);
+  for (const key of keys) {
+    if (record[key] !== undefined && record[key] !== null) return record[key];
+  }
+  return undefined;
+}
+
+function readNested(value: unknown, keys: string[]): unknown {
+  let current = value;
+  for (const key of keys) {
+    current = asObject(current)[key];
+    if (current === undefined || current === null) return undefined;
+  }
+  return current;
+}
+
+function asObject(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
 function metric(label: string, value: string, detail: string, icon: string, tone: "success" | "warn" | "info"): string {

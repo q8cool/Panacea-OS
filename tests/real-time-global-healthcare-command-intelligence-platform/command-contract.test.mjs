@@ -11,6 +11,7 @@ import {
   requiredWriteWorkflowEvents,
   writeWorkflowDefinitions
 } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/domain/write-workflows.mjs";
+import { projectionStatuses } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/domain/write-projections.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -36,10 +37,19 @@ test("OpenAPI contract contains every Sprint 85 route and required event", () =>
     assert.ok(document.paths[fullPath], `missing write workflow ${fullPath}`);
     assert.ok(document.paths[fullPath].post, `missing POST method for ${fullPath}`);
   }
+  for (const projectionPath of [
+    "/write-workflows/events",
+    "/write-workflows/projections",
+    "/write-workflows/projections/{projectionId}",
+    "/write-workflows/projections/{projectionId}/retry"
+  ]) {
+    assert.ok(document.paths[`${API_BASE_PATH}${projectionPath}`], `missing projection path ${projectionPath}`);
+  }
   assert.ok(document.components.schemas.ReadModelListResponse);
   assert.ok(document.components.schemas.WriteWorkflowResponse);
+  assert.ok(document.components.schemas.WriteWorkflowProjectionListResponse);
   assert.deepEqual(document["x-panacea"].requiredEvents, requiredEvents);
-  assert.equal(Object.keys(document.paths).length, routeDefinitions.length + readModelDefinitions.length + writeWorkflowDefinitions.length + 5);
+  assert.equal(Object.keys(document.paths).length, routeDefinitions.length + readModelDefinitions.length + writeWorkflowDefinitions.length + 9);
 });
 
 test("OpenAPI declares command, emergency, regional, country, and governance controls", () => {
@@ -57,8 +67,11 @@ test("OpenAPI declares command, emergency, regional, country, and governance con
     "regional_governance_policies",
     "country_level_policy_controls",
     "live_read_models",
-    "live_write_workflows"
+    "live_write_workflows",
+    "live_event_projection",
+    "transaction_review"
   ]);
+  assert.deepEqual(document["x-panacea"].liveEventProjection.statuses, projectionStatuses);
   assert.equal(document["x-panacea"].advisoryOnly, true);
   assert.equal(document["x-panacea"].governanceApprovalRequired, true);
   assert.equal(document["x-panacea"].autonomousDiagnosis, "not_permitted");
@@ -103,6 +116,37 @@ test("PostgreSQL migration defines live read models with tenant, audit, indexes,
   }
   assert.match(sql, /CREATE INDEX IF NOT EXISTS idx_gci_read_models_tenant_workspace/);
   assert.match(sql, /length\(trim\(tenant_id\)\) > 0/);
+});
+
+test("PostgreSQL migration defines live write projection tracking with tenant, idempotency, retry, and audit fields", () => {
+  const sql = fs.readFileSync(
+    path.join(repoRoot, "services/real-time-global-healthcare-command-intelligence-platform/migrations/004_write_workflow_projections.sql"),
+    "utf8"
+  );
+  assert.match(sql, /CREATE TABLE IF NOT EXISTS global_command_intelligence_write_workflow_projections/);
+  for (const requiredColumn of [
+    "tenant_id",
+    "event_id",
+    "event_type",
+    "projection_target",
+    "projection_status",
+    "processed_at",
+    "failure_reason",
+    "retry_count",
+    "correlation_id",
+    "request_id",
+    "actor_id",
+    "created_by",
+    "updated_by"
+  ]) {
+    assert.match(sql, new RegExp(requiredColumn));
+  }
+  for (const status of projectionStatuses) {
+    assert.match(sql, new RegExp(status));
+  }
+  assert.match(sql, /UNIQUE \(tenant_id, event_id, projection_target\)/);
+  assert.match(sql, /idx_gci_write_projections_tenant_status/);
+  assert.match(sql, /idx_gci_write_projections_failed_retry/);
 });
 
 test("PostgreSQL migration defines records, events, audit, integration references, and governance constraints", () => {

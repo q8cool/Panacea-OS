@@ -9,6 +9,7 @@ import {
 import {
   assertPrincipalCanWriteGroup,
   CommandAuthorizationError,
+  CommandValidationError,
   validateCreateCommandRecordInput,
   validateIntegrationReferenceInput,
   validatePrincipal
@@ -21,6 +22,13 @@ import {
   assertPrincipalCanWriteWorkflow,
   normalizeWriteWorkflowInput
 } from "../domain/write-workflows.mjs";
+import {
+  assertPrincipalCanRetryProjection,
+  assertPrincipalCanReviewProjections,
+  assertRetryableProjection,
+  createWriteWorkflowProjections,
+  projectionSummary
+} from "../domain/write-projections.mjs";
 
 function assertTenantAccess(principal, tenantId) {
   if (principal.tenantId !== tenantId) {
@@ -227,9 +235,12 @@ export class RealTimeGlobalCommandIntelligenceService {
         auditRequired: record.workflowControls.auditRequired,
         tenantIsolationConfirmed: record.workflowControls.tenantIsolationConfirmed,
         humanUserConfirmed: record.workflowControls.humanUserConfirmed,
-        payloadKeys: Object.keys(record.payload).sort()
+        payloadKeys: Object.keys(record.payload).sort(),
+        requestId: record.requestContext.requestId ?? null,
+        correlationId: record.requestContext.correlationId ?? null
       }
     });
+    const projections = createWriteWorkflowProjections(record, event, occurredAt);
     const auditEntry = {
       id: crypto.randomUUID(),
       tenantId: record.tenantId,
@@ -247,12 +258,154 @@ export class RealTimeGlobalCommandIntelligenceService {
         idempotencyKey: record.idempotencyKey,
         liveMode: true,
         demoData: false,
+        projections: projections.map(projectionSummary),
         autonomousDiagnosis: "not_permitted",
         autonomousTreatment: "not_permitted"
       }
     };
-    await this.repository.saveWriteWorkflow(record, event, auditEntry);
-    return { record, event };
+    await this.repository.saveWriteWorkflow(record, event, auditEntry, projections);
+    return { record, event, projections: projections.map(projectionSummary) };
+  }
+
+  async listWriteWorkflowEvents(query, principal) {
+    const normalizedPrincipal = validatePrincipal(principal);
+    assertPrincipalCanReviewProjections(normalizedPrincipal);
+    const occurredAt = nowIso(this.clock);
+    const result = await this.repository.listWriteWorkflowEvents({
+      tenantId: normalizedPrincipal.tenantId,
+      eventType: query.eventType,
+      limit: query.limit,
+      offset: query.offset
+    });
+    await this.repository.saveAuditEntry({
+      id: crypto.randomUUID(),
+      tenantId: normalizedPrincipal.tenantId,
+      actorId: normalizedPrincipal.actorId,
+      action: "global_command_intelligence.write_workflow.events.reviewed",
+      resourceType: "write_workflow.events",
+      resourceId: "collection",
+      occurredAt,
+      countryCode: normalizedPrincipal.countryCodes[0] ?? "KW",
+      regionCode: normalizedPrincipal.regionCodes[0] ?? "GLOBAL",
+      metadata: {
+        eventType: query.eventType ?? null,
+        limit: query.limit,
+        offset: query.offset,
+        returned: result.items.length
+      }
+    });
+    return {
+      source: "live-write-workflow-events",
+      demoData: false,
+      tenantId: normalizedPrincipal.tenantId,
+      pagination: {
+        limit: query.limit,
+        offset: query.offset,
+        total: result.total
+      },
+      items: result.items
+    };
+  }
+
+  async listWriteWorkflowProjections(query, principal) {
+    const normalizedPrincipal = validatePrincipal(principal);
+    assertPrincipalCanReviewProjections(normalizedPrincipal);
+    const occurredAt = nowIso(this.clock);
+    const result = await this.repository.listWriteWorkflowProjections({
+      tenantId: normalizedPrincipal.tenantId,
+      status: query.status,
+      eventType: query.eventType,
+      limit: query.limit,
+      offset: query.offset
+    });
+    await this.repository.saveAuditEntry({
+      id: crypto.randomUUID(),
+      tenantId: normalizedPrincipal.tenantId,
+      actorId: normalizedPrincipal.actorId,
+      action: "global_command_intelligence.write_workflow.projections.reviewed",
+      resourceType: "write_workflow.projections",
+      resourceId: "collection",
+      occurredAt,
+      countryCode: normalizedPrincipal.countryCodes[0] ?? "KW",
+      regionCode: normalizedPrincipal.regionCodes[0] ?? "GLOBAL",
+      metadata: {
+        status: query.status ?? null,
+        eventType: query.eventType ?? null,
+        limit: query.limit,
+        offset: query.offset,
+        returned: result.items.length
+      }
+    });
+    return {
+      source: "live-write-workflow-projections",
+      demoData: false,
+      tenantId: normalizedPrincipal.tenantId,
+      pagination: {
+        limit: query.limit,
+        offset: query.offset,
+        total: result.total
+      },
+      items: result.items
+    };
+  }
+
+  async getWriteWorkflowProjection(projectionId, principal) {
+    const normalizedPrincipal = validatePrincipal(principal);
+    assertPrincipalCanReviewProjections(normalizedPrincipal);
+    const occurredAt = nowIso(this.clock);
+    const projection = await this.repository.getWriteWorkflowProjection({
+      tenantId: normalizedPrincipal.tenantId,
+      projectionId
+    });
+    await this.repository.saveAuditEntry({
+      id: crypto.randomUUID(),
+      tenantId: normalizedPrincipal.tenantId,
+      actorId: normalizedPrincipal.actorId,
+      action: "global_command_intelligence.write_workflow.projection.reviewed",
+      resourceType: "write_workflow.projection",
+      resourceId: projectionId,
+      occurredAt,
+      countryCode: normalizedPrincipal.countryCodes[0] ?? "KW",
+      regionCode: normalizedPrincipal.regionCodes[0] ?? "GLOBAL",
+      metadata: {
+        found: Boolean(projection)
+      }
+    });
+    if (!projection) {
+      throw new CommandValidationError("projection does not exist", { projectionId });
+    }
+    return projection;
+  }
+
+  async retryWriteWorkflowProjection(projectionId, principal) {
+    const normalizedPrincipal = validatePrincipal(principal);
+    assertPrincipalCanRetryProjection(normalizedPrincipal);
+    const projection = await this.repository.getWriteWorkflowProjection({
+      tenantId: normalizedPrincipal.tenantId,
+      projectionId
+    });
+    assertRetryableProjection(projection);
+    const occurredAt = nowIso(this.clock);
+    const auditEntry = {
+      id: crypto.randomUUID(),
+      tenantId: normalizedPrincipal.tenantId,
+      actorId: normalizedPrincipal.actorId,
+      action: "global_command_intelligence.write_workflow.projection.retry",
+      resourceType: "write_workflow.projection",
+      resourceId: projectionId,
+      occurredAt,
+      countryCode: normalizedPrincipal.countryCodes[0] ?? "KW",
+      regionCode: normalizedPrincipal.regionCodes[0] ?? "GLOBAL",
+      metadata: {
+        eventId: projection.eventId,
+        eventType: projection.eventType,
+        projectionTarget: projection.projectionTarget,
+        replaySafe: true,
+        autonomousDiagnosis: "not_permitted",
+        autonomousTreatment: "not_permitted"
+      }
+    };
+    return this.repository.retryWriteWorkflowProjection(projection, auditEntry, occurredAt);
   }
 
   async #createRecord(input, principal, expectedGroup) {
