@@ -1,34 +1,49 @@
 import { createIcons, icons } from "lucide";
 import "./styles.css";
 import { defaultRoute } from "./catalog";
+import { clearSession, persistSession, restoreSession, validateTokenWithFoundation } from "./auth";
 import { probeFoundation } from "./foundation";
+import { appendOperatorAuditTest, executeReadOnlyRequest, findReadOnlyEndpoint, pollRuntimeStatus } from "./liveApi";
 import { initialState, renderApp, type RenderState } from "./render";
-import { roleDefaultRoute } from "./roleWorkspaces";
+import { isRoleRoute } from "./roleRender";
+import { pageFromRoute, roleDefaultRoute, workspaceFromRoute } from "./roleWorkspaces";
 import type { AppData } from "./types";
+import { buildWebConfig } from "./webConfig";
 
 const root = document.querySelector<HTMLDivElement>("#app");
 
 let data: AppData;
+let lastLiveRoute = "";
+let liveWorkspaceInFlight = false;
 let state: RenderState = {
   ...initialState,
   theme: (localStorage.getItem("panacea-theme") as RenderState["theme"]) || "light",
   language: (localStorage.getItem("panacea-language") as RenderState["language"]) || "en",
-  selectedRole: (localStorage.getItem("panacea-demo-role") as RenderState["selectedRole"]) || "operator"
+  selectedRole: (localStorage.getItem("panacea-demo-role") as RenderState["selectedRole"]) || "operator",
+  authSession: restoreSession()
 };
 
 async function bootstrap() {
   const response = await fetch("/panacea-data.json", { cache: "no-store" });
   if (!response.ok) throw new Error(`Could not load Panacea data: HTTP ${response.status}`);
   data = (await response.json()) as AppData;
+  state = {
+    ...state,
+    webConfig: buildWebConfig(data),
+    selectedRole: state.authSession?.role ?? state.selectedRole
+  };
   window.addEventListener("hashchange", render);
   render();
+  if (state.authSession) void refreshLiveStatus();
 }
 
 function render() {
   if (!root) return;
-  root.innerHTML = renderApp(data, currentRoute(), state);
+  const route = currentRoute();
+  root.innerHTML = renderApp(data, route, state);
   bindEvents();
   createIcons({ icons });
+  void afterRender(route);
 }
 
 function currentRoute(): string {
@@ -55,10 +70,71 @@ function bindEvents() {
   });
 
   document.querySelector<HTMLSelectElement>("#demo-role-switcher")?.addEventListener("change", (event) => {
+    if (state.authSession) return;
     const selectedRole = (event.target as HTMLSelectElement).value as RenderState["selectedRole"];
     state = { ...state, selectedRole };
     localStorage.setItem("panacea-demo-role", selectedRole);
     window.location.hash = roleDefaultRoute(selectedRole);
+  });
+
+  document.querySelector<HTMLFormElement>("#auth-token-form")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const token = document.querySelector<HTMLTextAreaElement>("#operator-jwt-token")?.value.trim() ?? "";
+    if (!token) {
+      state = { ...state, authError: "A Foundation-issued JWT is required for Live Mode.", authValidation: undefined };
+      render();
+      return;
+    }
+    const config = state.webConfig ?? buildWebConfig(data);
+    state = { ...state, authError: "Validating token against Foundation JWKS...", authValidation: undefined };
+    render();
+    const validation = await validateTokenWithFoundation(token, config);
+    if (!validation.ok || !validation.session) {
+      state = { ...state, authError: validation.error ?? "Token validation failed.", authValidation: validation, authSession: undefined };
+      render();
+      return;
+    }
+    persistSession(validation.session);
+    lastLiveRoute = "";
+    state = {
+      ...state,
+      authSession: validation.session,
+      authError: "",
+      authValidation: validation,
+      selectedRole: validation.session.role,
+      liveWorkspaceState: undefined
+    };
+    window.location.hash = roleDefaultRoute(validation.session.role);
+    render();
+    void refreshLiveStatus();
+  });
+
+  document.querySelectorAll<HTMLButtonElement>("#logout-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      clearSession();
+      lastLiveRoute = "";
+      state = {
+        ...state,
+        authSession: undefined,
+        authError: "",
+        authValidation: undefined,
+        liveWorkspaceState: undefined,
+        auditAppendResult: undefined
+      };
+      window.location.hash = "/auth/login";
+      render();
+    });
+  });
+
+  document.querySelector<HTMLButtonElement>("#refresh-live-status")?.addEventListener("click", () => {
+    void refreshLiveStatus();
+  });
+
+  document.querySelector<HTMLButtonElement>("#append-test-audit")?.addEventListener("click", async () => {
+    if (!state.authSession || state.authSession.role !== "operator") return;
+    const result = await appendOperatorAuditTest(state.authSession, state.webConfig ?? buildWebConfig(data));
+    state = { ...state, auditAppendResult: result };
+    render();
   });
 
   document.querySelector<HTMLInputElement>("#api-query")?.addEventListener("input", (event) => {
@@ -100,6 +176,50 @@ function bindEvents() {
     state = { ...state, foundationProbe: await probeFoundation(data) };
     render();
   });
+}
+
+async function afterRender(route: string) {
+  if (!state.authSession || !isRoleRoute(route) || liveWorkspaceInFlight) return;
+  if (route === lastLiveRoute && state.liveWorkspaceState?.result) return;
+  const workspace = workspaceFromRoute(route);
+  const page = pageFromRoute(route);
+  if (!workspace || !page) return;
+  const config = state.webConfig ?? buildWebConfig(data);
+  const endpoint = findReadOnlyEndpoint(data, workspace, page, config);
+  if (route !== lastLiveRoute) {
+    lastLiveRoute = route;
+    state = { ...state, liveWorkspaceState: { endpoint } };
+    render();
+    return;
+  }
+  liveWorkspaceInFlight = true;
+  const response = await executeReadOnlyRequest(endpoint, state.authSession, config);
+  liveWorkspaceInFlight = false;
+  state = {
+    ...state,
+    liveWorkspaceState: {
+      endpoint,
+      result: response.result,
+      auditAction: response.auditAction
+    },
+    lastAuditAction: response.auditAction
+  };
+  render();
+}
+
+async function refreshLiveStatus() {
+  state = {
+    ...state,
+    liveStatus: {
+      foundation: [],
+      services: [],
+      checkedAt: new Date().toISOString()
+    }
+  };
+  render();
+  const liveStatus = await pollRuntimeStatus(data, state.webConfig ?? buildWebConfig(data), state.authSession);
+  state = { ...state, liveStatus };
+  render();
 }
 
 bootstrap().catch((error) => {

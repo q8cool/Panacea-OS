@@ -141,6 +141,106 @@ export interface NavSection {
 
 export type RoleId = "operator" | "doctor" | "patient" | "laboratory" | "radiology" | "pharmacy" | "administrator";
 
+export type DataMode = "demo" | "live";
+
+export type ConnectionState = "online" | "degraded" | "offline" | "unauthorized" | "unavailable";
+
+export interface PanaceaWebConfig {
+  FOUNDATION_BASE_URL: string;
+  FOUNDATION_HEALTH_URL: string;
+  FOUNDATION_READY_URL: string;
+  FOUNDATION_METRICS_URL: string;
+  FOUNDATION_JWKS_URL: string;
+  FOUNDATION_JWT_ISSUER: string;
+  FOUNDATION_AUDIT_APPEND_URL: string;
+  FOUNDATION_POLICY_URL: string;
+  PANACEA_API_BASE_URL: string;
+  PANACEA_WEB_MODE: DataMode;
+  PANACEA_DEFAULT_TENANT: string;
+  PANACEA_ENABLE_DEMO_MODE: boolean;
+  PANACEA_REQUEST_TIMEOUT_MS: number;
+}
+
+export interface AuthSession {
+  token: string;
+  subject: string;
+  displayName: string;
+  issuer: string;
+  tenantId: string;
+  role: RoleId;
+  roles: string[];
+  permissions: string[];
+  expiresAt: string;
+  issuedAt?: string;
+  authenticatedAt: string;
+  tokenHeader: {
+    alg: string;
+    kid?: string;
+  };
+}
+
+export interface TokenValidationResult {
+  ok: boolean;
+  session?: AuthSession;
+  error?: string;
+  warnings: string[];
+}
+
+export interface RuntimeEndpointStatus {
+  label: string;
+  url: string;
+  state: ConnectionState;
+  httpStatus?: number;
+  detail: string;
+  checkedAt: string;
+  durationMs?: number;
+}
+
+export interface BrowserAuditAction {
+  user: string;
+  role: RoleId;
+  tenant: string;
+  requestId: string;
+  timestamp: string;
+  endpoint: string;
+  method: string;
+  status: string;
+  mode: DataMode;
+}
+
+export interface LiveApiResult {
+  requestId: string;
+  method: HttpMethod;
+  url: string;
+  state: ConnectionState;
+  httpStatus?: number;
+  detail: string;
+  checkedAt: string;
+  durationMs?: number;
+  bodyPreview?: string;
+}
+
+export interface LiveApiEndpointCandidate {
+  label: string;
+  method: HttpMethod;
+  url: string;
+  source: string;
+  available: boolean;
+  reason: string;
+}
+
+export interface LiveWorkspaceState {
+  endpoint: LiveApiEndpointCandidate;
+  result?: LiveApiResult;
+  auditAction?: BrowserAuditAction;
+}
+
+export interface LiveStatusState {
+  foundation: RuntimeEndpointStatus[];
+  services: RuntimeEndpointStatus[];
+  checkedAt?: string;
+}
+
 export interface RoleMetric {
   label: string;
   value: string;

@@ -7,7 +7,9 @@ Panacea OS v4.0 now includes a professional operator platform and role-based use
 | UI area | Route | Active now | Backing evidence |
 |---|---|---:|---|
 | Executive Overview | `#/command/executive-overview` | YES | Release docs, service inventory, OpenAPI docs |
+| Foundation Login | `#/auth/login` | YES | Foundation configuration, JWT/JWKS browser validator |
 | System Health | `#/command/system-health` | YES | Docker Compose ports, service package metadata |
+| Live API Status | `#/command/live-status` | YES | Browser polling for Foundation and service endpoints |
 | Global Command Intelligence | `#/command/global-command` | YES | Active v4 service and OpenAPI |
 | Foundation Provider | `#/command/foundation-provider` | YES | Live Foundation reports and configured URLs |
 | Doctor / Clinician Workspace | `#/workspace/doctor/dashboard` | YES | OpenAPI, clinical docs, AI governance evidence |
@@ -41,4 +43,14 @@ Panacea OS v4.0 now includes a professional operator platform and role-based use
 
 The role workspaces are not production write applications yet. They are professional, responsive, read-only UI experiences backed by OpenAPI, documentation, runtime status, Foundation Provider status, and release evidence.
 
-Live records require authenticated backend APIs and real production authorization.
+Live Mode adds Foundation JWT validation, role and tenant claims, read-only API client behavior, and browser endpoint polling.
+
+Live records require:
+
+- Foundation-issued JWT.
+- Valid JWKS signature validation.
+- CORS-enabled live APIs.
+- Existing read-only backend endpoints.
+- Production authorization and tenant isolation.
+
+If those prerequisites are unavailable, the UI shows `Live API unavailable` and keeps demo data clearly separated.

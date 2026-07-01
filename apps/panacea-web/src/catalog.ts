@@ -18,7 +18,9 @@ export const navSections: NavSection[] = [
     title: "Command",
     items: [
       { label: "Executive Overview", route: "/command/executive-overview", icon: "LayoutDashboard", keywords: ["release", "overview", "status"] },
+      { label: "Foundation Login", route: "/auth/login", icon: "KeyRound", keywords: ["login", "jwt", "jwks", "tenant", "role"] },
       { label: "System Health", route: "/command/system-health", icon: "Activity", keywords: ["health", "readiness", "metrics"] },
+      { label: "Live API Status", route: "/command/live-status", icon: "Wifi", keywords: ["live", "api", "cors", "polling"] },
       { label: "Command Intelligence", route: "/command/global-command", icon: "Radar", keywords: ["command", "alerts", "crisis"] },
       { label: "Foundation Provider", route: "/command/foundation-provider", icon: "ShieldCheck", keywords: ["foundation", "jwks", "audit", "policy"] }
     ]

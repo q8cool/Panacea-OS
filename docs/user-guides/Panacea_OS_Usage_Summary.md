@@ -30,6 +30,14 @@ Use the **Demo Role Switcher** to open:
 - Administration Workspace.
 - Operator dashboard.
 
+To test authenticated Live Mode, open:
+
+```text
+http://localhost:5174/#/auth/login
+```
+
+Paste a Foundation-issued JWT. If the token validates against Foundation issuer and JWKS, the UI switches to Live Mode and derives role, tenant, and permissions from claims.
+
 ## 2. What URL do I open?
 
 Open:
@@ -47,13 +55,20 @@ http://localhost:5174/#/workspace/laboratory/dashboard
 http://localhost:5174/#/workspace/radiology/dashboard
 http://localhost:5174/#/workspace/pharmacy/dashboard
 http://localhost:5174/#/workspace/administrator/dashboard
+http://localhost:5174/#/auth/login
+http://localhost:5174/#/command/live-status
 ```
 
 ## 3. Is there a visible UI?
 
 Yes. Panacea OS now has `apps/panacea-web`, a Vite + TypeScript professional web platform with operator and role-based workspaces.
 
-The role workspaces are read-only demo/operator interfaces. They do not execute clinical care, diagnosis, treatment, medication safety backend logic, DICOM image viewing, or production administrative writes.
+The role workspaces are read-only interfaces with two modes:
+
+- Demo Mode: presentation and documentation-backed visibility with clear demo labels.
+- Live Mode: Foundation JWT authenticated, role/tenant scoped, read-only API-aware browser connectivity.
+
+They do not execute clinical care, diagnosis, treatment, medication safety backend logic, DICOM image viewing, or production administrative writes.
 
 ## 4. How do I test the backend?
 
@@ -75,6 +90,8 @@ npm run runtime:disaster-recovery
 
 Open the API Explorer in the web UI or use the service OpenAPI URLs listed under **System Health**.
 
+For browser runtime status, open **Live API Status** and refresh polling. Browser CORS must be configured on Foundation and service endpoints before live calls can succeed.
+
 ## 5. Which legacy features are preserved?
 
 Preserved or upgraded coverage includes:
@@ -86,6 +103,7 @@ Preserved or upgraded coverage includes:
 - Documentation, release evidence, runtime orchestration, and disaster recovery validation.
 - A web visibility layer replacing the missing legacy frontend with a professional operator console.
 - Role-based UI shells for clinician, patient, laboratory, radiology, pharmacy, and administration workflows.
+- Authenticated frontend Live Mode with JWT/JWKS validation and read-only API client behavior.
 
 ## 6. Which features still require live backend data?
 
@@ -99,12 +117,18 @@ The role workspaces are visual and API-aware, but the following require live aut
 - Pharmacy prescription queues, safety checks, dispensing, inventory, controlled-medication records.
 - Admin user, role, permission, tenant, organization, facility, configuration, and audit-log write workflows.
 
+Live Mode does not invent these records. If no existing read-only API returns data, the page displays `Live API unavailable` and hides demo rows.
+
 ## 7. What new innovations were added?
 
 Major capabilities include:
 
 - Professional Panacea web platform.
 - Role-based user workspaces.
+- Foundation-backed operator token login.
+- JWT claim extraction, expiry handling, issuer checks, tenant and role mapping.
+- Read-only browser API client with Authorization, tenant, request ID, and correlation headers.
+- Live API status polling and audit-aware browser action display.
 - Demo Role Switcher.
 - Live Foundation Provider validation at `https://foundation.utbe.ai`.
 - Enterprise release evidence package.
@@ -122,20 +146,18 @@ Major capabilities include:
 
 Recommended next UI sprint:
 
-**Authenticated Live Data Workspace Sprint**
+**Authenticated Live Data Hardening Sprint**
 
 Scope:
 
-- Foundation-backed login.
-- Real role claims.
-- Read-only API execution from the browser.
-- Token, CORS, and error handling.
-- Live service polling.
-- Audit-aware browser actions.
+- Add provider-hosted login redirect when Foundation exposes one.
+- Add live API endpoint allowlist once production services expose read-only browser routes.
+- Add CORS deployment verification.
+- Add operator test JWT issuance workflow.
 - No clinical diagnosis, treatment, or autonomous AI expansion.
 
 ## 9. Is Panacea OS currently a backend platform, a full visual application, or both?
 
 It is both a backend platform and a professional visual web application.
 
-It now includes role-based workspaces, but those workspaces remain read-only and demo/operator oriented until live backend APIs and production authentication are connected.
+It now includes role-based workspaces and authenticated Live Mode. The workspaces remain read-only and depend on existing live APIs, CORS, and Foundation-issued JWTs for real data.

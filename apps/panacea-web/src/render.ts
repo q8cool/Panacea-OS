@@ -3,7 +3,23 @@ import { activeServiceModules, allModules, clinicalModules, enterpriseDocModules
 import { buildCurl, filterEndpoints, flattenEndpoints, summarizeOpenApi, type EndpointRecord } from "./apiExplorer";
 import { isRoleRoute, renderRoleWorkspace, rolePageTitle } from "./roleRender";
 import { roleFromRoute, roleSwitcherOptions } from "./roleWorkspaces";
-import type { AppData, MarkdownDocument, ModuleVisibility, ReleaseEvidence, RoleId, ServiceRecord } from "./types";
+import { isSessionExpired, tokenSecondsRemaining } from "./auth";
+import { buildWebConfig, missingLiveConfig } from "./webConfig";
+import type {
+  AppData,
+  AuthSession,
+  BrowserAuditAction,
+  LiveApiResult,
+  LiveStatusState,
+  LiveWorkspaceState,
+  MarkdownDocument,
+  ModuleVisibility,
+  PanaceaWebConfig,
+  ReleaseEvidence,
+  RoleId,
+  ServiceRecord,
+  TokenValidationResult
+} from "./types";
 import type { FoundationProbeResult } from "./foundation";
 
 marked.use({ gfm: true, async: false });
@@ -19,6 +35,14 @@ export interface RenderState {
   theme: "light" | "dark";
   language: "en" | "ar";
   selectedRole: RoleId;
+  webConfig?: PanaceaWebConfig;
+  authSession?: AuthSession;
+  authError?: string;
+  authValidation?: TokenValidationResult;
+  liveStatus?: LiveStatusState;
+  liveWorkspaceState?: LiveWorkspaceState;
+  auditAppendResult?: LiveApiResult;
+  lastAuditAction?: BrowserAuditAction;
 }
 
 export const initialState: RenderState = {
@@ -48,7 +72,13 @@ export function renderApp(data: AppData, route: string, state: RenderState): str
 }
 
 export function renderRoute(data: AppData, route: string, state: RenderState = initialState): string {
-  if (isRoleRoute(route)) return renderRoleWorkspace(data, route);
+  if (route === "/auth/login") return renderAuthPage(data, state);
+  if (route === "/command/live-status") return renderLiveStatusPage(data, state);
+  if (isRoleRoute(route)) return renderRoleWorkspace(data, route, {
+    mode: state.authSession ? "live" : "demo",
+    session: state.authSession,
+    workspaceState: state.liveWorkspaceState
+  });
   if (route === "/command/system-health") return renderSystemHealth(data);
   if (route === "/command/global-command") return renderModuleDetailPage(data, "real-time-global-healthcare-command-intelligence-platform");
   if (route === "/command/foundation-provider") return renderFoundationProvider(data, state.foundationProbe);
@@ -103,6 +133,9 @@ function renderSidebar(route: string): string {
 function renderTopbar(data: AppData, route: string, state: RenderState): string {
   const matches = searchNav(state.globalSearch).slice(0, 5);
   const activeRole = roleFromRoute(route) ?? state.selectedRole;
+  const sessionExpired = state.authSession ? isSessionExpired(state.authSession) : false;
+  const liveMode = Boolean(state.authSession && !sessionExpired);
+  const secondsRemaining = state.authSession ? tokenSecondsRemaining(state.authSession) : 0;
   return `
     <header class="topbar">
       <div>
@@ -110,16 +143,27 @@ function renderTopbar(data: AppData, route: string, state: RenderState): string 
         <h1>${escapeHtml(pageTitle(route))}</h1>
       </div>
       <div class="topbar-actions">
+        <a class="mode-pill ${liveMode ? "live" : "demo"}" href="#/auth/login">
+          <i data-lucide="${liveMode ? "ShieldCheck" : "MonitorPlay"}"></i>
+          <span>${liveMode ? "Live Mode" : "Demo Mode"}</span>
+        </a>
+        ${state.authSession ? `
+          <div class="session-chip" title="Authenticated live session">
+            <strong>${escapeHtml(state.authSession.displayName)}</strong>
+            <span>${escapeHtml(state.authSession.role)} · ${escapeHtml(state.authSession.tenantId)} · ${secondsRemaining}s</span>
+          </div>
+        ` : ""}
         <label class="search-box">
           <i data-lucide="Search"></i>
           <input id="global-search" type="search" value="${escapeAttribute(state.globalSearch)}" autocomplete="off" aria-label="Search pages, services, docs" />
         </label>
         <label class="role-switcher">
-          <span>Demo Role Switcher</span>
-          <select id="demo-role-switcher" aria-label="Demo Role Switcher">
+          <span>${liveMode ? "Role From Token" : "Demo Role Switcher"}</span>
+          <select id="demo-role-switcher" aria-label="Demo Role Switcher" ${liveMode ? "disabled" : ""}>
             ${roleSwitcherOptions.map((option) => `<option value="${option.id}" ${option.id === activeRole ? "selected" : ""}>${escapeHtml(option.label)}</option>`).join("")}
           </select>
         </label>
+        ${liveMode ? `<button class="icon-button" id="logout-button" title="Logout" aria-label="Logout"><i data-lucide="LogOut"></i></button>` : `<a class="icon-button" href="#/auth/login" title="Login" aria-label="Login"><i data-lucide="LogIn"></i></a>`}
         <button class="icon-button" id="language-toggle" title="Toggle language direction" aria-label="Toggle language direction"><i data-lucide="Languages"></i></button>
         <button class="icon-button" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme"><i data-lucide="${state.theme === "light" ? "Moon" : "Sun"}"></i></button>
         <button class="icon-button" title="Notifications" aria-label="Notifications"><i data-lucide="Bell"></i><span class="dot"></span></button>
@@ -257,6 +301,137 @@ function renderFoundationProvider(data: AppData, probe?: FoundationProbeResult):
         </div>
       </section>
       ${renderDocumentView(findDoc(data, "docs/releases/v4.0.0/Foundation_Live_Provider_Final_Report.md"), "Foundation Release Evidence")}
+    </div>
+  `;
+}
+
+function renderAuthPage(data: AppData, state: RenderState): string {
+  const config = state.webConfig ?? buildWebConfig(data);
+  const missing = missingLiveConfig(config);
+  const session = state.authSession;
+  const validation = state.authValidation;
+  return `
+    <div class="page-grid">
+      ${renderPageHeader("Foundation Login", "Authenticate the web workspaces with a Foundation-issued JWT. Demo mode remains available when live APIs or credentials are unavailable.", session ? "LIVE SESSION" : "TOKEN MODE", "KeyRound")}
+      <section class="metric-grid">
+        ${metric("Mode", session ? "Live" : "Demo fallback", session ? "Claims verified from JWT" : "No authenticated session", "ShieldCheck", session ? "success" : "warn")}
+        ${metric("Foundation", config.FOUNDATION_BASE_URL, "Configured provider", "Globe", "info")}
+        ${metric("Tenant", session?.tenantId ?? config.PANACEA_DEFAULT_TENANT, session ? "From JWT claim" : "Default/demo only", "Building2", session ? "success" : "warn")}
+        ${metric("Role", session?.role ?? state.selectedRole, session ? "From JWT claim" : "Demo switcher only", "UserRoundCheck", session ? "success" : "warn")}
+      </section>
+      <section class="band two-column">
+        <div>
+          <h2>Operator Token Mode</h2>
+          <p>Panacea OS does not invent authentication. Paste a test JWT issued by the Foundation Provider. The browser validates expiry, issuer, tenant, role claims, JWKS discovery, and signature where the published key supports browser verification.</p>
+          <form id="auth-token-form" class="auth-form">
+            <label>
+              <span>Foundation JWT</span>
+              <textarea id="operator-jwt-token" rows="7" autocomplete="off" spellcheck="false" aria-label="Paste Foundation-issued JWT"></textarea>
+            </label>
+            <button class="button primary" type="submit"><i data-lucide="ShieldCheck"></i> Validate Token</button>
+          </form>
+          ${state.authError ? `<div class="alert danger"><strong>Authentication error</strong><p>${escapeHtml(state.authError)}</p></div>` : ""}
+          ${validation?.warnings.length ? `<div class="alert warn"><strong>Validation note</strong><p>${escapeHtml(validation.warnings.join(" "))}</p></div>` : ""}
+        </div>
+        <div>
+          <h2>Current Session</h2>
+          ${session ? `
+            <div class="session-detail">
+              ${releaseFact("User", session.displayName, "AUTHENTICATED")}
+              ${releaseFact("Subject", session.subject, "CLAIM")}
+              ${releaseFact("Issuer", session.issuer, "CLAIM")}
+              ${releaseFact("Tenant", session.tenantId, "CLAIM")}
+              ${releaseFact("Role", session.role, "CLAIM")}
+              ${releaseFact("Permissions", session.permissions.length ? session.permissions.join(", ") : "No permission claim", "CLAIM")}
+              ${releaseFact("Expires", session.expiresAt, tokenSecondsRemaining(session) > 0 ? "ACTIVE" : "EXPIRED")}
+            </div>
+            <div class="quick-actions">
+              <a class="button primary" href="#/workspace/${session.role === "operator" ? "administrator" : session.role}/dashboard"><i data-lucide="LayoutDashboard"></i> Open role workspace</a>
+              <button class="button" id="logout-button"><i data-lucide="LogOut"></i> Logout</button>
+            </div>
+          ` : `
+            <div class="empty-state">
+              <i data-lucide="LockKeyhole"></i>
+              <h3>No live session</h3>
+              <p>Use Demo Mode for visual review, or provide a real Foundation JWT for Live Mode. Demo role selection never grants production access.</p>
+            </div>
+          `}
+        </div>
+      </section>
+      <section class="band">
+        <div class="section-title">
+          <div>
+            <h2>Runtime Configuration</h2>
+            <p>These values can be provided through <code>window.PANACEA_WEB_CONFIG</code> or Vite-compatible environment variables.</p>
+          </div>
+          <a class="button compact" href="#/command/live-status"><i data-lucide="Activity"></i> Live status</a>
+        </div>
+        ${missing.length ? `<div class="alert danger"><strong>Missing required live configuration</strong><p>${escapeHtml(missing.join(", "))}</p></div>` : ""}
+        <div class="config-grid">
+          ${configLine("FOUNDATION_BASE_URL", config.FOUNDATION_BASE_URL)}
+          ${configLine("FOUNDATION_HEALTH_URL", config.FOUNDATION_HEALTH_URL)}
+          ${configLine("FOUNDATION_READY_URL", config.FOUNDATION_READY_URL)}
+          ${configLine("FOUNDATION_JWKS_URL", config.FOUNDATION_JWKS_URL)}
+          ${configLine("FOUNDATION_AUDIT_APPEND_URL", config.FOUNDATION_AUDIT_APPEND_URL)}
+          ${configLine("FOUNDATION_POLICY_URL", config.FOUNDATION_POLICY_URL)}
+          ${configLine("PANACEA_API_BASE_URL", config.PANACEA_API_BASE_URL)}
+          ${configLine("PANACEA_ENABLE_DEMO_MODE", String(config.PANACEA_ENABLE_DEMO_MODE))}
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function renderLiveStatusPage(data: AppData, state: RenderState): string {
+  const status = state.liveStatus;
+  const foundationOnline = status?.foundation.filter((item) => item.state === "online").length ?? 0;
+  const serviceOnline = status?.services.filter((item) => item.state === "online").length ?? 0;
+  const session = state.authSession;
+  return `
+    <div class="page-grid">
+      ${renderPageHeader("Live API Status", "Browser-visible Foundation and service endpoint polling for authenticated read-only mode.", status?.checkedAt ? "POLLED" : "NOT POLLED", "Activity")}
+      <section class="metric-grid">
+        ${metric("Foundation endpoints", `${foundationOnline}/${status?.foundation.length ?? 4}`, "Health, readiness, metrics, JWKS", "ShieldCheck", foundationOnline > 0 ? "success" : "warn")}
+        ${metric("Service endpoints", `${serviceOnline}/${status?.services.length ?? data.services.length * 3}`, "Health, readiness, OpenAPI", "Server", serviceOnline > 0 ? "success" : "warn")}
+        ${metric("Auth", session ? "Authenticated" : "Not authenticated", session ? `${session.role} · ${session.tenantId}` : "Demo fallback", "KeyRound", session ? "success" : "warn")}
+        ${metric("Last poll", status?.checkedAt ? new Date(status.checkedAt).toLocaleString() : "Not run", "Use Refresh Live Status", "RefreshCw", status?.checkedAt ? "success" : "warn")}
+      </section>
+      <section class="band">
+        <div class="section-title">
+          <div>
+            <h2>Live Polling</h2>
+            <p>Polling uses CORS from the browser and does not weaken backend security. Unauthorized and unavailable states are displayed explicitly.</p>
+          </div>
+          <button class="button primary" id="refresh-live-status"><i data-lucide="RefreshCw"></i> Refresh Live Status</button>
+        </div>
+      </section>
+      <section class="band two-column">
+        <div>
+          <h2>Foundation Provider</h2>
+          ${statusList(status?.foundation)}
+        </div>
+        <div>
+          <h2>Service Runtime Endpoints</h2>
+          ${statusList(status?.services?.slice(0, 18), "No service status has been polled yet.")}
+        </div>
+      </section>
+      ${state.auditAppendResult ? `
+        <section class="band">
+          <h2>Audit Append Test Result</h2>
+          ${liveResultCard(state.auditAppendResult)}
+        </section>
+      ` : ""}
+      ${session?.role === "operator" ? `
+        <section class="band">
+          <div class="section-title">
+            <div>
+              <h2>Operator Audit Test</h2>
+              <p>Sends a safe <code>testOnly: true</code> audit event to Foundation. No PHI is sent.</p>
+            </div>
+            <button class="button" id="append-test-audit"><i data-lucide="FileCheck2"></i> Send test audit append</button>
+          </div>
+        </section>
+      ` : ""}
     </div>
   `;
 }
@@ -714,6 +889,48 @@ function releaseFact(label: string, value: string, status: string): string {
   `;
 }
 
+function configLine(label: string, value: string): string {
+  return `
+    <article class="config-item">
+      <strong>${escapeHtml(label)}</strong>
+      <code>${escapeHtml(value || "not configured")}</code>
+    </article>
+  `;
+}
+
+function statusList(items: LiveStatusState["foundation"] | undefined, empty = "No live status has been polled yet."): string {
+  if (!items?.length) return `<div class="empty-state compact"><i data-lucide="WifiOff"></i><p>${escapeHtml(empty)}</p></div>`;
+  return `
+    <div class="status-list">
+      ${items.map((item) => `
+        <article>
+          <span class="status-pill ${statusClass(item.state)}">${escapeHtml(item.state)}</span>
+          <div>
+            <strong>${escapeHtml(item.label)}</strong>
+            <a href="${escapeAttribute(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.url)}</a>
+            <small>${escapeHtml(item.httpStatus ? `HTTP ${item.httpStatus} · ${item.detail}` : item.detail)}</small>
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function liveResultCard(result: LiveApiResult): string {
+  return `
+    <article class="live-result-card">
+      <div class="module-card-top">
+        <span class="status-pill ${statusClass(result.state)}">${escapeHtml(result.state)}</span>
+        <span>${escapeHtml(result.httpStatus ? `HTTP ${result.httpStatus}` : "No HTTP status")}</span>
+      </div>
+      <h3>${escapeHtml(result.method)} ${escapeHtml(result.url)}</h3>
+      <p>${escapeHtml(result.detail)}</p>
+      <code>${escapeHtml(result.requestId)}</code>
+      ${result.bodyPreview ? `<pre>${escapeHtml(result.bodyPreview)}</pre>` : ""}
+    </article>
+  `;
+}
+
 function metric(label: string, value: string, detail: string, icon: string, tone: "success" | "warn" | "info"): string {
   return `
     <article class="metric-card ${tone}">
@@ -742,9 +959,10 @@ function yesNo(value: boolean): string {
 
 function statusClass(status: string): string {
   const normalized = status.toLowerCase();
-  if (normalized.includes("pass") || normalized.includes("active") || normalized.includes("success")) return "success";
-  if (normalized.includes("blocked") || normalized.includes("fail")) return "danger";
-  if (normalized.includes("documentation") || normalized.includes("evidence") || normalized.includes("pending")) return "warn";
+  if (normalized.includes("pass") || normalized.includes("active") || normalized.includes("success") || normalized.includes("online")) return "success";
+  if (normalized.includes("blocked") || normalized.includes("fail") || normalized.includes("offline")) return "danger";
+  if (normalized.includes("unauthorized") || normalized.includes("unavailable")) return "danger";
+  if (normalized.includes("documentation") || normalized.includes("evidence") || normalized.includes("pending") || normalized.includes("degraded")) return "warn";
   return "neutral";
 }
 

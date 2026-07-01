@@ -1,7 +1,13 @@
 import { pageFromRoute, roleDefaultRoute, roleWorkspaces, workspaceFromRoute } from "./roleWorkspaces";
-import type { AppData, RoleMetric, RolePageDefinition, RolePanel, RoleWorkspaceDefinition } from "./types";
+import type { AppData, AuthSession, DataMode, LiveWorkspaceState, RoleMetric, RolePageDefinition, RolePanel, RoleWorkspaceDefinition } from "./types";
 
-export function renderRoleWorkspace(data: AppData, route: string): string {
+export interface RoleRenderContext {
+  mode: DataMode;
+  session?: AuthSession;
+  workspaceState?: LiveWorkspaceState;
+}
+
+export function renderRoleWorkspace(data: AppData, route: string, context: RoleRenderContext = { mode: "demo" }): string {
   const workspace = workspaceFromRoute(route) ?? roleWorkspaces[0];
   const page = pageFromRoute(route) ?? workspace.pages[0];
   const serviceSources = workspace.serviceIds
@@ -11,15 +17,16 @@ export function renderRoleWorkspace(data: AppData, route: string): string {
 
   return `
     <div class="page-grid role-page" data-role="${workspace.id}">
-      ${roleHeader(workspace, page, serviceSources.length, docCount)}
+      ${roleHeader(workspace, page, serviceSources.length, docCount, context)}
       <section class="role-shell">
         ${roleNavigation(workspace, page)}
         <div class="role-content">
-          ${demoNotice(workspace)}
+          ${modeNotice(workspace, context)}
+          ${roleLiveConnection(context)}
           ${roleMetrics(page)}
           ${roleMainPanels(workspace, page)}
           ${roleWorkflow(page)}
-          ${roleTable(page)}
+          ${roleTable(page, context.mode)}
           ${roleSourceSection(data, workspace, serviceSources)}
         </div>
       </section>
@@ -34,7 +41,7 @@ export function rolePageTitle(route: string): string | undefined {
   return page ? `${workspace.label}: ${page.label}` : workspace.title;
 }
 
-function roleHeader(workspace: RoleWorkspaceDefinition, page: RolePageDefinition, serviceCount: number, docCount: number): string {
+function roleHeader(workspace: RoleWorkspaceDefinition, page: RolePageDefinition, serviceCount: number, docCount: number, context: RoleRenderContext): string {
   return `
     <section class="page-header role-hero">
       <div>
@@ -49,7 +56,7 @@ function roleHeader(workspace: RoleWorkspaceDefinition, page: RolePageDefinition
       </div>
       <div class="header-status">
         <i data-lucide="${workspace.icon}"></i>
-        <span>${escapeHtml(workspace.dataMode)}</span>
+        <span>${context.mode === "live" ? "LIVE DATA MODE" : escapeHtml(workspace.dataMode)}</span>
       </div>
     </section>
   `;
@@ -77,7 +84,18 @@ function roleNavigation(workspace: RoleWorkspaceDefinition, activePage: RolePage
   `;
 }
 
-function demoNotice(workspace: RoleWorkspaceDefinition): string {
+function modeNotice(workspace: RoleWorkspaceDefinition, context: RoleRenderContext): string {
+  if (context.mode === "live" && context.session) {
+    return `
+      <section class="demo-notice live">
+        <i data-lucide="ShieldCheck"></i>
+        <div>
+          <strong>LIVE MODE -- AUTHENTICATED READ-ONLY SESSION</strong>
+          <p>User ${escapeHtml(context.session.displayName)} is scoped to role ${escapeHtml(context.session.role)} and tenant ${escapeHtml(context.session.tenantId)}. Demo role switching is disabled for this session.</p>
+        </div>
+      </section>
+    `;
+  }
   return `
     <section class="demo-notice">
       <i data-lucide="Info"></i>
@@ -85,6 +103,66 @@ function demoNotice(workspace: RoleWorkspaceDefinition): string {
         <strong>DEMO DATA -- NOT REAL PATIENT DATA</strong>
         <p>${escapeHtml(workspace.dataMode)} Demo Role Switcher is for presentation only and does not bypass real security in production.</p>
       </div>
+    </section>
+  `;
+}
+
+function roleLiveConnection(context: RoleRenderContext): string {
+  if (context.mode !== "live") {
+    return `
+      <section class="band live-connection">
+        <div class="section-title">
+          <div>
+            <h2>Live Data Connection</h2>
+            <p>Demo Mode is active. Open Foundation Login and provide a valid JWT to execute read-only API checks.</p>
+          </div>
+          <a class="button compact" href="#/auth/login"><i data-lucide="KeyRound"></i> Foundation Login</a>
+        </div>
+      </section>
+    `;
+  }
+  const state = context.workspaceState;
+  if (!state) {
+    return `
+      <section class="band live-connection">
+        <div class="section-title">
+          <div>
+            <h2>Live Data Connection</h2>
+            <p>Waiting for read-only API evaluation for this workspace page.</p>
+          </div>
+          <span class="status-pill warn">Pending</span>
+        </div>
+      </section>
+    `;
+  }
+  return `
+    <section class="band live-connection">
+      <div class="section-title">
+        <div>
+          <h2>Live Data Connection</h2>
+          <p>${escapeHtml(state.endpoint.reason)}</p>
+        </div>
+        <span class="status-pill ${statusClass(state.result?.state ?? (state.endpoint.available ? "pending" : "unavailable"))}">${escapeHtml(state.result?.state ?? (state.endpoint.available ? "pending" : "unavailable"))}</span>
+      </div>
+      <div class="role-source-grid">
+        <div class="source-list">
+          <article>
+            <strong>${escapeHtml(state.endpoint.label)}</strong>
+            <span>${escapeHtml(state.endpoint.url || "Live API unavailable")}</span>
+            <span>${escapeHtml(state.endpoint.source)}</span>
+          </article>
+        </div>
+        <div class="source-list">
+          ${state.result ? `
+            <article>
+              <strong>${escapeHtml(state.result.httpStatus ? `HTTP ${state.result.httpStatus}` : state.result.state)}</strong>
+              <span>${escapeHtml(state.result.detail)}</span>
+              <span>${escapeHtml(state.result.requestId)}</span>
+            </article>
+          ` : `<article><strong>No response yet</strong><span>Refresh or navigate to retry read-only API execution.</span></article>`}
+        </div>
+      </div>
+      ${state.auditAction ? auditAction(state.auditAction) : ""}
     </section>
   `;
 }
@@ -163,7 +241,24 @@ function roleWorkflow(page: RolePageDefinition): string {
   `;
 }
 
-function roleTable(page: RolePageDefinition): string {
+function roleTable(page: RolePageDefinition, mode: DataMode): string {
+  if (mode === "live") {
+    return `
+      <section class="band">
+        <div class="section-title">
+          <div>
+            <h2>${escapeHtml(page.label)} Worklist</h2>
+            <p>Demo rows are hidden in Live Mode. Real records appear only when an existing authenticated read-only API returns data.</p>
+          </div>
+          <span class="status-pill warn">Live API unavailable</span>
+        </div>
+        <div class="empty-state compact">
+          <i data-lucide="DatabaseZap"></i>
+          <p>No live records are displayed for this workspace page.</p>
+        </div>
+      </section>
+    `;
+  }
   return `
     <section class="band">
       <div class="section-title">
@@ -184,6 +279,19 @@ function roleTable(page: RolePageDefinition): string {
         </table>
       </div>
     </section>
+  `;
+}
+
+function auditAction(action: NonNullable<LiveWorkspaceState["auditAction"]>): string {
+  return `
+    <div class="audit-strip">
+      <span><strong>User</strong>${escapeHtml(action.user)}</span>
+      <span><strong>Role</strong>${escapeHtml(action.role)}</span>
+      <span><strong>Tenant</strong>${escapeHtml(action.tenant)}</span>
+      <span><strong>Request</strong>${escapeHtml(action.requestId)}</span>
+      <span><strong>Status</strong>${escapeHtml(action.status)}</span>
+      <span><strong>Time</strong>${escapeHtml(action.timestamp)}</span>
+    </div>
   `;
 }
 
@@ -262,9 +370,10 @@ function metricIcon(metric: RoleMetric): string {
 
 function statusClass(status: string): string {
   const normalized = status.toLowerCase();
-  if (normalized.includes("available")) return "success";
+  if (normalized.includes("unavailable") || normalized.includes("unauthorized")) return "danger";
+  if (normalized.includes("online") || normalized.includes("available")) return "success";
   if (normalized.includes("action")) return "danger";
-  if (normalized.includes("unavailable") || normalized.includes("documentation")) return "warn";
+  if (normalized.includes("documentation") || normalized.includes("pending") || normalized.includes("degraded")) return "warn";
   return "neutral";
 }
 
