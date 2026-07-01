@@ -93,9 +93,9 @@ test("CI includes live infrastructure validation using runtime control commands 
   assert.match(workflow, /external-secret-scan:/);
 });
 
-test("root Panacea runtime commands control start, stop, status, restart, pilot, and health checks", () => {
+test("root Panacea runtime commands control start, stop, status, restart, pilot, deployment, and health checks", () => {
   const packageJson = JSON.parse(read("package.json"));
-  for (const script of ["panacea:start", "panacea:stop", "panacea:restart", "panacea:status", "panacea:health", "panacea:pilot:check", "panacea:pilot:config", "panacea:pilot:health"]) {
+  for (const script of ["panacea:start", "panacea:stop", "panacea:restart", "panacea:status", "panacea:health", "panacea:pilot:check", "panacea:pilot:config", "panacea:pilot:health", "panacea:deployment:verify"]) {
     assert.match(packageJson.scripts[script], /node scripts\/panacea-runtime\.mjs/, `${script} must use the runtime controller`);
   }
   const source = read("scripts/panacea-runtime.mjs");
@@ -110,8 +110,11 @@ test("root Panacea runtime commands control start, stop, status, restart, pilot,
   assert.match(source, /waitForContainerHealth/, "health command must wait for Docker health checks after startup");
   assert.match(source, /container is .*run npm run panacea:start first/, "stopped-service failures must be clear");
   assert.match(source, /pilotDocuments/, "pilot check must validate operator documents");
+  assert.match(source, /deploymentDocuments/, "deployment verification must validate external pilot documents");
   assert.match(source, /pilotArtifacts/, "pilot check must validate pilot deployment artifacts");
   assert.match(source, /requiredEnvironmentVariables/, "pilot check must validate environment templates");
+  assert.match(source, /assertNoCommittedRealEnvFiles/, "deployment verification must reject committed real env files");
+  assert.match(source, /assertSafeEnvironmentTemplatePatterns/, "deployment verification must reject realistic secret-shaped samples");
   assert.match(source, /assertHealthMatrix/, "pilot check must validate the health matrix");
   assert.match(source, /showPilotConfig/, "pilot config must print the route matrix");
 });
@@ -130,6 +133,12 @@ test("external pilot deployment artifacts are present and versioned", () => {
     "docs/user-guides/Pilot_Database_Setup_Guide.md",
     "docs/user-guides/Pilot_Backup_Restore_Runbook.md",
     "docs/user-guides/Pilot_Security_Deployment_Checklist.md",
+    "docs/user-guides/External_Server_Deployment_Runbook.md",
+    "docs/user-guides/External_Server_Prerequisite_Checklist.md",
+    "docs/user-guides/Pilot_Go_Live_Checklist.md",
+    "docs/operations/External_Pilot_Route_Verification_Template.md",
+    "docs/user-guides/Pilot_Rollback_And_Recovery_Runbook.md",
+    "docs/roadmap/Sprint_118_External_Server_Deployment_Go_Live_Report.md",
     "docs/operations/Pilot_Service_Health_Matrix.json"
   ];
   for (const artifact of required) {

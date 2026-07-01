@@ -25,6 +25,15 @@ const pilotDocuments = Object.freeze([
   "docs/roadmap/Sprint_116_Production_Hardening_Final_Release_Report.md"
 ]);
 
+const deploymentDocuments = Object.freeze([
+  "docs/user-guides/External_Server_Deployment_Runbook.md",
+  "docs/user-guides/External_Server_Prerequisite_Checklist.md",
+  "docs/user-guides/Pilot_Go_Live_Checklist.md",
+  "docs/operations/External_Pilot_Route_Verification_Template.md",
+  "docs/user-guides/Pilot_Rollback_And_Recovery_Runbook.md",
+  "docs/roadmap/Sprint_118_External_Server_Deployment_Go_Live_Report.md"
+]);
+
 const pilotArtifacts = Object.freeze([
   ".env.example",
   ".env.local.example",
@@ -62,12 +71,14 @@ const requiredEnvironmentVariables = Object.freeze([
   "PANACEA_SERVICE_GLOBAL_PRIVACY_URL"
 ]);
 
-const unsafePlaceholderValues = Object.freeze(new Set([
+const unsafeTemplateValues = Object.freeze(new Set([
   "",
   "CHANGE_ME_NON_SECRET_PLACEHOLDER",
   "REPLACE_WITH_REAL_VALUE_OUTSIDE_GIT",
   "EXAMPLE_ONLY_NOT_A_SECRET"
 ]));
+
+const envTemplateFiles = Object.freeze([".env.example", ".env.local.example", ".env.pilot.example", ".env.production.example"]);
 
 function write(message) {
   process.stdout.write(`${message}\n`);
@@ -134,7 +145,7 @@ function readEnvironmentTemplate(filePath) {
 }
 
 function assertRequiredArtifacts() {
-  for (const artifact of [...pilotArtifacts, ...pilotDocuments]) {
+  for (const artifact of [...pilotArtifacts, ...pilotDocuments, ...deploymentDocuments]) {
     if (!fs.existsSync(artifact)) {
       throw new Error(`Missing required pilot artifact: ${artifact}`);
     }
@@ -142,11 +153,40 @@ function assertRequiredArtifacts() {
 }
 
 function assertEnvironmentTemplates() {
-  for (const template of [".env.example", ".env.local.example", ".env.pilot.example", ".env.production.example"]) {
+  for (const template of envTemplateFiles) {
     const values = readEnvironmentTemplate(template);
     for (const variable of requiredEnvironmentVariables) {
       if (!values.has(variable)) {
         throw new Error(`${template} is missing required variable ${variable}`);
+      }
+    }
+  }
+}
+
+function assertNoCommittedRealEnvFiles() {
+  const tracked = execFileSync("git", ["ls-files"], { encoding: "utf8" }).split(/\r?\n/).filter(Boolean);
+  const allowed = new Set(envTemplateFiles);
+  const committedEnvFiles = tracked.filter((file) => (file === ".env" || file.startsWith(".env.")) && !allowed.has(file));
+  if (committedEnvFiles.length > 0) {
+    throw new Error(`Committed environment files are not allowed: ${committedEnvFiles.join(", ")}`);
+  }
+}
+
+function assertSafeEnvironmentTemplatePatterns() {
+  const riskyPatterns = [
+    /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
+    /\bAKIA[0-9A-Z]{16}\b/,
+    /\bghp_[A-Za-z0-9_]{20,}\b/,
+    /\bgithub_pat_[A-Za-z0-9_]{20,}\b/,
+    /\bsk-[A-Za-z0-9]{20,}\b/,
+    /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]{10,}\b/,
+    /\bBearer\s+[A-Za-z0-9._~+/=-]{20,}\b/
+  ];
+  for (const template of envTemplateFiles) {
+    const text = fs.readFileSync(template, "utf8");
+    for (const pattern of riskyPatterns) {
+      if (pattern.test(text)) {
+        throw new Error(`${template} contains a realistic secret-like sample matching ${pattern}`);
       }
     }
   }
@@ -157,7 +197,7 @@ function assertPilotEnvironmentIfActive() {
   if (!mode) {
     return;
   }
-  if (unsafePlaceholderValues.has(mode) || !["local", "pilot", "production"].includes(mode)) {
+  if (unsafeTemplateValues.has(mode) || !["local", "pilot", "production"].includes(mode)) {
     throw new Error(`PANACEA_RUNTIME_MODE must be local, pilot, or production; received ${mode}`);
   }
   if (!["pilot", "production"].includes(mode)) {
@@ -165,7 +205,7 @@ function assertPilotEnvironmentIfActive() {
   }
   for (const variable of requiredEnvironmentVariables) {
     const value = process.env[variable]?.trim() ?? "";
-    if (unsafePlaceholderValues.has(value)) {
+    if (unsafeTemplateValues.has(value)) {
       throw new Error(`${variable} must be set to a real operator-provided value outside Git for ${mode} mode`);
     }
   }
@@ -309,6 +349,33 @@ function checkPilotReadiness() {
   write(`panacea.pilot.check result=pass services=${runtimeServices.length} documents=${pilotDocuments.length}`);
 }
 
+function verifyDeploymentReadiness() {
+  assertRequiredArtifacts();
+  assertEnvironmentTemplates();
+  assertSafeEnvironmentTemplatePatterns();
+  assertNoCommittedRealEnvFiles();
+  assertHealthMatrix();
+  const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
+  for (const script of [
+    "runtime:orchestration",
+    "runtime:disaster-recovery",
+    "panacea:start",
+    "panacea:stop",
+    "panacea:restart",
+    "panacea:status",
+    "panacea:health",
+    "panacea:pilot:check",
+    "panacea:pilot:config",
+    "panacea:pilot:health",
+    "panacea:deployment:verify"
+  ]) {
+    if (!packageJson.scripts?.[script]) {
+      throw new Error(`Missing required deployment script: ${script}`);
+    }
+  }
+  write(`panacea.deployment.verify result=pass services=${runtimeServices.length} docs=${pilotDocuments.length + deploymentDocuments.length} envTemplates=${envTemplateFiles.length}`);
+}
+
 async function main() {
   if (action === "start") {
     await startRuntime();
@@ -342,6 +409,10 @@ async function main() {
   if (action === "pilot-health") {
     await checkHealth();
     write("panacea.pilot.health result=pass");
+    return;
+  }
+  if (action === "deployment-verify") {
+    verifyDeploymentReadiness();
     return;
   }
   const script = execFileSync("node", ["-e", "const p=require('./package.json'); console.log(Object.keys(p.scripts).filter((s)=>s.startsWith('panacea:')).join('\\n'))"], {
