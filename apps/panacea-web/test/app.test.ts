@@ -13,6 +13,7 @@ import { flattenEndpoints, filterEndpoints } from "../src/apiExplorer";
 import { probeFoundation } from "../src/foundation";
 import { discoverFoundationLogin } from "../src/foundationLoginDiscovery";
 import { apiRequest, appendOperatorAuditTest } from "../src/liveApi";
+import { languageOptions, translate } from "../src/locales";
 import { allRoleRoutes, roleDefaultRoute, roleSwitcherOptions, roleWorkspaces } from "../src/roleWorkspaces";
 import { initialState, renderApp, renderRoute } from "../src/render";
 import { buildWebConfig } from "../src/webConfig";
@@ -34,6 +35,32 @@ describe("Panacea web platform", () => {
     expect(html).toContain("OFFICIALLY RELEASED");
     expect(html).toContain(String(data.services.length));
     expect(html).toContain("Explore APIs");
+  });
+
+  it("loads English and Arabic locale dictionaries", () => {
+    expect(languageOptions.map((option) => option.locale)).toEqual(["en", "ar"]);
+    expect(translate("en", "Patient Registry")).toBe("Patient Registry");
+    expect(translate("ar", "Patient Registry")).toBe("سجل المرضى");
+    expect(translate("ar", "Advisory only. Clinician remains final decision maker.")).toBe("للاسترشاد فقط. يبقى القرار النهائي للطبيب المختص.");
+  });
+
+  it("renders the language switcher and applies LTR or RTL direction", () => {
+    const english = renderApp(data, "/command/executive-overview", {
+      ...initialState,
+      language: "en"
+    });
+    expect(english).toContain('lang="en" dir="ltr"');
+    expect(english).toContain('id="language-toggle"');
+    expect(english).toContain(">English</option>");
+    expect(english).toContain(">العربية</option>");
+
+    const arabic = renderApp(data, "/command/executive-overview", {
+      ...initialState,
+      language: "ar"
+    });
+    expect(arabic).toContain('lang="ar" dir="rtl"');
+    expect(arabic).toContain("النظرة التنفيذية");
+    expect(arabic).toContain("مساحات العمل حسب الدور");
   });
 
   it("renders active service health and OpenAPI links", () => {
@@ -67,6 +94,19 @@ describe("Panacea web platform", () => {
     expect(html).toContain("API Explorer");
     expect(html).toContain("curl -X GET");
     expect(html).toContain("X-Tenant-Id");
+  });
+
+  it("renders API Explorer labels in Arabic while keeping API paths LTR", () => {
+    const html = renderRoute(data, "/developer/api-explorer", {
+      ...initialState,
+      language: "ar",
+      apiQuery: "live",
+      apiMethod: "GET"
+    });
+    expect(html).toContain("مستكشف واجهات البرمجة");
+    expect(html).toContain("الطريقة");
+    expect(html).toContain('class="api-path" dir="ltr"');
+    expect(html).toContain("curl -X GET");
   });
 
   it("renders user guide documents inside the documentation center", () => {
@@ -120,6 +160,26 @@ describe("Panacea web platform", () => {
       expect(html).toContain("Workflow Timeline");
       expect(html).toContain("API And Documentation Sources");
     }
+  });
+
+  it("renders doctor workspace in Arabic with translated safety labels", () => {
+    const html = renderRoute(data, "/workspace/doctor/ai-recommendations", {
+      ...initialState,
+      language: "ar",
+      selectedRole: "doctor"
+    });
+    expect(html).toContain("مساحة عمل الطبيب / الطبيب السريري");
+    expect(html).toContain("عارض توصيات الذكاء الاصطناعي");
+    expect(html).toContain("بيانات تجريبية — ليست بيانات مرضى حقيقية");
+    expect(html).toContain("للاسترشاد فقط. يبقى القرار النهائي للطبيب المختص.");
+  });
+
+  it("renders patient, lab, radiology, pharmacy, and admin workspaces in Arabic", () => {
+    expect(renderRoute(data, "/workspace/patient/dashboard", { ...initialState, language: "ar" })).toContain("لوحة المريض");
+    expect(renderRoute(data, "/workspace/laboratory/dashboard", { ...initialState, language: "ar" })).toContain("لوحة المختبر");
+    expect(renderRoute(data, "/workspace/radiology/dashboard", { ...initialState, language: "ar" })).toContain("لوحة الأشعة");
+    expect(renderRoute(data, "/workspace/pharmacy/dashboard", { ...initialState, language: "ar" })).toContain("لوحة الصيدلية");
+    expect(renderRoute(data, "/workspace/administrator/dashboard", { ...initialState, language: "ar" })).toContain("لوحة الإدارة");
   });
 
   it("renders every requested role page route without empty screens", () => {

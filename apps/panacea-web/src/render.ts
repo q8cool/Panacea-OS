@@ -7,6 +7,7 @@ import { isRoleRoute, renderRoleWorkspace, rolePageTitle } from "./roleRender";
 import { roleFromRoute, roleSwitcherOptions } from "./roleWorkspaces";
 import { isSessionExpired, tokenSecondsRemaining } from "./auth";
 import { buildWebConfig, missingLiveConfig } from "./webConfig";
+import { languageOptions, localeDirection, translate, type Locale } from "./locales";
 import type {
   AppData,
   AuthSession,
@@ -25,6 +26,16 @@ import type {
 import type { FoundationProbeResult } from "./foundation";
 
 marked.use({ gfm: true, async: false });
+
+let activeLocale: Locale = "en";
+
+function setActiveLocale(locale: Locale) {
+  activeLocale = locale;
+}
+
+function l(value: string | number | undefined): string {
+  return translate(activeLocale, value);
+}
 
 export interface RenderState {
   globalSearch: string;
@@ -63,8 +74,9 @@ export const initialState: RenderState = {
 };
 
 export function renderApp(data: AppData, route: string, state: RenderState): string {
+  setActiveLocale(state.language);
   return `
-    <div class="app-shell" data-theme="${state.theme}" dir="${state.language === "ar" ? "rtl" : "ltr"}">
+    <div class="app-shell" data-theme="${state.theme}" data-locale="${state.language}" lang="${state.language}" dir="${localeDirection(state.language)}">
       ${renderSidebar(route)}
       <main class="main-panel">
         ${renderTopbar(data, route, state)}
@@ -77,12 +89,14 @@ export function renderApp(data: AppData, route: string, state: RenderState): str
 }
 
 export function renderRoute(data: AppData, route: string, state: RenderState = initialState): string {
+  setActiveLocale(state.language);
   if (route === "/auth/login") return renderAuthPage(data, state);
   if (route === "/command/live-status") return renderLiveStatusPage(data, state);
   if (isRoleRoute(route)) return renderRoleWorkspace(data, route, {
     mode: state.authSession ? "live" : "demo",
     session: state.authSession,
-    workspaceState: state.liveWorkspaceState
+    workspaceState: state.liveWorkspaceState,
+    locale: state.language
   });
   if (route === "/command/system-health") return renderSystemHealth(data);
   if (route === "/command/global-command") return renderModuleDetailPage(data, "real-time-global-healthcare-command-intelligence-platform");
@@ -115,17 +129,17 @@ function renderSidebar(route: string): string {
         <div class="brand-mark">P</div>
         <div>
           <strong>Panacea OS</strong>
-          <span>Enterprise v4.0</span>
+          <span>${escapeHtml(l("Enterprise v4.0"))}</span>
         </div>
       </div>
-      <nav class="nav" aria-label="Primary">
+      <nav class="nav" aria-label="${escapeAttribute(l("Primary"))}">
         ${navSections.map((section) => `
           <section class="nav-section">
-            <h2>${escapeHtml(section.title)}</h2>
+            <h2>${escapeHtml(l(section.title))}</h2>
             ${section.items.map((item) => `
               <a class="nav-link ${route === item.route ? "active" : ""}" href="#${item.route}">
                 <i data-lucide="${item.icon}"></i>
-                <span>${escapeHtml(item.label)}</span>
+                <span>${escapeHtml(l(item.label))}</span>
               </a>
             `).join("")}
           </section>
@@ -145,12 +159,12 @@ function renderTopbar(data: AppData, route: string, state: RenderState): string 
     <header class="topbar">
       <div>
         <p class="eyebrow">${escapeHtml(data.repository.branch)} · ${escapeHtml(shortCommit(data.repository.commit))}</p>
-        <h1>${escapeHtml(pageTitle(route))}</h1>
+        <h1>${escapeHtml(l(pageTitle(route)))}</h1>
       </div>
       <div class="topbar-actions">
         <a class="mode-pill ${liveMode ? "live" : "demo"}" href="#/auth/login">
           <i data-lucide="${liveMode ? "ShieldCheck" : "MonitorPlay"}"></i>
-          <span>${liveMode ? "Live Mode" : "Demo Mode"}</span>
+          <span>${escapeHtml(l(liveMode ? "Live Mode" : "Demo Mode"))}</span>
         </a>
         ${state.authSession ? `
           <div class="session-chip" title="Authenticated live session">
@@ -160,27 +174,32 @@ function renderTopbar(data: AppData, route: string, state: RenderState): string 
         ` : ""}
         <label class="search-box">
           <i data-lucide="Search"></i>
-          <input id="global-search" type="search" value="${escapeAttribute(state.globalSearch)}" autocomplete="off" aria-label="Search pages, services, docs" />
+          <input id="global-search" type="search" value="${escapeAttribute(state.globalSearch)}" autocomplete="off" aria-label="${escapeAttribute(l("Search pages, services, docs"))}" />
         </label>
         <label class="role-switcher">
-          <span>${liveMode ? "Role From Token" : "Demo Role Switcher"}</span>
-          <select id="demo-role-switcher" aria-label="Demo Role Switcher" ${liveMode ? "disabled" : ""}>
-            ${roleSwitcherOptions.map((option) => `<option value="${option.id}" ${option.id === activeRole ? "selected" : ""}>${escapeHtml(option.label)}</option>`).join("")}
+          <span>${escapeHtml(l(liveMode ? "Role From Token" : "Demo Role Switcher"))}</span>
+          <select id="demo-role-switcher" aria-label="${escapeAttribute(l("Demo Role Switcher"))}" ${liveMode ? "disabled" : ""}>
+            ${roleSwitcherOptions.map((option) => `<option value="${option.id}" ${option.id === activeRole ? "selected" : ""}>${escapeHtml(l(option.label))}</option>`).join("")}
           </select>
         </label>
-        ${liveMode ? `<button class="icon-button" id="logout-button" title="Logout" aria-label="Logout"><i data-lucide="LogOut"></i></button>` : `<a class="icon-button" href="#/auth/login" title="Login" aria-label="Login"><i data-lucide="LogIn"></i></a>`}
-        <button class="icon-button" id="language-toggle" title="Toggle language direction" aria-label="Toggle language direction"><i data-lucide="Languages"></i></button>
-        <button class="icon-button" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme"><i data-lucide="${state.theme === "light" ? "Moon" : "Sun"}"></i></button>
-        <button class="icon-button" title="Notifications" aria-label="Notifications"><i data-lucide="Bell"></i><span class="dot"></span></button>
+        ${liveMode ? `<button class="icon-button" id="logout-button" title="${escapeAttribute(l("Logout"))}" aria-label="${escapeAttribute(l("Logout"))}"><i data-lucide="LogOut"></i></button>` : `<a class="icon-button" href="#/auth/login" title="${escapeAttribute(l("Login"))}" aria-label="${escapeAttribute(l("Login"))}"><i data-lucide="LogIn"></i></a>`}
+        <label class="language-switcher">
+          <span>${escapeHtml(l("Language"))}</span>
+          <select id="language-toggle" aria-label="${escapeAttribute(l("Language"))}">
+            ${languageOptions.map((option) => `<option value="${option.locale}" ${option.locale === state.language ? "selected" : ""}>${escapeHtml(option.locale === "ar" ? option.nativeLabel : option.label)}</option>`).join("")}
+          </select>
+        </label>
+        <button class="icon-button" id="theme-toggle" title="${escapeAttribute(l("Theme"))}" aria-label="${escapeAttribute(l("Theme"))}"><i data-lucide="${state.theme === "light" ? "Moon" : "Sun"}"></i></button>
+        <button class="icon-button" title="${escapeAttribute(l("Notifications"))}" aria-label="${escapeAttribute(l("Notifications"))}"><i data-lucide="Bell"></i><span class="dot"></span></button>
       </div>
       ${state.globalSearch ? `
         <div class="search-results">
           ${matches.length ? matches.map((item) => `
             <a href="#${item.route}">
-              <strong>${escapeHtml(item.label)}</strong>
-              <span>${escapeHtml(item.section)}</span>
+              <strong>${escapeHtml(l(item.label))}</strong>
+              <span>${escapeHtml(l(item.section))}</span>
             </a>
-          `).join("") : `<p>No navigation match</p>`}
+          `).join("") : `<p>${escapeHtml(l("No navigation match"))}</p>`}
         </div>
       ` : ""}
     </header>
@@ -202,12 +221,12 @@ function renderExecutiveOverview(data: AppData): string {
       </section>
       <section class="band two-column">
         <div>
-          <h2>What You Can Use Now</h2>
+          <h2>${escapeHtml(l("What You Can Use Now"))}</h2>
           <p>Panacea OS is now visible through this web platform, active service APIs, OpenAPI contracts, runtime validation scripts, and final release evidence. The UI is read-only and operator-oriented; it does not execute clinical workflows.</p>
           <div class="quick-actions">
-            <a class="button primary" href="#/developer/api-explorer"><i data-lucide="Braces"></i> Explore APIs</a>
-            <a class="button" href="#/command/system-health"><i data-lucide="Activity"></i> Check runtime</a>
-            <a class="button" href="#/evidence/release"><i data-lucide="FileCheck2"></i> Release evidence</a>
+            <a class="button primary" href="#/developer/api-explorer"><i data-lucide="Braces"></i> ${escapeHtml(l("Explore APIs"))}</a>
+            <a class="button" href="#/command/system-health"><i data-lucide="Activity"></i> ${escapeHtml(l("Check runtime"))}</a>
+            <a class="button" href="#/evidence/release"><i data-lucide="FileCheck2"></i> ${escapeHtml(l("Release evidence"))}</a>
           </div>
         </div>
         <div class="release-stack">
@@ -220,17 +239,17 @@ function renderExecutiveOverview(data: AppData): string {
       <section class="band">
         <div class="section-title">
           <div>
-            <h2>Active Runtime Services</h2>
+            <h2>${escapeHtml(l("Active Runtime Services"))}</h2>
             <p>These are the services with Dockerfiles, Kubernetes manifests, PostgreSQL migrations, OpenAPI contracts, and tests.</p>
           </div>
-          <a class="button compact" href="#/command/system-health"><i data-lucide="ExternalLink"></i> Full inventory</a>
+          <a class="button compact" href="#/command/system-health"><i data-lucide="ExternalLink"></i> ${escapeHtml(l("Full inventory"))}</a>
         </div>
         ${renderServiceTable(data.services)}
       </section>
       <section class="band">
         <div class="section-title">
           <div>
-            <h2>Visible Capability Map</h2>
+            <h2>${escapeHtml(l("Visible Capability Map"))}</h2>
             <p>UI visibility separates active APIs from documentation-backed platform areas.</p>
           </div>
         </div>
@@ -261,7 +280,7 @@ function renderSystemHealth(data: AppData): string {
         ${renderServiceTable(data.services)}
       </section>
       <section class="band">
-        <h2>Health URLs</h2>
+        <h2>${escapeHtml(l("Health URLs"))}</h2>
         <div class="endpoint-grid">
           ${data.services.map((service) => `
             <article class="endpoint-card">
@@ -291,10 +310,10 @@ function renderFoundationProvider(data: AppData, probe?: FoundationProbeResult):
       <section class="band">
         <div class="section-title">
           <div>
-            <h2>Endpoint Contract</h2>
+            <h2>${escapeHtml(l("Endpoint Contract"))}</h2>
             <p>These URLs are validation endpoints only; no PHI or clinical execution is sent by this UI.</p>
           </div>
-          <button class="button primary" id="probe-foundation"><i data-lucide="RefreshCw"></i> Probe Foundation</button>
+          <button class="button primary" id="probe-foundation"><i data-lucide="RefreshCw"></i> ${escapeHtml(l("Probe Foundation"))}</button>
         </div>
         <div class="endpoint-grid">
           ${foundationEndpointCard("Health", data.foundation.healthUrl, requiredLabel(true), checks)}
@@ -332,42 +351,42 @@ function renderAuthPage(data: AppData, state: RenderState): string {
       </section>
       <section class="band two-column">
         <div>
-          <h2>Provider Login</h2>
+          <h2>${escapeHtml(l("Provider Login"))}</h2>
           <p>Use real Foundation credentials only when the provider exposes login/token endpoints. Credentials are sent directly to Foundation and are not stored by the browser UI.</p>
           <form id="provider-login-form" class="auth-form">
             <label>
-              <span>Username</span>
+              <span>${escapeHtml(l("Username"))}</span>
               <input id="provider-username" type="text" autocomplete="username" aria-label="Foundation username" />
             </label>
             <label>
-              <span>Password</span>
+              <span>${escapeHtml(l("Password"))}</span>
               <input id="provider-password" type="password" autocomplete="current-password" aria-label="Foundation password" />
             </label>
             <label>
-              <span>Tenant ID</span>
+              <span>${escapeHtml(l("Tenant ID"))}</span>
               <input id="provider-tenant" type="text" value="${escapeAttribute(config.PANACEA_DEFAULT_TENANT === "demo-tenant" ? "default" : config.PANACEA_DEFAULT_TENANT)}" autocomplete="organization" aria-label="Foundation tenant ID" />
             </label>
-            <button class="button primary" type="submit"><i data-lucide="LogIn"></i> Sign In With Foundation</button>
+            <button class="button primary" type="submit"><i data-lucide="LogIn"></i> ${escapeHtml(l("Sign In With Foundation"))}</button>
           </form>
-          ${state.providerAuthStatus ? `<div class="alert success"><strong>Provider auth</strong><p>${escapeHtml(state.providerAuthStatus)}</p></div>` : ""}
-          ${state.authError ? `<div class="alert danger"><strong>Authentication error</strong><p>${escapeHtml(state.authError)}</p></div>` : ""}
+          ${state.providerAuthStatus ? `<div class="alert success"><strong>${escapeHtml(l("Provider auth"))}</strong><p>${escapeHtml(l(state.providerAuthStatus))}</p></div>` : ""}
+          ${state.authError ? `<div class="alert danger"><strong>${escapeHtml(l("Authentication error"))}</strong><p>${escapeHtml(l(state.authError))}</p></div>` : ""}
         </div>
         <div>
-          <h2>Operator Token Mode</h2>
+          <h2>${escapeHtml(l("Operator Token Mode"))}</h2>
           <p>Panacea OS does not invent authentication. Paste a test JWT issued by the Foundation Provider. The browser validates expiry, issuer, tenant, role claims, JWKS discovery, and signature where the published key supports browser verification.</p>
           <form id="auth-token-form" class="auth-form">
             <label>
-              <span>Foundation JWT</span>
+              <span>${escapeHtml(l("Foundation JWT"))}</span>
               <textarea id="operator-jwt-token" rows="7" autocomplete="off" spellcheck="false" aria-label="Paste Foundation-issued JWT"></textarea>
             </label>
-            <button class="button primary" type="submit"><i data-lucide="ShieldCheck"></i> Validate Token</button>
+            <button class="button primary" type="submit"><i data-lucide="ShieldCheck"></i> ${escapeHtml(l("Validate Token"))}</button>
           </form>
-          ${validation?.warnings.length ? `<div class="alert warn"><strong>Validation note</strong><p>${escapeHtml(validation.warnings.join(" "))}</p></div>` : ""}
+          ${validation?.warnings.length ? `<div class="alert warn"><strong>${escapeHtml(l("Validation note"))}</strong><p>${escapeHtml(l(validation.warnings.join(" ")))}</p></div>` : ""}
         </div>
       </section>
       <section class="band two-column">
         <div>
-          <h2>Current Session</h2>
+          <h2>${escapeHtml(l("Current Session"))}</h2>
           ${session ? `
             <div class="session-detail">
               ${releaseFact("Auth mode", authMode, "SESSION")}
@@ -380,14 +399,14 @@ function renderAuthPage(data: AppData, state: RenderState): string {
               ${releaseFact("Expires", session.expiresAt, tokenSecondsRemaining(session) > 0 ? "ACTIVE" : "EXPIRED")}
             </div>
             <div class="quick-actions">
-              <a class="button primary" href="#/workspace/${session.role === "operator" ? "administrator" : session.role}/dashboard"><i data-lucide="LayoutDashboard"></i> Open role workspace</a>
-              ${session.authMode === "provider-login" ? `<button class="button" id="refresh-provider-session"><i data-lucide="RefreshCw"></i> Refresh Session</button>` : ""}
-              <button class="button" id="logout-button"><i data-lucide="LogOut"></i> Logout</button>
+              <a class="button primary" href="#/workspace/${session.role === "operator" ? "administrator" : session.role}/dashboard"><i data-lucide="LayoutDashboard"></i> ${escapeHtml(l("Open role workspace"))}</a>
+              ${session.authMode === "provider-login" ? `<button class="button" id="refresh-provider-session"><i data-lucide="RefreshCw"></i> ${escapeHtml(l("Refresh Session"))}</button>` : ""}
+              <button class="button" id="logout-button"><i data-lucide="LogOut"></i> ${escapeHtml(l("Logout"))}</button>
             </div>
           ` : `
             <div class="empty-state">
               <i data-lucide="LockKeyhole"></i>
-              <h3>No live session</h3>
+              <h3>${escapeHtml(l("No live session"))}</h3>
               <p>Use Demo Mode for visual review, or provide a real Foundation JWT for Live Mode. Demo role selection never grants production access.</p>
             </div>
           `}
@@ -395,30 +414,30 @@ function renderAuthPage(data: AppData, state: RenderState): string {
         <div>
           <div class="section-title">
             <div>
-              <h2>Provider Login Discovery</h2>
+              <h2>${escapeHtml(l("Provider Login Discovery"))}</h2>
               <p>Production login redirect is enabled only when Foundation exposes login or OAuth/OIDC endpoints. No login is simulated.</p>
             </div>
-            <button class="button primary" id="discover-foundation-login"><i data-lucide="SearchCheck"></i> Discover Login</button>
+            <button class="button primary" id="discover-foundation-login"><i data-lucide="SearchCheck"></i> ${escapeHtml(l("Discover Login"))}</button>
           </div>
           ${discovery ? `
             <div class="alert ${discovery.providerHostedLoginAvailable ? "success" : "warn"}">
-              <strong>${discovery.providerHostedLoginAvailable ? "Provider login available" : "Operator action required"}</strong>
+              <strong>${escapeHtml(l(discovery.providerHostedLoginAvailable ? "Provider login available" : "Operator action required"))}</strong>
               <p>${escapeHtml(discovery.recommendation)}</p>
             </div>
             ${providerDiscoveryList(discovery)}
           ` : `
             <div class="empty-state compact">
               <i data-lucide="Search"></i>
-              <p>Login discovery has not been run in this browser session.</p>
+              <p>${escapeHtml(l("Login discovery has not been run in this browser session."))}</p>
             </div>
           `}
         </div>
         <div>
-          <h2>Browser API Allowlist</h2>
+          <h2>${escapeHtml(l("Browser API Allowlist"))}</h2>
           <p>Unknown browser API calls and dangerous writes are blocked by default. Allowed reads come from existing OpenAPI runtime endpoints.</p>
-          ${allowlist ? allowlistSummaryGrid(allowlist) : `<div class="empty-state compact"><i data-lucide="ListChecks"></i><p>Run login discovery or open a live workspace to calculate allowlist status.</p></div>`}
+          ${allowlist ? allowlistSummaryGrid(allowlist) : `<div class="empty-state compact"><i data-lucide="ListChecks"></i><p>${escapeHtml(l("Run login discovery or open a live workspace to calculate allowlist status."))}</p></div>`}
           <div class="alert warn">
-            <strong>CORS readiness</strong>
+            <strong>${escapeHtml(l("CORS readiness"))}</strong>
             <p>Browser calls require allowed origin <code>http://localhost:5174</code>, Authorization, tenant, user, request ID, and correlation headers.</p>
           </div>
         </div>
@@ -426,12 +445,12 @@ function renderAuthPage(data: AppData, state: RenderState): string {
       <section class="band">
         <div class="section-title">
           <div>
-            <h2>Runtime Configuration</h2>
+              <h2>${escapeHtml(l("Runtime Configuration"))}</h2>
             <p>These values can be provided through <code>window.PANACEA_WEB_CONFIG</code> or Vite-compatible environment variables.</p>
           </div>
-          <a class="button compact" href="#/command/live-status"><i data-lucide="Activity"></i> Live status</a>
+          <a class="button compact" href="#/command/live-status"><i data-lucide="Activity"></i> ${escapeHtml(l("Live status"))}</a>
         </div>
-        ${missing.length ? `<div class="alert danger"><strong>Missing required live configuration</strong><p>${escapeHtml(missing.join(", "))}</p></div>` : ""}
+        ${missing.length ? `<div class="alert danger"><strong>${escapeHtml(l("Missing required live configuration"))}</strong><p>${escapeHtml(missing.join(", "))}</p></div>` : ""}
         <div class="config-grid">
           ${configLine("FOUNDATION_BASE_URL", config.FOUNDATION_BASE_URL)}
           ${configLine("FOUNDATION_HEALTH_URL", config.FOUNDATION_HEALTH_URL)}
@@ -464,25 +483,25 @@ function renderLiveStatusPage(data: AppData, state: RenderState): string {
       <section class="band">
         <div class="section-title">
           <div>
-            <h2>Live Polling</h2>
+            <h2>${escapeHtml(l("Live Polling"))}</h2>
             <p>Polling uses CORS from the browser and does not weaken backend security. Unauthorized and unavailable states are displayed explicitly.</p>
           </div>
-          <button class="button primary" id="refresh-live-status"><i data-lucide="RefreshCw"></i> Refresh Live Status</button>
+          <button class="button primary" id="refresh-live-status"><i data-lucide="RefreshCw"></i> ${escapeHtml(l("Refresh Live Status"))}</button>
         </div>
       </section>
       <section class="band two-column">
         <div>
-          <h2>Foundation Provider</h2>
+          <h2>${escapeHtml(l("Foundation Provider"))}</h2>
           ${statusList(status?.foundation)}
         </div>
         <div>
-          <h2>Service Runtime Endpoints</h2>
+          <h2>${escapeHtml(l("Service Runtime Endpoints"))}</h2>
           ${statusList(status?.services?.slice(0, 18), "No service status has been polled yet.")}
         </div>
       </section>
       ${state.auditAppendResult ? `
         <section class="band">
-          <h2>Audit Append Test Result</h2>
+          <h2>${escapeHtml(l("Audit Append Test Result"))}</h2>
           ${liveResultCard(state.auditAppendResult)}
         </section>
       ` : ""}
@@ -490,10 +509,10 @@ function renderLiveStatusPage(data: AppData, state: RenderState): string {
         <section class="band">
           <div class="section-title">
             <div>
-              <h2>Operator Audit Test</h2>
+              <h2>${escapeHtml(l("Operator Audit Test"))}</h2>
               <p>Sends a safe <code>testOnly: true</code> audit event to Foundation. No PHI is sent.</p>
             </div>
-            <button class="button" id="append-test-audit"><i data-lucide="FileCheck2"></i> Send test audit append</button>
+            <button class="button" id="append-test-audit"><i data-lucide="FileCheck2"></i> ${escapeHtml(l("Send test audit append"))}</button>
           </div>
         </section>
       ` : ""}
@@ -509,7 +528,7 @@ function renderModuleGroupPage(title: string, description: string, modules: Modu
         ${renderModuleTiles(modules, data)}
       </section>
       <section class="band">
-        <h2>Visibility Matrix</h2>
+        <h2>${escapeHtml(l("Visibility Matrix"))}</h2>
         ${renderModuleTable(modules, data)}
       </section>
     </div>
@@ -533,7 +552,7 @@ function renderModuleDetailPage(data: AppData, serviceId: string): string {
       </section>
       <section class="band two-column">
         <div>
-          <h2>How To Use</h2>
+          <h2>${escapeHtml(l("How To Use"))}</h2>
           <p>Start the runtime profile, then open the health, readiness, metrics, and OpenAPI endpoints below. POST operations require valid Foundation authentication and tenant headers in real use.</p>
           <div class="link-list">
             ${linkLine("Health", service.healthUrl)}
@@ -543,7 +562,7 @@ function renderModuleDetailPage(data: AppData, serviceId: string): string {
           </div>
         </div>
         <div>
-          <h2>Safety Boundary</h2>
+          <h2>${escapeHtml(l("Safety Boundary"))}</h2>
           <p>This UI exposes service contracts and release evidence only. It does not perform diagnosis, treatment, autonomous clinical actions, or AI reasoning expansion.</p>
           <ul class="check-list">
             <li><i data-lucide="CheckCircle2"></i> Tenant-aware API contracts</li>
@@ -554,7 +573,7 @@ function renderModuleDetailPage(data: AppData, serviceId: string): string {
       </section>
       ${apiDoc ? renderEndpointPreview(apiDoc.endpoints.slice(0, 8)) : ""}
       <section class="band">
-        <h2>Related Documentation</h2>
+        <h2>${escapeHtml(l("Related Documentation"))}</h2>
         ${renderDocList(docs.slice(0, 8))}
       </section>
     </div>
@@ -599,19 +618,19 @@ function renderApiExplorer(data: AppData, state: RenderState): string {
       <section class="band api-workspace">
         <div class="api-controls">
           <label class="field">
-            <span>Search</span>
-            <input id="api-query" type="search" value="${escapeAttribute(state.apiQuery)}" aria-label="Search endpoint, operation, or service" />
+            <span>${escapeHtml(l("Search"))}</span>
+            <input id="api-query" type="search" value="${escapeAttribute(state.apiQuery)}" aria-label="${escapeAttribute(l("Search endpoint, operation, or service"))}" />
           </label>
           <label class="field">
-            <span>Method</span>
+            <span>${escapeHtml(l("Method"))}</span>
             <select id="api-method">
               ${methods.map((method) => `<option value="${method}" ${method === state.apiMethod ? "selected" : ""}>${method}</option>`).join("")}
             </select>
           </label>
           <label class="field">
-            <span>OpenAPI document</span>
+            <span>${escapeHtml(l("OpenAPI document"))}</span>
             <select id="api-document">
-              <option value="ALL">All documents</option>
+              <option value="ALL">${escapeHtml(l("All documents"))}</option>
               ${data.openApiDocuments.map((document) => `<option value="${escapeAttribute(document.id)}" ${document.id === state.apiDocumentId ? "selected" : ""}>${escapeHtml(document.title)}</option>`).join("")}
             </select>
           </label>
@@ -621,7 +640,7 @@ function renderApiExplorer(data: AppData, state: RenderState): string {
             ${filtered.slice(0, 140).map((endpoint) => endpointRow(endpoint, selected)).join("")}
           </div>
           <aside class="endpoint-detail">
-            ${selected ? endpointDetail(selected) : `<p>No endpoint matches the current filter.</p>`}
+            ${selected ? endpointDetail(selected) : `<p>${escapeHtml(l("No endpoint matches the current filter."))}</p>`}
           </aside>
         </div>
       </section>
@@ -650,7 +669,7 @@ function renderDocumentationCenter(data: AppData, state: RenderState): string {
           `).join("")}
         </div>
         <article class="markdown-panel">
-          ${selected ? markdown(selected.body) : "<p>Select a document.</p>"}
+          ${selected ? markdown(selected.body) : `<p>${escapeHtml(l("Select a document."))}</p>`}
         </article>
       </section>
     </div>
@@ -663,12 +682,12 @@ function renderDemoMode(data: AppData): string {
       ${renderPageHeader("Demo Mode", "The fastest safe way to see Panacea OS without adding new backend behavior.", "Operator demo", "MonitorPlay")}
       <section class="band two-column">
         <div>
-          <h2>Start Local Runtime</h2>
+          <h2>${escapeHtml(l("Start Local Runtime"))}</h2>
           <pre><code>docker compose -f infra/docker-compose/runtime/docker-compose.yml up --build -d</code></pre>
           <p>Then open this web app and the active service OpenAPI URLs. All demo requests should use test tenant values and non-PHI payloads.</p>
         </div>
         <div>
-          <h2>Validate Current Checkout</h2>
+          <h2>${escapeHtml(l("Validate Current Checkout"))}</h2>
           <pre><code>npm run check
 npm run test:run
 npm run openapi
@@ -677,7 +696,7 @@ npm run web:build</code></pre>
         </div>
       </section>
       <section class="band">
-        <h2>Open These First</h2>
+        <h2>${escapeHtml(l("Open These First"))}</h2>
         <div class="endpoint-grid">
           ${data.services.slice(0, 6).map((service) => `
             <article class="endpoint-card">
@@ -704,7 +723,7 @@ function renderReleaseEvidence(data: AppData): string {
         ${metric("Foundation", data.release.foundationProvider, data.foundation.baseUrl, "ShieldCheck", "success")}
       </section>
       <section class="band">
-        <h2>Evidence Documents</h2>
+        <h2>${escapeHtml(l("Evidence Documents"))}</h2>
         <div class="evidence-grid">
           ${data.releaseEvidence.map((item) => evidenceCard(item)).join("")}
         </div>
@@ -719,12 +738,12 @@ function renderDocumentView(document: MarkdownDocument | undefined, fallbackTitl
     <section class="band">
       <div class="section-title">
         <div>
-          <h2>${escapeHtml(document?.title ?? fallbackTitle)}</h2>
-          <p>${escapeHtml(document?.relativePath ?? "Document not found in generated data.")}</p>
+          <h2>${escapeHtml(l(document?.title ?? fallbackTitle))}</h2>
+          <p class="ltr-text" dir="ltr">${escapeHtml(document?.relativePath ?? l("Document not found in generated data."))}</p>
         </div>
       </div>
       <article class="markdown-panel single">
-        ${document ? markdown(document.body) : "<p>The referenced document is not available in this checkout.</p>"}
+        ${document ? markdown(document.body) : `<p>${escapeHtml(l("The referenced document is not available in this checkout."))}</p>`}
       </article>
     </section>
   `;
@@ -734,13 +753,13 @@ function renderPageHeader(title: string, description: string, status: string, ic
   return `
     <section class="page-header">
       <div>
-        <p class="eyebrow">Panacea OS Enterprise</p>
-        <h2>${escapeHtml(title)}</h2>
-        <p>${escapeHtml(description)}</p>
+        <p class="eyebrow">${escapeHtml(l("Panacea OS Enterprise"))}</p>
+        <h2>${escapeHtml(l(title))}</h2>
+        <p>${escapeHtml(l(description))}</p>
       </div>
       <div class="header-status">
         <i data-lucide="${icon}"></i>
-        <span>${escapeHtml(status)}</span>
+        <span>${escapeHtml(l(status))}</span>
       </div>
     </section>
   `;
@@ -754,17 +773,17 @@ function renderModuleTiles(modules: ModuleVisibility[], data: AppData): string {
       return `
         <article class="module-card">
           <div class="module-card-top">
-            <span class="status-pill ${statusClass(module.status)}">${escapeHtml(module.status)}</span>
-            <span>${escapeHtml(module.category)}</span>
+            <span class="status-pill ${statusClass(module.status)}">${escapeHtml(l(module.status))}</span>
+            <span>${escapeHtml(l(module.category))}</span>
           </div>
-          <h3>${escapeHtml(module.title)}</h3>
-          <p>${escapeHtml(module.summary)}</p>
+          <h3>${escapeHtml(l(module.title))}</h3>
+          <p>${escapeHtml(l(module.summary))}</p>
           <div class="module-facts">
-            <span>${module.hasUi ? "UI visible" : "No role UI"}</span>
-            <span>${module.hasApi ? "API" : "Docs"}</span>
-            <span>${module.hasOpenApi ? `${service?.pathCount ?? 0} paths` : "No OpenAPI"}</span>
+            <span>${escapeHtml(l(module.hasUi ? "UI visible" : "No role UI"))}</span>
+            <span>${escapeHtml(l(module.hasApi ? "API" : "Docs"))}</span>
+            <span>${module.hasOpenApi ? `${service?.pathCount ?? 0} ${escapeHtml(l("paths"))}` : escapeHtml(l("No OpenAPI"))}</span>
           </div>
-          <a class="button compact" href="#${module.route}"><i data-lucide="ArrowRight"></i> Open</a>
+          <a class="button compact" href="#${module.route}"><i data-lucide="ArrowRight"></i> ${escapeHtml(l("Open"))}</a>
         </article>
       `;
     }).join("")}
@@ -775,15 +794,15 @@ function renderModuleTable(modules: ModuleVisibility[], data: AppData): string {
   return `
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Platform</th><th>UI</th><th>API</th><th>OpenAPI</th><th>Migration</th><th>Docker</th><th>Tests</th><th>User visible</th></tr></thead>
+        <thead><tr><th>${escapeHtml(l("Platform"))}</th><th>${escapeHtml(l("UI"))}</th><th>${escapeHtml(l("API"))}</th><th>OpenAPI</th><th>${escapeHtml(l("Migration"))}</th><th>Docker</th><th>${escapeHtml(l("Tests"))}</th><th>${escapeHtml(l("User visible"))}</th></tr></thead>
         <tbody>
           ${modules.map((module) => {
             const service = module.serviceId ? data.services.find((item) => item.id === module.serviceId) : undefined;
             return `<tr>
-              <td><strong>${escapeHtml(module.title)}</strong><small>${escapeHtml(module.status)}</small></td>
+              <td><strong>${escapeHtml(l(module.title))}</strong><small>${escapeHtml(l(module.status))}</small></td>
               <td>${yesNo(module.hasUi)}</td>
               <td>${yesNo(module.hasApi)}</td>
-              <td>${yesNo(module.hasOpenApi)}${service ? `<small>${service.pathCount} paths</small>` : ""}</td>
+              <td>${yesNo(module.hasOpenApi)}${service ? `<small>${service.pathCount} ${escapeHtml(l("paths"))}</small>` : ""}</td>
               <td>${yesNo(module.hasDatabaseMigration)}</td>
               <td>${yesNo(module.hasDockerRuntime)}</td>
               <td>${yesNo(module.hasTests)}</td>
@@ -800,14 +819,14 @@ function renderServiceTable(services: ServiceRecord[]): string {
   return `
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Service</th><th>Port</th><th>OpenAPI</th><th>Migration</th><th>Docker</th><th>Kubernetes</th><th>Tests</th></tr></thead>
+        <thead><tr><th>${escapeHtml(l("Service"))}</th><th>${escapeHtml(l("Port"))}</th><th>OpenAPI</th><th>${escapeHtml(l("Migration"))}</th><th>Docker</th><th>Kubernetes</th><th>${escapeHtml(l("Tests"))}</th></tr></thead>
         <tbody>
           ${services.map((service) => `
             <tr>
-              <td><strong>${escapeHtml(service.title)}</strong><small>${escapeHtml(service.apiBase)}</small></td>
+              <td><strong>${escapeHtml(l(service.title))}</strong><small class="ltr-text" dir="ltr">${escapeHtml(service.apiBase)}</small></td>
               <td>${escapeHtml(service.localPort)}</td>
-              <td>${service.hasOpenApi ? `${service.pathCount} paths` : "NO"}<small>${escapeHtml(service.openApiUrl)}</small></td>
-              <td>${service.hasMigration ? "YES" : "NO"}<small>${escapeHtml(service.migrations[0] ?? "")}</small></td>
+              <td>${service.hasOpenApi ? `${service.pathCount} ${escapeHtml(l("paths"))}` : escapeHtml(l("NO"))}<small class="ltr-text" dir="ltr">${escapeHtml(service.openApiUrl)}</small></td>
+              <td>${escapeHtml(l(service.hasMigration ? "YES" : "NO"))}<small class="ltr-text" dir="ltr">${escapeHtml(service.migrations[0] ?? "")}</small></td>
               <td>${yesNo(service.hasDocker)}</td>
               <td>${yesNo(service.hasKubernetes)}</td>
               <td>${service.testFiles}</td>
@@ -824,16 +843,16 @@ function renderEndpointPreview(endpoints: { method: string; path: string; summar
     <section class="band">
       <div class="section-title">
         <div>
-          <h2>Endpoint Preview</h2>
-          <p>Open the API Explorer for filtering, schemas, response codes, and curl generation.</p>
+          <h2>${escapeHtml(l("Endpoint Preview"))}</h2>
+          <p>${escapeHtml(l("Open the API Explorer for filtering, schemas, response codes, and curl generation."))}</p>
         </div>
-        <a class="button compact" href="#/developer/api-explorer"><i data-lucide="Braces"></i> API Explorer</a>
+        <a class="button compact" href="#/developer/api-explorer"><i data-lucide="Braces"></i> ${escapeHtml(l("API Explorer"))}</a>
       </div>
       <div class="endpoint-grid">
         ${endpoints.map((endpoint) => `
           <article class="endpoint-card">
             <span class="method ${endpoint.method.toLowerCase()}">${escapeHtml(endpoint.method)}</span>
-            <h3>${escapeHtml(endpoint.path)}</h3>
+            <h3 class="api-path" dir="ltr">${escapeHtml(endpoint.path)}</h3>
             <p>${escapeHtml(endpoint.summary)}</p>
           </article>
         `).join("")}
@@ -843,13 +862,13 @@ function renderEndpointPreview(endpoints: { method: string; path: string; summar
 }
 
 function renderDocList(documents: MarkdownDocument[]): string {
-  if (!documents.length) return "<p>No related documents found.</p>";
+  if (!documents.length) return `<p>${escapeHtml(l("No related documents found."))}</p>`;
   return `<div class="doc-grid">
     ${documents.map((doc) => `
       <article class="doc-card">
-        <h3>${escapeHtml(doc.title)}</h3>
-        <p>${escapeHtml(doc.excerpt || "Documentation available in repository.")}</p>
-        <code>${escapeHtml(doc.relativePath)}</code>
+        <h3>${escapeHtml(l(doc.title))}</h3>
+        <p>${escapeHtml(l(doc.excerpt || "Documentation available in repository."))}</p>
+        <code dir="ltr">${escapeHtml(doc.relativePath)}</code>
       </article>
     `).join("")}
   </div>`;
@@ -862,7 +881,7 @@ function endpointRow(endpoint: EndpointRecord, selected?: EndpointRecord): strin
     <button class="endpoint-row ${isSelected ? "active" : ""}" data-endpoint-key="${escapeAttribute(key)}">
       <span class="method ${endpoint.method.toLowerCase()}">${escapeHtml(endpoint.method)}</span>
       <span>
-        <strong>${escapeHtml(endpoint.path)}</strong>
+        <strong class="api-path" dir="ltr">${escapeHtml(endpoint.path)}</strong>
         <small>${escapeHtml(endpoint.documentTitle)}</small>
       </span>
     </button>
@@ -872,17 +891,17 @@ function endpointRow(endpoint: EndpointRecord, selected?: EndpointRecord): strin
 function endpointDetail(endpoint: EndpointRecord): string {
   return `
     <h2>${escapeHtml(endpoint.summary)}</h2>
-    <p class="endpoint-path"><span class="method ${endpoint.method.toLowerCase()}">${escapeHtml(endpoint.method)}</span> ${escapeHtml(endpoint.path)}</p>
+    <p class="endpoint-path" dir="ltr"><span class="method ${endpoint.method.toLowerCase()}">${escapeHtml(endpoint.method)}</span> ${escapeHtml(endpoint.path)}</p>
     <dl class="detail-list">
-      <div><dt>Service</dt><dd>${escapeHtml(endpoint.documentTitle)}</dd></div>
-      <div><dt>Version</dt><dd>${escapeHtml(endpoint.documentVersion)}</dd></div>
-      <div><dt>Auth</dt><dd>${endpoint.authRequired ? "Required" : "Public runtime endpoint"}</dd></div>
-      <div><dt>Responses</dt><dd>${escapeHtml(endpoint.responseCodes.join(", ") || "Not specified")}</dd></div>
+      <div><dt>${escapeHtml(l("Service"))}</dt><dd>${escapeHtml(endpoint.documentTitle)}</dd></div>
+      <div><dt>${escapeHtml(l("Version"))}</dt><dd>${escapeHtml(endpoint.documentVersion)}</dd></div>
+      <div><dt>${escapeHtml(l("Auth"))}</dt><dd>${escapeHtml(l(endpoint.authRequired ? "Required" : "Public runtime endpoint"))}</dd></div>
+      <div><dt>${escapeHtml(l("Responses"))}</dt><dd>${escapeHtml(endpoint.responseCodes.join(", ") || l("Not specified"))}</dd></div>
     </dl>
     <h3>curl</h3>
     <pre><code>${escapeHtml(buildCurl(endpoint))}</code></pre>
-    <h3>Request Schema</h3>
-    <pre><code>${escapeHtml(endpoint.requestSchema || "No JSON request body for this operation.")}</code></pre>
+    <h3>${escapeHtml(l("Request Schema"))}</h3>
+    <pre><code>${escapeHtml(endpoint.requestSchema || l("No JSON request body for this operation."))}</code></pre>
   `;
 }
 
@@ -919,11 +938,11 @@ function evidenceCard(item: ReleaseEvidence): string {
   return `
     <article class="doc-card">
       <div class="module-card-top">
-        <span class="status-pill ${item.status === "Available" ? "success" : "warn"}">${escapeHtml(item.status)}</span>
+        <span class="status-pill ${item.status === "Available" ? "success" : "warn"}">${escapeHtml(l(item.status))}</span>
       </div>
-      <h3>${escapeHtml(item.title)}</h3>
-      <p>${escapeHtml(item.excerpt || "Release evidence document.")}</p>
-      <code>${escapeHtml(item.relativePath)}</code>
+      <h3>${escapeHtml(l(item.title))}</h3>
+      <p>${escapeHtml(l(item.excerpt || "Release evidence document."))}</p>
+      <code dir="ltr">${escapeHtml(item.relativePath)}</code>
     </article>
   `;
 }
@@ -933,12 +952,12 @@ function foundationEndpointCard(label: string, url: string, note: string, checks
   return `
     <article class="endpoint-card">
       <div class="module-card-top">
-        <span class="status-pill ${check ? statusClass(check.status) : "neutral"}">${escapeHtml(check?.status ?? "documented")}</span>
+        <span class="status-pill ${check ? statusClass(check.status) : "neutral"}">${escapeHtml(l(check?.status ?? "documented"))}</span>
         <span>${escapeHtml(note)}</span>
       </div>
-      <h3>${escapeHtml(label)}</h3>
-      <p>${escapeHtml(url)}</p>
-      <small>${escapeHtml(check?.detail ?? "Release evidence records this endpoint as validated.")}</small>
+      <h3>${escapeHtml(l(label))}</h3>
+      <p class="ltr-text" dir="ltr">${escapeHtml(url)}</p>
+      <small>${escapeHtml(l(check?.detail ?? "Release evidence records this endpoint as validated."))}</small>
     </article>
   `;
 }
@@ -947,9 +966,9 @@ function releaseFact(label: string, value: string, status: string): string {
   const isUrl = value.startsWith("http");
   return `
     <div class="release-fact">
-      <span>${escapeHtml(label)}</span>
+      <span>${escapeHtml(l(label))}</span>
       ${isUrl ? `<a href="${escapeAttribute(value)}" target="_blank" rel="noreferrer">${escapeHtml(value)}</a>` : `<strong>${escapeHtml(value)}</strong>`}
-      <em>${escapeHtml(status)}</em>
+      <em>${escapeHtml(l(status))}</em>
     </div>
   `;
 }
@@ -964,15 +983,15 @@ function configLine(label: string, value: string): string {
 }
 
 function statusList(items: LiveStatusState["foundation"] | undefined, empty = "No live status has been polled yet."): string {
-  if (!items?.length) return `<div class="empty-state compact"><i data-lucide="WifiOff"></i><p>${escapeHtml(empty)}</p></div>`;
+  if (!items?.length) return `<div class="empty-state compact"><i data-lucide="WifiOff"></i><p>${escapeHtml(l(empty))}</p></div>`;
   return `
     <div class="status-list">
       ${items.map((item) => `
         <article>
-          <span class="status-pill ${statusClass(item.state)}">${escapeHtml(item.state)}</span>
+          <span class="status-pill ${statusClass(item.state)}">${escapeHtml(l(item.state))}</span>
           <div>
-            <strong>${escapeHtml(item.label)}</strong>
-            <a href="${escapeAttribute(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.url)}</a>
+            <strong>${escapeHtml(l(item.label))}</strong>
+            <a class="ltr-text" dir="ltr" href="${escapeAttribute(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.url)}</a>
             <small>${escapeHtml(item.httpStatus ? `HTTP ${item.httpStatus} · ${item.detail}` : item.detail)}</small>
           </div>
         </article>
@@ -986,10 +1005,10 @@ function providerDiscoveryList(discovery: ProviderLoginDiscoveryResult): string 
     <div class="status-list">
       ${discovery.checks.map((check) => `
         <article>
-          <span class="status-pill ${check.status === "available" ? "success" : check.status === "missing" ? "warn" : "danger"}">${escapeHtml(check.status)}</span>
+          <span class="status-pill ${check.status === "available" ? "success" : check.status === "missing" ? "warn" : "danger"}">${escapeHtml(l(check.status))}</span>
           <div>
-            <strong>${escapeHtml(check.label)}</strong>
-            <a href="${escapeAttribute(check.url)}" target="_blank" rel="noreferrer">${escapeHtml(check.url)}</a>
+            <strong>${escapeHtml(l(check.label))}</strong>
+            <a class="ltr-text" dir="ltr" href="${escapeAttribute(check.url)}" target="_blank" rel="noreferrer">${escapeHtml(check.url)}</a>
             <small>${escapeHtml(check.httpStatus ? `HTTP ${check.httpStatus} · ${check.detail}` : check.detail)}</small>
           </div>
         </article>
@@ -1003,7 +1022,7 @@ function allowlistSummaryGrid(summary: Record<BrowserApiClassification, number>)
     <div class="config-grid">
       ${Object.entries(summary).map(([label, value]) => `
         <article class="config-item">
-          <strong>${escapeHtml(label)}</strong>
+          <strong>${escapeHtml(l(label))}</strong>
           <code>${escapeHtml(value)}</code>
         </article>
       `).join("")}
@@ -1015,13 +1034,13 @@ function liveResultCard(result: LiveApiResult): string {
   return `
     <article class="live-result-card">
       <div class="module-card-top">
-        <span class="status-pill ${statusClass(result.state)}">${escapeHtml(result.state)}</span>
-        <span>${escapeHtml(result.httpStatus ? `HTTP ${result.httpStatus}` : "No HTTP status")}</span>
+        <span class="status-pill ${statusClass(result.state)}">${escapeHtml(l(result.state))}</span>
+        <span>${escapeHtml(result.httpStatus ? `HTTP ${result.httpStatus}` : l("No HTTP status"))}</span>
       </div>
-      <h3>${escapeHtml(result.method)} ${escapeHtml(result.url)}</h3>
-      <p>${escapeHtml(result.detail)}</p>
-      ${result.blockedReason ? `<p><strong>Blocked reason:</strong> ${escapeHtml(result.blockedReason)}</p>` : ""}
-      ${result.allowlistClassification ? `<p><strong>Allowlist:</strong> ${escapeHtml(result.allowlistClassification)}</p>` : ""}
+      <h3 class="ltr-text" dir="ltr">${escapeHtml(result.method)} ${escapeHtml(result.url)}</h3>
+      <p>${escapeHtml(l(result.detail))}</p>
+      ${result.blockedReason ? `<p><strong>${escapeHtml(l("Blocked reason:"))}</strong> ${escapeHtml(l(result.blockedReason))}</p>` : ""}
+      ${result.allowlistClassification ? `<p><strong>${escapeHtml(l("Allowlist:"))}</strong> ${escapeHtml(result.allowlistClassification)}</p>` : ""}
       <code>${escapeHtml(result.requestId)}</code>
       ${result.bodyPreview ? `<pre>${escapeHtml(result.bodyPreview)}</pre>` : ""}
     </article>
@@ -1033,25 +1052,25 @@ function metric(label: string, value: string, detail: string, icon: string, tone
     <article class="metric-card ${tone}">
       <i data-lucide="${icon}"></i>
       <div>
-        <span>${escapeHtml(label)}</span>
-        <strong>${escapeHtml(value)}</strong>
-        <small>${escapeHtml(detail)}</small>
+        <span>${escapeHtml(l(label))}</span>
+        <strong>${escapeHtml(l(value))}</strong>
+        <small>${escapeHtml(l(detail))}</small>
       </div>
     </article>
   `;
 }
 
 function linkLine(label: string, url: string): string {
-  if (!url) return `<p class="link-line"><strong>${escapeHtml(label)}</strong><span>Not available</span></p>`;
-  return `<p class="link-line"><strong>${escapeHtml(label)}</strong><a href="${escapeAttribute(url)}" target="_blank" rel="noreferrer">${escapeHtml(url)}</a></p>`;
+  if (!url) return `<p class="link-line"><strong>${escapeHtml(l(label))}</strong><span>${escapeHtml(l("Not available"))}</span></p>`;
+  return `<p class="link-line"><strong>${escapeHtml(l(label))}</strong><a class="ltr-text" dir="ltr" href="${escapeAttribute(url)}" target="_blank" rel="noreferrer">${escapeHtml(url)}</a></p>`;
 }
 
 function requiredLabel(required: boolean): string {
-  return required ? "Required" : "Optional";
+  return required ? l("Required") : l("Optional");
 }
 
 function yesNo(value: boolean): string {
-  return `<span class="yes-no ${value ? "yes" : "no"}">${value ? "YES" : "NO"}</span>`;
+  return `<span class="yes-no ${value ? "yes" : "no"}">${escapeHtml(l(value ? "YES" : "NO"))}</span>`;
 }
 
 function statusClass(status: string): string {
@@ -1064,7 +1083,7 @@ function statusClass(status: string): string {
 }
 
 function pageTitle(route: string): string {
-  const roleTitle = rolePageTitle(route);
+  const roleTitle = rolePageTitle(route, activeLocale);
   if (roleTitle) return roleTitle;
   const item = navSections.flatMap((section) => section.items).find((navItem) => navItem.route === route);
   return item?.label ?? "Executive Overview";

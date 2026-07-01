@@ -12,6 +12,24 @@ Important: the platform is still hybrid. Role workspaces can show runtime/OpenAP
 
 The deployed `https://foundation.utbe.ai` provider still needs remote routing updates for HEAD, OpenID discovery, auth, audit preflight, and policy preflight. Repository-local provider tests pass for those behaviors.
 
+## Sprint 109 Arabic Localization Update
+
+Panacea OS now supports bilingual web operation:
+
+- English: left-to-right.
+- Arabic: right-to-left.
+
+Use the language selector in the top navigation and choose `العربية`. The selection persists after reload through browser local storage.
+
+Arabic mode translates the sidebar, top navigation, status labels, role workspaces, API Explorer controls, demo safety labels, and clinical advisory labels. API paths, URLs, service IDs, cURL commands, code blocks, and English markdown bodies remain English/LTR by design.
+
+Arabic guides:
+
+- `docs/user-guides/Arabic_UI_Guide.md`
+- `docs/user-guides/Localization_Guide.md`
+- `docs/user-guides/RTL_Layout_Guide.md`
+- `docs/user-guides/Arabic_Medical_Terminology_Guide.md`
+
 ## 1. How do I use Panacea OS today?
 
 Use the web platform first:
@@ -37,6 +55,8 @@ Use the **Demo Role Switcher** to open:
 - Pharmacy Workspace.
 - Administration Workspace.
 - Operator dashboard.
+
+Use the **Language** selector to switch between English and Arabic.
 
 To test authenticated Live Mode, open:
 

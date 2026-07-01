@@ -1,13 +1,22 @@
 import { pageFromRoute, roleDefaultRoute, roleWorkspaces, workspaceFromRoute } from "./roleWorkspaces";
+import { translate, type Locale } from "./locales";
 import type { AppData, AuthSession, DataMode, LiveWorkspaceState, RoleMetric, RolePageDefinition, RolePanel, RoleWorkspaceDefinition } from "./types";
 
 export interface RoleRenderContext {
   mode: DataMode;
   session?: AuthSession;
   workspaceState?: LiveWorkspaceState;
+  locale?: Locale;
+}
+
+let activeLocale: Locale = "en";
+
+function l(value: string | number | undefined): string {
+  return translate(activeLocale, value);
 }
 
 export function renderRoleWorkspace(data: AppData, route: string, context: RoleRenderContext = { mode: "demo" }): string {
+  activeLocale = context.locale ?? "en";
   const workspace = workspaceFromRoute(route) ?? roleWorkspaces[0];
   const page = pageFromRoute(route) ?? workspace.pages[0];
   const serviceSources = workspace.serviceIds
@@ -34,11 +43,11 @@ export function renderRoleWorkspace(data: AppData, route: string, context: RoleR
   `;
 }
 
-export function rolePageTitle(route: string): string | undefined {
+export function rolePageTitle(route: string, locale: Locale = "en"): string | undefined {
   const workspace = workspaceFromRoute(route);
   const page = pageFromRoute(route);
   if (!workspace) return undefined;
-  return page ? `${workspace.label}: ${page.label}` : workspace.title;
+  return page ? `${translate(locale, workspace.label)}: ${translate(locale, page.label)}` : translate(locale, workspace.title);
 }
 
 function roleHeader(workspace: RoleWorkspaceDefinition, page: RolePageDefinition, serviceCount: number, docCount: number, context: RoleRenderContext): string {
@@ -46,18 +55,18 @@ function roleHeader(workspace: RoleWorkspaceDefinition, page: RolePageDefinition
   return `
     <section class="page-header role-hero">
       <div>
-        <p class="eyebrow">${escapeHtml(workspace.label)} Workspace</p>
-        <h2>${escapeHtml(page.label)}</h2>
-        <p>${escapeHtml(page.description)}</p>
+        <p class="eyebrow">${escapeHtml(l(workspace.label))} ${escapeHtml(l("Workspace"))}</p>
+        <h2>${escapeHtml(l(page.label))}</h2>
+        <p>${escapeHtml(l(page.description))}</p>
         <div class="role-hero-facts">
-          <span><i data-lucide="Database"></i>${serviceCount} active source service(s)</span>
-          <span><i data-lucide="BookOpen"></i>${docCount} related document(s)</span>
-          <span><i data-lucide="ShieldCheck"></i>${escapeHtml(workspace.boundary)}</span>
+          <span><i data-lucide="Database"></i>${serviceCount} ${escapeHtml(l("active source service(s)"))}</span>
+          <span><i data-lucide="BookOpen"></i>${docCount} ${escapeHtml(l("related document(s)"))}</span>
+          <span><i data-lucide="ShieldCheck"></i>${escapeHtml(l(workspace.boundary))}</span>
         </div>
       </div>
       <div class="header-status">
         <i data-lucide="${workspace.icon}"></i>
-        <span>${escapeHtml(connection.label)}</span>
+        <span>${escapeHtml(l(connection.label))}</span>
       </div>
     </section>
   `;
@@ -65,19 +74,19 @@ function roleHeader(workspace: RoleWorkspaceDefinition, page: RolePageDefinition
 
 function roleNavigation(workspace: RoleWorkspaceDefinition, activePage: RolePageDefinition): string {
   return `
-    <aside class="role-nav" aria-label="${escapeAttribute(workspace.label)} workspace navigation">
+    <aside class="role-nav" aria-label="${escapeAttribute(l(workspace.label))} ${escapeAttribute(l("workspace navigation"))}">
       <div class="role-nav-title">
         <i data-lucide="${workspace.icon}"></i>
         <div>
-          <strong>${escapeHtml(workspace.title)}</strong>
-          <span>${escapeHtml(workspace.audience)}</span>
+          <strong>${escapeHtml(l(workspace.title))}</strong>
+          <span>${escapeHtml(l(workspace.audience))}</span>
         </div>
       </div>
       <nav>
         ${workspace.pages.map((page) => `
           <a class="${page.id === activePage.id ? "active" : ""}" href="#${page.route}">
             <i data-lucide="${page.icon}"></i>
-            <span>${escapeHtml(page.label)}</span>
+            <span>${escapeHtml(l(page.label))}</span>
           </a>
         `).join("")}
       </nav>
@@ -91,8 +100,8 @@ function modeNotice(workspace: RoleWorkspaceDefinition, context: RoleRenderConte
       <section class="demo-notice live">
         <i data-lucide="ShieldCheck"></i>
         <div>
-          <strong>LIVE MODE -- AUTHENTICATED READ-ONLY SESSION</strong>
-          <p>User ${escapeHtml(context.session.displayName)} is scoped to role ${escapeHtml(context.session.role)} and tenant ${escapeHtml(context.session.tenantId)}. Demo role switching is disabled for this session.</p>
+          <strong>${escapeHtml(l("LIVE MODE -- AUTHENTICATED READ-ONLY SESSION"))}</strong>
+          <p>${escapeHtml(l("User"))} ${escapeHtml(context.session.displayName)} ${escapeHtml(l("is scoped to role"))} ${escapeHtml(l(context.session.role))} ${escapeHtml(l("and tenant"))} ${escapeHtml(context.session.tenantId)}. ${escapeHtml(l("Demo role switching is disabled for this session."))}</p>
         </div>
       </section>
     `;
@@ -101,8 +110,8 @@ function modeNotice(workspace: RoleWorkspaceDefinition, context: RoleRenderConte
     <section class="demo-notice">
       <i data-lucide="Info"></i>
       <div>
-        <strong>DEMO DATA -- NOT REAL PATIENT DATA</strong>
-        <p>${escapeHtml(workspace.dataMode)} Demo Role Switcher is for presentation only and does not bypass real security in production.</p>
+        <strong>${escapeHtml(l("DEMO DATA -- NOT REAL PATIENT DATA"))}</strong>
+        <p>${escapeHtml(l(workspace.dataMode))} ${escapeHtml(l("Demo Role Switcher is for presentation only and does not bypass real security in production."))}</p>
       </div>
     </section>
   `;
@@ -115,11 +124,11 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
       <section class="band live-connection">
         <div class="section-title">
           <div>
-            <h2>Live Data Connection</h2>
-            <p>Data source: ${escapeHtml(page.source)}. Demo Mode is active. Open Foundation Login and provide a valid JWT to execute read-only API checks.</p>
+            <h2>${escapeHtml(l("Live Data Connection"))}</h2>
+            <p>${escapeHtml(l("Data source:"))} ${escapeHtml(l(page.source))}. ${escapeHtml(l("Demo Mode is active. Open Foundation Login and provide a valid JWT to execute read-only API checks."))}</p>
           </div>
-          <span class="status-pill ${connection.className}">${escapeHtml(connection.label)}</span>
-          <a class="button compact" href="#/auth/login"><i data-lucide="KeyRound"></i> Foundation Login</a>
+          <span class="status-pill ${connection.className}">${escapeHtml(l(connection.label))}</span>
+          <a class="button compact" href="#/auth/login"><i data-lucide="KeyRound"></i> ${escapeHtml(l("Foundation Login"))}</a>
         </div>
       </section>
     `;
@@ -130,10 +139,10 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
       <section class="band live-connection">
         <div class="section-title">
           <div>
-            <h2>Live Data Connection</h2>
-            <p>Data source: ${escapeHtml(page.source)}. Waiting for read-only API evaluation for this workspace page.</p>
+            <h2>${escapeHtml(l("Live Data Connection"))}</h2>
+            <p>${escapeHtml(l("Data source:"))} ${escapeHtml(l(page.source))}. ${escapeHtml(l("Waiting for read-only API evaluation for this workspace page."))}</p>
           </div>
-          <span class="status-pill ${connection.className}">${escapeHtml(connection.label)}</span>
+          <span class="status-pill ${connection.className}">${escapeHtml(l(connection.label))}</span>
         </div>
       </section>
     `;
@@ -142,29 +151,29 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
     <section class="band live-connection">
       <div class="section-title">
           <div>
-            <h2>Live Data Connection</h2>
-            <p>Data source: ${escapeHtml(page.source)}. ${escapeHtml(state.endpoint.reason)}</p>
+            <h2>${escapeHtml(l("Live Data Connection"))}</h2>
+            <p>${escapeHtml(l("Data source:"))} ${escapeHtml(l(page.source))}. ${escapeHtml(l(state.endpoint.reason))}</p>
         </div>
-        <span class="status-pill ${connection.className}">${escapeHtml(connection.label)}</span>
+        <span class="status-pill ${connection.className}">${escapeHtml(l(connection.label))}</span>
       </div>
       <div class="role-source-grid">
         <div class="source-list">
           <article>
-            <strong>${escapeHtml(state.endpoint.label)}</strong>
-            <span>${escapeHtml(state.endpoint.url || "Live API unavailable")}</span>
-            <span>${escapeHtml(state.endpoint.source)}</span>
+            <strong>${escapeHtml(l(state.endpoint.label))}</strong>
+            <span class="ltr-text" dir="ltr">${escapeHtml(state.endpoint.url || l("Live API unavailable"))}</span>
+            <span class="ltr-text" dir="ltr">${escapeHtml(state.endpoint.source)}</span>
           </article>
         </div>
         <div class="source-list">
           ${state.result ? `
             <article>
               <strong>${escapeHtml(state.result.httpStatus ? `HTTP ${state.result.httpStatus}` : state.result.state)}</strong>
-              <span>${escapeHtml(state.result.detail)}</span>
-              ${state.result.blockedReason ? `<span>${escapeHtml(state.result.blockedReason)}</span>` : ""}
+              <span>${escapeHtml(l(state.result.detail))}</span>
+              ${state.result.blockedReason ? `<span>${escapeHtml(l(state.result.blockedReason))}</span>` : ""}
               ${state.result.allowlistClassification ? `<span>${escapeHtml(state.result.allowlistClassification)}</span>` : ""}
-              <span>${escapeHtml(state.result.requestId)}</span>
+              <span class="ltr-text" dir="ltr">${escapeHtml(state.result.requestId)}</span>
             </article>
-          ` : `<article><strong>No response yet</strong><span>Refresh or navigate to retry read-only API execution.</span></article>`}
+          ` : `<article><strong>${escapeHtml(l("No response yet"))}</strong><span>${escapeHtml(l("Refresh or navigate to retry read-only API execution."))}</span></article>`}
         </div>
       </div>
       ${state.auditAction ? auditAction(state.auditAction) : ""}
@@ -179,9 +188,9 @@ function roleMetrics(page: RolePageDefinition): string {
         <article class="metric-card ${metric.tone}">
           <i data-lucide="${metricIcon(metric)}"></i>
           <div>
-            <span>${escapeHtml(metric.label)}</span>
-            <strong>${escapeHtml(metric.value)}</strong>
-            <small>${escapeHtml(metric.detail)}</small>
+            <span>${escapeHtml(l(metric.label))}</span>
+            <strong>${escapeHtml(l(metric.value))}</strong>
+            <small>${escapeHtml(l(metric.detail))}</small>
           </div>
         </article>
       `).join("")}
@@ -195,18 +204,18 @@ function roleMainPanels(workspace: RoleWorkspaceDefinition, page: RolePageDefini
       <article class="band role-detail-panel">
         <div class="section-title">
           <div>
-            <h2>${escapeHtml(page.label)} Detail</h2>
-            <p>${escapeHtml(page.safetyNote)}</p>
-          </div>
-          <span class="status-pill warn">Read-only</span>
+          <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Detail"))}</h2>
+          <p>${escapeHtml(l(page.safetyNote))}</p>
+        </div>
+          <span class="status-pill warn">${escapeHtml(l("Read-only"))}</span>
         </div>
         <div class="role-panel-grid">
           ${page.panels.map((panel) => rolePanel(panel)).join("")}
         </div>
       </article>
       <article class="band">
-        <h2>Workspace Readiness</h2>
-        <p>${escapeHtml(workspace.summary)}</p>
+        <h2>${escapeHtml(l("Workspace Readiness"))}</h2>
+        <p>${escapeHtml(l(workspace.summary))}</p>
         <div class="bar-list">
           ${page.chart.map((item) => chartBar(item)).join("")}
         </div>
@@ -218,9 +227,9 @@ function roleMainPanels(workspace: RoleWorkspaceDefinition, page: RolePageDefini
 function rolePanel(panel: RolePanel): string {
   return `
     <div class="role-panel">
-      <span class="status-pill ${statusClass(panel.status)}">${escapeHtml(panel.status)}</span>
-      <h3>${escapeHtml(panel.title)}</h3>
-      <p>${escapeHtml(panel.detail)}</p>
+      <span class="status-pill ${statusClass(panel.status)}">${escapeHtml(l(panel.status))}</span>
+      <h3>${escapeHtml(l(panel.title))}</h3>
+      <p>${escapeHtml(l(panel.detail))}</p>
     </div>
   `;
 }
@@ -230,15 +239,15 @@ function roleWorkflow(page: RolePageDefinition): string {
     <section class="band">
       <div class="section-title">
         <div>
-          <h2>Workflow Timeline</h2>
-          <p>Workflow visualization uses documented/API-backed state. Live execution is unavailable in this UI sprint.</p>
+          <h2>${escapeHtml(l("Workflow Timeline"))}</h2>
+          <p>${escapeHtml(l("Workflow visualization uses documented/API-backed state. Live execution is unavailable in this UI sprint."))}</p>
         </div>
       </div>
       <ol class="timeline">
         ${page.workflow.map((step, index) => `
           <li>
             <span>${index + 1}</span>
-            <p>${escapeHtml(step)}</p>
+            <p>${escapeHtml(l(step))}</p>
           </li>
         `).join("")}
       </ol>
@@ -252,14 +261,14 @@ function roleTable(page: RolePageDefinition, mode: DataMode): string {
       <section class="band">
         <div class="section-title">
           <div>
-            <h2>${escapeHtml(page.label)} Worklist</h2>
-            <p>Demo rows are hidden in Live Mode. Real records appear only when an existing authenticated read-only API returns data.</p>
+            <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Worklist"))}</h2>
+            <p>${escapeHtml(l("Demo rows are hidden in Live Mode. Real records appear only when an existing authenticated read-only API returns data."))}</p>
           </div>
-          <span class="status-pill warn">LIVE API UNAVAILABLE</span>
+          <span class="status-pill warn">${escapeHtml(l("LIVE API UNAVAILABLE"))}</span>
         </div>
         <div class="empty-state compact">
           <i data-lucide="DatabaseZap"></i>
-          <p>No live records are displayed for this workspace page.</p>
+          <p>${escapeHtml(l("No live records are displayed for this workspace page."))}</p>
         </div>
       </section>
     `;
@@ -268,18 +277,18 @@ function roleTable(page: RolePageDefinition, mode: DataMode): string {
     <section class="band">
       <div class="section-title">
         <div>
-          <h2>${escapeHtml(page.label)} Worklist</h2>
-          <p>Rows are UI-state examples and source labels only, not real patient records.</p>
+          <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Worklist"))}</h2>
+          <p>${escapeHtml(l("Rows are UI-state examples and source labels only, not real patient records."))}</p>
         </div>
-        <span class="status-pill warn">Live data unavailable</span>
+        <span class="status-pill warn">${escapeHtml(l("Live data unavailable"))}</span>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
-            <tr>${page.table.columns.map((column) => `<th>${escapeHtml(column)}</th>`).join("")}</tr>
+            <tr>${page.table.columns.map((column) => `<th>${escapeHtml(l(column))}</th>`).join("")}</tr>
           </thead>
           <tbody>
-            ${page.table.rows.map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`).join("")}
+            ${page.table.rows.map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(l(cell))}</td>`).join("")}</tr>`).join("")}
           </tbody>
         </table>
       </div>
@@ -290,12 +299,12 @@ function roleTable(page: RolePageDefinition, mode: DataMode): string {
 function auditAction(action: NonNullable<LiveWorkspaceState["auditAction"]>): string {
   return `
     <div class="audit-strip">
-      <span><strong>User</strong>${escapeHtml(action.user)}</span>
-      <span><strong>Role</strong>${escapeHtml(action.role)}</span>
-      <span><strong>Tenant</strong>${escapeHtml(action.tenant)}</span>
-      <span><strong>Request</strong>${escapeHtml(action.requestId)}</span>
-      <span><strong>Status</strong>${escapeHtml(action.status)}</span>
-      <span><strong>Time</strong>${escapeHtml(action.timestamp)}</span>
+      <span><strong>${escapeHtml(l("User"))}</strong>${escapeHtml(action.user)}</span>
+      <span><strong>${escapeHtml(l("Role"))}</strong>${escapeHtml(l(action.role))}</span>
+      <span><strong>${escapeHtml(l("Tenant"))}</strong>${escapeHtml(action.tenant)}</span>
+      <span><strong>${escapeHtml(l("Request"))}</strong>${escapeHtml(action.requestId)}</span>
+      <span><strong>${escapeHtml(l("Status"))}</strong>${escapeHtml(l(action.status))}</span>
+      <span><strong>${escapeHtml(l("Time"))}</strong>${escapeHtml(action.timestamp)}</span>
     </div>
   `;
 }
@@ -310,32 +319,32 @@ function roleSourceSection(data: AppData, workspace: RoleWorkspaceDefinition, se
     <section class="band">
       <div class="section-title">
         <div>
-          <h2>API And Documentation Sources</h2>
-          <p>${escapeHtml(workspace.dataMode)}</p>
+          <h2>${escapeHtml(l("API And Documentation Sources"))}</h2>
+          <p>${escapeHtml(l(workspace.dataMode))}</p>
         </div>
-        <a class="button compact" href="#/developer/api-explorer"><i data-lucide="Braces"></i> API Explorer</a>
+        <a class="button compact" href="#/developer/api-explorer"><i data-lucide="Braces"></i> ${escapeHtml(l("API Explorer"))}</a>
       </div>
       <div class="role-source-grid">
         <div>
-          <h3>OpenAPI-backed services</h3>
+          <h3>${escapeHtml(l("OpenAPI-backed services"))}</h3>
           <div class="source-list">
             ${serviceSources.length ? serviceSources.map((service) => `
               <article>
-                <strong>${escapeHtml(service.title)}</strong>
-                <span>${escapeHtml(service.apiBase)} · ${service.pathCount} paths · port ${escapeHtml(service.localPort)}</span>
+                <strong>${escapeHtml(l(service.title))}</strong>
+                <span class="ltr-text" dir="ltr">${escapeHtml(service.apiBase)} · ${service.pathCount} ${escapeHtml(l("paths"))} · ${escapeHtml(l("port"))} ${escapeHtml(service.localPort)}</span>
               </article>
-            `).join("") : `<article><strong>No active service mapped</strong><span>Coverage is documentation-backed in this checkout.</span></article>`}
+            `).join("") : `<article><strong>${escapeHtml(l("No active service mapped"))}</strong><span>${escapeHtml(l("Coverage is documentation-backed in this checkout."))}</span></article>`}
           </div>
         </div>
         <div>
-          <h3>Related documents</h3>
+          <h3>${escapeHtml(l("Related documents"))}</h3>
           <div class="source-list">
             ${docs.length ? docs.map((doc) => `
               <article>
-                <strong>${escapeHtml(doc.title)}</strong>
-                <span>${escapeHtml(doc.relativePath)}</span>
+                <strong>${escapeHtml(l(doc.title))}</strong>
+                <span class="ltr-text" dir="ltr">${escapeHtml(doc.relativePath)}</span>
               </article>
-            `).join("") : `<article><strong>No matching document found</strong><span>Review Documentation Center for all available docs.</span></article>`}
+            `).join("") : `<article><strong>${escapeHtml(l("No matching document found"))}</strong><span>${escapeHtml(l("Review Documentation Center for all available docs."))}</span></article>`}
           </div>
         </div>
       </div>
@@ -349,8 +358,8 @@ function chartBar(metric: RoleMetric): string {
   return `
     <div class="bar-row">
       <div>
-        <strong>${escapeHtml(metric.label)}</strong>
-        <span>${escapeHtml(metric.detail)}</span>
+        <strong>${escapeHtml(l(metric.label))}</strong>
+        <span>${escapeHtml(l(metric.detail))}</span>
       </div>
       <div class="bar-track" aria-label="${escapeAttribute(metric.label)} ${width}%">
         <span class="${metric.tone}" style="width:${width}%"></span>

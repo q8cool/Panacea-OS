@@ -23,6 +23,7 @@ http://localhost:5174
    - Show active service count.
    - Show OpenAPI and test evidence.
    - Show Foundation Provider status.
+   - Switch the language selector from English to `العربية` and show the RTL layout.
 
 2. **Demo Role Switcher**
    - Select Doctor, Patient, Laboratory User, Radiology User, Pharmacist, Administrator, and Operator.
@@ -68,6 +69,7 @@ http://localhost:5174
    - Filter by `GET`.
    - Open an endpoint detail panel.
    - Copy the generated safe curl command.
+   - In Arabic mode, point out that labels are Arabic while API paths, URLs, and cURL remain LTR.
 
 12. **Release Evidence**
    - Show official closure, CI, validation, Foundation Provider, and tag evidence.
@@ -81,6 +83,7 @@ http://localhost:5174
 - Do not claim Live Mode is active unless a Foundation-issued JWT validates.
 - Do not claim unavailable browser APIs returned real records.
 - Keep all clinical and AI workflows advisory and governed.
+- Do not claim English markdown documents are automatically translated. The UI controls are localized; technical documents remain in their authored language.
 
 ## Backend Demo Add-On
 

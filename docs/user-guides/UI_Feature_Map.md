@@ -4,6 +4,8 @@
 
 Panacea OS v4.0 now includes a professional operator platform and role-based user workspaces in `apps/panacea-web`.
 
+Sprint 109 adds bilingual English/Arabic UI support, a persistent language selector, and RTL layout for Arabic. Technical artifacts such as API paths, URLs, cURL commands, service IDs, and markdown document bodies remain English/LTR by design.
+
 | UI area | Route | Active now | Backing evidence |
 |---|---|---:|---|
 | Executive Overview | `#/command/executive-overview` | YES | Release docs, service inventory, OpenAPI docs |
@@ -27,6 +29,18 @@ Panacea OS v4.0 now includes a professional operator platform and role-based use
 | Release Evidence | `#/evidence/release` | YES | `docs/releases/v4.0.0/` |
 | Legacy Coverage | `#/evidence/legacy-coverage` | YES | Legacy coverage matrix |
 | User Journeys | `#/evidence/user-journeys` | YES | User journey map |
+
+## Localization Visibility
+
+| UI area | Arabic visible? | RTL applied? | Technical LTR preserved? |
+|---|---:|---:|---:|
+| Sidebar and top navigation | YES | YES | YES |
+| Command Center pages | YES | YES | YES |
+| Role workspaces | YES | YES | YES |
+| API Explorer controls | YES | YES | YES |
+| API paths and cURL | Not translated | Isolated LTR | YES |
+| Documentation Center controls | YES | YES | YES |
+| Markdown document body | Authored language | Preserved | YES |
 
 ## Role Workspace Pages
 

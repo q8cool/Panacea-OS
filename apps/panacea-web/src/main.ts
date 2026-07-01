@@ -10,6 +10,7 @@ import { appendOperatorAuditTest, executeReadOnlyRequest, findReadOnlyEndpoint, 
 import { initialState, renderApp, type RenderState } from "./render";
 import { isRoleRoute } from "./roleRender";
 import { pageFromRoute, roleDefaultRoute, workspaceFromRoute } from "./roleWorkspaces";
+import { localeDirection, normalizeLocale } from "./locales";
 import type { AppData } from "./types";
 import { buildWebConfig } from "./webConfig";
 
@@ -21,7 +22,7 @@ let liveWorkspaceInFlight = false;
 let state: RenderState = {
   ...initialState,
   theme: (localStorage.getItem("panacea-theme") as RenderState["theme"]) || "light",
-  language: (localStorage.getItem("panacea-language") as RenderState["language"]) || "en",
+  language: normalizeLocale(localStorage.getItem("panacea-language")),
   selectedRole: (localStorage.getItem("panacea-demo-role") as RenderState["selectedRole"]) || "operator",
   authSession: restoreSession()
 };
@@ -43,6 +44,9 @@ async function bootstrap() {
 function render() {
   if (!root) return;
   const route = currentRoute();
+  document.documentElement.lang = state.language;
+  document.documentElement.dir = localeDirection(state.language);
+  document.title = state.language === "ar" ? "باناسيا أو إس" : "Panacea OS";
   root.innerHTML = renderApp(data, route, state);
   bindEvents();
   createIcons({ icons });
@@ -66,8 +70,8 @@ function bindEvents() {
     render();
   });
 
-  document.querySelector<HTMLButtonElement>("#language-toggle")?.addEventListener("click", () => {
-    state = { ...state, language: state.language === "en" ? "ar" : "en" };
+  document.querySelector<HTMLSelectElement>("#language-toggle")?.addEventListener("change", (event) => {
+    state = { ...state, language: normalizeLocale((event.target as HTMLSelectElement).value) };
     localStorage.setItem("panacea-language", state.language);
     render();
   });
