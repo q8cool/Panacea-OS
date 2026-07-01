@@ -139,6 +139,12 @@ test("external pilot deployment artifacts are present and versioned", () => {
     "docs/operations/External_Pilot_Route_Verification_Template.md",
     "docs/user-guides/Pilot_Rollback_And_Recovery_Runbook.md",
     "docs/roadmap/Sprint_118_External_Server_Deployment_Go_Live_Report.md",
+    "docs/user-guides/Real_Server_Deployment_Execution_Checklist.md",
+    "docs/operations/Real_Server_Deployment_Evidence_Template.md",
+    "docs/operations/External_Health_Verification_Commands.md",
+    "docs/user-guides/Pilot_Operator_Acceptance_Checklist.md",
+    "docs/user-guides/Clinical_And_Legal_Boundary_Statement.md",
+    "docs/roadmap/Sprint_119_Real_Server_Deployment_Execution_Report.md",
     "docs/operations/Pilot_Service_Health_Matrix.json"
   ];
   for (const artifact of required) {
