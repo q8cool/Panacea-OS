@@ -10,6 +10,11 @@ import {
   requiredEvents
 } from "../domain/command-domain.mjs";
 import { readModelDefinitions, readModelPermission } from "../domain/read-models.mjs";
+import {
+  requiredWriteWorkflowEvents,
+  writeWorkflowDefinitions,
+  writeWorkflowPermission
+} from "../domain/write-workflows.mjs";
 import { routeDefinitions } from "./routes.mjs";
 
 function schemaRef(name) {
@@ -89,6 +94,43 @@ function createReadModelPath(definition) {
   };
 }
 
+function createWriteWorkflowPath(definition) {
+  const pathParameters = [...definition.path.matchAll(/\{([^}]+)\}/g)].map((match) => ({
+    name: match[1],
+    in: "path",
+    required: true,
+    schema: { type: "string", minLength: 1 },
+    description: `Write workflow ${match[1]} selector.`
+  }));
+  return {
+    post: {
+      tags: ["live_write_workflows"],
+      operationId: definition.operationId,
+      summary: definition.summary,
+      description: "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+      security: [{ bearerAuth: [] }, { tenantHeaders: [] }],
+      parameters: pathParameters,
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: schemaRef("WriteWorkflowCreate")
+          }
+        }
+      },
+      responses: {
+        "201": {
+          description: "Live write workflow persisted and event queued",
+          content: { "application/json": { schema: schemaRef("WriteWorkflowResponse") } }
+        },
+        "400": { description: "Validation failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } },
+        "401": { description: "Authentication failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } },
+        "403": { description: "Authorization failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } }
+      }
+    }
+  };
+}
+
 export function buildOpenApiDocument() {
   const paths = {
     [`${API_BASE_PATH}/live`]: {
@@ -130,6 +172,9 @@ export function buildOpenApiDocument() {
   for (const definition of readModelDefinitions) {
     paths[`${API_BASE_PATH}${definition.path}`] = createReadModelPath(definition);
   }
+  for (const definition of writeWorkflowDefinitions) {
+    paths[`${API_BASE_PATH}${definition.path}`] = createWriteWorkflowPath(definition);
+  }
   paths[`${API_BASE_PATH}/integrations/references`] = {
     post: {
       tags: ["Integrations"],
@@ -170,7 +215,8 @@ export function buildOpenApiDocument() {
       { name: "crisis_emergency_coordination" },
       { name: "command_decision_support" },
       { name: "executive_intelligence" },
-      { name: "live_read_models" }
+      { name: "live_read_models" },
+      { name: "live_write_workflows" }
     ],
     paths,
     components: {
@@ -305,6 +351,79 @@ export function buildOpenApiDocument() {
             data: schemaRef("ReadModelList")
           }
         },
+        WriteWorkflowControls: {
+          type: "object",
+          additionalProperties: false,
+          required: [
+            "liveMode",
+            "demoData",
+            "auditRequired",
+            "tenantIsolationConfirmed",
+            "humanUserConfirmed",
+            "noAutonomousDiagnosis",
+            "noAutonomousTreatment",
+            "noAiGeneratedClinicalDecision"
+          ],
+          properties: {
+            liveMode: { type: "boolean", enum: [true] },
+            demoData: { type: "boolean", enum: [false] },
+            auditRequired: { type: "boolean", enum: [true] },
+            tenantIsolationConfirmed: { type: "boolean", enum: [true] },
+            humanUserConfirmed: { type: "boolean", enum: [true] },
+            noAutonomousDiagnosis: { type: "boolean", enum: [true] },
+            noAutonomousTreatment: { type: "boolean", enum: [true] },
+            noAiGeneratedClinicalDecision: { type: "boolean", enum: [true] },
+            patientClinicalRecordModificationBlocked: { type: "boolean" },
+            documentedMedicationSafetyRulesApplied: { type: "boolean" },
+            sourceBoundary: { type: "string" }
+          }
+        },
+        WriteWorkflowCreate: {
+          type: "object",
+          additionalProperties: false,
+          required: ["tenantId", "payload", "workflowControls"],
+          properties: {
+            tenantId: { type: "string" },
+            subjectId: { type: "string" },
+            title: { type: "string" },
+            reason: { type: "string" },
+            idempotencyKey: { type: "string" },
+            payload: { type: "object", additionalProperties: true },
+            workflowControls: schemaRef("WriteWorkflowControls"),
+            requestContext: { type: "object", additionalProperties: true }
+          }
+        },
+        WriteWorkflowRecord: {
+          type: "object",
+          required: ["id", "tenantId", "workflowGroup", "workflowKey", "eventType", "status", "payload", "workflowControls", "createdBy", "createdAt"],
+          properties: {
+            id: { type: "string" },
+            tenantId: { type: "string" },
+            workflowGroup: { type: "string" },
+            workflowKey: { type: "string" },
+            eventType: { type: "string", enum: requiredWriteWorkflowEvents() },
+            subjectId: { type: "string" },
+            status: { type: "string", enum: ["accepted"] },
+            title: { type: "string" },
+            reason: { type: "string" },
+            idempotencyKey: { type: "string" },
+            payload: { type: "object", additionalProperties: true },
+            workflowControls: schemaRef("WriteWorkflowControls"),
+            requestContext: { type: "object", additionalProperties: true },
+            createdBy: { type: "string" },
+            updatedBy: { type: "string" },
+            createdAt: { type: "string", format: "date-time" },
+            updatedAt: { type: "string", format: "date-time" }
+          }
+        },
+        WriteWorkflowResponse: {
+          type: "object",
+          required: ["data", "event"],
+          properties: {
+            data: schemaRef("WriteWorkflowRecord"),
+            event: { type: "object", properties: { eventType: { type: "string", enum: requiredWriteWorkflowEvents() } } }
+          }
+        },
         ErrorResponse: {
           type: "object",
           required: ["error", "message"],
@@ -335,7 +454,8 @@ export function buildOpenApiDocument() {
         "command_center_permissions",
         "regional_governance_policies",
         "country_level_policy_controls",
-        "live_read_models"
+        "live_read_models",
+        "live_write_workflows"
       ],
       liveReadModels: readModelDefinitions.map((definition) => ({
         workspace: definition.workspace,
@@ -343,6 +463,14 @@ export function buildOpenApiDocument() {
         path: `${API_BASE_PATH}${definition.path}`,
         roles: definition.allowedRoles,
         permission: readModelPermission
+      })),
+      liveWriteWorkflows: writeWorkflowDefinitions.map((definition) => ({
+        workspace: definition.workspace,
+        workflowKey: definition.workflowKey,
+        eventType: definition.eventType,
+        path: `${API_BASE_PATH}${definition.path}`,
+        roles: definition.allowedRoles,
+        permission: writeWorkflowPermission
       }))
     }
   };

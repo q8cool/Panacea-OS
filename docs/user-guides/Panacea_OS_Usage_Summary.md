@@ -14,7 +14,7 @@ Every synthetic record is labeled:
 DEMO DATA — NOT REAL PATIENT DATA
 ```
 
-The demo data is frontend-only and is not persisted to the production backend. Live Mode remains available for authenticated read-only API evaluation when a Foundation-issued JWT and browser-accessible service endpoints exist.
+The demo data is frontend-only and is not persisted to the production backend. Live Mode is available for authenticated read-model evaluation and approved transactional write workflows when a Foundation-issued JWT and browser-accessible service endpoints exist.
 
 ## Sprint 111 Live Read Model Update
 
@@ -27,6 +27,37 @@ http://localhost:18095/api/v4/global-command-intelligence/read-models/...
 Live Mode now maps doctor, patient portal, laboratory, radiology, pharmacy, and administration pages to versioned GET endpoints. The UI displays live records only when the backend response uses `source: live-read-model` and `demoData: false`.
 
 If the backend returns zero rows, the page shows an authenticated empty state. Demo records are not mixed into Live Mode.
+
+## Sprint 113 Live Write Workflow Update
+
+Panacea OS now supports approved authenticated transactional write workflows through:
+
+```text
+http://localhost:18095/api/v4/global-command-intelligence/write-workflows/...
+```
+
+Role workspaces now show a **Transactional Write Workflow** panel. In Demo Mode the panel states that the action is not persisted. In Live Mode the panel submits only approved POST endpoints from the OpenAPI-generated browser allowlist.
+
+Every live write requires:
+
+- Foundation authentication.
+- Tenant, role, and permission claims.
+- `global_command_intelligence.write_workflows.write`.
+- Workflow controls confirming Live Mode, audit, tenant isolation, human user action, and no autonomous diagnosis or treatment.
+
+Accepted writes are persisted in PostgreSQL and emit auditable events.
+
+New Sprint 113 guides:
+
+- `docs/user-guides/Live_Write_Workflows_Guide.md`
+- `docs/user-guides/Clinician_Write_Workflows_Guide.md`
+- `docs/user-guides/Laboratory_Write_Workflows_Guide.md`
+- `docs/user-guides/Radiology_Write_Workflows_Guide.md`
+- `docs/user-guides/Pharmacy_Write_Workflows_Guide.md`
+- `docs/user-guides/Scheduling_Write_Workflows_Guide.md`
+- `docs/user-guides/Admin_Write_Workflows_Guide.md`
+- `docs/user-guides/Patient_Portal_Request_Workflows_Guide.md`
+- `docs/user-guides/Demo_vs_Live_Write_Boundary_Guide.md`
 
 New guides:
 
@@ -43,7 +74,7 @@ New guides:
 
 Panacea OS now has local live runtime validation for all 9 active services and trusted-origin CORS preflight for `http://localhost:5174`. The web client sends Authorization, tenant, user, actor, request ID, and correlation ID headers for allowed Live Mode requests.
 
-Important: the platform is still read-only from the browser. Role workspaces now have page-level read-model APIs, but production records appear only when approved upstream systems populate the read-model tables for the authenticated tenant.
+Important: browser writes are narrowly allowlisted. Role workspaces have page-level read-model APIs and approved Sprint 113 write workflow APIs, but production records appear only when backend persistence succeeds for the authenticated tenant.
 
 The deployed `https://foundation.utbe.ai` provider still needs remote routing updates for HEAD, OpenID discovery, auth, audit preflight, and policy preflight. Repository-local provider tests pass for those behaviors.
 
@@ -138,10 +169,10 @@ http://localhost:5174/#/command/live-status
 
 Yes. Panacea OS now has `apps/panacea-web`, a Vite + TypeScript professional web platform with operator and role-based workspaces.
 
-The role workspaces are read-only interfaces with two modes:
+The role workspaces are governed interfaces with two modes:
 
 - Demo Mode: presentation and documentation-backed visibility with clear demo labels.
-- Live Mode: Foundation JWT authenticated, role/tenant scoped, read-only backend read-model connectivity.
+- Live Mode: Foundation JWT authenticated, role/tenant scoped, backend read-model connectivity plus approved Sprint 113 transactional write workflows.
 
 They do not execute clinical care, diagnosis, treatment, medication safety backend logic, DICOM image viewing, or production administrative writes.
 
@@ -178,7 +209,7 @@ Preserved or upgraded coverage includes:
 - Documentation, release evidence, runtime orchestration, and disaster recovery validation.
 - A web visibility layer replacing the missing legacy frontend with a professional operator console.
 - Role-based UI shells for clinician, patient, laboratory, radiology, pharmacy, and administration workflows.
-- Authenticated frontend Live Mode with JWT/JWKS validation and read-only API client behavior.
+- Authenticated frontend Live Mode with JWT/JWKS validation, read-model calls, and approved write workflow submission.
 
 ## 6. Which features still require live backend data?
 
@@ -191,15 +222,14 @@ The role workspaces are visual and API-aware. Sprint 111 adds live read models f
 - Pharmacy dashboard, medications, prescriptions, dispensing, inventory, batches, expiration warnings, safety alerts, and controlled medications.
 - Administration users, roles, permissions, tenants, organizations, facilities, departments, configuration, audit logs, security, privacy, compliance, system health, and release evidence.
 
-The following still require future governed write workflows or upstream integrations:
+The following still require upstream integrations or broader governed write workflows:
 
 - Production ingestion into read-model tables.
-- Clinical order creation, result signing, note authoring, and care-team changes.
-- Patient message sending, appointment booking, invoice payment, and telemedicine sessions.
-- Laboratory order/specimen/result writes.
-- Radiology PACS integration, DICOM object retrieval, report writes, and critical finding notifications.
-- Pharmacy prescription queues, safety checks, dispensing, inventory, controlled-medication records.
-- Admin user, role, permission, tenant, organization, facility, configuration, and audit-log write workflows.
+- Production ingestion into downstream clinical, lab, radiology, pharmacy, scheduling, identity, and portal systems beyond the Sprint 113 transactional record and event tables.
+- Invoice payment and telemedicine sessions.
+- Radiology PACS integration and DICOM object retrieval.
+- Controlled-medication integrations and inventory system synchronization beyond the approved transaction record.
+- Dangerous administrative deletes and audit-disabling operations.
 
 Live Mode does not invent these records. If no read-model row exists for the authenticated tenant, the page displays an authenticated empty state and hides demo rows.
 
@@ -237,13 +267,13 @@ Major capabilities include:
 
 Recommended next UI sprint:
 
-**Live Read Model Population And Operator Seed Sprint**
+**Live Transaction Review And Read Model Projection Sprint**
 
 Scope:
 
-- Define approved non-PHI operator sample rows for read-model tables.
-- Add controlled ingestion from existing operational systems into read-model tables.
-- Keep browser actions read-only.
+- Project accepted Sprint 113 write workflow events into live read-model tables.
+- Add operator-visible transaction review and audit evidence views.
+- Keep browser actions restricted to the approved allowlist.
 - Continue CORS and Foundation deployment validation.
 - No clinical diagnosis, treatment, or autonomous AI expansion.
 
@@ -251,4 +281,4 @@ Scope:
 
 It is both a backend platform and a professional visual web application.
 
-It now includes role-based workspaces and authenticated Live Mode. The workspaces remain read-only and depend on existing live APIs, CORS, and Foundation-issued JWTs for real data.
+It now includes role-based workspaces and authenticated Live Mode. The workspaces combine live read models with approved transactional write workflow forms and depend on existing live APIs, CORS, and Foundation-issued JWTs for real data.

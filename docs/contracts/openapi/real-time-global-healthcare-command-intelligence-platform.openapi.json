@@ -38,6 +38,9 @@
     },
     {
       "name": "live_read_models"
+    },
+    {
+      "name": "live_write_workflows"
     }
   ],
   "paths": {
@@ -9491,6 +9494,3558 @@
         }
       }
     },
+    "/api/v4/global-command-intelligence/write-workflows/clinical/patients": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createClinicalPatientWriteWorkflow",
+        "summary": "Create a governed tenant-scoped patient record",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "updateClinicalPatientWriteWorkflow",
+        "summary": "Update governed patient demographics or contacts",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}/encounters": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createClinicalEncounterWriteWorkflow",
+        "summary": "Create an encounter record",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}/notes": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createClinicalNoteWriteWorkflow",
+        "summary": "Create a clinical note",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}/allergies": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createClinicalAllergyWriteWorkflow",
+        "summary": "Create an allergy record",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}/conditions": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createClinicalConditionWriteWorkflow",
+        "summary": "Create a condition record",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}/medications": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createClinicalMedicationWriteWorkflow",
+        "summary": "Create a medication record",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}/vitals": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createClinicalVitalSignsWriteWorkflow",
+        "summary": "Create a vital signs record",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}/care-team": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "updateClinicalCareTeamWriteWorkflow",
+        "summary": "Update patient care team assignments",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/laboratory/orders": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createLaboratoryOrderWriteWorkflow",
+        "summary": "Create a lab order",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/laboratory/specimens/{specimenId}/collect": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "collectLaboratorySpecimenWriteWorkflow",
+        "summary": "Record specimen collection",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "specimenId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow specimenId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/laboratory/specimens/{specimenId}/receive": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "receiveLaboratorySpecimenWriteWorkflow",
+        "summary": "Record specimen receiving",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "specimenId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow specimenId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/laboratory/results": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "enterLaboratoryResultWriteWorkflow",
+        "summary": "Enter a laboratory result",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/laboratory/results/{resultId}/validate": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "validateLaboratoryResultWriteWorkflow",
+        "summary": "Validate a laboratory result",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow resultId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/laboratory/results/{resultId}/approve": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "approveLaboratoryResultWriteWorkflow",
+        "summary": "Approve a laboratory result",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow resultId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/laboratory/results/{resultId}/critical": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "flagCriticalLaboratoryResultWriteWorkflow",
+        "summary": "Flag a critical laboratory result",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow resultId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/radiology/orders": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createRadiologyOrderWriteWorkflow",
+        "summary": "Create an imaging order",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/radiology/studies/{studyId}/start": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "startRadiologyStudyWriteWorkflow",
+        "summary": "Start an imaging study",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "studyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow studyId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/radiology/studies/{studyId}/complete": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "completeRadiologyStudyWriteWorkflow",
+        "summary": "Complete an imaging study",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "studyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow studyId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/radiology/reports": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createRadiologyReportWriteWorkflow",
+        "summary": "Create a radiology report",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/radiology/reports/{reportId}/approve": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "approveRadiologyReportWriteWorkflow",
+        "summary": "Approve a radiology report",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "reportId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow reportId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/radiology/reports/{reportId}/critical-findings": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "flagRadiologyCriticalFindingWriteWorkflow",
+        "summary": "Flag a critical radiology finding",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "reportId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow reportId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/pharmacy/prescriptions": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createPharmacyPrescriptionWriteWorkflow",
+        "summary": "Create a prescription",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/pharmacy/prescriptions/{prescriptionId}/review": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "reviewPharmacyPrescriptionWriteWorkflow",
+        "summary": "Review a prescription",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "prescriptionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow prescriptionId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/pharmacy/prescriptions/{prescriptionId}/validate": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "validatePharmacyMedicationSafetyWriteWorkflow",
+        "summary": "Validate documented medication safety checks",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "prescriptionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow prescriptionId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/pharmacy/prescriptions/{prescriptionId}/dispense": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "dispensePharmacyMedicationWriteWorkflow",
+        "summary": "Dispense medication",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "prescriptionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow prescriptionId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/pharmacy/inventory": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "updatePharmacyInventoryWriteWorkflow",
+        "summary": "Update pharmacy inventory",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/pharmacy/safety-alerts": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "flagPharmacySafetyAlertWriteWorkflow",
+        "summary": "Flag a documented medication safety alert",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/scheduling/appointments": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createSchedulingAppointmentWriteWorkflow",
+        "summary": "Create an appointment",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/scheduling/appointments/{appointmentId}": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "updateSchedulingAppointmentWriteWorkflow",
+        "summary": "Update an appointment",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "appointmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow appointmentId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/scheduling/appointments/{appointmentId}/cancel": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "cancelSchedulingAppointmentWriteWorkflow",
+        "summary": "Cancel an appointment",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "appointmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow appointmentId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/scheduling/appointments/{appointmentId}/check-in": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "checkInSchedulingAppointmentWriteWorkflow",
+        "summary": "Check in an appointment",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "appointmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow appointmentId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/scheduling/appointments/{appointmentId}/complete": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "completeSchedulingAppointmentWriteWorkflow",
+        "summary": "Complete an appointment",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "appointmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow appointmentId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/admin/users": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createAdminUserWriteWorkflow",
+        "summary": "Create a user",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/admin/users/{userId}": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "updateAdminUserWriteWorkflow",
+        "summary": "Update a user",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow userId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/admin/users/{userId}/roles": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "assignAdminUserRoleWriteWorkflow",
+        "summary": "Assign a role to a user",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow userId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/admin/roles": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createAdminRoleWriteWorkflow",
+        "summary": "Create a role",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/admin/tenants": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createAdminTenantWriteWorkflow",
+        "summary": "Create a tenant",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/admin/organizations": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createAdminOrganizationWriteWorkflow",
+        "summary": "Create an organization",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/admin/departments": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createAdminDepartmentWriteWorkflow",
+        "summary": "Create a department",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/admin/configuration": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "updateAdminConfigurationWriteWorkflow",
+        "summary": "Update approved configuration",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/patient-portal/appointment-requests": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "requestPatientPortalAppointmentWriteWorkflow",
+        "summary": "Submit a patient appointment request",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/patient-portal/messages": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "sendPatientPortalSecureMessageWriteWorkflow",
+        "summary": "Send a patient secure message",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/patient-portal/refill-requests": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "requestPatientPortalRefillWriteWorkflow",
+        "summary": "Submit a patient refill request",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/patient-portal/medical-report-requests": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "requestPatientPortalMedicalReportWriteWorkflow",
+        "summary": "Submit a patient medical report request",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/write-workflows/patient-portal/preferences": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "updatePatientPortalCommunicationPreferencesWriteWorkflow",
+        "summary": "Update patient communication preferences",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v4/global-command-intelligence/integrations/references": {
       "post": {
         "tags": [
@@ -10042,6 +13597,307 @@
           }
         }
       },
+      "WriteWorkflowControls": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "liveMode",
+          "demoData",
+          "auditRequired",
+          "tenantIsolationConfirmed",
+          "humanUserConfirmed",
+          "noAutonomousDiagnosis",
+          "noAutonomousTreatment",
+          "noAiGeneratedClinicalDecision"
+        ],
+        "properties": {
+          "liveMode": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "demoData": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "auditRequired": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "tenantIsolationConfirmed": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "humanUserConfirmed": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "noAutonomousDiagnosis": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "noAutonomousTreatment": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "noAiGeneratedClinicalDecision": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "patientClinicalRecordModificationBlocked": {
+            "type": "boolean"
+          },
+          "documentedMedicationSafetyRulesApplied": {
+            "type": "boolean"
+          },
+          "sourceBoundary": {
+            "type": "string"
+          }
+        }
+      },
+      "WriteWorkflowCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tenantId",
+          "payload",
+          "workflowControls"
+        ],
+        "properties": {
+          "tenantId": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "idempotencyKey": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "workflowControls": {
+            "$ref": "#/components/schemas/WriteWorkflowControls"
+          },
+          "requestContext": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "WriteWorkflowRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "tenantId",
+          "workflowGroup",
+          "workflowKey",
+          "eventType",
+          "status",
+          "payload",
+          "workflowControls",
+          "createdBy",
+          "createdAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "string"
+          },
+          "workflowGroup": {
+            "type": "string"
+          },
+          "workflowKey": {
+            "type": "string"
+          },
+          "eventType": {
+            "type": "string",
+            "enum": [
+              "patient.created",
+              "patient.updated",
+              "encounter.created",
+              "clinical.note.created",
+              "allergy.created",
+              "condition.created",
+              "medication.created",
+              "vital.signs.created",
+              "care.team.updated",
+              "lab.order.created",
+              "specimen.collected",
+              "specimen.received",
+              "lab.result.entered",
+              "lab.result.validated",
+              "lab.result.approved",
+              "critical.lab.result.flagged",
+              "imaging.order.created",
+              "imaging.study.started",
+              "imaging.study.completed",
+              "radiology.report.created",
+              "radiology.report.approved",
+              "critical.finding.flagged",
+              "prescription.created",
+              "prescription.reviewed",
+              "medication.safety.validated",
+              "medication.dispensed",
+              "pharmacy.inventory.updated",
+              "medication.safety.alert.flagged",
+              "appointment.created",
+              "appointment.updated",
+              "appointment.cancelled",
+              "appointment.checked_in",
+              "appointment.completed",
+              "user.created",
+              "user.updated",
+              "role.assigned",
+              "role.created",
+              "tenant.created",
+              "organization.created",
+              "department.created",
+              "configuration.updated",
+              "patient.appointment.requested",
+              "patient.secure.message.sent",
+              "patient.refill.requested",
+              "patient.report.requested",
+              "patient.communication.preferences.updated"
+            ]
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "accepted"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "idempotencyKey": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "workflowControls": {
+            "$ref": "#/components/schemas/WriteWorkflowControls"
+          },
+          "requestContext": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "updatedBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "WriteWorkflowResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "event"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/WriteWorkflowRecord"
+          },
+          "event": {
+            "type": "object",
+            "properties": {
+              "eventType": {
+                "type": "string",
+                "enum": [
+                  "patient.created",
+                  "patient.updated",
+                  "encounter.created",
+                  "clinical.note.created",
+                  "allergy.created",
+                  "condition.created",
+                  "medication.created",
+                  "vital.signs.created",
+                  "care.team.updated",
+                  "lab.order.created",
+                  "specimen.collected",
+                  "specimen.received",
+                  "lab.result.entered",
+                  "lab.result.validated",
+                  "lab.result.approved",
+                  "critical.lab.result.flagged",
+                  "imaging.order.created",
+                  "imaging.study.started",
+                  "imaging.study.completed",
+                  "radiology.report.created",
+                  "radiology.report.approved",
+                  "critical.finding.flagged",
+                  "prescription.created",
+                  "prescription.reviewed",
+                  "medication.safety.validated",
+                  "medication.dispensed",
+                  "pharmacy.inventory.updated",
+                  "medication.safety.alert.flagged",
+                  "appointment.created",
+                  "appointment.updated",
+                  "appointment.cancelled",
+                  "appointment.checked_in",
+                  "appointment.completed",
+                  "user.created",
+                  "user.updated",
+                  "role.assigned",
+                  "role.created",
+                  "tenant.created",
+                  "organization.created",
+                  "department.created",
+                  "configuration.updated",
+                  "patient.appointment.requested",
+                  "patient.secure.message.sent",
+                  "patient.refill.requested",
+                  "patient.report.requested",
+                  "patient.communication.preferences.updated"
+                ]
+              }
+            }
+          }
+        }
+      },
       "ErrorResponse": {
         "type": "object",
         "required": [
@@ -10091,7 +13947,8 @@
       "command_center_permissions",
       "regional_governance_policies",
       "country_level_policy_controls",
-      "live_read_models"
+      "live_read_models",
+      "live_write_workflows"
     ],
     "liveReadModels": [
       {
@@ -10919,6 +14776,598 @@
           "global-command-intelligence-admin"
         ],
         "permission": "global_command_intelligence.read_models.read"
+      }
+    ],
+    "liveWriteWorkflows": [
+      {
+        "workspace": "clinical",
+        "workflowKey": "create_patient",
+        "eventType": "patient.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/clinical/patients",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "update_patient",
+        "eventType": "patient.updated",
+        "path": "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "create_encounter",
+        "eventType": "encounter.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}/encounters",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "create_clinical_note",
+        "eventType": "clinical.note.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}/notes",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "create_allergy",
+        "eventType": "allergy.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}/allergies",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "create_condition",
+        "eventType": "condition.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}/conditions",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "create_medication",
+        "eventType": "medication.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}/medications",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "create_vital_signs",
+        "eventType": "vital.signs.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}/vitals",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "update_care_team",
+        "eventType": "care.team.updated",
+        "path": "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}/care-team",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "laboratory",
+        "workflowKey": "create_lab_order",
+        "eventType": "lab.order.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/laboratory/orders",
+        "roles": [
+          "laboratory",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "laboratory",
+        "workflowKey": "collect_specimen",
+        "eventType": "specimen.collected",
+        "path": "/api/v4/global-command-intelligence/write-workflows/laboratory/specimens/{specimenId}/collect",
+        "roles": [
+          "laboratory",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "laboratory",
+        "workflowKey": "receive_specimen",
+        "eventType": "specimen.received",
+        "path": "/api/v4/global-command-intelligence/write-workflows/laboratory/specimens/{specimenId}/receive",
+        "roles": [
+          "laboratory",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "laboratory",
+        "workflowKey": "enter_lab_result",
+        "eventType": "lab.result.entered",
+        "path": "/api/v4/global-command-intelligence/write-workflows/laboratory/results",
+        "roles": [
+          "laboratory",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "laboratory",
+        "workflowKey": "validate_lab_result",
+        "eventType": "lab.result.validated",
+        "path": "/api/v4/global-command-intelligence/write-workflows/laboratory/results/{resultId}/validate",
+        "roles": [
+          "laboratory",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "laboratory",
+        "workflowKey": "approve_lab_result",
+        "eventType": "lab.result.approved",
+        "path": "/api/v4/global-command-intelligence/write-workflows/laboratory/results/{resultId}/approve",
+        "roles": [
+          "laboratory",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "laboratory",
+        "workflowKey": "flag_critical_lab_result",
+        "eventType": "critical.lab.result.flagged",
+        "path": "/api/v4/global-command-intelligence/write-workflows/laboratory/results/{resultId}/critical",
+        "roles": [
+          "laboratory",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "radiology",
+        "workflowKey": "create_imaging_order",
+        "eventType": "imaging.order.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/radiology/orders",
+        "roles": [
+          "radiology",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "radiology",
+        "workflowKey": "start_imaging_study",
+        "eventType": "imaging.study.started",
+        "path": "/api/v4/global-command-intelligence/write-workflows/radiology/studies/{studyId}/start",
+        "roles": [
+          "radiology",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "radiology",
+        "workflowKey": "complete_imaging_study",
+        "eventType": "imaging.study.completed",
+        "path": "/api/v4/global-command-intelligence/write-workflows/radiology/studies/{studyId}/complete",
+        "roles": [
+          "radiology",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "radiology",
+        "workflowKey": "create_radiology_report",
+        "eventType": "radiology.report.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/radiology/reports",
+        "roles": [
+          "radiology",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "radiology",
+        "workflowKey": "approve_radiology_report",
+        "eventType": "radiology.report.approved",
+        "path": "/api/v4/global-command-intelligence/write-workflows/radiology/reports/{reportId}/approve",
+        "roles": [
+          "radiology",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "radiology",
+        "workflowKey": "flag_critical_finding",
+        "eventType": "critical.finding.flagged",
+        "path": "/api/v4/global-command-intelligence/write-workflows/radiology/reports/{reportId}/critical-findings",
+        "roles": [
+          "radiology",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "pharmacy",
+        "workflowKey": "create_prescription",
+        "eventType": "prescription.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/pharmacy/prescriptions",
+        "roles": [
+          "pharmacy",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "pharmacy",
+        "workflowKey": "review_prescription",
+        "eventType": "prescription.reviewed",
+        "path": "/api/v4/global-command-intelligence/write-workflows/pharmacy/prescriptions/{prescriptionId}/review",
+        "roles": [
+          "pharmacy",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "pharmacy",
+        "workflowKey": "validate_medication_safety",
+        "eventType": "medication.safety.validated",
+        "path": "/api/v4/global-command-intelligence/write-workflows/pharmacy/prescriptions/{prescriptionId}/validate",
+        "roles": [
+          "pharmacy",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "pharmacy",
+        "workflowKey": "dispense_medication",
+        "eventType": "medication.dispensed",
+        "path": "/api/v4/global-command-intelligence/write-workflows/pharmacy/prescriptions/{prescriptionId}/dispense",
+        "roles": [
+          "pharmacy",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "pharmacy",
+        "workflowKey": "update_pharmacy_inventory",
+        "eventType": "pharmacy.inventory.updated",
+        "path": "/api/v4/global-command-intelligence/write-workflows/pharmacy/inventory",
+        "roles": [
+          "pharmacy",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "pharmacy",
+        "workflowKey": "flag_medication_safety_alert",
+        "eventType": "medication.safety.alert.flagged",
+        "path": "/api/v4/global-command-intelligence/write-workflows/pharmacy/safety-alerts",
+        "roles": [
+          "pharmacy",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "scheduling",
+        "workflowKey": "create_appointment",
+        "eventType": "appointment.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/scheduling/appointments",
+        "roles": [
+          "administrator",
+          "doctor",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "scheduling",
+        "workflowKey": "update_appointment",
+        "eventType": "appointment.updated",
+        "path": "/api/v4/global-command-intelligence/write-workflows/scheduling/appointments/{appointmentId}",
+        "roles": [
+          "administrator",
+          "doctor",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "scheduling",
+        "workflowKey": "cancel_appointment",
+        "eventType": "appointment.cancelled",
+        "path": "/api/v4/global-command-intelligence/write-workflows/scheduling/appointments/{appointmentId}/cancel",
+        "roles": [
+          "administrator",
+          "doctor",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "scheduling",
+        "workflowKey": "check_in_appointment",
+        "eventType": "appointment.checked_in",
+        "path": "/api/v4/global-command-intelligence/write-workflows/scheduling/appointments/{appointmentId}/check-in",
+        "roles": [
+          "administrator",
+          "doctor",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "scheduling",
+        "workflowKey": "complete_appointment",
+        "eventType": "appointment.completed",
+        "path": "/api/v4/global-command-intelligence/write-workflows/scheduling/appointments/{appointmentId}/complete",
+        "roles": [
+          "administrator",
+          "doctor",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "admin",
+        "workflowKey": "create_user",
+        "eventType": "user.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/admin/users",
+        "roles": [
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "admin",
+        "workflowKey": "update_user",
+        "eventType": "user.updated",
+        "path": "/api/v4/global-command-intelligence/write-workflows/admin/users/{userId}",
+        "roles": [
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "admin",
+        "workflowKey": "assign_role",
+        "eventType": "role.assigned",
+        "path": "/api/v4/global-command-intelligence/write-workflows/admin/users/{userId}/roles",
+        "roles": [
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "admin",
+        "workflowKey": "create_role",
+        "eventType": "role.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/admin/roles",
+        "roles": [
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "admin",
+        "workflowKey": "create_tenant",
+        "eventType": "tenant.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/admin/tenants",
+        "roles": [
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "admin",
+        "workflowKey": "create_organization",
+        "eventType": "organization.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/admin/organizations",
+        "roles": [
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "admin",
+        "workflowKey": "create_department",
+        "eventType": "department.created",
+        "path": "/api/v4/global-command-intelligence/write-workflows/admin/departments",
+        "roles": [
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "admin",
+        "workflowKey": "update_configuration",
+        "eventType": "configuration.updated",
+        "path": "/api/v4/global-command-intelligence/write-workflows/admin/configuration",
+        "roles": [
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "patient_portal",
+        "workflowKey": "request_appointment",
+        "eventType": "patient.appointment.requested",
+        "path": "/api/v4/global-command-intelligence/write-workflows/patient-portal/appointment-requests",
+        "roles": [
+          "patient",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "patient_portal",
+        "workflowKey": "send_secure_message",
+        "eventType": "patient.secure.message.sent",
+        "path": "/api/v4/global-command-intelligence/write-workflows/patient-portal/messages",
+        "roles": [
+          "patient",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "patient_portal",
+        "workflowKey": "request_refill",
+        "eventType": "patient.refill.requested",
+        "path": "/api/v4/global-command-intelligence/write-workflows/patient-portal/refill-requests",
+        "roles": [
+          "patient",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "patient_portal",
+        "workflowKey": "request_medical_report",
+        "eventType": "patient.report.requested",
+        "path": "/api/v4/global-command-intelligence/write-workflows/patient-portal/medical-report-requests",
+        "roles": [
+          "patient",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "patient_portal",
+        "workflowKey": "update_communication_preferences",
+        "eventType": "patient.communication.preferences.updated",
+        "path": "/api/v4/global-command-intelligence/write-workflows/patient-portal/preferences",
+        "roles": [
+          "patient",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
       }
     ]
   }

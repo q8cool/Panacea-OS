@@ -12,7 +12,7 @@ import {
 import { flattenEndpoints, filterEndpoints } from "../src/apiExplorer";
 import { probeFoundation } from "../src/foundation";
 import { discoverFoundationLogin } from "../src/foundationLoginDiscovery";
-import { apiRequest, appendOperatorAuditTest } from "../src/liveApi";
+import { apiRequest, appendOperatorAuditTest, executeWriteWorkflowRequest, findWriteWorkflowEndpoint } from "../src/liveApi";
 import { languageOptions, translate } from "../src/locales";
 import { allRoleRoutes, roleDefaultRoute, roleSwitcherOptions, roleWorkspaces } from "../src/roleWorkspaces";
 import { initialState, renderApp, renderRoute } from "../src/render";
@@ -469,6 +469,62 @@ describe("Panacea web platform", () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
+  it("allowlist permits only authenticated approved Sprint 113 live write workflow endpoints", async () => {
+    const allowlist = buildBrowserApiAllowlist(data, config);
+    const writeEntry = allowlist.find((entry) => entry.classification === "ALLOWED_LIVE_WRITE");
+    expect(writeEntry).toBeTruthy();
+    const withoutSession = evaluateBrowserApiRequest(allowlist, "POST", writeEntry!.url, undefined);
+    expect(withoutSession.allowed).toBe(false);
+    expect(withoutSession.reason).toContain("authenticated Live Mode");
+
+    const withSession = evaluateBrowserApiRequest(allowlist, "POST", writeEntry!.url, sessionFor("doctor"));
+    expect(withSession.allowed).toBe(true);
+    expect(withSession.classification).toBe("ALLOWED_LIVE_WRITE");
+  });
+
+  it("submits approved live write workflow requests with workflow control payloads", async () => {
+    const workspace = roleWorkspaces.find((item) => item.id === "doctor")!;
+    const page = workspace.pages.find((item) => item.id === "patient-search")!;
+    const endpoint = findWriteWorkflowEndpoint(data, workspace, page, config, page.route);
+    expect(endpoint.available).toBe(true);
+    expect(endpoint.url).toContain("/write-workflows/clinical/patients");
+
+    let requestBody = "";
+    const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {
+      requestBody = String(init?.body ?? "");
+      return new Response(JSON.stringify({
+        data: { workflowKey: "create_patient", eventType: "patient.created", workflowControls: { liveMode: true, demoData: false } },
+        event: { eventType: "patient.created" }
+      }), { status: 201 });
+    }) as unknown as typeof fetch;
+
+    const allowlist = buildBrowserApiAllowlist(data, config);
+    const response = await executeWriteWorkflowRequest(
+      endpoint,
+      { ...sessionFor("doctor"), permissions: ["global_command_intelligence.write_workflows.write"] },
+      config,
+      allowlist,
+      {
+        tenantId: "tenant-a",
+        payload: { detail: "approved transaction" },
+        workflowControls: {
+          liveMode: true,
+          demoData: false,
+          auditRequired: true,
+          tenantIsolationConfirmed: true,
+          humanUserConfirmed: true,
+          noAutonomousDiagnosis: true,
+          noAutonomousTreatment: true,
+          noAiGeneratedClinicalDecision: true
+        }
+      },
+      fetchImpl
+    );
+    expect(response.result.state).toBe("online");
+    expect(response.result.httpStatus).toBe(201);
+    expect(JSON.parse(requestBody).workflowControls.demoData).toBe(false);
+  });
+
   it("operator audit test remains restricted to operator role", async () => {
     const doctorResult = await appendOperatorAuditTest(sessionFor("doctor"), config, [operatorAuditFixture], vi.fn() as unknown as typeof fetch);
     expect(doctorResult.allowlistClassification).toBe("ALLOWED_OPERATOR_TEST");
@@ -508,6 +564,7 @@ describe("Panacea web platform", () => {
       webConfig: config,
       apiAllowlistSummary: {
         ALLOWED_READ: 10,
+        ALLOWED_LIVE_WRITE: 4,
         ALLOWED_OPERATOR_TEST: 1,
         BLOCKED_WRITE: 50,
         BLOCKED_CLINICAL_ACTION: 20,
@@ -555,6 +612,52 @@ describe("Panacea web platform", () => {
     expect(html).not.toContain("Rows are UI-state examples");
     expect(html).not.toContain("Patient Portal Demo");
     expect(html).not.toContain("Cardiology Clinic");
+  });
+
+  it("renders live write workflow forms and Arabic Demo Mode persistence boundaries", () => {
+    const liveWorkspaceState: LiveWorkspaceState = {
+      endpoint: {
+        label: "Global Command Intelligence: List tenant-scoped clinical patient read models",
+        method: "GET",
+        url: "http://localhost:18095/api/v4/global-command-intelligence/read-models/clinical/patients",
+        source: "services/real-time-global-healthcare-command-intelligence-platform/docs/openapi.json",
+        available: true,
+        reason: "Live backend read-model endpoint selected from the OpenAPI contract."
+      },
+      writeEndpoint: {
+        label: "Global Command Intelligence: Create a governed tenant-scoped patient record",
+        method: "POST",
+        url: "http://localhost:18095/api/v4/global-command-intelligence/write-workflows/clinical/patients",
+        source: "services/real-time-global-healthcare-command-intelligence-platform/docs/openapi.json",
+        available: true,
+        reason: "Approved live transactional write workflow selected from the OpenAPI contract."
+      },
+      writeResult: {
+        requestId: "req-write",
+        method: "POST",
+        url: "http://localhost:18095/api/v4/global-command-intelligence/write-workflows/clinical/patients",
+        state: "online",
+        httpStatus: 201,
+        detail: "Request completed.",
+        checkedAt: new Date().toISOString(),
+        jsonBody: { data: { workflowKey: "create_patient", eventType: "patient.created" } }
+      }
+    };
+    const live = renderRoute(data, "/workspace/doctor/patient-search", {
+      ...initialState,
+      authSession: { ...sessionFor("doctor"), permissions: ["global_command_intelligence.write_workflows.write"] },
+      liveWorkspaceState
+    });
+    expect(live).toContain("Transactional Write Workflow");
+    expect(live).toContain("Submit Live Write");
+    expect(live).toContain("patient.created");
+
+    const arabicDemo = renderRoute(data, "/workspace/laboratory/result-entry", {
+      ...initialState,
+      language: "ar",
+      selectedRole: "laboratory"
+    });
+    expect(arabicDemo).toContain("إجراء تجريبي فقط — لا يتم حفظه في قاعدة الإنتاج");
   });
 
   it("renders live backend read-model rows without demo workspace records", () => {

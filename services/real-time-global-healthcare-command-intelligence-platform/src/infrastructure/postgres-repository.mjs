@@ -123,6 +123,67 @@ export class PostgresRealTimeGlobalCommandIntelligenceRepository {
     );
   }
 
+  async saveWriteWorkflow(record, event, auditEntry) {
+    const client = await this.pool.connect();
+    try {
+      await client.query("BEGIN");
+      await client.query(
+        `INSERT INTO global_command_intelligence_write_workflows (
+          id, tenant_id, workflow_group, workflow_key, event_type, subject_id, status,
+          title, reason, idempotency_key, payload, workflow_controls, request_context,
+          created_by, updated_by, created_at, updated_at
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7,
+          $8, $9, $10, $11::jsonb, $12::jsonb, $13::jsonb,
+          $14, $15, $16, $17
+        )`,
+        [
+          record.id,
+          record.tenantId,
+          record.workflowGroup,
+          record.workflowKey,
+          record.eventType,
+          record.subjectId,
+          record.status,
+          record.title,
+          record.reason,
+          record.idempotencyKey,
+          json(record.payload),
+          json(record.workflowControls),
+          json(record.requestContext),
+          record.createdBy,
+          record.updatedBy,
+          record.createdAt,
+          record.updatedAt
+        ]
+      );
+      await this.#insertWriteWorkflowEvent(client, event);
+      await client.query(
+        `INSERT INTO global_command_intelligence_audit_entries (
+          id, tenant_id, actor_id, action, resource_type, resource_id, country_code, region_code, metadata, occurred_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10)`,
+        [
+          auditEntry.id,
+          auditEntry.tenantId,
+          auditEntry.actorId,
+          auditEntry.action,
+          auditEntry.resourceType,
+          auditEntry.resourceId,
+          auditEntry.countryCode,
+          auditEntry.regionCode,
+          json(auditEntry.metadata),
+          auditEntry.occurredAt
+        ]
+      );
+      await client.query("COMMIT");
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
   async saveAuditEntry(entry) {
     await this.pool.query(
       `INSERT INTO global_command_intelligence_audit_entries (
@@ -184,6 +245,26 @@ export class PostgresRealTimeGlobalCommandIntelligenceRepository {
   async #insertEvent(client, event) {
     await client.query(
       `INSERT INTO global_command_intelligence_events (
+        id, tenant_id, event_type, aggregate_id, aggregate_type, actor_id,
+        schema_version, payload, occurred_at, published_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, $9, NULL)`,
+      [
+        event.id,
+        event.tenantId,
+        event.eventType,
+        event.aggregateId,
+        event.aggregateType,
+        event.actorId,
+        event.schemaVersion,
+        JSON.stringify(event.payload),
+        event.occurredAt
+      ]
+    );
+  }
+
+  async #insertWriteWorkflowEvent(client, event) {
+    await client.query(
+      `INSERT INTO global_command_intelligence_write_workflow_events (
         id, tenant_id, event_type, aggregate_id, aggregate_type, actor_id,
         schema_version, payload, occurred_at, published_at
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, $9, NULL)`,

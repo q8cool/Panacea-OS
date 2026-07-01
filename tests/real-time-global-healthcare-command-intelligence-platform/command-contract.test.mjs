@@ -7,6 +7,10 @@ import { buildOpenApiDocument } from "../../services/real-time-global-healthcare
 import { routeDefinitions } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/api/routes.mjs";
 import { API_BASE_PATH, requiredEvents } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/domain/command-domain.mjs";
 import { readModelDefinitions } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/domain/read-models.mjs";
+import {
+  requiredWriteWorkflowEvents,
+  writeWorkflowDefinitions
+} from "../../services/real-time-global-healthcare-command-intelligence-platform/src/domain/write-workflows.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -27,9 +31,15 @@ test("OpenAPI contract contains every Sprint 85 route and required event", () =>
     assert.ok(document.paths[fullPath], `missing read model ${fullPath}`);
     assert.ok(document.paths[fullPath].get, `missing GET method for ${fullPath}`);
   }
+  for (const definition of writeWorkflowDefinitions) {
+    const fullPath = `${API_BASE_PATH}${definition.path}`;
+    assert.ok(document.paths[fullPath], `missing write workflow ${fullPath}`);
+    assert.ok(document.paths[fullPath].post, `missing POST method for ${fullPath}`);
+  }
   assert.ok(document.components.schemas.ReadModelListResponse);
+  assert.ok(document.components.schemas.WriteWorkflowResponse);
   assert.deepEqual(document["x-panacea"].requiredEvents, requiredEvents);
-  assert.equal(Object.keys(document.paths).length, routeDefinitions.length + readModelDefinitions.length + 5);
+  assert.equal(Object.keys(document.paths).length, routeDefinitions.length + readModelDefinitions.length + writeWorkflowDefinitions.length + 5);
 });
 
 test("OpenAPI declares command, emergency, regional, country, and governance controls", () => {
@@ -46,13 +56,35 @@ test("OpenAPI declares command, emergency, regional, country, and governance con
     "command_center_permissions",
     "regional_governance_policies",
     "country_level_policy_controls",
-    "live_read_models"
+    "live_read_models",
+    "live_write_workflows"
   ]);
   assert.equal(document["x-panacea"].advisoryOnly, true);
   assert.equal(document["x-panacea"].governanceApprovalRequired, true);
   assert.equal(document["x-panacea"].autonomousDiagnosis, "not_permitted");
   assert.equal(document["x-panacea"].autonomousTreatment, "not_permitted");
   assert.equal(document["x-panacea"].autonomousEmergencyEnforcement, "not_permitted");
+});
+
+test("PostgreSQL migration defines live write workflows with tenant, audit, indexes, and outbox fields", () => {
+  const sql = fs.readFileSync(
+    path.join(repoRoot, "services/real-time-global-healthcare-command-intelligence-platform/migrations/003_live_write_workflows.sql"),
+    "utf8"
+  );
+  for (const tableName of [
+    "global_command_intelligence_write_workflows",
+    "global_command_intelligence_write_workflow_events"
+  ]) {
+    assert.match(sql, new RegExp(`CREATE TABLE IF NOT EXISTS ${tableName}`));
+  }
+  for (const requiredColumn of ["tenant_id", "created_at", "updated_at", "created_by", "updated_by", "published_at", "event_type"]) {
+    assert.match(sql, new RegExp(requiredColumn));
+  }
+  for (const eventName of requiredWriteWorkflowEvents()) {
+    assert.match(sql, new RegExp(eventName.replaceAll(".", "\\.")));
+  }
+  assert.match(sql, /CREATE INDEX IF NOT EXISTS idx_gci_write_workflows_tenant_group/);
+  assert.match(sql, /workflow_controls ->> 'demoData' = 'false'/);
 });
 
 test("PostgreSQL migration defines live read models with tenant, audit, indexes, and outbox fields", () => {

@@ -4,7 +4,9 @@
 
 Sprint 111 upgrades the role workspaces with authenticated backend read-model APIs.
 
-Each workspace remains read-only in the browser and never performs autonomous clinical action.
+Sprint 113 adds approved authenticated transactional write workflow panels to the same workspaces.
+
+Each workspace still prevents autonomous clinical action. Live write workflows are limited to approved transactional operations and require human user action, tenant scope, RBAC/ABAC, audit, and event persistence.
 
 ## Workspaces
 
@@ -17,6 +19,28 @@ Each workspace remains read-only in the browser and never performs autonomous cl
 | Pharmacy | Uses pharmacy read models for medications, prescriptions, dispensing, inventory, batches, expiration warnings, safety alerts, and controlled medications. No new medication safety backend logic is added. |
 | Administration | Uses administration read models for users, roles, tenants, configuration, audit logs, security, privacy, compliance, system health, and release evidence. |
 | Operator | Uses command, status, Foundation, API Explorer, evidence, and documentation pages. |
+
+## Live Write Panels
+
+Each eligible workspace page now shows:
+
+- Transactional Write Workflow.
+- Selected OpenAPI POST endpoint.
+- Endpoint source contract.
+- Live/Demo persistence boundary.
+- Workflow controls.
+- Submit status and request ID.
+- Audit action metadata when a write is attempted.
+
+Live write panels are visible for:
+
+- Clinician patient, encounter, notes, allergy, condition, medication, vital signs, and care-team workflows.
+- Laboratory order, specimen, result, approval, and critical-result workflows.
+- Radiology imaging order, study, report, approval, and critical-finding workflows.
+- Pharmacy prescription, safety validation, dispensing, inventory, and safety-alert workflows.
+- Scheduling appointment workflows.
+- Administration user, role, tenant, organization, department, and configuration workflows.
+- Patient portal appointment, message, refill, report, and preference request workflows.
 
 ## Live Panels
 
@@ -71,6 +95,8 @@ If a live read-model endpoint returns zero rows:
 - Browser requests include role and permission headers.
 - 401 and 403 responses are shown directly instead of being hidden.
 - Operator audit append is restricted to operator role sessions.
+- Live write workflows require `global_command_intelligence.write_workflows.write`.
+- Demo Mode write panels do not persist to production backend.
 
 ## Read Model Guides
 

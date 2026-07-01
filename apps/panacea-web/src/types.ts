@@ -241,6 +241,9 @@ export interface LiveWorkspaceState {
   endpoint: LiveApiEndpointCandidate;
   result?: LiveApiResult;
   auditAction?: BrowserAuditAction;
+  writeEndpoint?: LiveApiEndpointCandidate;
+  writeResult?: LiveApiResult;
+  writeAuditAction?: BrowserAuditAction;
 }
 
 export interface LiveStatusState {

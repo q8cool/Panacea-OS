@@ -117,6 +117,63 @@ const roleReadModelPaths: Record<string, Record<string, string>> = {
   }
 };
 
+const roleWriteWorkflowPaths: Record<string, Record<string, string>> = {
+  doctor: {
+    dashboard: `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients`,
+    "patient-search": `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients`,
+    "patient-profile": `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}`,
+    encounters: `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/encounters`,
+    "clinical-notes": `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/notes`,
+    allergies: `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/allergies`,
+    conditions: `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/conditions`,
+    medications: `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/medications`,
+    "vital-signs": `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/vitals`,
+    "care-team": `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/care-team`,
+    "orders-overview": `${GLOBAL_COMMAND_API_BASE}/write-workflows/scheduling/appointments`
+  },
+  patient: {
+    appointments: `${GLOBAL_COMMAND_API_BASE}/write-workflows/patient-portal/appointment-requests`,
+    "secure-messages": `${GLOBAL_COMMAND_API_BASE}/write-workflows/patient-portal/messages`,
+    medications: `${GLOBAL_COMMAND_API_BASE}/write-workflows/patient-portal/refill-requests`,
+    "clinical-documents": `${GLOBAL_COMMAND_API_BASE}/write-workflows/patient-portal/medical-report-requests`,
+    notifications: `${GLOBAL_COMMAND_API_BASE}/write-workflows/patient-portal/preferences`,
+    profile: `${GLOBAL_COMMAND_API_BASE}/write-workflows/patient-portal/preferences`
+  },
+  laboratory: {
+    "lab-orders": `${GLOBAL_COMMAND_API_BASE}/write-workflows/laboratory/orders`,
+    "specimen-collection": `${GLOBAL_COMMAND_API_BASE}/write-workflows/laboratory/specimens/{specimenId}/collect`,
+    "specimen-receiving": `${GLOBAL_COMMAND_API_BASE}/write-workflows/laboratory/specimens/{specimenId}/receive`,
+    "result-entry": `${GLOBAL_COMMAND_API_BASE}/write-workflows/laboratory/results`,
+    "result-validation": `${GLOBAL_COMMAND_API_BASE}/write-workflows/laboratory/results/{resultId}/validate`,
+    "result-approval": `${GLOBAL_COMMAND_API_BASE}/write-workflows/laboratory/results/{resultId}/approve`,
+    "critical-results": `${GLOBAL_COMMAND_API_BASE}/write-workflows/laboratory/results/{resultId}/critical`
+  },
+  radiology: {
+    "imaging-orders": `${GLOBAL_COMMAND_API_BASE}/write-workflows/radiology/orders`,
+    "study-list": `${GLOBAL_COMMAND_API_BASE}/write-workflows/radiology/studies/{studyId}/start`,
+    "reporting-worklist": `${GLOBAL_COMMAND_API_BASE}/write-workflows/radiology/studies/{studyId}/complete`,
+    "report-editor": `${GLOBAL_COMMAND_API_BASE}/write-workflows/radiology/reports`,
+    "report-approval": `${GLOBAL_COMMAND_API_BASE}/write-workflows/radiology/reports/{reportId}/approve`,
+    "critical-findings": `${GLOBAL_COMMAND_API_BASE}/write-workflows/radiology/reports/{reportId}/critical-findings`
+  },
+  pharmacy: {
+    "prescription-queue": `${GLOBAL_COMMAND_API_BASE}/write-workflows/pharmacy/prescriptions`,
+    "prescription-review": `${GLOBAL_COMMAND_API_BASE}/write-workflows/pharmacy/prescriptions/{prescriptionId}/review`,
+    "drug-safety-alerts": `${GLOBAL_COMMAND_API_BASE}/write-workflows/pharmacy/safety-alerts`,
+    dispensing: `${GLOBAL_COMMAND_API_BASE}/write-workflows/pharmacy/prescriptions/{prescriptionId}/dispense`,
+    inventory: `${GLOBAL_COMMAND_API_BASE}/write-workflows/pharmacy/inventory`,
+    "med-admin-overview": `${GLOBAL_COMMAND_API_BASE}/write-workflows/pharmacy/prescriptions/{prescriptionId}/validate`
+  },
+  administrator: {
+    users: `${GLOBAL_COMMAND_API_BASE}/write-workflows/admin/users`,
+    roles: `${GLOBAL_COMMAND_API_BASE}/write-workflows/admin/roles`,
+    tenants: `${GLOBAL_COMMAND_API_BASE}/write-workflows/admin/tenants`,
+    organizations: `${GLOBAL_COMMAND_API_BASE}/write-workflows/admin/organizations`,
+    departments: `${GLOBAL_COMMAND_API_BASE}/write-workflows/admin/departments`,
+    configuration: `${GLOBAL_COMMAND_API_BASE}/write-workflows/admin/configuration`
+  }
+};
+
 export function requestId(): string {
   return globalThis.crypto?.randomUUID?.() ?? `req-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
@@ -196,6 +253,48 @@ export function findReadOnlyEndpoint(
   };
 }
 
+export function findWriteWorkflowEndpoint(
+  data: AppData,
+  workspace: RoleWorkspaceDefinition,
+  page: RolePageDefinition,
+  config: PanaceaWebConfig,
+  route = page.route
+): LiveApiEndpointCandidate {
+  const allowlist = buildBrowserApiAllowlist(data, config);
+  const writeWorkflowPath = writeWorkflowPathForWorkspacePage(workspace.id, page.id);
+  if (!writeWorkflowPath) {
+    return {
+      label: `${workspace.label} ${page.label}`,
+      method: "POST",
+      url: "",
+      source: "No approved Sprint 113 write workflow for this page",
+      available: false,
+      reason: "This workspace page remains read-only. Sprint 113 exposes writes only for explicitly approved transactional workflows."
+    };
+  }
+  const selected = flattenEndpoints(data.openApiDocuments).find((endpoint) => endpoint.method === "POST" && endpoint.path === writeWorkflowPath);
+  if (!selected) {
+    return {
+      label: `${workspace.label} ${page.label}`,
+      method: "POST",
+      url: "",
+      source: "No matching live write workflow OpenAPI endpoint",
+      available: false,
+      reason: "Live write workflow unavailable. The role workspace is mapped to an approved write path, but OpenAPI does not expose it yet."
+    };
+  }
+  const resolvedPath = resolveWorkflowPath(writeWorkflowPath, route);
+  const url = `${baseUrlForEndpoint(selected, config)}${resolvedPath}`;
+  return {
+    label: `${selected.documentTitle}: ${selected.summary}`,
+    method: selected.method,
+    url,
+    source: selected.documentPath,
+    available: evaluateBrowserApiRequest(allowlist, selected.method, url, undefined).classification === "ALLOWED_LIVE_WRITE",
+    reason: "Approved live transactional write workflow selected from the OpenAPI contract."
+  };
+}
+
 export async function executeReadOnlyRequest(
   candidate: LiveApiEndpointCandidate,
   session: AuthSession,
@@ -209,6 +308,23 @@ export async function executeReadOnlyRequest(
   }
 
   const result = await apiRequest(candidate.method, candidate.url, session, config, undefined, fetchImpl, allowlist);
+  return { result, auditAction: auditFromResult(result, session, "live") };
+}
+
+export async function executeWriteWorkflowRequest(
+  candidate: LiveApiEndpointCandidate,
+  session: AuthSession,
+  config: PanaceaWebConfig,
+  allowlist: BrowserApiAllowlistEntry[],
+  body: unknown,
+  fetchImpl: typeof fetch = fetch
+): Promise<{ result: LiveApiResult; auditAction: BrowserAuditAction }> {
+  if (!candidate.available || !candidate.url) {
+    const result = unavailableResult(candidate);
+    return { result, auditAction: auditFromResult(result, session, "live") };
+  }
+
+  const result = await apiRequest(candidate.method, candidate.url, session, config, body, fetchImpl, allowlist);
   return { result, auditAction: auditFromResult(result, session, "live") };
 }
 
@@ -297,12 +413,24 @@ function readModelPathForWorkspacePage(workspaceId: string, pageId: string): str
 }
 
 function resolveReadModelPath(templatePath: string, route: string): string {
+  return resolveWorkflowPath(templatePath, route);
+}
+
+function writeWorkflowPathForWorkspacePage(workspaceId: string, pageId: string): string | undefined {
+  return roleWriteWorkflowPaths[workspaceId]?.[pageId];
+}
+
+function resolveWorkflowPath(templatePath: string, route: string): string {
   const routeSubject = route.split("/")[4];
   return templatePath
     .replaceAll("{patientId}", encodeURIComponent(routeSubject || "current-patient"))
     .replaceAll("{studyId}", encodeURIComponent(routeSubject || "current-study"))
     .replaceAll("{specimenId}", encodeURIComponent(routeSubject || "current-specimen"))
-    .replaceAll("{prescriptionId}", encodeURIComponent(routeSubject || "current-prescription"));
+    .replaceAll("{prescriptionId}", encodeURIComponent(routeSubject || "current-prescription"))
+    .replaceAll("{resultId}", encodeURIComponent(routeSubject || "current-result"))
+    .replaceAll("{reportId}", encodeURIComponent(routeSubject || "current-report"))
+    .replaceAll("{appointmentId}", encodeURIComponent(routeSubject || "current-appointment"))
+    .replaceAll("{userId}", encodeURIComponent(routeSubject || "current-user"));
 }
 
 export async function pollRuntimeStatus(

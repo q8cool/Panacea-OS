@@ -6,7 +6,7 @@ import { clearSession, persistSession, restoreSession, validateTokenWithFoundati
 import { loginWithFoundationProvider, logoutFoundationProviderSession, refreshFoundationProviderSession } from "./foundationAuthClient";
 import { discoverFoundationLogin } from "./foundationLoginDiscovery";
 import { probeFoundation } from "./foundation";
-import { appendOperatorAuditTest, executeReadOnlyRequest, findReadOnlyEndpoint, pollRuntimeStatus } from "./liveApi";
+import { appendOperatorAuditTest, executeReadOnlyRequest, executeWriteWorkflowRequest, findReadOnlyEndpoint, findWriteWorkflowEndpoint, pollRuntimeStatus } from "./liveApi";
 import { initialState, renderApp, type RenderState } from "./render";
 import { isRoleRoute } from "./roleRender";
 import { pageFromRoute, roleDefaultRoute, workspaceFromRoute } from "./roleWorkspaces";
@@ -287,6 +287,61 @@ function bindEvents() {
     state = { ...state, foundationProbe: await probeFoundation(data) };
     render();
   });
+
+  document.querySelector<HTMLFormElement>("#live-write-form")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!state.authSession) {
+      state = {
+        ...state,
+        authError: "Live write workflows require a Foundation-authenticated session."
+      };
+      render();
+      return;
+    }
+    const session = state.authSession;
+    const form = event.currentTarget;
+    if (!(form instanceof HTMLFormElement)) return;
+    const route = currentRoute();
+    const workspace = workspaceFromRoute(route);
+    const page = pageFromRoute(route);
+    if (!workspace || !page) return;
+    const config = state.webConfig ?? buildWebConfig(data);
+    const allowlist = buildBrowserApiAllowlist(data, config);
+    const endpoint = state.liveWorkspaceState?.writeEndpoint ?? findWriteWorkflowEndpoint(data, workspace, page, config, route);
+    const body = buildWriteWorkflowBody(form, session, workspace.id, page.id);
+    state = {
+      ...state,
+      liveWorkspaceState: {
+        endpoint: state.liveWorkspaceState?.endpoint ?? findReadOnlyEndpoint(data, workspace, page, config, route),
+        result: state.liveWorkspaceState?.result,
+        auditAction: state.liveWorkspaceState?.auditAction,
+        writeEndpoint: endpoint,
+        writeResult: {
+          requestId: "pending",
+          method: "POST",
+          url: endpoint.url,
+          state: "degraded",
+          detail: "Submitting live write workflow...",
+          checkedAt: new Date().toISOString()
+        }
+      }
+    };
+    render();
+    const response = await executeWriteWorkflowRequest(endpoint, session, config, allowlist, body);
+    state = {
+      ...state,
+      liveWorkspaceState: {
+        endpoint: state.liveWorkspaceState?.endpoint ?? findReadOnlyEndpoint(data, workspace, page, config, route),
+        result: state.liveWorkspaceState?.result,
+        auditAction: state.liveWorkspaceState?.auditAction,
+        writeEndpoint: endpoint,
+        writeResult: response.result,
+        writeAuditAction: response.auditAction
+      },
+      lastAuditAction: response.auditAction
+    };
+    render();
+  });
 }
 
 async function afterRender(route: string) {
@@ -298,9 +353,10 @@ async function afterRender(route: string) {
   const config = state.webConfig ?? buildWebConfig(data);
   const allowlist = buildBrowserApiAllowlist(data, config);
   const endpoint = findReadOnlyEndpoint(data, workspace, page, config, route);
+  const writeEndpoint = findWriteWorkflowEndpoint(data, workspace, page, config, route);
   if (route !== lastLiveRoute) {
     lastLiveRoute = route;
-    state = { ...state, liveWorkspaceState: { endpoint } };
+    state = { ...state, liveWorkspaceState: { endpoint, writeEndpoint } };
     render();
     return;
   }
@@ -311,12 +367,56 @@ async function afterRender(route: string) {
     ...state,
     liveWorkspaceState: {
       endpoint,
+      writeEndpoint,
+      writeResult: state.liveWorkspaceState?.writeResult,
+      writeAuditAction: state.liveWorkspaceState?.writeAuditAction,
       result: response.result,
       auditAction: response.auditAction
     },
     lastAuditAction: response.auditAction
   };
   render();
+}
+
+function buildWriteWorkflowBody(form: HTMLFormElement, session: NonNullable<RenderState["authSession"]>, workspaceId: string, pageId: string) {
+  const formData = new FormData(form);
+  const title = String(formData.get("title") ?? "").trim();
+  const subjectId = String(formData.get("subjectId") ?? "").trim();
+  const reason = String(formData.get("reason") ?? "").trim();
+  const detail = String(formData.get("detail") ?? "").trim();
+  return {
+    tenantId: session.tenantId,
+    subjectId: subjectId || undefined,
+    title,
+    reason,
+    idempotencyKey: `web-${workspaceId}-${pageId}-${Date.now()}`,
+    payload: {
+      workspaceId,
+      pageId,
+      detail,
+      submittedBy: session.subject,
+      submittedRole: session.role,
+      submittedAt: new Date().toISOString()
+    },
+    workflowControls: {
+      liveMode: true,
+      demoData: false,
+      auditRequired: true,
+      tenantIsolationConfirmed: true,
+      humanUserConfirmed: true,
+      noAutonomousDiagnosis: true,
+      noAutonomousTreatment: true,
+      noAiGeneratedClinicalDecision: true,
+      patientClinicalRecordModificationBlocked: true,
+      documentedMedicationSafetyRulesApplied: true,
+      sourceBoundary: "panacea-web-approved-sprint-113-workflow"
+    },
+    requestContext: {
+      client: "panacea-web",
+      route: currentRoute(),
+      language: state.language
+    }
+  };
 }
 
 async function refreshLiveStatus() {

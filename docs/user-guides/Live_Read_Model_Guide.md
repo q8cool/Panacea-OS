@@ -1,5 +1,15 @@
 # Live Read Model Guide
 
+## Sprint 113 Relationship
+
+Live read models remain the authenticated read side of the role workspaces. Sprint 113 adds a separate transactional write side under:
+
+```text
+/api/v4/global-command-intelligence/write-workflows/...
+```
+
+Write workflows persist records and events, while read models continue to display tenant-scoped backend rows. Demo rows are still never mixed into Live Mode.
+
 Sprint 111 adds read-only live read-model endpoints for the Panacea OS role workspaces.
 
 These endpoints are for authenticated viewing only. They do not create orders, diagnoses, treatments, prescriptions, messages, reports, or administrative changes.

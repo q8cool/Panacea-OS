@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createRealTimeGlobalCommandIntelligenceServer } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/api/server.mjs";
 import { API_BASE_PATH } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/domain/command-domain.mjs";
-import { baseRecord, createServiceWithRepository } from "./fixtures.mjs";
+import { writeWorkflowPermission } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/domain/write-workflows.mjs";
+import { baseRecord, baseWriteWorkflow, createServiceWithRepository } from "./fixtures.mjs";
 
 function startServer() {
   const { service, repository } = createServiceWithRepository();
@@ -219,6 +220,52 @@ test("REST API rejects unauthenticated requests and exposes OpenAPI", async () =
     const document = await openApi.json();
     assert.equal(document.info.version, "4.0.0");
     assert.ok(document.paths[`${API_BASE_PATH}/crisis/cross-region`]);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("REST API accepts approved Sprint 113 transactional write workflows and rejects Demo Mode writes", async () => {
+  const { server, repository, baseUrl } = await startServer();
+  try {
+    const created = await postJson(
+      baseUrl,
+      "/write-workflows/clinical/patients",
+      baseWriteWorkflow(),
+      {
+        "x-roles": "doctor",
+        "x-permissions": writeWorkflowPermission
+      }
+    );
+    assert.equal(created.response.status, 201);
+    assert.equal(created.json.event.eventType, "patient.created");
+    assert.equal(created.json.data.workflowKey, "create_patient");
+    assert.equal(created.json.data.workflowControls.demoData, false);
+    assert.equal(repository.writeWorkflows.length, 1);
+    assert.equal(repository.writeWorkflowEvents[0].eventType, "patient.created");
+    assert.equal(repository.audits.at(-1).metadata.eventType, "patient.created");
+
+    const forbidden = await postJson(
+      baseUrl,
+      "/write-workflows/clinical/patients",
+      baseWriteWorkflow(),
+      {
+        "x-roles": "patient",
+        "x-permissions": "read"
+      }
+    );
+    assert.equal(forbidden.response.status, 403);
+
+    const rejectedDemo = await postJson(
+      baseUrl,
+      "/write-workflows/clinical/patients",
+      baseWriteWorkflow({ workflowControls: { ...baseWriteWorkflow().workflowControls, demoData: true } }),
+      {
+        "x-roles": "doctor",
+        "x-permissions": writeWorkflowPermission
+      }
+    );
+    assert.equal(rejectedDemo.response.status, 400);
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }

@@ -3,6 +3,7 @@ import type { AppData, AuthSession, HttpMethod, PanaceaWebConfig, RoleId } from 
 
 export type BrowserApiClassification =
   | "ALLOWED_READ"
+  | "ALLOWED_LIVE_WRITE"
   | "ALLOWED_OPERATOR_TEST"
   | "BLOCKED_WRITE"
   | "BLOCKED_CLINICAL_ACTION"
@@ -101,6 +102,16 @@ export function evaluateBrowserApiRequest(
     return { allowed: true, classification: entry.classification, reason: entry.reason, entry };
   }
 
+  if (entry.classification === "ALLOWED_LIVE_WRITE" && method === "POST") {
+    const hasLiveSession = Boolean(session?.token && session.tenantId && session.roles.length > 0);
+    return {
+      allowed: hasLiveSession,
+      classification: entry.classification,
+      reason: hasLiveSession ? entry.reason : "Approved live write workflow requires an authenticated Live Mode session with tenant and role claims.",
+      entry
+    };
+  }
+
   if (entry.classification === "ALLOWED_OPERATOR_TEST") {
     const isOperator = session?.role === "operator";
     return {
@@ -125,6 +136,7 @@ export function allowlistSummary(entries: BrowserApiAllowlistEntry[]): Record<Br
     return summary;
   }, {
     ALLOWED_READ: 0,
+    ALLOWED_LIVE_WRITE: 0,
     ALLOWED_OPERATOR_TEST: 0,
     BLOCKED_WRITE: 0,
     BLOCKED_CLINICAL_ACTION: 0,
@@ -147,6 +159,10 @@ function classifyEndpoint(endpoint: EndpointRecord, config: PanaceaWebConfig): B
 
   if (method === "GET" && path.includes("/read-models/")) {
     return entry(endpoint, url, "ALLOWED_READ", workspaceScopes, "Authenticated browser Live Mode may call versioned backend read-model endpoints only. Responses must be tenant scoped and read-only.");
+  }
+
+  if (method === "POST" && path.includes("/write-workflows/")) {
+    return entry(endpoint, url, "ALLOWED_LIVE_WRITE", workspaceScopes, "Authenticated browser Live Mode may submit approved Sprint 113 transactional write workflows only. Requests require tenant, role, audit, and workflow control claims.");
   }
 
   if (method !== "GET" && CLINICAL_TERMS.some((term) => text.includes(term))) {

@@ -200,14 +200,15 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
 }
 
 function roleOperationalDemo(data: AppData, route: string, workspace: RoleWorkspaceDefinition, page: RolePageDefinition, context: RoleRenderContext): string {
-  if (context.mode === "live") return roleLiveReadModel(workspace, page, context);
+  if (context.mode === "live") return `${roleLiveReadModel(workspace, page, context)}${roleLiveWriteWorkflow(workspace, page, context)}`;
   const source = demoSourceBanner(context);
-  if (workspace.id === "doctor") return `${source}${doctorExperience(route, page)}`;
-  if (workspace.id === "patient") return `${source}${patientPortalExperience(page)}`;
-  if (workspace.id === "laboratory") return `${source}${laboratoryExperience(page)}`;
-  if (workspace.id === "radiology") return `${source}${radiologyExperience(page)}`;
-  if (workspace.id === "pharmacy") return `${source}${pharmacyExperience(page)}`;
-  if (workspace.id === "administrator") return `${source}${adminExperience(data, page)}`;
+  const writeBoundary = roleDemoWriteBoundary(workspace, page);
+  if (workspace.id === "doctor") return `${source}${writeBoundary}${doctorExperience(route, page)}`;
+  if (workspace.id === "patient") return `${source}${writeBoundary}${patientPortalExperience(page)}`;
+  if (workspace.id === "laboratory") return `${source}${writeBoundary}${laboratoryExperience(page)}`;
+  if (workspace.id === "radiology") return `${source}${writeBoundary}${radiologyExperience(page)}`;
+  if (workspace.id === "pharmacy") return `${source}${writeBoundary}${pharmacyExperience(page)}`;
+  if (workspace.id === "administrator") return `${source}${writeBoundary}${adminExperience(data, page)}`;
   return source;
 }
 
@@ -296,6 +297,133 @@ function liveReadModelTable(items: unknown[]): string {
     ];
   });
   return simpleTable(["Title", "Status", "Subject", "Updated", "Payload"], rows);
+}
+
+function roleLiveWriteWorkflow(workspace: RoleWorkspaceDefinition, page: RolePageDefinition, context: RoleRenderContext): string {
+  const state = context.workspaceState;
+  const endpoint = state?.writeEndpoint;
+  if (!endpoint || !endpoint.url) {
+    return `
+      <section class="band live-write-workflow">
+        <div class="section-title">
+          <div>
+            <h2>${escapeHtml(l("Transactional Write Workflow"))}</h2>
+            <p>${escapeHtml(l(endpoint?.reason ?? "This page has no approved live write workflow."))}</p>
+          </div>
+          <span class="status-pill warn">${escapeHtml(l("Read-only"))}</span>
+        </div>
+      </section>
+    `;
+  }
+  return `
+    <section class="band live-write-workflow">
+      <div class="section-title">
+        <div>
+          <h2>${escapeHtml(l("Transactional Write Workflow"))}</h2>
+          <p>${escapeHtml(l("Live writes require Foundation authentication, tenant isolation, RBAC/ABAC, validation, audit, and event outbox persistence."))}</p>
+        </div>
+        <span class="status-pill ${endpoint.available ? "success" : "warn"}">${escapeHtml(l(endpoint.available ? "LIVE WRITE READY" : "LIVE WRITE UNAVAILABLE"))}</span>
+      </div>
+      <div class="role-source-grid">
+        <article class="source-list">
+          <strong>${escapeHtml(l(endpoint.label))}</strong>
+          <span class="ltr-text" dir="ltr">${escapeHtml(endpoint.url)}</span>
+          <span class="ltr-text" dir="ltr">${escapeHtml(endpoint.source)}</span>
+          <span>${escapeHtml(l("No autonomous diagnosis. No autonomous treatment. Human approval remains mandatory."))}</span>
+        </article>
+        <article class="source-list">
+          <strong>${escapeHtml(l("Write Boundary"))}</strong>
+          <span>${escapeHtml(l("Only approved Sprint 113 transactional forms can submit POST requests from the browser."))}</span>
+          <span>${escapeHtml(l("Unknown or dangerous browser writes remain blocked by the allowlist."))}</span>
+          <span>${escapeHtml(l(workspace.boundary))}</span>
+        </article>
+      </div>
+      <form id="live-write-form" class="live-write-form" data-workflow-url="${escapeAttribute(endpoint.url)}">
+        <label>
+          <span>${escapeHtml(l("Title"))}</span>
+          <input id="live-write-title" name="title" required maxlength="160" value="${escapeAttribute(page.label)}" />
+        </label>
+        <label>
+          <span>${escapeHtml(l("Subject ID"))}</span>
+          <input id="live-write-subject" name="subjectId" maxlength="160" value="${escapeAttribute(defaultSubjectForPage(page))}" />
+        </label>
+        <label>
+          <span>${escapeHtml(l("Reason"))}</span>
+          <input id="live-write-reason" name="reason" maxlength="500" value="${escapeAttribute(`Live ${page.label} workflow`)}" />
+        </label>
+        <label class="wide">
+          <span>${escapeHtml(l("Payload Detail"))}</span>
+          <textarea id="live-write-detail" name="detail" required maxlength="1000">${escapeHtml(`Authenticated ${page.label} transaction from Panacea OS web workspace`)}</textarea>
+        </label>
+        <div class="write-control-list">
+          ${[
+            "Live Mode only",
+            "Tenant isolation confirmed",
+            "Audit required",
+            "Human user confirmed",
+            "No autonomous diagnosis",
+            "No autonomous treatment"
+          ].map((item) => `<span><i data-lucide="ShieldCheck"></i>${escapeHtml(l(item))}</span>`).join("")}
+        </div>
+        <button class="button primary" type="submit" ${endpoint.available ? "" : "disabled"}>
+          <i data-lucide="Send"></i>
+          ${escapeHtml(l("Submit Live Write"))}
+        </button>
+      </form>
+      ${state?.writeResult ? liveWriteResult(state.writeResult) : ""}
+      ${state?.writeAuditAction ? auditAction(state.writeAuditAction) : ""}
+    </section>
+  `;
+}
+
+function roleDemoWriteBoundary(_workspace: RoleWorkspaceDefinition, _page: RolePageDefinition): string {
+  return `
+    <section class="band live-write-workflow demo-write-boundary">
+      <div class="section-title">
+        <div>
+          <h2>${escapeHtml(l("Transactional Write Workflow"))}</h2>
+          <p>${escapeHtml(l("Demo action only — not persisted to production backend"))}</p>
+        </div>
+        <span class="status-pill warn">${escapeHtml(l("DEMO MODE"))}</span>
+      </div>
+      <div class="empty-state compact">
+        <i data-lucide="DatabaseZap"></i>
+        <p>${escapeHtml(l("إجراء تجريبي فقط — لا يتم حفظه في قاعدة الإنتاج"))}</p>
+        <small>${escapeHtml(l("Sign in with a Foundation-issued token to enable approved Sprint 113 live write workflows."))}</small>
+      </div>
+    </section>
+  `;
+}
+
+function liveWriteResult(result: NonNullable<LiveWorkspaceState["writeResult"]>): string {
+  const record = extractWriteRecord(result.jsonBody);
+  return `
+    <div class="live-write-result ${result.state}">
+      <strong>${escapeHtml(result.httpStatus ? `HTTP ${result.httpStatus}` : result.state)}</strong>
+      <span>${escapeHtml(l(result.detail))}</span>
+      ${result.blockedReason ? `<span>${escapeHtml(l(result.blockedReason))}</span>` : ""}
+      ${record ? `
+        <span>${escapeHtml(l("Persisted workflow"))}: ${escapeHtml(String(record.workflowKey ?? "accepted"))}</span>
+        <span>${escapeHtml(l("Event"))}: ${escapeHtml(String(record.eventType ?? ""))}</span>
+      ` : ""}
+      <span class="ltr-text" dir="ltr">${escapeHtml(result.requestId)}</span>
+    </div>
+  `;
+}
+
+function extractWriteRecord(value: unknown): Record<string, unknown> | undefined {
+  const envelope = asRecord(value);
+  const data = asRecord(envelope.data);
+  return Object.keys(data).length ? data : undefined;
+}
+
+function defaultSubjectForPage(page: RolePageDefinition): string {
+  if (page.route.includes("/patient/")) return "patient-self";
+  if (page.route.includes("/laboratory/")) return "current-specimen";
+  if (page.route.includes("/radiology/")) return "current-study";
+  if (page.route.includes("/pharmacy/")) return "current-prescription";
+  if (page.route.includes("/administrator/")) return "current-admin-resource";
+  return "current-patient";
 }
 
 function extractReadModelPayload(value: unknown): Record<string, unknown> | undefined {

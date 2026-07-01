@@ -17,6 +17,10 @@ import {
   assertPrincipalCanReadModel,
   subjectForReadModel
 } from "../domain/read-models.mjs";
+import {
+  assertPrincipalCanWriteWorkflow,
+  normalizeWriteWorkflowInput
+} from "../domain/write-workflows.mjs";
 
 function assertTenantAccess(principal, tenantId) {
   if (principal.tenantId !== tenantId) {
@@ -171,6 +175,84 @@ export class RealTimeGlobalCommandIntelligenceService {
       },
       items: result.items
     };
+  }
+
+  async executeWriteWorkflow(definition, params, input, principal, requestContext = {}) {
+    const normalizedPrincipal = validatePrincipal(principal);
+    assertPrincipalCanWriteWorkflow(normalizedPrincipal, definition);
+    const validated = normalizeWriteWorkflowInput(input, definition, params, normalizedPrincipal);
+    assertTenantAccess(normalizedPrincipal, validated.tenantId);
+
+    const occurredAt = nowIso(this.clock);
+    const record = {
+      id: crypto.randomUUID(),
+      tenantId: validated.tenantId,
+      workflowGroup: definition.workspace,
+      workflowKey: definition.workflowKey,
+      eventType: definition.eventType,
+      subjectId: validated.subjectId,
+      status: "accepted",
+      title: validated.title,
+      reason: validated.reason,
+      idempotencyKey: validated.idempotencyKey,
+      payload: validated.payload,
+      workflowControls: validated.workflowControls,
+      requestContext: {
+        ...validated.requestContext,
+        ...requestContext,
+        method: "POST",
+        path: definition.path,
+        operationId: definition.operationId
+      },
+      createdBy: normalizedPrincipal.actorId,
+      updatedBy: normalizedPrincipal.actorId,
+      createdAt: occurredAt,
+      updatedAt: occurredAt
+    };
+    const event = createEventEnvelope({
+      tenantId: record.tenantId,
+      eventType: definition.eventType,
+      aggregateId: record.id,
+      aggregateType: `write_workflow.${definition.workspace}.${definition.workflowKey}`,
+      actorId: normalizedPrincipal.actorId,
+      occurredAt,
+      payload: {
+        workflowGroup: record.workflowGroup,
+        workflowKey: record.workflowKey,
+        status: record.status,
+        subjectId: record.subjectId,
+        title: record.title,
+        liveMode: record.workflowControls.liveMode,
+        demoData: record.workflowControls.demoData,
+        auditRequired: record.workflowControls.auditRequired,
+        tenantIsolationConfirmed: record.workflowControls.tenantIsolationConfirmed,
+        humanUserConfirmed: record.workflowControls.humanUserConfirmed,
+        payloadKeys: Object.keys(record.payload).sort()
+      }
+    });
+    const auditEntry = {
+      id: crypto.randomUUID(),
+      tenantId: record.tenantId,
+      actorId: normalizedPrincipal.actorId,
+      action: `global_command_intelligence.write_workflow.${record.workflowKey}.accepted`,
+      resourceType: `write_workflow.${record.workflowGroup}`,
+      resourceId: record.id,
+      occurredAt,
+      countryCode: normalizedPrincipal.countryCodes[0] ?? "KW",
+      regionCode: normalizedPrincipal.regionCodes[0] ?? "GLOBAL",
+      metadata: {
+        eventType: definition.eventType,
+        workflowKey: record.workflowKey,
+        subjectId: record.subjectId,
+        idempotencyKey: record.idempotencyKey,
+        liveMode: true,
+        demoData: false,
+        autonomousDiagnosis: "not_permitted",
+        autonomousTreatment: "not_permitted"
+      }
+    };
+    await this.repository.saveWriteWorkflow(record, event, auditEntry);
+    return { record, event };
   }
 
   async #createRecord(input, principal, expectedGroup) {

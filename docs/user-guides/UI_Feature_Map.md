@@ -10,6 +10,8 @@ Sprint 110 adds an operational demo data layer for visible role workspaces. Doct
 
 Sprint 111 adds authenticated live read-model APIs for the role workspaces. In Live Mode, the browser calls versioned GET endpoints under `/api/v4/global-command-intelligence/read-models/...` and displays backend records only when the response is tenant-scoped and marked `demoData: false`.
 
+Sprint 113 adds approved transactional write workflow panels for clinician, laboratory, radiology, pharmacy, scheduling, administration, and patient portal request workflows. In Live Mode, these panels submit only OpenAPI-listed POST endpoints under `/api/v4/global-command-intelligence/write-workflows/...`. In Demo Mode, they display the explicit non-persistence boundary.
+
 | UI area | Route | Active now | Backing evidence |
 |---|---|---:|---|
 | Executive Overview | `#/command/executive-overview` | YES | Release docs, service inventory, OpenAPI docs |
@@ -80,11 +82,25 @@ Sprint 111 adds authenticated live read-model APIs for the role workspaces. In L
 | Pharmacy | YES | `/api/v4/global-command-intelligence/read-models/pharmacy/prescriptions` |
 | Administration | YES | `/api/v4/global-command-intelligence/read-models/admin/users` |
 
+## Live Write Workflow Visibility
+
+| Workspace | Live write workflows? | Example endpoint |
+|---|---:|---|
+| Doctor / Clinician | YES | `/api/v4/global-command-intelligence/write-workflows/clinical/patients` |
+| Patient Portal | YES | `/api/v4/global-command-intelligence/write-workflows/patient-portal/appointment-requests` |
+| Laboratory | YES | `/api/v4/global-command-intelligence/write-workflows/laboratory/orders` |
+| Radiology | YES | `/api/v4/global-command-intelligence/write-workflows/radiology/orders` |
+| Pharmacy | YES | `/api/v4/global-command-intelligence/write-workflows/pharmacy/prescriptions` |
+| Scheduling | YES | `/api/v4/global-command-intelligence/write-workflows/scheduling/appointments` |
+| Administration | YES | `/api/v4/global-command-intelligence/write-workflows/admin/users` |
+
 ## Current Boundary
 
-The role workspaces are not production write applications yet. They are professional, responsive, read-only UI experiences backed by OpenAPI, documentation, runtime status, Foundation Provider status, and release evidence.
+The role workspaces are now professional, responsive UI experiences backed by OpenAPI, documentation, runtime status, Foundation Provider status, release evidence, live read models, and approved Sprint 113 write workflows.
 
-Live Mode adds Foundation JWT validation, role and tenant claims, read-only API client behavior, and browser endpoint polling.
+Live Mode adds Foundation JWT validation, role and tenant claims, read-model API calls, approved write workflow submission, and browser endpoint polling.
+
+Live write workflow execution requires an authenticated token with the dedicated write permission and does not permit autonomous diagnosis, autonomous treatment, or unapproved browser writes.
 
 Live records require:
 

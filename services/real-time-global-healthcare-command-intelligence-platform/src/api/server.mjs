@@ -8,6 +8,7 @@ import { createHeaderCommandAuthenticator } from "../infrastructure/security.mjs
 import { buildOpenApiDocument } from "./openapi.mjs";
 import { routeByFullPath } from "./routes.mjs";
 import { matchReadModelRoute, normalizeReadModelQuery } from "../domain/read-models.mjs";
+import { matchWriteWorkflowRoute } from "../domain/write-workflows.mjs";
 
 const groupMethodName = {
   global_command_intelligence: "recordCommandIntelligence",
@@ -164,6 +165,20 @@ export function createRealTimeGlobalCommandIntelligenceRequestHandler({
         const body = await readJson(request);
         const reference = await service.createIntegrationReference(body, principal);
         return jsonResponse(response, 201, { data: reference });
+      }
+
+      if (request.method === "POST") {
+        const match = matchWriteWorkflowRoute(relativePath, request.method);
+        if (match) {
+          const principal = authenticator.authenticate(request);
+          const body = await readJson(request);
+          const result = await service.executeWriteWorkflow(match.definition, match.params, body, principal, {
+            requestId: request.headers["x-request-id"] ?? null,
+            correlationId: request.headers["x-correlation-id"] ?? null,
+            userAgent: request.headers["user-agent"] ?? null
+          });
+          return jsonResponse(response, 201, { data: result.record, event: result.event });
+        }
       }
 
       const route = routeByFullPath.get(relativePath);

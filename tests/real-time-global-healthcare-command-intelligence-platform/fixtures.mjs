@@ -7,12 +7,19 @@ export function createRepositoryDouble() {
     references: [],
     audits: [],
     readModels: [],
+    writeWorkflows: [],
+    writeWorkflowEvents: [],
     async saveCommandRecord(record, event) {
       this.records.push(record);
       this.events.push(event);
     },
     async saveIntegrationReference(reference) {
       this.references.push(reference);
+    },
+    async saveWriteWorkflow(record, event, auditEntry) {
+      this.writeWorkflows.push(record);
+      this.writeWorkflowEvents.push(event);
+      this.audits.push(auditEntry);
     },
     async listReadModels({ tenantId, workspace, modelKey, subjectId, limit, offset }) {
       const filtered = this.readModels.filter((record) => (
@@ -171,6 +178,37 @@ export function baseRecord(overrides = {}) {
     },
     metadata: {
       source: "sprint_85_test"
+    },
+    ...overrides
+  };
+}
+
+export function baseWriteWorkflow(overrides = {}) {
+  return {
+    tenantId: "tenant-global-command",
+    title: "Live governed write workflow",
+    subjectId: "subject-001",
+    reason: "Operator-approved transactional validation",
+    idempotencyKey: "write-workflow-validation-001",
+    payload: {
+      detail: "Tenant-scoped live write workflow validation",
+      source: "sprint_113_validation"
+    },
+    workflowControls: {
+      liveMode: true,
+      demoData: false,
+      auditRequired: true,
+      tenantIsolationConfirmed: true,
+      humanUserConfirmed: true,
+      noAutonomousDiagnosis: true,
+      noAutonomousTreatment: true,
+      noAiGeneratedClinicalDecision: true,
+      patientClinicalRecordModificationBlocked: true,
+      documentedMedicationSafetyRulesApplied: true,
+      sourceBoundary: "foundation-authenticated-live-workflow"
+    },
+    requestContext: {
+      channel: "test"
     },
     ...overrides
   };
