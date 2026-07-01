@@ -1,0 +1,123 @@
+{
+  "profile": "external-controlled-pilot",
+  "decisionBoundary": "Readiness checks only; not approval for real clinical production use.",
+  "services": [
+    {
+      "serviceName": "autonomous-healthcare-intelligence-foundation",
+      "containerName": "panacea-pilot-autonomous-healthcare-intelligence-foundation",
+      "internalPort": 8094,
+      "localPort": 18094,
+      "externalRoutePlaceholder": "https://api.panacea.example.com/api/v4/autonomous-healthcare-intelligence",
+      "livePath": "/api/v4/autonomous-healthcare-intelligence/live",
+      "readyPath": "/api/v4/autonomous-healthcare-intelligence/ready",
+      "metricsPath": "/api/v4/autonomous-healthcare-intelligence/metrics",
+      "openapiPath": "/api/v4/autonomous-healthcare-intelligence/docs/openapi.json",
+      "expectedStatus": 200,
+      "healthPurpose": "Confirms the autonomous intelligence governance foundation is reachable and exposes runtime metadata only."
+    },
+    {
+      "serviceName": "real-time-global-healthcare-command-intelligence-platform",
+      "containerName": "panacea-pilot-real-time-global-healthcare-command-intelligence-platform",
+      "internalPort": 8095,
+      "localPort": 18095,
+      "externalRoutePlaceholder": "https://api.panacea.example.com/api/v4/global-command-intelligence",
+      "livePath": "/api/v4/global-command-intelligence/live",
+      "readyPath": "/api/v4/global-command-intelligence/ready",
+      "metricsPath": "/api/v4/global-command-intelligence/metrics",
+      "openapiPath": "/api/v4/global-command-intelligence/docs/openapi.json",
+      "expectedStatus": 200,
+      "healthPurpose": "Confirms command intelligence runtime visibility, read-model exposure, and OpenAPI publication."
+    },
+    {
+      "serviceName": "global-workforce-hr-credentialing-staff-experience-platform",
+      "containerName": "panacea-pilot-global-workforce-hr-credentialing-staff-experience-platform",
+      "internalPort": 8141,
+      "localPort": 18141,
+      "externalRoutePlaceholder": "https://api.panacea.example.com/api/v3/global-workforce",
+      "livePath": "/api/v3/global-workforce/live",
+      "readyPath": "/api/v3/global-workforce/ready",
+      "metricsPath": "/api/v3/global-workforce/metrics",
+      "openapiPath": "/api/v3/global-workforce/docs/openapi.json",
+      "expectedStatus": 200,
+      "healthPurpose": "Confirms workforce service runtime availability without expanding workforce behavior."
+    },
+    {
+      "serviceName": "global-legal-contracting-risk-governance-platform",
+      "containerName": "panacea-pilot-global-legal-contracting-risk-governance-platform",
+      "internalPort": 8142,
+      "localPort": 18142,
+      "externalRoutePlaceholder": "https://api.panacea.example.com/api/v3/global-legal-governance",
+      "livePath": "/api/v3/global-legal-governance/live",
+      "readyPath": "/api/v3/global-legal-governance/ready",
+      "metricsPath": "/api/v3/global-legal-governance/metrics",
+      "openapiPath": "/api/v3/global-legal-governance/docs/openapi.json",
+      "expectedStatus": 200,
+      "healthPurpose": "Confirms legal governance service runtime availability."
+    },
+    {
+      "serviceName": "global-customer-success-support-service-management-platform",
+      "containerName": "panacea-pilot-global-customer-success-support-service-management-platform",
+      "internalPort": 8143,
+      "localPort": 18143,
+      "externalRoutePlaceholder": "https://api.panacea.example.com/api/v3/global-customer-success",
+      "livePath": "/api/v3/global-customer-success/live",
+      "readyPath": "/api/v3/global-customer-success/ready",
+      "metricsPath": "/api/v3/global-customer-success/metrics",
+      "openapiPath": "/api/v3/global-customer-success/docs/openapi.json",
+      "expectedStatus": 200,
+      "healthPurpose": "Confirms customer success service runtime availability."
+    },
+    {
+      "serviceName": "global-product-management-roadmap-innovation-portfolio-platform",
+      "containerName": "panacea-pilot-global-product-management-roadmap-innovation-portfolio-platform",
+      "internalPort": 8144,
+      "localPort": 18144,
+      "externalRoutePlaceholder": "https://api.panacea.example.com/api/v3/global-product-management",
+      "livePath": "/api/v3/global-product-management/live",
+      "readyPath": "/api/v3/global-product-management/ready",
+      "metricsPath": "/api/v3/global-product-management/metrics",
+      "openapiPath": "/api/v3/global-product-management/docs/openapi.json",
+      "expectedStatus": 200,
+      "healthPurpose": "Confirms product management service runtime availability."
+    },
+    {
+      "serviceName": "global-compliance-automation-regulatory-intelligence-platform",
+      "containerName": "panacea-pilot-global-compliance-automation-regulatory-intelligence-platform",
+      "internalPort": 8145,
+      "localPort": 18145,
+      "externalRoutePlaceholder": "https://api.panacea.example.com/api/v3/global-compliance",
+      "livePath": "/api/v3/global-compliance/live",
+      "readyPath": "/api/v3/global-compliance/ready",
+      "metricsPath": "/api/v3/global-compliance/metrics",
+      "openapiPath": "/api/v3/global-compliance/docs/openapi.json",
+      "expectedStatus": 200,
+      "healthPurpose": "Confirms compliance service runtime availability."
+    },
+    {
+      "serviceName": "global-ai-assurance-safety-model-risk-management-platform",
+      "containerName": "panacea-pilot-global-ai-assurance-safety-model-risk-management-platform",
+      "internalPort": 8146,
+      "localPort": 18146,
+      "externalRoutePlaceholder": "https://api.panacea.example.com/api/v3/global-ai-assurance",
+      "livePath": "/api/v3/global-ai-assurance/live",
+      "readyPath": "/api/v3/global-ai-assurance/ready",
+      "metricsPath": "/api/v3/global-ai-assurance/metrics",
+      "openapiPath": "/api/v3/global-ai-assurance/docs/openapi.json",
+      "expectedStatus": 200,
+      "healthPurpose": "Confirms AI assurance governance service runtime availability without adding AI capabilities."
+    },
+    {
+      "serviceName": "global-enterprise-data-privacy-consent-trust-platform",
+      "containerName": "panacea-pilot-global-enterprise-data-privacy-consent-trust-platform",
+      "internalPort": 8147,
+      "localPort": 18147,
+      "externalRoutePlaceholder": "https://api.panacea.example.com/api/v3/global-privacy",
+      "livePath": "/api/v3/global-privacy/live",
+      "readyPath": "/api/v3/global-privacy/ready",
+      "metricsPath": "/api/v3/global-privacy/metrics",
+      "openapiPath": "/api/v3/global-privacy/docs/openapi.json",
+      "expectedStatus": 200,
+      "healthPurpose": "Confirms privacy, consent, and trust service runtime availability."
+    }
+  ]
+}

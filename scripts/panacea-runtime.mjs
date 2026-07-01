@@ -16,10 +16,58 @@ const pilotDocuments = Object.freeze([
   "docs/user-guides/Production_Like_Deployment_Runbook.md",
   "docs/user-guides/Panacea_Start_Stop_Status_Guide.md",
   "docs/user-guides/Backup_And_Restore_Guide.md",
+  "docs/user-guides/Domain_And_DNS_Setup_Guide.md",
+  "docs/user-guides/Pilot_Database_Setup_Guide.md",
+  "docs/user-guides/Pilot_Backup_Restore_Runbook.md",
   "docs/user-guides/Security_Boundary_Validation_Guide.md",
+  "docs/user-guides/Pilot_Security_Deployment_Checklist.md",
   "docs/user-guides/Operator_Production_Readiness_Guide.md",
   "docs/roadmap/Sprint_116_Production_Hardening_Final_Release_Report.md"
 ]);
+
+const pilotArtifacts = Object.freeze([
+  ".env.example",
+  ".env.local.example",
+  ".env.pilot.example",
+  ".env.production.example",
+  "infra/docker-compose/pilot/docker-compose.yml",
+  "infra/docker-compose/pilot/README.md",
+  "infra/reverse-proxy/README.md",
+  "infra/reverse-proxy/nginx.panacea.example.conf",
+  "docs/operations/Pilot_Service_Health_Matrix.json"
+]);
+
+const requiredEnvironmentVariables = Object.freeze([
+  "PANACEA_RUNTIME_MODE",
+  "PANACEA_PUBLIC_WEB_URL",
+  "PANACEA_API_PUBLIC_BASE_URL",
+  "PANACEA_CORS_ALLOWED_ORIGINS",
+  "PANACEA_JWT_ISSUER",
+  "PANACEA_JWT_AUDIENCE",
+  "POSTGRES_HOST",
+  "POSTGRES_PORT",
+  "POSTGRES_DB",
+  "POSTGRES_USER",
+  "POSTGRES_PASSWORD",
+  "PANACEA_BACKUP_DIR",
+  "PANACEA_LOG_LEVEL",
+  "PANACEA_SERVICE_AUTONOMOUS_HEALTHCARE_INTELLIGENCE_URL",
+  "PANACEA_SERVICE_GLOBAL_COMMAND_INTELLIGENCE_URL",
+  "PANACEA_SERVICE_GLOBAL_WORKFORCE_URL",
+  "PANACEA_SERVICE_GLOBAL_LEGAL_GOVERNANCE_URL",
+  "PANACEA_SERVICE_GLOBAL_CUSTOMER_SUCCESS_URL",
+  "PANACEA_SERVICE_GLOBAL_PRODUCT_MANAGEMENT_URL",
+  "PANACEA_SERVICE_GLOBAL_COMPLIANCE_URL",
+  "PANACEA_SERVICE_GLOBAL_AI_ASSURANCE_URL",
+  "PANACEA_SERVICE_GLOBAL_PRIVACY_URL"
+]);
+
+const unsafePlaceholderValues = Object.freeze(new Set([
+  "",
+  "CHANGE_ME_NON_SECRET_PLACEHOLDER",
+  "REPLACE_WITH_REAL_VALUE_OUTSIDE_GIT",
+  "EXAMPLE_ONLY_NOT_A_SECRET"
+]));
 
 function write(message) {
   process.stdout.write(`${message}\n`);
@@ -69,6 +117,87 @@ function assertDockerAvailable() {
   const result = execFile("docker", ["version", "--format", "{{.Server.Version}}"], { allowFailure: true });
   if (result.status !== 0) {
     fail(`Docker is not available or not running.\n${result.stderr.trim()}`);
+  }
+}
+
+function readEnvironmentTemplate(filePath) {
+  const values = new Map();
+  const text = fs.readFileSync(filePath, "utf8");
+  for (const line of text.split(/\r?\n/)) {
+    if (!line.trim() || line.trim().startsWith("#") || !line.includes("=")) {
+      continue;
+    }
+    const [key, ...valueParts] = line.split("=");
+    values.set(key.trim(), valueParts.join("=").trim());
+  }
+  return values;
+}
+
+function assertRequiredArtifacts() {
+  for (const artifact of [...pilotArtifacts, ...pilotDocuments]) {
+    if (!fs.existsSync(artifact)) {
+      throw new Error(`Missing required pilot artifact: ${artifact}`);
+    }
+  }
+}
+
+function assertEnvironmentTemplates() {
+  for (const template of [".env.example", ".env.local.example", ".env.pilot.example", ".env.production.example"]) {
+    const values = readEnvironmentTemplate(template);
+    for (const variable of requiredEnvironmentVariables) {
+      if (!values.has(variable)) {
+        throw new Error(`${template} is missing required variable ${variable}`);
+      }
+    }
+  }
+}
+
+function assertPilotEnvironmentIfActive() {
+  const mode = process.env.PANACEA_RUNTIME_MODE;
+  if (!mode) {
+    return;
+  }
+  if (unsafePlaceholderValues.has(mode) || !["local", "pilot", "production"].includes(mode)) {
+    throw new Error(`PANACEA_RUNTIME_MODE must be local, pilot, or production; received ${mode}`);
+  }
+  if (!["pilot", "production"].includes(mode)) {
+    return;
+  }
+  for (const variable of requiredEnvironmentVariables) {
+    const value = process.env[variable]?.trim() ?? "";
+    if (unsafePlaceholderValues.has(value)) {
+      throw new Error(`${variable} must be set to a real operator-provided value outside Git for ${mode} mode`);
+    }
+  }
+}
+
+function assertHealthMatrix() {
+  const matrix = JSON.parse(fs.readFileSync("docs/operations/Pilot_Service_Health_Matrix.json", "utf8"));
+  if (!Array.isArray(matrix.services) || matrix.services.length !== runtimeServices.length) {
+    throw new Error(`Pilot health matrix must include ${runtimeServices.length} services`);
+  }
+  for (const service of runtimeServices) {
+    const entry = matrix.services.find((candidate) => candidate.serviceName === service.name);
+    if (!entry) {
+      throw new Error(`Pilot health matrix missing ${service.name}`);
+    }
+    if (entry.localPort !== service.hostPort) {
+      throw new Error(`${service.name} health matrix port mismatch: expected ${service.hostPort}`);
+    }
+    for (const [key, suffix] of Object.entries({
+      livePath: "/live",
+      readyPath: "/ready",
+      metricsPath: "/metrics",
+      openapiPath: "/docs/openapi.json"
+    })) {
+      const expected = `${service.basePath}${suffix}`;
+      if (entry[key] !== expected) {
+        throw new Error(`${service.name} health matrix ${key} mismatch: expected ${expected}`);
+      }
+      if (!entry[key].startsWith("/api/v")) {
+        throw new Error(`${service.name} health matrix ${key} is not versioned`);
+      }
+    }
   }
 }
 
@@ -143,6 +272,7 @@ async function checkHealth() {
 function showPilotConfig() {
   write("panacea.pilot.config mode=controlled-production-like-pilot");
   write("panacea.pilot.config database=postgres container=panacea-runtime-postgres hostPort=55433 databaseName=panacea_runtime");
+  write("panacea.pilot.config compose=infra/docker-compose/pilot/docker-compose.yml reverseProxy=infra/reverse-proxy/nginx.panacea.example.conf healthMatrix=docs/operations/Pilot_Service_Health_Matrix.json");
   for (const service of runtimeServices) {
     write(`panacea.pilot.config service=${service.name} port=${service.hostPort} live=${service.basePath}/live ready=${service.basePath}/ready metrics=${service.basePath}/metrics openapi=${service.basePath}/docs/openapi.json`);
   }
@@ -150,6 +280,10 @@ function showPilotConfig() {
 }
 
 function checkPilotReadiness() {
+  assertRequiredArtifacts();
+  assertEnvironmentTemplates();
+  assertPilotEnvironmentIfActive();
+  assertHealthMatrix();
   const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
   for (const script of [
     "panacea:start",
@@ -158,15 +292,11 @@ function checkPilotReadiness() {
     "panacea:status",
     "panacea:health",
     "panacea:pilot:check",
-    "panacea:pilot:config"
+    "panacea:pilot:config",
+    "panacea:pilot:health"
   ]) {
     if (!packageJson.scripts?.[script]) {
       throw new Error(`Missing required pilot script: ${script}`);
-    }
-  }
-  for (const documentPath of pilotDocuments) {
-    if (!fs.existsSync(documentPath)) {
-      throw new Error(`Missing required pilot document: ${documentPath}`);
     }
   }
   for (const service of runtimeServices) {
@@ -207,6 +337,11 @@ async function main() {
   }
   if (action === "pilot-check") {
     checkPilotReadiness();
+    return;
+  }
+  if (action === "pilot-health") {
+    await checkHealth();
+    write("panacea.pilot.health result=pass");
     return;
   }
   const script = execFileSync("node", ["-e", "const p=require('./package.json'); console.log(Object.keys(p.scripts).filter((s)=>s.startsWith('panacea:')).join('\\n'))"], {

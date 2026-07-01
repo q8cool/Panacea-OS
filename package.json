@@ -26,6 +26,7 @@
     "panacea:health": "node scripts/panacea-runtime.mjs health",
     "panacea:pilot:check": "node scripts/panacea-runtime.mjs pilot-check",
     "panacea:pilot:config": "node scripts/panacea-runtime.mjs pilot-config",
+    "panacea:pilot:health": "node scripts/panacea-runtime.mjs pilot-health",
     "foundation:auth-provider": "node scripts/start-foundation-auth-provider.mjs",
     "web:dev": "npm --prefix apps/panacea-web run dev",
     "web:build": "npm --prefix apps/panacea-web run build",

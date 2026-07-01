@@ -2,6 +2,9 @@
 .env
 .env.*
 !.env.example
+!.env.local.example
+!.env.pilot.example
+!.env.production.example
 node_modules/
 coverage/
 dist/

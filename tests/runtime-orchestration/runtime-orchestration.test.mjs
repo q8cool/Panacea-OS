@@ -93,9 +93,9 @@ test("CI includes live infrastructure validation using runtime control commands 
   assert.match(workflow, /external-secret-scan:/);
 });
 
-test("root Panacea runtime commands control start, stop, status, restart, and health checks", () => {
+test("root Panacea runtime commands control start, stop, status, restart, pilot, and health checks", () => {
   const packageJson = JSON.parse(read("package.json"));
-  for (const script of ["panacea:start", "panacea:stop", "panacea:restart", "panacea:status", "panacea:health", "panacea:pilot:check", "panacea:pilot:config"]) {
+  for (const script of ["panacea:start", "panacea:stop", "panacea:restart", "panacea:status", "panacea:health", "panacea:pilot:check", "panacea:pilot:config", "panacea:pilot:health"]) {
     assert.match(packageJson.scripts[script], /node scripts\/panacea-runtime\.mjs/, `${script} must use the runtime controller`);
   }
   const source = read("scripts/panacea-runtime.mjs");
@@ -110,5 +110,37 @@ test("root Panacea runtime commands control start, stop, status, restart, and he
   assert.match(source, /waitForContainerHealth/, "health command must wait for Docker health checks after startup");
   assert.match(source, /container is .*run npm run panacea:start first/, "stopped-service failures must be clear");
   assert.match(source, /pilotDocuments/, "pilot check must validate operator documents");
+  assert.match(source, /pilotArtifacts/, "pilot check must validate pilot deployment artifacts");
+  assert.match(source, /requiredEnvironmentVariables/, "pilot check must validate environment templates");
+  assert.match(source, /assertHealthMatrix/, "pilot check must validate the health matrix");
   assert.match(source, /showPilotConfig/, "pilot config must print the route matrix");
+});
+
+test("external pilot deployment artifacts are present and versioned", () => {
+  const required = [
+    ".env.example",
+    ".env.local.example",
+    ".env.pilot.example",
+    ".env.production.example",
+    "infra/docker-compose/pilot/docker-compose.yml",
+    "infra/docker-compose/pilot/README.md",
+    "infra/reverse-proxy/README.md",
+    "infra/reverse-proxy/nginx.panacea.example.conf",
+    "docs/user-guides/Domain_And_DNS_Setup_Guide.md",
+    "docs/user-guides/Pilot_Database_Setup_Guide.md",
+    "docs/user-guides/Pilot_Backup_Restore_Runbook.md",
+    "docs/user-guides/Pilot_Security_Deployment_Checklist.md",
+    "docs/operations/Pilot_Service_Health_Matrix.json"
+  ];
+  for (const artifact of required) {
+    assert.ok(fs.existsSync(path.join(repoRoot, artifact)), `${artifact} must exist`);
+  }
+
+  const matrix = JSON.parse(read("docs/operations/Pilot_Service_Health_Matrix.json"));
+  assert.equal(matrix.services.length, serviceDirectories().length);
+  for (const service of matrix.services) {
+    for (const key of ["livePath", "readyPath", "metricsPath", "openapiPath"]) {
+      assert.match(service[key], /^\/api\/v\d+\//, `${service.serviceName} ${key} must be versioned`);
+    }
+  }
 });
