@@ -223,6 +223,7 @@ export interface LiveApiResult {
   checkedAt: string;
   durationMs?: number;
   bodyPreview?: string;
+  jsonBody?: unknown;
   blockedReason?: string;
   allowlistClassification?: string;
 }

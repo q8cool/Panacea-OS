@@ -4,6 +4,7 @@ import {
   CommandAuthorizationError,
   CommandValidationError
 } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/domain/command-validation.mjs";
+import { readModelDefinitions } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/domain/read-models.mjs";
 import { baseRecord, createServiceWithRepository, principal } from "./fixtures.mjs";
 
 test("Sprint 85 service persists required command intelligence events and audit entries", async () => {
@@ -158,4 +159,59 @@ test("integration references are authorized, multi-region aware, and auditable",
   assert.equal(reference.sourceSystem, "autonomous_intelligence_foundation");
   assert.equal(repository.references.length, 1);
   assert.equal(repository.audits[0].action, "global_command_intelligence.integration_reference.created");
+});
+
+test("live read models are tenant-scoped, read-only, and audited", async () => {
+  const { service, repository } = createServiceWithRepository();
+  const definition = readModelDefinitions.find((item) => item.path === "/read-models/clinical/patients");
+  repository.readModels.push(
+    {
+      id: "read-clinical-001",
+      tenantId: "tenant-global-command",
+      workspace: "clinical",
+      modelKey: "patients",
+      subjectId: "patient-live-001",
+      status: "active",
+      title: "Live Clinical Patient",
+      payload: { patientId: "patient-live-001", source: "live-read-model" },
+      createdAt: "2026-07-01T10:00:00.000Z",
+      updatedAt: "2026-07-01T10:05:00.000Z"
+    },
+    {
+      id: "read-clinical-other-tenant",
+      tenantId: "tenant-other",
+      workspace: "clinical",
+      modelKey: "patients",
+      subjectId: "patient-live-002",
+      status: "active",
+      title: "Other Tenant Clinical Patient",
+      payload: { patientId: "patient-live-002" },
+      createdAt: "2026-07-01T10:00:00.000Z",
+      updatedAt: "2026-07-01T10:05:00.000Z"
+    }
+  );
+
+  const result = await service.listReadModel(definition, {}, { limit: 25, offset: 0 }, principal({
+    roles: ["doctor"],
+    permissions: ["global_command_intelligence.read_models.read"]
+  }));
+
+  assert.equal(result.source, "live-read-model");
+  assert.equal(result.demoData, false);
+  assert.equal(result.items.length, 1);
+  assert.equal(result.items[0].id, "read-clinical-001");
+  assert.equal(result.pagination.total, 1);
+  assert.equal(repository.audits.at(-1).action, "global_command_intelligence.read_model.read");
+});
+
+test("live read models reject roles outside the workspace boundary", async () => {
+  const { service } = createServiceWithRepository();
+  const definition = readModelDefinitions.find((item) => item.path === "/read-models/clinical/patients");
+  await assert.rejects(
+    () => service.listReadModel(definition, {}, { limit: 25, offset: 0 }, principal({
+      roles: ["patient"],
+      permissions: ["patient.read"]
+    })),
+    (error) => error instanceof CommandAuthorizationError && error.message.includes("read model")
+  );
 });

@@ -100,6 +100,7 @@ Allowed by default:
 - Existing OpenAPI `GET */ready`
 - Existing OpenAPI `GET */metrics`
 - Existing OpenAPI `GET */docs/openapi.json`
+- Existing OpenAPI `GET */read-models/...` endpoints for authenticated role workspaces.
 
 Blocked by default:
 
@@ -126,6 +127,8 @@ Authenticated workspaces show:
 
 Demo worklist rows are hidden in Live Mode unless an authenticated read-only API returns real data.
 
+Sprint 111 workspace pages now map to live read-model endpoints. The UI displays backend rows only when the response contains `source: live-read-model` and `demoData: false`.
+
 ## Fallback Behavior
 
 If APIs are unavailable, CORS blocks access, or no JWT is available:
@@ -133,6 +136,7 @@ If APIs are unavailable, CORS blocks access, or no JWT is available:
 - The UI stays usable in Demo Mode.
 - Demo data remains clearly labeled.
 - Live panels show `Live API unavailable`.
+- Live read-model panels show an authenticated empty state when the backend returns zero rows.
 - Blocked browser requests show the allowlist classification and reason.
 - OpenAPI source information remains visible.
 

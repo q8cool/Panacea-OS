@@ -8,6 +8,8 @@ Sprint 109 adds bilingual English/Arabic UI support, a persistent language selec
 
 Sprint 110 adds an operational demo data layer for visible role workspaces. Doctor, patient, laboratory, radiology, pharmacy, administration, and operator areas now render synthetic records for product review. The data is frontend-only and clearly marked as not real patient data.
 
+Sprint 111 adds authenticated live read-model APIs for the role workspaces. In Live Mode, the browser calls versioned GET endpoints under `/api/v4/global-command-intelligence/read-models/...` and displays backend records only when the response is tenant-scoped and marked `demoData: false`.
+
 | UI area | Route | Active now | Backing evidence |
 |---|---|---:|---|
 | Executive Overview | `#/command/executive-overview` | YES | Release docs, service inventory, OpenAPI docs |
@@ -67,6 +69,17 @@ Sprint 110 adds an operational demo data layer for visible role workspaces. Doct
 | Pharmacy | YES | `#/workspace/pharmacy/inventory` |
 | Administration | YES | `#/workspace/administrator/users` |
 
+## Live Read-Model Visibility
+
+| Workspace | Live read model? | Example endpoint |
+|---|---:|---|
+| Doctor / Clinician | YES | `/api/v4/global-command-intelligence/read-models/clinical/patients` |
+| Patient Portal | YES | `/api/v4/global-command-intelligence/read-models/patient-portal/me/appointments` |
+| Laboratory | YES | `/api/v4/global-command-intelligence/read-models/laboratory/orders` |
+| Radiology | YES | `/api/v4/global-command-intelligence/read-models/radiology/studies` |
+| Pharmacy | YES | `/api/v4/global-command-intelligence/read-models/pharmacy/prescriptions` |
+| Administration | YES | `/api/v4/global-command-intelligence/read-models/admin/users` |
+
 ## Current Boundary
 
 The role workspaces are not production write applications yet. They are professional, responsive, read-only UI experiences backed by OpenAPI, documentation, runtime status, Foundation Provider status, and release evidence.
@@ -78,7 +91,8 @@ Live records require:
 - Foundation-issued JWT.
 - Valid JWKS signature validation.
 - CORS-enabled live APIs.
-- Existing read-only backend endpoints.
+- Existing read-only backend read-model endpoints.
+- Read-model rows populated for the authenticated tenant.
 - Production authorization and tenant isolation.
 
-If those prerequisites are unavailable, the UI shows `Live API unavailable` and keeps demo data clearly separated.
+If those prerequisites are unavailable, the UI shows `Live API unavailable`, an authenticated empty state, or a clear auth/CORS error while keeping demo data separated.

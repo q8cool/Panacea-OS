@@ -84,7 +84,10 @@ export function evaluateBrowserApiRequest(
   session: AuthSession | undefined
 ): BrowserApiAllowlistDecision {
   const normalizedUrl = normalizeUrl(url);
-  const entry = allowlist.find((item) => item.method === method && normalizeUrl(item.url) === normalizedUrl);
+  const entry = allowlist.find((item) => item.method === method && (
+    normalizeUrl(item.url) === normalizedUrl ||
+    templateUrlMatches(item.url, url)
+  ));
 
   if (!entry) {
     return {
@@ -140,6 +143,10 @@ function classifyEndpoint(endpoint: EndpointRecord, config: PanaceaWebConfig): B
 
   if (method === "GET" && READ_ONLY_RUNTIME_PATHS.some((suffix) => path.endsWith(suffix))) {
     return entry(endpoint, url, "ALLOWED_READ", workspaceScopes, "Read-only runtime or OpenAPI endpoint generated from the existing OpenAPI contract.");
+  }
+
+  if (method === "GET" && path.includes("/read-models/")) {
+    return entry(endpoint, url, "ALLOWED_READ", workspaceScopes, "Authenticated browser Live Mode may call versioned backend read-model endpoints only. Responses must be tenant scoped and read-only.");
   }
 
   if (method !== "GET" && CLINICAL_TERMS.some((term) => text.includes(term))) {
@@ -202,5 +209,30 @@ function baseUrlForEndpoint(endpoint: EndpointRecord, config: PanaceaWebConfig):
 }
 
 function normalizeUrl(url: string): string {
-  return url.trim().replace(/\/+$/, "");
+  try {
+    const parsed = new URL(url.trim());
+    parsed.search = "";
+    parsed.hash = "";
+    return parsed.toString().replace(/\/+$/, "");
+  } catch {
+    return url.trim().split("?")[0].replace(/\/+$/, "");
+  }
+}
+
+function templateUrlMatches(templateUrl: string, actualUrl: string): boolean {
+  let template;
+  let actual;
+  try {
+    template = new URL(templateUrl);
+    actual = new URL(actualUrl);
+  } catch {
+    return false;
+  }
+  if (template.origin !== actual.origin) return false;
+  const templateSegments = template.pathname.split("/").filter(Boolean).map((segment) => decodeURIComponent(segment));
+  const actualSegments = actual.pathname.split("/").filter(Boolean);
+  if (templateSegments.length !== actualSegments.length) return false;
+  return templateSegments.every((segment, index) => (
+    /^\{[^}]+\}$/.test(segment) || segment === actualSegments[index]
+  ));
 }

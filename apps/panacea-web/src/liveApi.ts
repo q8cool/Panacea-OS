@@ -16,6 +16,106 @@ import type {
 } from "./types";
 
 const SAFE_RETRY_METHODS = new Set<HttpMethod>(["GET"]);
+const GLOBAL_COMMAND_API_BASE = "/api/v4/global-command-intelligence";
+
+const roleReadModelPaths: Record<string, Record<string, string>> = {
+  doctor: {
+    dashboard: `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients`,
+    "patient-search": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients`,
+    "patient-profile": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}`,
+    "clinical-timeline": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/timeline`,
+    encounters: `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/encounters`,
+    allergies: `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/allergies`,
+    conditions: `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/conditions`,
+    medications: `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/medications`,
+    "vital-signs": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/vitals`,
+    "clinical-notes": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/notes`,
+    "orders-overview": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/orders`,
+    "lab-results": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/labs`,
+    "radiology-reports": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/radiology`,
+    "pharmacy-review": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/pharmacy-review`,
+    "ai-recommendations": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/summary`,
+    "clinical-alerts": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/alerts`,
+    "task-list": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/tasks`,
+    "care-team": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/care-team`
+  },
+  patient: {
+    dashboard: `${GLOBAL_COMMAND_API_BASE}/read-models/patient-portal/me`,
+    profile: `${GLOBAL_COMMAND_API_BASE}/read-models/patient-portal/me`,
+    appointments: `${GLOBAL_COMMAND_API_BASE}/read-models/patient-portal/me/appointments`,
+    "visit-history": `${GLOBAL_COMMAND_API_BASE}/read-models/patient-portal/me/visits`,
+    medications: `${GLOBAL_COMMAND_API_BASE}/read-models/patient-portal/me/medications`,
+    allergies: `${GLOBAL_COMMAND_API_BASE}/read-models/patient-portal/me/allergies`,
+    "lab-results": `${GLOBAL_COMMAND_API_BASE}/read-models/patient-portal/me/labs`,
+    "radiology-reports": `${GLOBAL_COMMAND_API_BASE}/read-models/patient-portal/me/radiology`,
+    "clinical-documents": `${GLOBAL_COMMAND_API_BASE}/read-models/patient-portal/me/documents`,
+    "secure-messages": `${GLOBAL_COMMAND_API_BASE}/read-models/patient-portal/me/messages`,
+    telemedicine: `${GLOBAL_COMMAND_API_BASE}/read-models/patient-portal/me/messages`,
+    "invoices-payments": `${GLOBAL_COMMAND_API_BASE}/read-models/patient-portal/me/invoices`,
+    notifications: `${GLOBAL_COMMAND_API_BASE}/read-models/patient-portal/me/messages`,
+    "care-instructions": `${GLOBAL_COMMAND_API_BASE}/read-models/patient-portal/me/care-instructions`
+  },
+  laboratory: {
+    dashboard: `${GLOBAL_COMMAND_API_BASE}/read-models/laboratory/dashboard`,
+    "lab-orders": `${GLOBAL_COMMAND_API_BASE}/read-models/laboratory/orders`,
+    "specimen-tracking": `${GLOBAL_COMMAND_API_BASE}/read-models/laboratory/specimens`,
+    "specimen-collection": `${GLOBAL_COMMAND_API_BASE}/read-models/laboratory/specimens`,
+    "specimen-receiving": `${GLOBAL_COMMAND_API_BASE}/read-models/laboratory/specimens`,
+    "result-entry": `${GLOBAL_COMMAND_API_BASE}/read-models/laboratory/results`,
+    "result-validation": `${GLOBAL_COMMAND_API_BASE}/read-models/laboratory/results`,
+    "result-approval": `${GLOBAL_COMMAND_API_BASE}/read-models/laboratory/results`,
+    "critical-results": `${GLOBAL_COMMAND_API_BASE}/read-models/laboratory/critical-results`,
+    "quality-control": `${GLOBAL_COMMAND_API_BASE}/read-models/laboratory/quality-control`,
+    "lab-analytics": `${GLOBAL_COMMAND_API_BASE}/read-models/laboratory/dashboard`,
+    "lab-reports": `${GLOBAL_COMMAND_API_BASE}/read-models/laboratory/reports`
+  },
+  radiology: {
+    dashboard: `${GLOBAL_COMMAND_API_BASE}/read-models/radiology/dashboard`,
+    "imaging-orders": `${GLOBAL_COMMAND_API_BASE}/read-models/radiology/orders`,
+    "study-list": `${GLOBAL_COMMAND_API_BASE}/read-models/radiology/studies`,
+    "dicom-metadata": `${GLOBAL_COMMAND_API_BASE}/read-models/radiology/studies/{studyId}/dicom-metadata`,
+    "pacs-status": `${GLOBAL_COMMAND_API_BASE}/read-models/radiology/pacs/status`,
+    "reporting-worklist": `${GLOBAL_COMMAND_API_BASE}/read-models/radiology/reporting-worklist`,
+    "report-editor": `${GLOBAL_COMMAND_API_BASE}/read-models/radiology/reports`,
+    "report-approval": `${GLOBAL_COMMAND_API_BASE}/read-models/radiology/reports`,
+    "critical-findings": `${GLOBAL_COMMAND_API_BASE}/read-models/radiology/critical-findings`,
+    "imaging-timeline": `${GLOBAL_COMMAND_API_BASE}/read-models/radiology/timeline`,
+    "radiology-analytics": `${GLOBAL_COMMAND_API_BASE}/read-models/radiology/dashboard`
+  },
+  pharmacy: {
+    dashboard: `${GLOBAL_COMMAND_API_BASE}/read-models/pharmacy/dashboard`,
+    "medication-catalog": `${GLOBAL_COMMAND_API_BASE}/read-models/pharmacy/medications`,
+    "prescription-queue": `${GLOBAL_COMMAND_API_BASE}/read-models/pharmacy/prescriptions`,
+    "prescription-review": `${GLOBAL_COMMAND_API_BASE}/read-models/pharmacy/prescriptions`,
+    dispensing: `${GLOBAL_COMMAND_API_BASE}/read-models/pharmacy/dispensing`,
+    "med-admin-overview": `${GLOBAL_COMMAND_API_BASE}/read-models/pharmacy/dispensing`,
+    inventory: `${GLOBAL_COMMAND_API_BASE}/read-models/pharmacy/inventory`,
+    "batch-lot-tracking": `${GLOBAL_COMMAND_API_BASE}/read-models/pharmacy/batches`,
+    "expiration-tracking": `${GLOBAL_COMMAND_API_BASE}/read-models/pharmacy/expiration-warnings`,
+    "drug-safety-alerts": `${GLOBAL_COMMAND_API_BASE}/read-models/pharmacy/safety-alerts`,
+    "controlled-medications": `${GLOBAL_COMMAND_API_BASE}/read-models/pharmacy/controlled-medications`,
+    "pharmacy-reports": `${GLOBAL_COMMAND_API_BASE}/read-models/pharmacy/dashboard`
+  },
+  administrator: {
+    dashboard: `${GLOBAL_COMMAND_API_BASE}/read-models/admin/system-health`,
+    users: `${GLOBAL_COMMAND_API_BASE}/read-models/admin/users`,
+    roles: `${GLOBAL_COMMAND_API_BASE}/read-models/admin/roles`,
+    permissions: `${GLOBAL_COMMAND_API_BASE}/read-models/admin/permissions`,
+    tenants: `${GLOBAL_COMMAND_API_BASE}/read-models/admin/tenants`,
+    organizations: `${GLOBAL_COMMAND_API_BASE}/read-models/admin/organizations`,
+    facilities: `${GLOBAL_COMMAND_API_BASE}/read-models/admin/facilities`,
+    departments: `${GLOBAL_COMMAND_API_BASE}/read-models/admin/departments`,
+    configuration: `${GLOBAL_COMMAND_API_BASE}/read-models/admin/configuration`,
+    "audit-logs": `${GLOBAL_COMMAND_API_BASE}/read-models/admin/audit-logs`,
+    security: `${GLOBAL_COMMAND_API_BASE}/read-models/admin/security`,
+    privacy: `${GLOBAL_COMMAND_API_BASE}/read-models/admin/privacy`,
+    compliance: `${GLOBAL_COMMAND_API_BASE}/read-models/admin/compliance`,
+    "release-evidence": `${GLOBAL_COMMAND_API_BASE}/read-models/admin/release-evidence`,
+    "system-health": `${GLOBAL_COMMAND_API_BASE}/read-models/admin/system-health`,
+    "api-explorer": `${GLOBAL_COMMAND_API_BASE}/read-models/admin/system-health`,
+    documentation: `${GLOBAL_COMMAND_API_BASE}/read-models/admin/release-evidence`
+  }
+};
 
 export function requestId(): string {
   return globalThis.crypto?.randomUUID?.() ?? `req-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -25,9 +125,34 @@ export function findReadOnlyEndpoint(
   data: AppData,
   workspace: RoleWorkspaceDefinition,
   page: RolePageDefinition,
-  config: PanaceaWebConfig
+  config: PanaceaWebConfig,
+  route = page.route
 ): LiveApiEndpointCandidate {
   const allowlist = buildBrowserApiAllowlist(data, config);
+  const readModelPath = readModelPathForWorkspacePage(workspace.id, page.id);
+  if (readModelPath) {
+    const selected = flattenEndpoints(data.openApiDocuments).find((endpoint) => endpoint.method === "GET" && endpoint.path === readModelPath);
+    if (!selected) {
+      return {
+        label: `${workspace.label} ${page.label}`,
+        method: "GET",
+        url: "",
+        source: "No matching live read-model OpenAPI endpoint",
+        available: false,
+        reason: "Live API unavailable. The role workspace is mapped to a backend read model, but the OpenAPI contract is missing that endpoint."
+      };
+    }
+    const resolvedPath = resolveReadModelPath(readModelPath, route);
+    const url = `${baseUrlForEndpoint(selected, config)}${resolvedPath}`;
+    return {
+      label: `${selected.documentTitle}: ${selected.summary}`,
+      method: selected.method,
+      url,
+      source: selected.documentPath,
+      available: evaluateBrowserApiRequest(allowlist, selected.method, url, undefined).allowed,
+      reason: "Live backend read-model endpoint selected from the OpenAPI contract."
+    };
+  }
   const keywords = [
     page.label,
     page.id.replace(/-/g, " "),
@@ -116,12 +241,16 @@ export async function apiRequest(
   const headers: Record<string, string> = {
     Accept: "application/json",
     Authorization: `Bearer ${session.token}`,
-    "X-Tenant-Id": session.tenantId,
-    "X-User-Id": session.subject,
-    "X-Actor-Id": session.subject,
-    "X-Request-Id": id,
-    "X-Correlation-Id": id
-  };
+      "X-Tenant-Id": session.tenantId,
+      "X-User-Id": session.subject,
+      "X-Actor-Id": session.subject,
+      "X-Roles": session.roles.join(","),
+      "X-Permissions": session.permissions.join(","),
+      "X-Country-Codes": "KW",
+      "X-Region-Codes": "GCC",
+      "X-Request-Id": id,
+      "X-Correlation-Id": id
+    };
   if (body !== undefined) headers["Content-Type"] = "application/json";
 
   try {
@@ -136,6 +265,7 @@ export async function apiRequest(
     window.clearTimeout(timeout);
     const durationMs = Math.round(performance.now() - started);
     const text = await response.text();
+    const jsonBody = parseJsonBody(text);
     return {
       requestId: id,
       method,
@@ -145,7 +275,8 @@ export async function apiRequest(
       detail: detailFromStatus(response.status),
       checkedAt: new Date().toISOString(),
       durationMs,
-      bodyPreview: previewBody(text)
+      bodyPreview: previewBody(text),
+      jsonBody
     };
   } catch (error) {
     window.clearTimeout(timeout);
@@ -159,6 +290,19 @@ export async function apiRequest(
       durationMs: Math.round(performance.now() - started)
     };
   }
+}
+
+function readModelPathForWorkspacePage(workspaceId: string, pageId: string): string | undefined {
+  return roleReadModelPaths[workspaceId]?.[pageId];
+}
+
+function resolveReadModelPath(templatePath: string, route: string): string {
+  const routeSubject = route.split("/")[4];
+  return templatePath
+    .replaceAll("{patientId}", encodeURIComponent(routeSubject || "current-patient"))
+    .replaceAll("{studyId}", encodeURIComponent(routeSubject || "current-study"))
+    .replaceAll("{specimenId}", encodeURIComponent(routeSubject || "current-specimen"))
+    .replaceAll("{prescriptionId}", encodeURIComponent(routeSubject || "current-prescription"));
 }
 
 export async function pollRuntimeStatus(
@@ -313,4 +457,14 @@ function previewBody(body: string): string {
   const trimmed = body.trim();
   if (!trimmed) return "";
   return trimmed.length > 800 ? `${trimmed.slice(0, 800)}...` : trimmed;
+}
+
+function parseJsonBody(body: string): unknown {
+  const trimmed = body.trim();
+  if (!trimmed) return undefined;
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    return undefined;
+  }
 }

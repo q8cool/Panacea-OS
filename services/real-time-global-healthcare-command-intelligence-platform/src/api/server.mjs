@@ -7,6 +7,7 @@ import {
 import { createHeaderCommandAuthenticator } from "../infrastructure/security.mjs";
 import { buildOpenApiDocument } from "./openapi.mjs";
 import { routeByFullPath } from "./routes.mjs";
+import { matchReadModelRoute, normalizeReadModelQuery } from "../domain/read-models.mjs";
 
 const groupMethodName = {
   global_command_intelligence: "recordCommandIntelligence",
@@ -27,7 +28,8 @@ const CORS_ALLOWED_HEADERS = [
   "X-Correlation-Id",
   "X-Permissions",
   "X-Roles",
-  "X-Country-Codes"
+  "X-Country-Codes",
+  "X-Region-Codes"
 ];
 
 function allowedCorsOrigins() {
@@ -147,6 +149,16 @@ export function createRealTimeGlobalCommandIntelligenceRequestHandler({
         return jsonResponse(response, 404, { error: "not_found", message: "Route is outside the global command intelligence API." });
       }
       const relativePath = url.pathname.slice(API_BASE_PATH.length);
+      if (request.method === "GET") {
+        const match = matchReadModelRoute(relativePath);
+        if (match) {
+          const principal = authenticator.authenticate(request);
+          const query = normalizeReadModelQuery(url.searchParams);
+          const result = await service.listReadModel(match.definition, match.params, query, principal);
+          return jsonResponse(response, 200, { data: result });
+        }
+      }
+
       if (request.method === "POST" && relativePath === "/integrations/references") {
         const principal = authenticator.authenticate(request);
         const body = await readJson(request);

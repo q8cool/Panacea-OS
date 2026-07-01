@@ -143,6 +143,44 @@ export class PostgresRealTimeGlobalCommandIntelligenceRepository {
     );
   }
 
+  async listReadModels({ tenantId, workspace, modelKey, subjectId, limit, offset }) {
+    const filters = [tenantId, workspace, modelKey];
+    let subjectFilter = "";
+    if (subjectId) {
+      filters.push(subjectId);
+      subjectFilter = ` AND subject_id = $${filters.length}`;
+    }
+    const countResult = await this.pool.query(
+      `SELECT COUNT(*)::int AS total
+       FROM global_command_intelligence_read_models
+       WHERE tenant_id = $1 AND workspace = $2 AND model_key = $3${subjectFilter}`,
+      filters
+    );
+    const rowsResult = await this.pool.query(
+      `SELECT id, tenant_id, workspace, model_key, subject_id, status, title, payload, created_at, updated_at
+       FROM global_command_intelligence_read_models
+       WHERE tenant_id = $1 AND workspace = $2 AND model_key = $3${subjectFilter}
+       ORDER BY updated_at DESC, id ASC
+       LIMIT $${filters.length + 1} OFFSET $${filters.length + 2}`,
+      [...filters, limit, offset]
+    );
+    return {
+      total: Number(countResult.rows[0]?.total ?? 0),
+      items: rowsResult.rows.map((row) => ({
+        id: row.id,
+        tenantId: row.tenant_id,
+        workspace: row.workspace,
+        modelKey: row.model_key,
+        subjectId: row.subject_id,
+        status: row.status,
+        title: row.title,
+        payload: row.payload,
+        createdAt: row.created_at?.toISOString?.() ?? row.created_at,
+        updatedAt: row.updated_at?.toISOString?.() ?? row.updated_at
+      }))
+    };
+  }
+
   async #insertEvent(client, event) {
     await client.query(
       `INSERT INTO global_command_intelligence_events (
@@ -180,10 +218,15 @@ export async function runPostgresMigrations({ connectionString }) {
   const { Pool } = await import("pg");
   const pool = new Pool({ connectionString });
   const moduleDir = path.dirname(fileURLToPath(import.meta.url));
-  const migrationPath = path.resolve(moduleDir, "../../migrations/001_real_time_global_command_intelligence.sql");
-  const sql = await fs.readFile(migrationPath, "utf8");
   try {
-    await pool.query(sql);
+    const migrationsDir = path.resolve(moduleDir, "../../migrations");
+    const files = (await fs.readdir(migrationsDir))
+      .filter((file) => file.endsWith(".sql"))
+      .sort();
+    for (const file of files) {
+      const sql = await fs.readFile(path.join(migrationsDir, file), "utf8");
+      await pool.query(sql);
+    }
   } finally {
     await pool.end();
   }

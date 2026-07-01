@@ -9,6 +9,7 @@ import {
   recordTypesByGroup,
   requiredEvents
 } from "../domain/command-domain.mjs";
+import { readModelDefinitions, readModelPermission } from "../domain/read-models.mjs";
 import { routeDefinitions } from "./routes.mjs";
 
 function schemaRef(name) {
@@ -34,6 +35,51 @@ function createRecordPath(route) {
         "201": {
           description: "Command intelligence record persisted and event queued",
           content: { "application/json": { schema: schemaRef("CommandRecordResponse") } }
+        },
+        "400": { description: "Validation failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } },
+        "401": { description: "Authentication failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } },
+        "403": { description: "Authorization failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } }
+      }
+    }
+  };
+}
+
+function createReadModelPath(definition) {
+  const pathParameters = [...definition.path.matchAll(/\{([^}]+)\}/g)].map((match) => ({
+    name: match[1],
+    in: "path",
+    required: true,
+    schema: { type: "string", minLength: 1 },
+    description: `Read-model ${match[1]} selector.`
+  }));
+  return {
+    get: {
+      tags: ["live_read_models"],
+      operationId: definition.operationId,
+      summary: definition.summary,
+      description: "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+      security: [{ bearerAuth: [] }, { tenantHeaders: [] }],
+      parameters: [
+        ...pathParameters,
+        {
+          name: "limit",
+          in: "query",
+          required: false,
+          schema: { type: "integer", minimum: 1, maximum: 100, default: 25 },
+          description: "Maximum read-model rows to return."
+        },
+        {
+          name: "offset",
+          in: "query",
+          required: false,
+          schema: { type: "integer", minimum: 0, maximum: 10000, default: 0 },
+          description: "Read-model row offset."
+        }
+      ],
+      responses: {
+        "200": {
+          description: "Tenant-scoped live read-model rows returned",
+          content: { "application/json": { schema: schemaRef("ReadModelListResponse") } }
         },
         "400": { description: "Validation failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } },
         "401": { description: "Authentication failure", content: { "application/json": { schema: schemaRef("ErrorResponse") } } },
@@ -81,6 +127,9 @@ export function buildOpenApiDocument() {
   for (const route of routeDefinitions) {
     paths[`${API_BASE_PATH}${route.path}`] = createRecordPath(route);
   }
+  for (const definition of readModelDefinitions) {
+    paths[`${API_BASE_PATH}${definition.path}`] = createReadModelPath(definition);
+  }
   paths[`${API_BASE_PATH}/integrations/references`] = {
     post: {
       tags: ["Integrations"],
@@ -120,7 +169,8 @@ export function buildOpenApiDocument() {
       { name: "global_alert_intelligence" },
       { name: "crisis_emergency_coordination" },
       { name: "command_decision_support" },
-      { name: "executive_intelligence" }
+      { name: "executive_intelligence" },
+      { name: "live_read_models" }
     ],
     paths,
     components: {
@@ -209,6 +259,52 @@ export function buildOpenApiDocument() {
           required: ["data"],
           properties: { data: { type: "object" } }
         },
+        Pagination: {
+          type: "object",
+          required: ["limit", "offset", "total"],
+          properties: {
+            limit: { type: "integer", minimum: 1, maximum: 100 },
+            offset: { type: "integer", minimum: 0 },
+            total: { type: "integer", minimum: 0 }
+          }
+        },
+        ReadModelItem: {
+          type: "object",
+          required: ["id", "tenantId", "workspace", "modelKey", "status", "title", "payload", "updatedAt"],
+          properties: {
+            id: { type: "string" },
+            tenantId: { type: "string" },
+            workspace: { type: "string" },
+            modelKey: { type: "string" },
+            subjectId: { type: "string" },
+            status: { type: "string" },
+            title: { type: "string" },
+            payload: { type: "object", additionalProperties: true },
+            createdAt: { type: "string", format: "date-time" },
+            updatedAt: { type: "string", format: "date-time" }
+          }
+        },
+        ReadModelList: {
+          type: "object",
+          required: ["source", "demoData", "tenantId", "workspace", "modelKey", "pagination", "items"],
+          properties: {
+            source: { type: "string", enum: ["live-read-model"] },
+            demoData: { type: "boolean", enum: [false] },
+            tenantId: { type: "string" },
+            workspace: { type: "string" },
+            modelKey: { type: "string" },
+            subjectId: { type: "string" },
+            pagination: schemaRef("Pagination"),
+            items: { type: "array", items: schemaRef("ReadModelItem") }
+          }
+        },
+        ReadModelListResponse: {
+          type: "object",
+          required: ["data"],
+          properties: {
+            data: schemaRef("ReadModelList")
+          }
+        },
         ErrorResponse: {
           type: "object",
           required: ["error", "message"],
@@ -238,8 +334,16 @@ export function buildOpenApiDocument() {
         "emergency_access_governance",
         "command_center_permissions",
         "regional_governance_policies",
-        "country_level_policy_controls"
-      ]
+        "country_level_policy_controls",
+        "live_read_models"
+      ],
+      liveReadModels: readModelDefinitions.map((definition) => ({
+        workspace: definition.workspace,
+        modelKey: definition.modelKey,
+        path: `${API_BASE_PATH}${definition.path}`,
+        roles: definition.allowedRoles,
+        permission: readModelPermission
+      }))
     }
   };
 }

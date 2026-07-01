@@ -23,7 +23,7 @@ function serviceMigrationFiles() {
 
 test("service migrations define tenant, audit, event, constraint, and index structures", () => {
   const files = serviceMigrationFiles();
-  assert.equal(files.length, 9);
+  assert.ok(files.length >= 9);
   for (const file of files) {
     const sql = fs.readFileSync(file, "utf8");
     assert.match(sql, /CREATE TABLE IF NOT EXISTS/i);

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node src/index.mjs",
-    "check": "node --check src/domain/command-domain.mjs && node --check src/domain/command-validation.mjs && node --check src/application/command-service.mjs && node --check src/infrastructure/postgres-repository.mjs && node --check src/infrastructure/security.mjs && node --check src/api/routes.mjs && node --check src/api/server.mjs && node --check src/api/openapi.mjs && node --check src/index.mjs",
+    "check": "node --check src/domain/command-domain.mjs && node --check src/domain/command-validation.mjs && node --check src/domain/read-models.mjs && node --check src/application/command-service.mjs && node --check src/infrastructure/postgres-repository.mjs && node --check src/infrastructure/security.mjs && node --check src/api/routes.mjs && node --check src/api/server.mjs && node --check src/api/openapi.mjs && node --check src/index.mjs",
     "test": "node --test ../../tests/real-time-global-healthcare-command-intelligence-platform/*.test.mjs",
     "openapi": "node src/api/openapi.mjs --write docs/openapi.json"
   },

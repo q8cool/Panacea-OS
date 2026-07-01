@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Sprint 108 connects the Panacea web workspaces to existing live runtime surfaces where the current backend APIs support safe read-only browser access.
+Sprint 111 connects the Panacea web workspaces to existing live runtime surfaces and versioned backend read-model APIs where safe read-only browser access is supported.
 
 ## How To Run
 
@@ -45,7 +45,8 @@ Use Foundation Provider Login only when the deployed Foundation provider exposes
 | Label | Meaning |
 | --- | --- |
 | `LIVE CONNECTED` | A page-level read API returned live data. |
-| `LIVE PARTIAL` | Runtime/OpenAPI status is reachable, but the page does not have a live record read model. |
+| `LIVE READ MODEL` | The page is rendering a backend read-model response with `demoData: false`. |
+| `LIVE PARTIAL` | Runtime/OpenAPI status is reachable, but the page request has not completed yet. |
 | `LIVE API UNAVAILABLE` | No matching safe read endpoint exists or the endpoint is unavailable. |
 | `BLOCKED BY AUTH` | The endpoint returned 401/403 or token claims are insufficient. |
 | `BLOCKED BY CORS` | Browser transport was blocked by CORS or fetch failed before a response. |
@@ -55,3 +56,5 @@ Use Foundation Provider Login only when the deployed Foundation provider exposes
 ## Important Boundary
 
 Live Mode does not invent clinical records. If an API does not exist, the UI shows unavailable status and keeps demo data separate.
+
+If an API exists but returns zero records, the UI displays an authenticated empty state rather than falling back to demo rows.

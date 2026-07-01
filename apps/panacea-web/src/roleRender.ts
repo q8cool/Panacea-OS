@@ -200,6 +200,7 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
 }
 
 function roleOperationalDemo(data: AppData, route: string, workspace: RoleWorkspaceDefinition, page: RolePageDefinition, context: RoleRenderContext): string {
+  if (context.mode === "live") return roleLiveReadModel(workspace, page, context);
   const source = demoSourceBanner(context);
   if (workspace.id === "doctor") return `${source}${doctorExperience(route, page)}`;
   if (workspace.id === "patient") return `${source}${patientPortalExperience(page)}`;
@@ -208,6 +209,110 @@ function roleOperationalDemo(data: AppData, route: string, workspace: RoleWorksp
   if (workspace.id === "pharmacy") return `${source}${pharmacyExperience(page)}`;
   if (workspace.id === "administrator") return `${source}${adminExperience(data, page)}`;
   return source;
+}
+
+function roleLiveReadModel(workspace: RoleWorkspaceDefinition, page: RolePageDefinition, context: RoleRenderContext): string {
+  const state = context.workspaceState;
+  if (!state) {
+    return liveReadModelShell(page, "Awaiting backend read model", "The browser is preparing the authenticated read-only request for this workspace page.", "warn");
+  }
+  if (!state.result) {
+    return liveReadModelShell(page, "Awaiting backend response", "Navigate or refresh to execute the selected read-only backend request.", "warn");
+  }
+  const result = state.result;
+  if (result.state !== "online") {
+    return liveReadModelShell(
+      page,
+      result.httpStatus ? `HTTP ${result.httpStatus}` : result.state,
+      result.blockedReason || result.detail,
+      statusClass(result.state)
+    );
+  }
+  const readModel = extractReadModelPayload(result.jsonBody);
+  if (!readModel || readModel.demoData !== false) {
+    return liveReadModelShell(
+      page,
+      "Backend read model unavailable",
+      "The live endpoint responded, but did not return the expected read-model contract with demoData false.",
+      "warn",
+      result.bodyPreview
+    );
+  }
+  const items = Array.isArray(readModel.items) ? readModel.items : [];
+  const summary = [
+    metricMini("Live rows", String(items.length), "Tenant-scoped backend rows"),
+    metricMini("Tenant", String(readModel.tenantId ?? context.session?.tenantId ?? "Unknown"), "Authenticated scope"),
+    metricMini("Model", String(readModel.modelKey ?? page.id), String(readModel.workspace ?? workspace.id))
+  ].join("");
+
+  return `
+    <section class="band live-read-model">
+      <div class="section-title">
+        <div>
+          <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Live Read Model"))}</h2>
+          <p>${escapeHtml(l("Live Mode displays only authenticated backend read-model responses. Demo rows are not mixed with live data."))}</p>
+        </div>
+        <span class="status-pill success">${escapeHtml(l("LIVE READ MODEL"))}</span>
+      </div>
+      <div class="metric-grid">${summary}</div>
+      ${items.length ? liveReadModelTable(items) : `
+        <div class="empty-state compact">
+          <i data-lucide="Database"></i>
+          <p>${escapeHtml(l("The backend returned zero tenant-scoped records for this read model."))}</p>
+        </div>
+      `}
+    </section>
+  `;
+}
+
+function liveReadModelShell(page: RolePageDefinition, title: string, detail: string, tone: string, preview = ""): string {
+  return `
+    <section class="band live-read-model">
+      <div class="section-title">
+        <div>
+          <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Live Read Model"))}</h2>
+          <p>${escapeHtml(l("Live Mode displays only authenticated backend read-model responses. Demo rows are not mixed with live data."))}</p>
+        </div>
+        <span class="status-pill ${escapeAttribute(tone)}">${escapeHtml(l(title))}</span>
+      </div>
+      <div class="empty-state compact">
+        <i data-lucide="DatabaseZap"></i>
+        <p>${escapeHtml(l(detail))}</p>
+        ${preview ? `<small class="ltr-text" dir="ltr">${escapeHtml(preview)}</small>` : ""}
+      </div>
+    </section>
+  `;
+}
+
+function liveReadModelTable(items: unknown[]): string {
+  const rows = items.map((item) => {
+    const record = asRecord(item);
+    return [
+      String(record.title ?? record.id ?? "Untitled"),
+      String(record.status ?? "active"),
+      String(record.subjectId ?? "collection"),
+      String(record.updatedAt ?? ""),
+      formatPayloadPreview(record.payload)
+    ];
+  });
+  return simpleTable(["Title", "Status", "Subject", "Updated", "Payload"], rows);
+}
+
+function extractReadModelPayload(value: unknown): Record<string, unknown> | undefined {
+  const envelope = asRecord(value);
+  const data = asRecord(envelope.data);
+  return Object.keys(data).length ? data : undefined;
+}
+
+function formatPayloadPreview(value: unknown): string {
+  const payload = asRecord(value);
+  const entries = Object.entries(payload).slice(0, 4);
+  if (entries.length === 0) return "No payload fields";
+  return entries.map(([key, item]) => `${key}: ${typeof item === "object" ? JSON.stringify(item) : String(item)}`).join(" | ");
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
 function demoSourceBanner(context: RoleRenderContext): string {
@@ -681,21 +786,7 @@ function roleWorkflow(page: RolePageDefinition): string {
 
 function roleTable(page: RolePageDefinition, mode: DataMode): string {
   if (mode === "live") {
-    return `
-      <section class="band">
-        <div class="section-title">
-          <div>
-            <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Worklist"))}</h2>
-            <p>${escapeHtml(l("Demo rows are hidden in Live Mode. Real records appear only when an existing authenticated read-only API returns data."))}</p>
-          </div>
-          <span class="status-pill warn">${escapeHtml(l("LIVE API UNAVAILABLE"))}</span>
-        </div>
-        <div class="empty-state compact">
-          <i data-lucide="DatabaseZap"></i>
-          <p>${escapeHtml(l("No live records are displayed for this workspace page."))}</p>
-        </div>
-      </section>
-    `;
+    return "";
   }
   return `
     <section class="band">

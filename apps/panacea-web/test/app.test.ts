@@ -416,7 +416,11 @@ describe("Panacea web platform", () => {
       Authorization: "Bearer test-token",
       "X-Tenant-Id": "tenant-a",
       "X-User-Id": "administrator-subject",
-      "X-Actor-Id": "administrator-subject"
+      "X-Actor-Id": "administrator-subject",
+      "X-Roles": "administrator",
+      "X-Permissions": "read",
+      "X-Country-Codes": "KW",
+      "X-Region-Codes": "GCC"
     });
     expect((headers as Record<string, string>)["X-Request-Id"]).toBeTruthy();
     expect((headers as Record<string, string>)["X-Correlation-Id"]).toBeTruthy();
@@ -439,8 +443,20 @@ describe("Panacea web platform", () => {
     const allowlist = buildBrowserApiAllowlist(data, config);
     const allowed = evaluateBrowserApiRequest(allowlist, "GET", allowedReadUrlFromAllowlist(allowlist), sessionFor("operator"));
     const blocked = evaluateBrowserApiRequest(allowlist, "GET", "https://api.example.test/api/v4/not-in-openapi", sessionFor("operator"));
+    const templated = evaluateBrowserApiRequest([
+      ...allowlist,
+      {
+        ...allowedReadFixture,
+        path: "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/timeline",
+        url: "https://api.example.test/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/timeline",
+        summary: "List clinical timeline read models",
+        reason: "Authenticated backend read model."
+      }
+    ], "GET", "https://api.example.test/api/v4/global-command-intelligence/read-models/clinical/patients/patient-live-001/timeline?limit=10", sessionFor("doctor"));
     expect(allowed.allowed).toBe(true);
     expect(allowed.classification).toBe("ALLOWED_READ");
+    expect(templated.allowed).toBe(true);
+    expect(templated.classification).toBe("ALLOWED_READ");
     expect(blocked.allowed).toBe(false);
     expect(blocked.classification).toBe("UNKNOWN");
   });
@@ -533,10 +549,64 @@ describe("Panacea web platform", () => {
     });
     expect(html).toContain("LIVE MODE -- AUTHENTICATED READ-ONLY SESSION");
     expect(html).toContain("LIVE API UNAVAILABLE");
-    expect(html).toContain("Demo rows are hidden in Live Mode");
-    expect(html).toContain("No live records are displayed");
+    expect(html).toContain("Live Read Model");
+    expect(html).toContain("Live API unavailable");
     expect(html).toContain("ALLOWED_READ");
     expect(html).not.toContain("Rows are UI-state examples");
+    expect(html).not.toContain("Patient Portal Demo");
+    expect(html).not.toContain("Cardiology Clinic");
+  });
+
+  it("renders live backend read-model rows without demo workspace records", () => {
+    const liveWorkspaceState: LiveWorkspaceState = {
+      endpoint: {
+        label: "Global Command Intelligence: List tenant-scoped clinical patient read models",
+        method: "GET",
+        url: "http://localhost:18095/api/v4/global-command-intelligence/read-models/clinical/patients",
+        source: "services/real-time-global-healthcare-command-intelligence-platform/docs/openapi.json",
+        available: true,
+        reason: "Live backend read-model endpoint selected from the OpenAPI contract."
+      },
+      result: {
+        requestId: "req-live-read",
+        method: "GET",
+        url: "http://localhost:18095/api/v4/global-command-intelligence/read-models/clinical/patients",
+        state: "online",
+        httpStatus: 200,
+        detail: "Request completed.",
+        checkedAt: new Date().toISOString(),
+        jsonBody: {
+          data: {
+            source: "live-read-model",
+            demoData: false,
+            tenantId: "tenant-a",
+            workspace: "clinical",
+            modelKey: "patients",
+            pagination: { limit: 25, offset: 0, total: 1 },
+            items: [
+              {
+                id: "read-live-patient-001",
+                title: "Live Read Patient",
+                status: "active",
+                subjectId: "patient-live-001",
+                updatedAt: "2026-07-01T10:00:00.000Z",
+                payload: { patientId: "patient-live-001", source: "backend" }
+              }
+            ]
+          }
+        }
+      }
+    };
+    const html = renderRoute(data, "/workspace/doctor/dashboard", {
+      ...initialState,
+      authSession: sessionFor("doctor"),
+      liveWorkspaceState
+    });
+    expect(html).toContain("Live Read Model");
+    expect(html).toContain("Live Read Patient");
+    expect(html).toContain("LIVE READ MODEL");
+    expect(html).not.toContain("Demo Patient Alpha");
+    expect(html).not.toContain("Doctor Patient Search");
   });
 
   it("renders live workspace status labels for partial, auth, and CORS outcomes", () => {

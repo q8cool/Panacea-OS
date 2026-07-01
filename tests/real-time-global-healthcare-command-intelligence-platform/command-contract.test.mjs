@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { buildOpenApiDocument } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/api/openapi.mjs";
 import { routeDefinitions } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/api/routes.mjs";
 import { API_BASE_PATH, requiredEvents } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/domain/command-domain.mjs";
+import { readModelDefinitions } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/domain/read-models.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -21,8 +22,14 @@ test("OpenAPI contract contains every Sprint 85 route and required event", () =>
   assert.ok(document.paths[`${API_BASE_PATH}/ready`]);
   assert.ok(document.paths[`${API_BASE_PATH}/metrics`]);
   assert.ok(document.paths[`${API_BASE_PATH}/docs/openapi.json`]);
+  for (const definition of readModelDefinitions) {
+    const fullPath = `${API_BASE_PATH}${definition.path}`;
+    assert.ok(document.paths[fullPath], `missing read model ${fullPath}`);
+    assert.ok(document.paths[fullPath].get, `missing GET method for ${fullPath}`);
+  }
+  assert.ok(document.components.schemas.ReadModelListResponse);
   assert.deepEqual(document["x-panacea"].requiredEvents, requiredEvents);
-  assert.equal(Object.keys(document.paths).length, routeDefinitions.length + 5);
+  assert.equal(Object.keys(document.paths).length, routeDefinitions.length + readModelDefinitions.length + 5);
 });
 
 test("OpenAPI declares command, emergency, regional, country, and governance controls", () => {
@@ -38,13 +45,32 @@ test("OpenAPI declares command, emergency, regional, country, and governance con
     "emergency_access_governance",
     "command_center_permissions",
     "regional_governance_policies",
-    "country_level_policy_controls"
+    "country_level_policy_controls",
+    "live_read_models"
   ]);
   assert.equal(document["x-panacea"].advisoryOnly, true);
   assert.equal(document["x-panacea"].governanceApprovalRequired, true);
   assert.equal(document["x-panacea"].autonomousDiagnosis, "not_permitted");
   assert.equal(document["x-panacea"].autonomousTreatment, "not_permitted");
   assert.equal(document["x-panacea"].autonomousEmergencyEnforcement, "not_permitted");
+});
+
+test("PostgreSQL migration defines live read models with tenant, audit, indexes, and outbox fields", () => {
+  const sql = fs.readFileSync(
+    path.join(repoRoot, "services/real-time-global-healthcare-command-intelligence-platform/migrations/002_live_read_models.sql"),
+    "utf8"
+  );
+  for (const tableName of [
+    "global_command_intelligence_read_models",
+    "global_command_intelligence_read_model_events"
+  ]) {
+    assert.match(sql, new RegExp(`CREATE TABLE IF NOT EXISTS ${tableName}`));
+  }
+  for (const requiredColumn of ["tenant_id", "created_at", "updated_at", "created_by", "updated_by", "published_at", "event_type"]) {
+    assert.match(sql, new RegExp(requiredColumn));
+  }
+  assert.match(sql, /CREATE INDEX IF NOT EXISTS idx_gci_read_models_tenant_workspace/);
+  assert.match(sql, /length\(trim\(tenant_id\)\) > 0/);
 });
 
 test("PostgreSQL migration defines records, events, audit, integration references, and governance constraints", () => {

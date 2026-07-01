@@ -2,7 +2,7 @@
 
 ## Overview
 
-Sprint 104 upgrades the Sprint 103 role workspaces with authenticated Live Mode.
+Sprint 111 upgrades the role workspaces with authenticated backend read-model APIs.
 
 Each workspace remains read-only in the browser and never performs autonomous clinical action.
 
@@ -10,12 +10,12 @@ Each workspace remains read-only in the browser and never performs autonomous cl
 
 | Workspace | Live behavior |
 |---|---|
-| Doctor / Clinician | Uses role claims and attempts read-only API discovery for clinical pages. Demo rows are hidden in Live Mode when APIs are unavailable. |
-| Patient Portal | Uses patient role claims and shows patient-facing boundaries. No guidance replaces clinician advice. |
-| Laboratory | Shows read-only lab API availability where contracts exist. |
-| Radiology | Shows read-only imaging/report API availability where contracts exist. DICOM image viewing is not implemented. |
-| Pharmacy | Shows read-only pharmacy API availability where contracts exist. No new medication safety backend logic is added. |
-| Administration | Shows read-only admin/system visibility where contracts exist. |
+| Doctor / Clinician | Uses clinical read models for patients, timelines, allergies, medications, orders, labs, radiology summaries, pharmacy review, alerts, tasks, and care team views. |
+| Patient Portal | Uses self-scoped patient portal read models. No guidance replaces clinician advice. |
+| Laboratory | Uses laboratory read models for dashboard, orders, specimens, results, critical results, QC, and reports. |
+| Radiology | Uses radiology read models for orders, studies, metadata, PACS status, reports, critical findings, and timeline. DICOM image viewing is not implemented. |
+| Pharmacy | Uses pharmacy read models for medications, prescriptions, dispensing, inventory, batches, expiration warnings, safety alerts, and controlled medications. No new medication safety backend logic is added. |
+| Administration | Uses administration read models for users, roles, tenants, configuration, audit logs, security, privacy, compliance, system health, and release evidence. |
 | Operator | Uses command, status, Foundation, API Explorer, evidence, and documentation pages. |
 
 ## Live Panels
@@ -30,6 +30,7 @@ Each workspace page shows:
 - Request status.
 - Request ID.
 - User, role, tenant, timestamp, endpoint, and response status.
+- Live read-model rows when the backend returns `demoData: false`.
 
 ## Sprint 108 Connection Labels
 
@@ -37,8 +38,8 @@ Role workspace pages now show one of these explicit labels:
 
 | Label | Meaning |
 |---|---|
-| `LIVE CONNECTED` | A page-level read API returned live data. |
-| `LIVE PARTIAL` | Runtime/OpenAPI status is reachable, but page-level record data is not available. |
+| `LIVE CONNECTED` | A page-level read-model API returned a successful response. |
+| `LIVE PARTIAL` | Runtime/OpenAPI status is reachable, but a page-level request has not completed yet. |
 | `LIVE API UNAVAILABLE` | No safe matching read endpoint exists or it cannot be reached. |
 | `BLOCKED BY AUTH` | Authentication or authorization blocked access. |
 | `BLOCKED BY CORS` | Browser CORS blocked access before a usable response. |
@@ -47,12 +48,18 @@ Role workspace pages now show one of these explicit labels:
 
 ## Unavailable Data Rules
 
-If a live read-only endpoint is not available:
+If a live read-model endpoint is unavailable:
 
 - The page states `Live API unavailable`.
 - Demo rows are not presented as live records.
 - The relevant OpenAPI and documentation source remains visible.
 - Unknown browser API calls are blocked by default.
+
+If a live read-model endpoint returns zero rows:
+
+- The page states that the backend returned zero tenant-scoped records.
+- Demo rows remain hidden.
+- The endpoint, request ID, tenant, and role remain visible for auditability.
 
 ## Security Rules
 
@@ -61,5 +68,16 @@ If a live read-only endpoint is not available:
 - Tenant scope is derived from token claims.
 - Browser requests include Authorization and tenant headers.
 - Browser requests include user, actor, request ID, and correlation ID headers.
+- Browser requests include role and permission headers.
 - 401 and 403 responses are shown directly instead of being hidden.
 - Operator audit append is restricted to operator role sessions.
+
+## Read Model Guides
+
+- `Live_Read_Model_Guide.md`
+- `Live_Clinician_Workspace_Guide.md`
+- `Live_Patient_Portal_Guide.md`
+- `Live_Laboratory_Workspace_Guide.md`
+- `Live_Radiology_Workspace_Guide.md`
+- `Live_Pharmacy_Workspace_Guide.md`
+- `Live_Admin_Workspace_Guide.md`

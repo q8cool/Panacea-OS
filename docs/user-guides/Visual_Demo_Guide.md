@@ -36,6 +36,7 @@ http://localhost:5174
    - Show the configured Foundation URLs.
    - Explain that a real Foundation-issued JWT is required for Live Mode.
    - Do not paste real patient information.
+   - Explain that Sprint 111 Live Mode calls read-model APIs only after JWT validation.
 
 4. **Live API Status**
    - Open `#/command/live-status`.
@@ -47,6 +48,7 @@ http://localhost:5174
    - Open Patient Search and select `Demo Patient Alpha`.
    - Show the patient chart, timeline, allergies, medications, vital signs, lab/radiology summaries, AI recommendations, alerts, tasks, and care team pages.
    - Point out: `Advisory only. Clinician remains final decision maker.`
+   - In Live Mode, these pages call `/api/v4/global-command-intelligence/read-models/clinical/...` and do not display demo patient rows.
 
 6. **Patient Portal Workspace**
    - Show simple patient-facing language, appointments, medications, allergies, results, documents, messages, invoices, notifications, and care instructions.
@@ -65,6 +67,7 @@ http://localhost:5174
 
 10. **Administration Workspace**
    - Show users, roles, permissions, tenants, organizations, facilities, departments, configuration, audit logs, security, privacy, compliance, release evidence, health, APIs, and docs.
+   - In Live Mode, these pages call read-only admin read models and do not execute admin write operations.
 
 11. **API Explorer**
    - Search for `live`.
@@ -82,9 +85,10 @@ http://localhost:5174
 - Do not enter patient information.
 - Treat all visible demo rows as synthetic and frontend-only.
 - Do not claim live patient records are loaded.
+- Do not claim read-model tables contain production rows unless the backend returns them for the authenticated tenant.
 - Do not claim documentation-backed modules are active runtime services.
 - Do not claim Live Mode is active unless a Foundation-issued JWT validates.
-- Do not claim unavailable browser APIs returned real records.
+- Do not claim unavailable or empty read-model APIs returned records.
 - Keep all clinical and AI workflows advisory and governed.
 - Do not claim English markdown documents are automatically translated. The UI controls are localized; technical documents remain in their authored language.
 

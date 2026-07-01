@@ -13,6 +13,10 @@ import {
   validateIntegrationReferenceInput,
   validatePrincipal
 } from "../domain/command-validation.mjs";
+import {
+  assertPrincipalCanReadModel,
+  subjectForReadModel
+} from "../domain/read-models.mjs";
 
 function assertTenantAccess(principal, tenantId) {
   if (principal.tenantId !== tenantId) {
@@ -119,6 +123,54 @@ export class RealTimeGlobalCommandIntelligenceService {
       }
     });
     return reference;
+  }
+
+  async listReadModel(definition, params, query, principal) {
+    const normalizedPrincipal = validatePrincipal(principal);
+    assertPrincipalCanReadModel(normalizedPrincipal, definition);
+    const subjectId = subjectForReadModel(definition, params, normalizedPrincipal);
+    const occurredAt = nowIso(this.clock);
+    const result = await this.repository.listReadModels({
+      tenantId: normalizedPrincipal.tenantId,
+      workspace: definition.workspace,
+      modelKey: definition.modelKey,
+      subjectId,
+      limit: query.limit,
+      offset: query.offset
+    });
+    await this.repository.saveAuditEntry({
+      id: crypto.randomUUID(),
+      tenantId: normalizedPrincipal.tenantId,
+      actorId: normalizedPrincipal.actorId,
+      action: "global_command_intelligence.read_model.read",
+      resourceType: `read_model.${definition.workspace}.${definition.modelKey}`,
+      resourceId: subjectId ?? "collection",
+      occurredAt,
+      countryCode: normalizedPrincipal.countryCodes[0] ?? "KW",
+      regionCode: normalizedPrincipal.regionCodes[0] ?? "GLOBAL",
+      metadata: {
+        workspace: definition.workspace,
+        modelKey: definition.modelKey,
+        subjectScoped: Boolean(subjectId),
+        limit: query.limit,
+        offset: query.offset,
+        returned: result.items.length
+      }
+    });
+    return {
+      source: "live-read-model",
+      demoData: false,
+      tenantId: normalizedPrincipal.tenantId,
+      workspace: definition.workspace,
+      modelKey: definition.modelKey,
+      subjectId,
+      pagination: {
+        limit: query.limit,
+        offset: query.offset,
+        total: result.total
+      },
+      items: result.items
+    };
   }
 
   async #createRecord(input, principal, expectedGroup) {

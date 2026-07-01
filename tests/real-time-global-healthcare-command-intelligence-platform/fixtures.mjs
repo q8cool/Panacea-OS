@@ -6,12 +6,25 @@ export function createRepositoryDouble() {
     events: [],
     references: [],
     audits: [],
+    readModels: [],
     async saveCommandRecord(record, event) {
       this.records.push(record);
       this.events.push(event);
     },
     async saveIntegrationReference(reference) {
       this.references.push(reference);
+    },
+    async listReadModels({ tenantId, workspace, modelKey, subjectId, limit, offset }) {
+      const filtered = this.readModels.filter((record) => (
+        record.tenantId === tenantId &&
+        record.workspace === workspace &&
+        record.modelKey === modelKey &&
+        (!subjectId || record.subjectId === subjectId)
+      ));
+      return {
+        total: filtered.length,
+        items: filtered.slice(offset, offset + limit)
+      };
     },
     async saveAuditEntry(entry) {
       this.audits.push(entry);

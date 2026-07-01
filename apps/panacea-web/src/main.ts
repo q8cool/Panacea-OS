@@ -297,7 +297,7 @@ async function afterRender(route: string) {
   if (!workspace || !page) return;
   const config = state.webConfig ?? buildWebConfig(data);
   const allowlist = buildBrowserApiAllowlist(data, config);
-  const endpoint = findReadOnlyEndpoint(data, workspace, page, config);
+  const endpoint = findReadOnlyEndpoint(data, workspace, page, config, route);
   if (route !== lastLiveRoute) {
     lastLiveRoute = route;
     state = { ...state, liveWorkspaceState: { endpoint } };

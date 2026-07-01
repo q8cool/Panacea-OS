@@ -20,14 +20,33 @@ async function postJson(baseUrl, path, body, headers = {}) {
     method: "POST",
     headers: {
       "content-type": "application/json",
+      authorization: "Bearer command-test-token",
       "x-tenant-id": "tenant-global-command",
       "x-actor-id": "api-command-actor-1",
+      "x-roles": "global-command-intelligence-admin",
       "x-permissions": "global_command_intelligence.*",
       "x-country-codes": "KW,SA",
       "x-region-codes": "GCC,MENA",
       ...headers
     },
     body: JSON.stringify(body)
+  });
+  return { response, json: await response.json() };
+}
+
+async function getJson(baseUrl, path, headers = {}) {
+  const response = await fetch(`${baseUrl}${path}`, {
+    method: "GET",
+    headers: {
+      authorization: "Bearer command-test-token",
+      "x-tenant-id": "tenant-global-command",
+      "x-actor-id": "api-command-actor-1",
+      "x-roles": "global-command-intelligence-admin",
+      "x-permissions": "global_command_intelligence.*",
+      "x-country-codes": "KW,SA",
+      "x-region-codes": "GCC,MENA",
+      ...headers
+    }
   });
   return { response, json: await response.json() };
 }
@@ -73,6 +92,113 @@ test("REST API records command center, operational, alert, crisis, decision, exe
     assert.equal(integration.response.status, 201);
     assert.equal(repository.records.length, 6);
     assert.equal(repository.references.length, 1);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("REST API exposes tenant-scoped authenticated live read models without demo data", async () => {
+  const { server, repository, baseUrl } = await startServer();
+  repository.readModels.push(
+    {
+      id: "read-patient-001",
+      tenantId: "tenant-global-command",
+      workspace: "clinical",
+      modelKey: "patients",
+      subjectId: "patient-live-001",
+      status: "active",
+      title: "Live Patient Read Model",
+      payload: { patientId: "patient-live-001", status: "active", source: "live-read-model" },
+      createdAt: "2026-07-01T10:00:00.000Z",
+      updatedAt: "2026-07-01T10:05:00.000Z"
+    },
+    {
+      id: "read-patient-other-tenant",
+      tenantId: "tenant-other",
+      workspace: "clinical",
+      modelKey: "patients",
+      subjectId: "patient-other-001",
+      status: "active",
+      title: "Other Tenant Patient",
+      payload: { patientId: "patient-other-001" },
+      createdAt: "2026-07-01T10:00:00.000Z",
+      updatedAt: "2026-07-01T10:05:00.000Z"
+    }
+  );
+  try {
+    const read = await getJson(baseUrl, "/read-models/clinical/patients?limit=10&offset=0");
+    assert.equal(read.response.status, 200);
+    assert.equal(read.json.data.source, "live-read-model");
+    assert.equal(read.json.data.demoData, false);
+    assert.equal(read.json.data.tenantId, "tenant-global-command");
+    assert.equal(read.json.data.items.length, 1);
+    assert.equal(read.json.data.items[0].id, "read-patient-001");
+    assert.equal(read.json.data.items[0].payload.source, "live-read-model");
+    assert.equal(repository.audits.at(-1).action, "global_command_intelligence.read_model.read");
+
+    const isolated = await getJson(baseUrl, "/read-models/clinical/patients", { "x-tenant-id": "tenant-other" });
+    assert.equal(isolated.response.status, 200);
+    assert.equal(isolated.json.data.items.length, 1);
+    assert.equal(isolated.json.data.items[0].id, "read-patient-other-tenant");
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("REST API scopes patient portal read models to the authenticated subject", async () => {
+  const { server, repository, baseUrl } = await startServer();
+  repository.readModels.push(
+    {
+      id: "patient-appointment-self",
+      tenantId: "tenant-global-command",
+      workspace: "patient_portal",
+      modelKey: "appointments",
+      subjectId: "patient-live-001",
+      status: "scheduled",
+      title: "Live Appointment",
+      payload: { appointmentId: "appointment-live-001", status: "scheduled" },
+      createdAt: "2026-07-01T10:00:00.000Z",
+      updatedAt: "2026-07-01T10:05:00.000Z"
+    },
+    {
+      id: "patient-appointment-other",
+      tenantId: "tenant-global-command",
+      workspace: "patient_portal",
+      modelKey: "appointments",
+      subjectId: "patient-live-002",
+      status: "scheduled",
+      title: "Other Patient Appointment",
+      payload: { appointmentId: "appointment-live-002" },
+      createdAt: "2026-07-01T10:00:00.000Z",
+      updatedAt: "2026-07-01T10:05:00.000Z"
+    }
+  );
+  try {
+    const read = await getJson(baseUrl, "/read-models/patient-portal/me/appointments", {
+      "x-actor-id": "patient-live-001",
+      "x-roles": "patient",
+      "x-permissions": "read"
+    });
+    assert.equal(read.response.status, 200);
+    assert.equal(read.json.data.subjectId, "patient-live-001");
+    assert.equal(read.json.data.items.length, 1);
+    assert.equal(read.json.data.items[0].id, "patient-appointment-self");
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("REST API rejects missing authentication and incorrect workspace roles for read models", async () => {
+  const { server, baseUrl } = await startServer();
+  try {
+    const unauthenticated = await fetch(`${baseUrl}/read-models/clinical/patients`, { method: "GET" });
+    assert.equal(unauthenticated.status, 401);
+
+    const forbidden = await getJson(baseUrl, "/read-models/clinical/patients", {
+      "x-roles": "patient",
+      "x-permissions": "patient.read"
+    });
+    assert.equal(forbidden.response.status, 403);
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }

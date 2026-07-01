@@ -16,11 +16,34 @@ DEMO DATA — NOT REAL PATIENT DATA
 
 The demo data is frontend-only and is not persisted to the production backend. Live Mode remains available for authenticated read-only API evaluation when a Foundation-issued JWT and browser-accessible service endpoints exist.
 
+## Sprint 111 Live Read Model Update
+
+Panacea OS now exposes authenticated backend read-model APIs for the role workspaces through the Real-Time Global Healthcare Command Intelligence Platform:
+
+```text
+http://localhost:18095/api/v4/global-command-intelligence/read-models/...
+```
+
+Live Mode now maps doctor, patient portal, laboratory, radiology, pharmacy, and administration pages to versioned GET endpoints. The UI displays live records only when the backend response uses `source: live-read-model` and `demoData: false`.
+
+If the backend returns zero rows, the page shows an authenticated empty state. Demo records are not mixed into Live Mode.
+
+New guides:
+
+- `docs/user-guides/Live_Read_Model_Guide.md`
+- `docs/user-guides/Live_Clinician_Workspace_Guide.md`
+- `docs/user-guides/Live_Patient_Portal_Guide.md`
+- `docs/user-guides/Live_Laboratory_Workspace_Guide.md`
+- `docs/user-guides/Live_Radiology_Workspace_Guide.md`
+- `docs/user-guides/Live_Pharmacy_Workspace_Guide.md`
+- `docs/user-guides/Live_Admin_Workspace_Guide.md`
+- `docs/user-guides/Demo_To_Production_Boundary_Guide.md`
+
 ## Sprint 108 Live Integration Update
 
 Panacea OS now has local live runtime validation for all 9 active services and trusted-origin CORS preflight for `http://localhost:5174`. The web client sends Authorization, tenant, user, actor, request ID, and correlation ID headers for allowed Live Mode requests.
 
-Important: the platform is still hybrid. Role workspaces can show runtime/OpenAPI connectivity, but page-level patient, laboratory, radiology, pharmacy, and administrative record read APIs are not yet exposed. The UI therefore uses `LIVE PARTIAL` or `LIVE API UNAVAILABLE` instead of pretending demo rows are live records.
+Important: the platform is still read-only from the browser. Role workspaces now have page-level read-model APIs, but production records appear only when approved upstream systems populate the read-model tables for the authenticated tenant.
 
 The deployed `https://foundation.utbe.ai` provider still needs remote routing updates for HEAD, OpenID discovery, auth, audit preflight, and policy preflight. Repository-local provider tests pass for those behaviors.
 
@@ -118,7 +141,7 @@ Yes. Panacea OS now has `apps/panacea-web`, a Vite + TypeScript professional web
 The role workspaces are read-only interfaces with two modes:
 
 - Demo Mode: presentation and documentation-backed visibility with clear demo labels.
-- Live Mode: Foundation JWT authenticated, role/tenant scoped, read-only API-aware browser connectivity.
+- Live Mode: Foundation JWT authenticated, role/tenant scoped, read-only backend read-model connectivity.
 
 They do not execute clinical care, diagnosis, treatment, medication safety backend logic, DICOM image viewing, or production administrative writes.
 
@@ -159,17 +182,26 @@ Preserved or upgraded coverage includes:
 
 ## 6. Which features still require live backend data?
 
-The role workspaces are visual and API-aware, but the following require live authenticated APIs:
+The role workspaces are visual and API-aware. Sprint 111 adds live read models for the following read-only areas:
 
-- Real patient search and profile data.
-- Encounter, order, result, note, and care-team records.
-- Patient messages, appointments, documents, invoices, and telemedicine sessions.
+- Clinical patient lists, summaries, timelines, allergies, conditions, medications, vitals, notes, orders, labs, radiology summaries, pharmacy review, alerts, tasks, and care team views.
+- Patient portal profile, appointments, visits, medications, allergies, labs, radiology, documents, invoices, messages, and care instructions.
+- Laboratory dashboard, orders, specimens, results, critical results, quality control, and reports.
+- Radiology dashboard, orders, studies, DICOM metadata, PACS status, reporting worklist, reports, critical findings, and timeline.
+- Pharmacy dashboard, medications, prescriptions, dispensing, inventory, batches, expiration warnings, safety alerts, and controlled medications.
+- Administration users, roles, permissions, tenants, organizations, facilities, departments, configuration, audit logs, security, privacy, compliance, system health, and release evidence.
+
+The following still require future governed write workflows or upstream integrations:
+
+- Production ingestion into read-model tables.
+- Clinical order creation, result signing, note authoring, and care-team changes.
+- Patient message sending, appointment booking, invoice payment, and telemedicine sessions.
 - Laboratory order/specimen/result writes.
 - Radiology PACS integration, DICOM object retrieval, report writes, and critical finding notifications.
 - Pharmacy prescription queues, safety checks, dispensing, inventory, controlled-medication records.
 - Admin user, role, permission, tenant, organization, facility, configuration, and audit-log write workflows.
 
-Live Mode does not invent these records. If no existing read-only API returns data, the page displays `Live API unavailable` and hides demo rows.
+Live Mode does not invent these records. If no read-model row exists for the authenticated tenant, the page displays an authenticated empty state and hides demo rows.
 
 ## 7. What new innovations were added?
 
@@ -181,6 +213,8 @@ Major capabilities include:
 - Foundation-backed operator token login.
 - JWT claim extraction, expiry handling, issuer checks, tenant and role mapping.
 - Read-only browser API client with Authorization, tenant, request ID, and correlation headers.
+- Live read-model API surface for role workspaces.
+- PostgreSQL live read-model persistence and event outbox table.
 - OpenAPI-generated browser API allowlist.
 - Foundation login discovery status.
 - CORS deployment validation guide.
@@ -203,14 +237,14 @@ Major capabilities include:
 
 Recommended next UI sprint:
 
-**Foundation Auth Deployment And Live Readiness Sprint**
+**Live Read Model Population And Operator Seed Sprint**
 
 Scope:
 
-- Deploy and route Sprint 106 Foundation auth endpoints on `foundation.utbe.ai`.
-- Expand read-only browser allowlist only when production read-model APIs exist.
-- Complete CORS deployment verification in production.
-- Add an approved operator credential rotation process.
+- Define approved non-PHI operator sample rows for read-model tables.
+- Add controlled ingestion from existing operational systems into read-model tables.
+- Keep browser actions read-only.
+- Continue CORS and Foundation deployment validation.
 - No clinical diagnosis, treatment, or autonomous AI expansion.
 
 ## 9. Is Panacea OS currently a backend platform, a full visual application, or both?

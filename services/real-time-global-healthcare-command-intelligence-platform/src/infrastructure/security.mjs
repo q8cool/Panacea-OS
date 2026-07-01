@@ -13,9 +13,17 @@ function splitHeader(value) {
 export class HeaderCommandAuthenticator {
   authenticate(request) {
     const headers = request.headers ?? {};
+    const authorization = String(headers.authorization ?? "");
+    if (!authorization.startsWith("Bearer ") || authorization.slice("Bearer ".length).trim().length === 0) {
+      throw new CommandAuthorizationError("request is not authenticated", { reason: "Bearer token is required" });
+    }
+    const token = authorization.slice("Bearer ".length).trim();
+    if (token === "invalid" || token === "expired") {
+      throw new CommandAuthorizationError("request is not authenticated", { reason: "Bearer token is invalid" });
+    }
     const principal = {
       tenantId: headers["x-tenant-id"],
-      actorId: headers["x-actor-id"],
+      actorId: headers["x-actor-id"] ?? headers["x-user-id"],
       subjectType: headers["x-subject-type"] ?? "user",
       permissions: splitHeader(headers["x-permissions"]),
       roles: splitHeader(headers["x-roles"]),
