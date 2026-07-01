@@ -334,15 +334,12 @@ function renderSystemHealth(data: AppData): string {
         ${renderServiceTable(data.services)}
       </section>
       <section class="band">
-        <h2>${escapeHtml(l("Health URLs"))}</h2>
+        <h2>${escapeHtml(l("Runtime Status URLs"))}</h2>
         <div class="endpoint-grid">
           ${data.services.map((service) => `
             <article class="endpoint-card">
               <h3>${escapeHtml(service.title)}</h3>
-              ${linkLine("Live", service.healthUrl)}
-              ${linkLine("Ready", service.readinessUrl)}
-              ${linkLine("Metrics", service.metricsUrl)}
-              ${linkLine("OpenAPI", service.openApiUrl)}
+              ${runtimeCheckLinks(service)}
             </article>
           `).join("")}
         </div>
@@ -726,12 +723,9 @@ function renderModuleDetailPage(data: AppData, serviceId: string): string {
       <section class="band two-column">
         <div>
           <h2>${escapeHtml(l("How To Use"))}</h2>
-          <p>Start the runtime profile, then open the health, readiness, metrics, and OpenAPI endpoints below. POST operations require valid Foundation authentication and tenant headers in real use.</p>
+          <p>Start the runtime profile, then open the documented runtime status and OpenAPI endpoints below. POST operations require valid Foundation authentication and tenant headers in real use.</p>
           <div class="link-list">
-            ${linkLine("Health", service.healthUrl)}
-            ${linkLine("Readiness", service.readinessUrl)}
-            ${linkLine("Metrics", service.metricsUrl)}
-            ${linkLine("OpenAPI", service.openApiUrl)}
+            ${runtimeCheckLinks(service)}
           </div>
         </div>
         <div>
@@ -874,8 +868,7 @@ npm run web:build</code></pre>
           ${data.services.slice(0, 6).map((service) => `
             <article class="endpoint-card">
               <h3>${escapeHtml(service.title)}</h3>
-              ${linkLine("OpenAPI", service.openApiUrl)}
-              ${linkLine("Health", service.healthUrl)}
+              ${runtimeCheckLinks(service)}
             </article>
           `).join("")}
         </div>
@@ -1263,6 +1256,18 @@ function metric(label: string, value: string, detail: string, icon: string, tone
 function linkLine(label: string, url: string): string {
   if (!url) return `<p class="link-line"><strong>${escapeHtml(l(label))}</strong><span>${escapeHtml(l("Not available"))}</span></p>`;
   return `<p class="link-line"><strong>${escapeHtml(l(label))}</strong><a class="ltr-text" dir="ltr" href="${escapeAttribute(url)}" target="_blank" rel="noreferrer">${escapeHtml(url)}</a></p>`;
+}
+
+function runtimeCheckLinks(service: ServiceRecord): string {
+  const checks = service.runtimeChecks.length > 0
+    ? service.runtimeChecks
+    : [
+        { label: "Live", url: service.healthUrl },
+        { label: "Ready", url: service.readinessUrl },
+        { label: "Metrics", url: service.metricsUrl },
+        { label: "OpenAPI", url: service.openApiUrl }
+      ];
+  return checks.map((check) => linkLine(check.label, check.url)).join("");
 }
 
 function requiredLabel(required: boolean): string {

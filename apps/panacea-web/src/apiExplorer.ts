@@ -52,7 +52,7 @@ export function endpointBaseUrl(endpoint: EndpointRecord): string {
   if (endpoint.documentId.includes("global-product-management")) return "http://localhost:18144";
   if (endpoint.documentId.includes("global-compliance")) return "http://localhost:18145";
   if (endpoint.documentId.includes("global-ai-assurance")) return "http://localhost:18146";
-  if (endpoint.documentId.includes("global-privacy")) return "http://localhost:18147";
+  if (endpoint.documentId.includes("global-enterprise-data-privacy-consent-trust-platform") || endpoint.documentId.includes("global-privacy")) return "http://localhost:18147";
   return "http://localhost";
 }
 

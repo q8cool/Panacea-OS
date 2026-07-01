@@ -126,6 +126,97 @@ function loadOpenApiDocuments() {
   return docs.sort((a, b) => a.title.localeCompare(b.title));
 }
 
+function contractOpenApiPath(serviceName) {
+  return `docs/contracts/openapi/${serviceName}.openapi.json`;
+}
+
+function serviceOpenApiPath(serviceName) {
+  return `services/${serviceName}/docs/openapi.json`;
+}
+
+function findServiceOpenApi(openApiDocuments, serviceName) {
+  const contractPath = contractOpenApiPath(serviceName);
+  const localPath = serviceOpenApiPath(serviceName);
+  return openApiDocuments.find((doc) => doc.relativePath === contractPath)
+    ?? openApiDocuments.find((doc) => doc.relativePath === localPath);
+}
+
+function chooseGetEndpoint(serviceOpenApi, matcher) {
+  return serviceOpenApi?.endpoints.find((endpoint) => endpoint.method === "GET" && matcher(endpoint.path));
+}
+
+function chooseSafestDocumentedGet(serviceOpenApi, alreadySelected) {
+  return serviceOpenApi?.endpoints.find((endpoint) => (
+    endpoint.method === "GET"
+    && endpoint.authRequired === false
+    && !endpoint.path.includes("{")
+    && !alreadySelected.has(endpoint.path)
+  )) ?? serviceOpenApi?.endpoints.find((endpoint) => (
+    endpoint.method === "GET"
+    && !endpoint.path.includes("{")
+    && !alreadySelected.has(endpoint.path)
+  ));
+}
+
+function runtimeChecksForService({ serviceOpenApi, hostPort }) {
+  if (!serviceOpenApi || !hostPort) return [];
+  const selectedPaths = new Set();
+  const checks = [];
+  const addCheck = ({ id, label, kind, endpoint }) => {
+    if (!endpoint || selectedPaths.has(endpoint.path)) return;
+    selectedPaths.add(endpoint.path);
+    checks.push({
+      id,
+      label,
+      kind,
+      method: "GET",
+      path: endpoint.path,
+      url: `http://localhost:${hostPort}${endpoint.path}`,
+      sourceOpenApiPath: serviceOpenApi.relativePath
+    });
+  };
+
+  addCheck({
+    id: "liveness",
+    label: "Live",
+    kind: "liveness",
+    endpoint: chooseGetEndpoint(serviceOpenApi, (endpointPath) => /\/(live|health)$/.test(endpointPath))
+  });
+  addCheck({
+    id: "readiness",
+    label: "Ready",
+    kind: "readiness",
+    endpoint: chooseGetEndpoint(serviceOpenApi, (endpointPath) => /\/(ready|readiness)$/.test(endpointPath))
+  });
+  addCheck({
+    id: "metrics",
+    label: "Metrics",
+    kind: "metrics",
+    endpoint: chooseGetEndpoint(serviceOpenApi, (endpointPath) => endpointPath.endsWith("/metrics"))
+  });
+  addCheck({
+    id: "openapi",
+    label: "OpenAPI",
+    kind: "openapi",
+    endpoint: chooseGetEndpoint(serviceOpenApi, (endpointPath) => /\/docs\/openapi\.json$|\/openapi(?:\.json)?$/i.test(endpointPath))
+  });
+
+  if (!checks.some((check) => check.kind === "liveness" || check.kind === "readiness")) {
+    addCheck({
+      id: "documented-get-status",
+      label: "Documented GET status",
+      kind: "documented-get",
+      endpoint: chooseSafestDocumentedGet(serviceOpenApi, selectedPaths)
+    });
+  }
+
+  return checks;
+}
+
+function runtimeUrlForKind(runtimeChecks, kind) {
+  return runtimeChecks.find((check) => check.kind === kind)?.url ?? "";
+}
+
 function loadServices(openApiDocuments) {
   const servicesRoot = path.join(repoRoot, "services");
   const compose = readTextIfExists("infra/docker-compose/runtime/docker-compose.yml");
@@ -136,8 +227,8 @@ function loadServices(openApiDocuments) {
   return services.map((name) => {
     const servicePath = path.join(servicesRoot, name);
     const pkg = readJson(path.join(servicePath, "package.json"));
-    const serviceOpenApi = openApiDocuments.find((doc) => doc.relativePath === `services/${name}/docs/openapi.json`);
-    const livePath = serviceOpenApi?.endpoints.find((endpoint) => endpoint.path.endsWith("/live"))?.path;
+    const serviceOpenApi = findServiceOpenApi(openApiDocuments, name);
+    const livePath = serviceOpenApi?.endpoints.find((endpoint) => endpoint.method === "GET" && endpoint.path.endsWith("/live"))?.path;
     const apiBase = livePath ? livePath.replace(/\/live$/, "") : "";
     const migrations = fs.existsSync(path.join(servicePath, "migrations"))
       ? fs.readdirSync(path.join(servicePath, "migrations")).filter((file) => file.endsWith(".sql")).sort()
@@ -148,6 +239,7 @@ function loadServices(openApiDocuments) {
       : [];
     const portMatch = compose.match(new RegExp(`${name}[\\s\\S]*?ports:\\n\\s+- "([^"]+)"`));
     const hostPort = portMatch?.[1]?.split(":")[0] ?? "";
+    const runtimeChecks = runtimeChecksForService({ serviceOpenApi, hostPort });
     return {
       id: name,
       name,
@@ -156,10 +248,12 @@ function loadServices(openApiDocuments) {
       version: pkg.version,
       apiBase,
       localPort: hostPort,
-      healthUrl: hostPort && apiBase ? `http://localhost:${hostPort}${apiBase}/live` : "",
-      readinessUrl: hostPort && apiBase ? `http://localhost:${hostPort}${apiBase}/ready` : "",
-      metricsUrl: hostPort && apiBase ? `http://localhost:${hostPort}${apiBase}/metrics` : "",
-      openApiUrl: hostPort && apiBase ? `http://localhost:${hostPort}${apiBase}/docs/openapi.json` : "",
+      healthUrl: runtimeUrlForKind(runtimeChecks, "liveness"),
+      readinessUrl: runtimeUrlForKind(runtimeChecks, "readiness"),
+      metricsUrl: runtimeUrlForKind(runtimeChecks, "metrics"),
+      openApiUrl: runtimeUrlForKind(runtimeChecks, "openapi"),
+      openApiDocumentPath: serviceOpenApi?.relativePath ?? "",
+      runtimeChecks,
       pathCount: serviceOpenApi?.pathCount ?? 0,
       endpointCount: serviceOpenApi?.endpointCount ?? 0,
       hasOpenApi: Boolean(serviceOpenApi),

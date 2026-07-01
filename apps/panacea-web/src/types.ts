@@ -23,6 +23,16 @@ export interface OpenApiDocument {
   versionedEndpoints: boolean;
 }
 
+export interface ServiceRuntimeCheck {
+  id: string;
+  label: string;
+  kind: "liveness" | "readiness" | "metrics" | "openapi" | "documented-get";
+  method: "GET";
+  path: string;
+  url: string;
+  sourceOpenApiPath: string;
+}
+
 export interface ServiceRecord {
   id: string;
   name: string;
@@ -35,6 +45,8 @@ export interface ServiceRecord {
   readinessUrl: string;
   metricsUrl: string;
   openApiUrl: string;
+  openApiDocumentPath: string;
+  runtimeChecks: ServiceRuntimeCheck[];
   pathCount: number;
   endpointCount: number;
   hasOpenApi: boolean;

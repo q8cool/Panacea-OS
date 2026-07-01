@@ -9,10 +9,10 @@ import {
   providerAuthEndpoints,
   refreshFoundationProviderSession
 } from "../src/foundationAuthClient";
-import { flattenEndpoints, filterEndpoints } from "../src/apiExplorer";
+import { buildCurl, endpointBaseUrl, flattenEndpoints, filterEndpoints } from "../src/apiExplorer";
 import { probeFoundation } from "../src/foundation";
 import { discoverFoundationLogin } from "../src/foundationLoginDiscovery";
-import { apiRequest, appendOperatorAuditTest, executeWriteWorkflowRequest, findWriteWorkflowEndpoint } from "../src/liveApi";
+import { apiRequest, appendOperatorAuditTest, executeWriteWorkflowRequest, findWriteWorkflowEndpoint, pollRuntimeStatus } from "../src/liveApi";
 import { languageOptions, translate } from "../src/locales";
 import { allRoleRoutes, roleDefaultRoute, roleSwitcherOptions, roleWorkspaces } from "../src/roleWorkspaces";
 import { initialState, renderApp, renderRoute } from "../src/render";
@@ -68,6 +68,52 @@ describe("Panacea web platform", () => {
     expect(html).toContain("Runtime Service Matrix");
     expect(html).toContain("http://localhost:18095");
     expect(html).toContain("docs/openapi.json");
+  });
+
+  it("derives active service status checks from docs/contracts OpenAPI paths", () => {
+    const docsByPath = new Map(data.openApiDocuments.map((document) => [document.relativePath, document]));
+
+    for (const service of data.services) {
+      const contractPath = `docs/contracts/openapi/${service.id}.openapi.json`;
+      const contract = docsByPath.get(contractPath);
+      expect(contract, `${service.id} contract`).toBeTruthy();
+      expect(service.openApiDocumentPath).toBe(contractPath);
+      expect(service.runtimeChecks.length).toBeGreaterThanOrEqual(4);
+
+      const documentedGetPaths = new Set(contract!.endpoints.filter((endpoint) => endpoint.method === "GET").map((endpoint) => endpoint.path));
+      const runtimeKinds = new Set(service.runtimeChecks.map((check) => check.kind));
+      expect(runtimeKinds).toEqual(new Set(["liveness", "readiness", "metrics", "openapi"]));
+
+      for (const check of service.runtimeChecks) {
+        expect(check.method).toBe("GET");
+        expect(check.sourceOpenApiPath).toBe(contractPath);
+        expect(documentedGetPaths.has(check.path)).toBe(true);
+        expect(check.url).toBe(`http://localhost:${service.localPort}${check.path}`);
+        expect(new URL(check.url).pathname).toBe(check.path);
+      }
+    }
+  });
+
+  it("polls generated OpenAPI-derived service status checks", async () => {
+    const service = data.services.find((item) => item.id === "real-time-global-healthcare-command-intelligence-platform")!;
+    const calledUrls: string[] = [];
+    const fetchImpl = vi.fn(async (url: string) => {
+      calledUrls.push(url);
+      return new Response(JSON.stringify({ status: "ok" }), { status: 200 });
+    }) as unknown as typeof fetch;
+
+    await pollRuntimeStatus({ ...data, services: [service] }, config, undefined, fetchImpl);
+
+    for (const check of service.runtimeChecks) {
+      expect(calledUrls).toContain(check.url);
+    }
+  });
+
+  it("maps the privacy consent trust contract to its runtime service port", () => {
+    const privacyDocument = data.openApiDocuments.find((document) => document.relativePath === "docs/contracts/openapi/global-enterprise-data-privacy-consent-trust-platform.openapi.json")!;
+    const privacyLiveEndpoint = flattenEndpoints([privacyDocument]).find((endpoint) => endpoint.path === "/api/v3/global-privacy/live")!;
+    expect(endpointBaseUrl(privacyLiveEndpoint)).toBe("http://localhost:18147");
+    expect(buildCurl(privacyLiveEndpoint)).toContain("http://localhost:18147/api/v3/global-privacy/live");
   });
 
   it("keeps documented clinical modules visible without implying active runtime services", () => {

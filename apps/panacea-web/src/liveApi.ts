@@ -482,11 +482,16 @@ export async function pollRuntimeStatus(
     { label: "Foundation Metrics", url: config.FOUNDATION_METRICS_URL },
     { label: "Foundation JWKS", url: config.FOUNDATION_JWKS_URL }
   ];
-  const serviceTargets = data.services.flatMap((service) => [
-    { label: `${service.title} health`, url: service.healthUrl },
-    { label: `${service.title} readiness`, url: service.readinessUrl },
-    { label: `${service.title} OpenAPI`, url: service.openApiUrl }
-  ]);
+  const serviceTargets = data.services.flatMap((service) => {
+    const checks = service.runtimeChecks.length > 0
+      ? service.runtimeChecks.map((check) => ({ label: `${service.title} ${check.label}`, url: check.url }))
+      : [
+          { label: `${service.title} Live`, url: service.healthUrl },
+          { label: `${service.title} Ready`, url: service.readinessUrl },
+          { label: `${service.title} OpenAPI`, url: service.openApiUrl }
+        ];
+    return checks.filter((check) => Boolean(check.url));
+  });
 
   const headers = session
     ? { Authorization: `Bearer ${session.token}`, "X-Tenant-Id": session.tenantId }
