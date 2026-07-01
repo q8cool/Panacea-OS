@@ -93,9 +93,9 @@ test("CI includes live infrastructure validation using runtime control commands 
   assert.match(workflow, /external-secret-scan:/);
 });
 
-test("root Panacea runtime commands control start, stop, status, restart, pilot, deployment, and health checks", () => {
+test("root Panacea runtime commands control start, stop, status, restart, pilot, deployment, UTBE, and health checks", () => {
   const packageJson = JSON.parse(read("package.json"));
-  for (const script of ["panacea:start", "panacea:stop", "panacea:restart", "panacea:status", "panacea:health", "panacea:pilot:check", "panacea:pilot:config", "panacea:pilot:health", "panacea:deployment:verify"]) {
+  for (const script of ["panacea:start", "panacea:stop", "panacea:restart", "panacea:status", "panacea:health", "panacea:pilot:check", "panacea:pilot:config", "panacea:pilot:health", "panacea:deployment:verify", "panacea:utbe:verify", "panacea:utbe:external-health"]) {
     assert.match(packageJson.scripts[script], /node scripts\/panacea-runtime\.mjs/, `${script} must use the runtime controller`);
   }
   const source = read("scripts/panacea-runtime.mjs");
@@ -117,6 +117,8 @@ test("root Panacea runtime commands control start, stop, status, restart, pilot,
   assert.match(source, /assertSafeEnvironmentTemplatePatterns/, "deployment verification must reject realistic secret-shaped samples");
   assert.match(source, /assertHealthMatrix/, "pilot check must validate the health matrix");
   assert.match(source, /showPilotConfig/, "pilot config must print the route matrix");
+  assert.match(source, /verifyUtbeReadiness/, "UTBE verification must validate domain deployment artifacts");
+  assert.match(source, /checkUtbeExternalHealth/, "UTBE external health must be explicit and separate");
 });
 
 test("external pilot deployment artifacts are present and versioned", () => {
@@ -125,11 +127,15 @@ test("external pilot deployment artifacts are present and versioned", () => {
     ".env.local.example",
     ".env.pilot.example",
     ".env.production.example",
+    ".env.utbe.pilot.example",
     "infra/docker-compose/pilot/docker-compose.yml",
     "infra/docker-compose/pilot/README.md",
     "infra/reverse-proxy/README.md",
     "infra/reverse-proxy/nginx.panacea.example.conf",
+    "infra/reverse-proxy/nginx.utbe.panacea.conf",
     "docs/user-guides/Domain_And_DNS_Setup_Guide.md",
+    "docs/user-guides/UTBE_Domain_DNS_Setup_Guide.md",
+    "docs/user-guides/UTBE_HTTPS_Certificate_Runbook.md",
     "docs/user-guides/Pilot_Database_Setup_Guide.md",
     "docs/user-guides/Pilot_Backup_Restore_Runbook.md",
     "docs/user-guides/Pilot_Security_Deployment_Checklist.md",
@@ -145,6 +151,8 @@ test("external pilot deployment artifacts are present and versioned", () => {
     "docs/user-guides/Pilot_Operator_Acceptance_Checklist.md",
     "docs/user-guides/Clinical_And_Legal_Boundary_Statement.md",
     "docs/roadmap/Sprint_119_Real_Server_Deployment_Execution_Report.md",
+    "docs/operations/UTBE_External_API_Route_Matrix.md",
+    "docs/roadmap/Final_UTBE_Domain_Deployment_Readiness_Report.md",
     "docs/operations/Pilot_Service_Health_Matrix.json"
   ];
   for (const artifact of required) {
@@ -158,4 +166,7 @@ test("external pilot deployment artifacts are present and versioned", () => {
       assert.match(service[key], /^\/api\/v\d+\//, `${service.serviceName} ${key} must be versioned`);
     }
   }
+  const utbeMatrix = read("docs/operations/UTBE_External_API_Route_Matrix.md");
+  assert.match(utbeMatrix, /https:\/\/panacea\.utbe\.ai/);
+  assert.match(utbeMatrix, /https:\/\/api\.panacea\.utbe\.ai/);
 });

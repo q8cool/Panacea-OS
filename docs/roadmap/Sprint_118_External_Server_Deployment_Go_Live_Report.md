@@ -22,10 +22,12 @@ The runbook covers server preparation, Docker, Docker Compose, repository clone,
 
 ## HTTPS And Domain Readiness
 
-Sprint 117 reverse proxy and DNS artifacts remain the deployment baseline:
+Sprint 117 reverse proxy and DNS artifacts remain available. The UTBE pilot domain uses the dedicated UTBE reverse proxy as the deployment baseline:
 
+- `infra/reverse-proxy/nginx.utbe.panacea.conf`
 - `infra/reverse-proxy/nginx.panacea.example.conf`
 - `infra/reverse-proxy/README.md`
+- `docs/user-guides/UTBE_Domain_DNS_Setup_Guide.md`
 - `docs/user-guides/Domain_And_DNS_Setup_Guide.md`
 
 Sprint 118 adds operator execution steps for applying and validating these artifacts on an external server.

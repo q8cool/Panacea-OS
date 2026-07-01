@@ -40,6 +40,13 @@ const deploymentDocuments = Object.freeze([
   "docs/roadmap/Sprint_119_Real_Server_Deployment_Execution_Report.md"
 ]);
 
+const utbeDocuments = Object.freeze([
+  "docs/user-guides/UTBE_Domain_DNS_Setup_Guide.md",
+  "docs/user-guides/UTBE_HTTPS_Certificate_Runbook.md",
+  "docs/operations/UTBE_External_API_Route_Matrix.md",
+  "docs/roadmap/Final_UTBE_Domain_Deployment_Readiness_Report.md"
+]);
+
 const pilotArtifacts = Object.freeze([
   ".env.example",
   ".env.local.example",
@@ -49,8 +56,17 @@ const pilotArtifacts = Object.freeze([
   "infra/docker-compose/pilot/README.md",
   "infra/reverse-proxy/README.md",
   "infra/reverse-proxy/nginx.panacea.example.conf",
+  "infra/reverse-proxy/nginx.utbe.panacea.conf",
   "docs/operations/Pilot_Service_Health_Matrix.json"
 ]);
+
+const utbeArtifacts = Object.freeze([
+  ".env.utbe.pilot.example",
+  "infra/reverse-proxy/nginx.utbe.panacea.conf"
+]);
+
+const utbeWebUrl = "https://panacea.utbe.ai";
+const utbeApiUrl = "https://api.panacea.utbe.ai";
 
 const requiredEnvironmentVariables = Object.freeze([
   "PANACEA_RUNTIME_MODE",
@@ -84,7 +100,7 @@ const unsafeTemplateValues = Object.freeze(new Set([
   "EXAMPLE_ONLY_NOT_A_SECRET"
 ]));
 
-const envTemplateFiles = Object.freeze([".env.example", ".env.local.example", ".env.pilot.example", ".env.production.example"]);
+const envTemplateFiles = Object.freeze([".env.example", ".env.local.example", ".env.pilot.example", ".env.production.example", ".env.utbe.pilot.example"]);
 
 function write(message) {
   process.stdout.write(`${message}\n`);
@@ -158,6 +174,18 @@ function assertRequiredArtifacts() {
   }
 }
 
+function assertUtbeArtifacts() {
+  for (const artifact of [...utbeDocuments, ...utbeArtifacts]) {
+    if (!fs.existsSync(artifact)) {
+      throw new Error(`Missing required UTBE artifact: ${artifact}`);
+    }
+  }
+}
+
+function readTrackedFiles() {
+  return execFileSync("git", ["ls-files"], { encoding: "utf8" }).split(/\r?\n/).filter(Boolean);
+}
+
 function assertEnvironmentTemplates() {
   for (const template of envTemplateFiles) {
     const values = readEnvironmentTemplate(template);
@@ -170,12 +198,27 @@ function assertEnvironmentTemplates() {
 }
 
 function assertNoCommittedRealEnvFiles() {
-  const tracked = execFileSync("git", ["ls-files"], { encoding: "utf8" }).split(/\r?\n/).filter(Boolean);
+  const tracked = readTrackedFiles();
   const allowed = new Set(envTemplateFiles);
   const committedEnvFiles = tracked.filter((file) => (file === ".env" || file.startsWith(".env.")) && !allowed.has(file));
   if (committedEnvFiles.length > 0) {
     throw new Error(`Committed environment files are not allowed: ${committedEnvFiles.join(", ")}`);
   }
+}
+
+function assertFileContains(filePath, requiredValues) {
+  const text = fs.readFileSync(filePath, "utf8");
+  for (const value of requiredValues) {
+    if (!text.includes(value)) {
+      throw new Error(`${filePath} is missing required value: ${value}`);
+    }
+  }
+  return text;
+}
+
+function utbeEndpointUrls() {
+  const suffixes = ["/live", "/ready", "/metrics", "/docs/openapi.json"];
+  return runtimeServices.flatMap((service) => suffixes.map((suffix) => `${utbeApiUrl}${service.basePath}${suffix}`));
 }
 
 function assertSafeEnvironmentTemplatePatterns() {
@@ -318,7 +361,7 @@ async function checkHealth() {
 function showPilotConfig() {
   write("panacea.pilot.config mode=controlled-production-like-pilot");
   write("panacea.pilot.config database=postgres container=panacea-runtime-postgres hostPort=55433 databaseName=panacea_runtime");
-  write("panacea.pilot.config compose=infra/docker-compose/pilot/docker-compose.yml reverseProxy=infra/reverse-proxy/nginx.panacea.example.conf healthMatrix=docs/operations/Pilot_Service_Health_Matrix.json");
+  write("panacea.pilot.config compose=infra/docker-compose/pilot/docker-compose.yml reverseProxy=infra/reverse-proxy/nginx.utbe.panacea.conf healthMatrix=docs/operations/Pilot_Service_Health_Matrix.json");
   for (const service of runtimeServices) {
     write(`panacea.pilot.config service=${service.name} port=${service.hostPort} live=${service.basePath}/live ready=${service.basePath}/ready metrics=${service.basePath}/metrics openapi=${service.basePath}/docs/openapi.json`);
   }
@@ -382,6 +425,80 @@ function verifyDeploymentReadiness() {
   write(`panacea.deployment.verify result=pass services=${runtimeServices.length} docs=${pilotDocuments.length + deploymentDocuments.length} envTemplates=${envTemplateFiles.length}`);
 }
 
+function verifyUtbeReadiness() {
+  assertRequiredArtifacts();
+  assertUtbeArtifacts();
+  assertEnvironmentTemplates();
+  assertSafeEnvironmentTemplatePatterns();
+  assertNoCommittedRealEnvFiles();
+  assertHealthMatrix();
+
+  const tracked = readTrackedFiles();
+  if (tracked.includes(".env.utbe.pilot")) {
+    throw new Error(".env.utbe.pilot must never be committed");
+  }
+
+  const utbeEnv = readEnvironmentTemplate(".env.utbe.pilot.example");
+  for (const [key, expected] of [
+    ["PANACEA_RUNTIME_MODE", "pilot"],
+    ["PANACEA_PUBLIC_WEB_URL", utbeWebUrl],
+    ["PANACEA_API_PUBLIC_BASE_URL", utbeApiUrl],
+    ["PANACEA_CORS_ALLOWED_ORIGINS", utbeWebUrl]
+  ]) {
+    if (utbeEnv.get(key) !== expected) {
+      throw new Error(`.env.utbe.pilot.example ${key} must equal ${expected}`);
+    }
+  }
+
+  const routeMatrix = assertFileContains("docs/operations/UTBE_External_API_Route_Matrix.md", [utbeWebUrl, utbeApiUrl, ...utbeEndpointUrls()]);
+  if ((routeMatrix.match(/Expected status/g) ?? []).length === 0) {
+    throw new Error("UTBE route matrix must document expected status");
+  }
+
+  assertFileContains("infra/reverse-proxy/nginx.utbe.panacea.conf", [
+    "server_name panacea.utbe.ai",
+    "server_name api.panacea.utbe.ai",
+    "/etc/letsencrypt/live/panacea.utbe.ai/fullchain.pem",
+    "/etc/letsencrypt/live/api.panacea.utbe.ai/fullchain.pem",
+    'Access-Control-Allow-Origin "https://panacea.utbe.ai"'
+  ]);
+  assertFileContains("docs/user-guides/Clinical_And_Legal_Boundary_Statement.md", [
+    "not approved for real clinical production use",
+    "does not autonomously diagnose",
+    "does not autonomously prescribe",
+    "Human approval is required"
+  ]);
+
+  const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
+  for (const script of ["panacea:utbe:verify", "panacea:utbe:external-health"]) {
+    if (!packageJson.scripts?.[script]) {
+      throw new Error(`Missing required UTBE script: ${script}`);
+    }
+  }
+
+  write(`panacea.utbe.verify result=pass web=${utbeWebUrl} api=${utbeApiUrl} routes=${utbeEndpointUrls().length}`);
+}
+
+async function checkUtbeExternalHealth() {
+  const timeoutMs = Number(process.env.PANACEA_UTBE_EXTERNAL_TIMEOUT_MS ?? 5000);
+  for (const url of utbeEndpointUrls()) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(url, { signal: controller.signal });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      write(`panacea.utbe.external-health url=${url} status=${response.status}`);
+    } catch (error) {
+      throw new Error(`UTBE external health failed for ${url}: ${error.message}. Confirm DNS, HTTPS, Nginx, and the pilot stack before rerunning.`);
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+  write(`panacea.utbe.external-health result=pass routes=${utbeEndpointUrls().length}`);
+}
+
 async function main() {
   if (action === "start") {
     await startRuntime();
@@ -419,6 +536,14 @@ async function main() {
   }
   if (action === "deployment-verify") {
     verifyDeploymentReadiness();
+    return;
+  }
+  if (action === "utbe-verify") {
+    verifyUtbeReadiness();
+    return;
+  }
+  if (action === "utbe-external-health") {
+    await checkUtbeExternalHealth();
     return;
   }
   const script = execFileSync("node", ["-e", "const p=require('./package.json'); console.log(Object.keys(p.scripts).filter((s)=>s.startsWith('panacea:')).join('\\n'))"], {

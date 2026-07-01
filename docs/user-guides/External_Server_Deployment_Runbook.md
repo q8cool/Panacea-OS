@@ -70,27 +70,27 @@ set +a
 
 ## 7. Configure Domain
 
-Follow `docs/user-guides/Domain_And_DNS_Setup_Guide.md`.
+Follow `docs/user-guides/UTBE_Domain_DNS_Setup_Guide.md`.
 
-Use placeholders until the operator assigns real pilot domains:
+Use these controlled pilot domains:
 
 ```text
-panacea.example.com
-api.panacea.example.com
+panacea.utbe.ai
+api.panacea.utbe.ai
 ```
 
 ## 8. Configure HTTPS Reverse Proxy
 
-Copy and adapt:
+For the UTBE pilot, use:
 
 ```bash
-sudo cp infra/reverse-proxy/nginx.panacea.example.conf /etc/nginx/sites-available/panacea.conf
-sudo ln -s /etc/nginx/sites-available/panacea.conf /etc/nginx/sites-enabled/panacea.conf
+sudo cp infra/reverse-proxy/nginx.utbe.panacea.conf /etc/nginx/sites-available/panacea-utbe.conf
+sudo ln -sfn /etc/nginx/sites-available/panacea-utbe.conf /etc/nginx/sites-enabled/panacea-utbe.conf
 sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-Replace example domains and certificate paths before reload.
+Confirm certificate paths before reload.
 
 ## 9. Start Services
 

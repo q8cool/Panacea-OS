@@ -33,7 +33,7 @@ Added:
 
 - `docs/operations/External_Health_Verification_Commands.md`
 
-The command template covers live, ready, metrics, and OpenAPI checks for all 9 active services through a public HTTPS route using `https://api.panacea.example.com`.
+The command template covers live, ready, metrics, and OpenAPI checks for all 9 active services through a public HTTPS route using `https://api.panacea.utbe.ai`.
 
 ## Operator Acceptance Readiness
 

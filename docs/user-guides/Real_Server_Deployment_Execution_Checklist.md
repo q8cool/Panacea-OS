@@ -129,9 +129,9 @@ Expected:
 ## 10. Nginx Reverse Proxy Setup
 
 ```bash
-sudo cp infra/reverse-proxy/nginx.panacea.example.conf /etc/nginx/sites-available/panacea.conf
-sudo ${EDITOR:-nano} /etc/nginx/sites-available/panacea.conf
-sudo ln -sfn /etc/nginx/sites-available/panacea.conf /etc/nginx/sites-enabled/panacea.conf
+sudo cp infra/reverse-proxy/nginx.utbe.panacea.conf /etc/nginx/sites-available/panacea-utbe.conf
+sudo ${EDITOR:-nano} /etc/nginx/sites-available/panacea-utbe.conf
+sudo ln -sfn /etc/nginx/sites-available/panacea-utbe.conf /etc/nginx/sites-enabled/panacea-utbe.conf
 sudo nginx -t
 sudo systemctl reload nginx
 ```
@@ -143,7 +143,7 @@ Expected: Nginx configuration test passes and reverse proxy routes to internal s
 Use the operator-approved certificate process. Example with Certbot:
 
 ```bash
-sudo certbot --nginx -d api.panacea.example.com
+sudo certbot --nginx -d panacea.utbe.ai -d api.panacea.utbe.ai
 sudo certbot certificates
 ```
 
@@ -152,8 +152,8 @@ Expected: valid certificate for the pilot domain, automatic renewal configured, 
 ## 12. Domain Verification
 
 ```bash
-dig +short api.panacea.example.com
-curl -I https://api.panacea.example.com/api/v4/autonomous-healthcare-intelligence/live
+dig +short api.panacea.utbe.ai
+curl -I https://api.panacea.utbe.ai/api/v4/autonomous-healthcare-intelligence/live
 ```
 
 Expected: DNS resolves to the approved server and HTTPS returns a successful response.

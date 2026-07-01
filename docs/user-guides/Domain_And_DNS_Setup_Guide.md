@@ -10,8 +10,8 @@ This guide prepares DNS and HTTPS for a controlled pilot. It does not approve re
 Use example-only placeholders until the operator assigns the approved pilot domain:
 
 ```text
-panacea.example.com
-api.panacea.example.com
+panacea.utbe.ai
+api.panacea.utbe.ai
 ```
 
 ## DNS Records
@@ -19,20 +19,20 @@ api.panacea.example.com
 Create an `A` record for the web application:
 
 ```text
-panacea.example.com -> <SERVER_PUBLIC_IP>
+panacea.utbe.ai -> <SERVER_PUBLIC_IP>
 ```
 
 Create an `A` record for the API reverse proxy:
 
 ```text
-api.panacea.example.com -> <SERVER_PUBLIC_IP>
+api.panacea.utbe.ai -> <SERVER_PUBLIC_IP>
 ```
 
 Optional `CNAME` records may point regional names to the approved canonical names:
 
 ```text
-pilot.panacea.example.com -> panacea.example.com
-pilot-api.panacea.example.com -> api.panacea.example.com
+pilot.panacea.utbe.ai -> panacea.utbe.ai
+pilot-api.panacea.utbe.ai -> api.panacea.utbe.ai
 ```
 
 ## TLS Certificate
@@ -40,17 +40,17 @@ pilot-api.panacea.example.com -> api.panacea.example.com
 Issue TLS certificates for both hostnames:
 
 ```text
-panacea.example.com
-api.panacea.example.com
+panacea.utbe.ai
+api.panacea.utbe.ai
 ```
 
 The Nginx example expects certificate and key paths to be replaced by the operator:
 
 ```text
-/etc/letsencrypt/live/panacea.example.com/fullchain.pem
-/etc/letsencrypt/live/panacea.example.com/privkey.pem
-/etc/letsencrypt/live/api.panacea.example.com/fullchain.pem
-/etc/letsencrypt/live/api.panacea.example.com/privkey.pem
+/etc/letsencrypt/live/panacea.utbe.ai/fullchain.pem
+/etc/letsencrypt/live/panacea.utbe.ai/privkey.pem
+/etc/letsencrypt/live/api.panacea.utbe.ai/fullchain.pem
+/etc/letsencrypt/live/api.panacea.utbe.ai/privkey.pem
 ```
 
 ## Firewall Ports
@@ -68,16 +68,16 @@ Do not expose PostgreSQL publicly.
 | Environment | Web URL | API URL | Data use |
 |---|---|---|---|
 | Local | `http://localhost:5174` | service-specific localhost ports | local validation data only |
-| Pilot | `https://panacea.example.com` | `https://api.panacea.example.com` | controlled pilot data only after approval |
+| Pilot | `https://panacea.utbe.ai` | `https://api.panacea.utbe.ai` | controlled pilot data only after approval |
 | Production | approved production domain | approved production API domain | real data only after legal, clinical, privacy, and security approval |
 
 ## Validation
 
 ```bash
-dig panacea.example.com
-dig api.panacea.example.com
-curl -I https://panacea.example.com/
-curl -I https://api.panacea.example.com/api/v4/global-command-intelligence/live
+dig panacea.utbe.ai
+dig api.panacea.utbe.ai
+curl -I https://panacea.utbe.ai/
+curl -I https://api.panacea.utbe.ai/api/v4/global-command-intelligence/live
 ```
 
 The expected API health response is HTTP `200` from live, ready, metrics, and OpenAPI endpoints listed in `docs/operations/Pilot_Service_Health_Matrix.json`.

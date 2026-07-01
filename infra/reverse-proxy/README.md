@@ -1,11 +1,11 @@
 # Panacea OS Reverse Proxy Readiness
 
-This directory contains an Nginx example for an external controlled pilot. It is an operator template only and does not include real certificates, private keys, domains, or credentials.
+This directory contains Nginx examples for external controlled pilots. The UTBE pilot uses `nginx.utbe.panacea.conf`; the generic `nginx.panacea.example.conf` remains a domain-neutral reference only. These files do not include real certificates, private keys, or credentials.
 
 ## Required Operator Inputs
 
-- Web domain, for example `panacea.example.com`
-- API domain, for example `api.panacea.example.com`
+- Web domain: `panacea.utbe.ai`
+- API domain: `api.panacea.utbe.ai`
 - TLS certificate path
 - TLS private key path
 - Approved CORS origins
@@ -22,9 +22,11 @@ operator -> SSH/VPN -> server management only
 
 ## Apply
 
-Copy `nginx.panacea.example.conf` into the server Nginx configuration after replacing all example domains and certificate paths:
+Copy `nginx.utbe.panacea.conf` into the server Nginx configuration after confirming certificate paths:
 
 ```bash
+sudo cp infra/reverse-proxy/nginx.utbe.panacea.conf /etc/nginx/sites-available/panacea-utbe.conf
+sudo ln -sfn /etc/nginx/sites-available/panacea-utbe.conf /etc/nginx/sites-enabled/panacea-utbe.conf
 sudo nginx -t
 sudo systemctl reload nginx
 ```
@@ -32,10 +34,10 @@ sudo systemctl reload nginx
 ## Validation
 
 ```bash
-curl -I https://panacea.example.com/
-curl -I https://api.panacea.example.com/api/v4/global-command-intelligence/live
-curl -I https://api.panacea.example.com/api/v4/global-command-intelligence/ready
-curl -I https://api.panacea.example.com/api/v4/global-command-intelligence/docs/openapi.json
+curl -I https://panacea.utbe.ai/
+curl -I https://api.panacea.utbe.ai/api/v4/global-command-intelligence/live
+curl -I https://api.panacea.utbe.ai/api/v4/global-command-intelligence/ready
+curl -I https://api.panacea.utbe.ai/api/v4/global-command-intelligence/docs/openapi.json
 ```
 
 ## Security Notes

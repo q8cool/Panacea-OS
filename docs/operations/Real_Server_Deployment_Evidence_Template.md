@@ -24,7 +24,7 @@ Do not include secrets, private keys, access tokens, patient data, or credential
 
 | Evidence item | Value | Expected result | Actual result | Operator sign-off |
 |---|---|---|---|---|
-| Public API domain | `https://api.panacea.example.com` | DNS resolves to approved server | Pending | |
+| Public API domain | `https://api.panacea.utbe.ai` | DNS resolves to approved server | Pending | |
 | TLS certificate issuer | `REPLACE_WITH_OPERATOR_VALUE_OUTSIDE_GIT` | approved CA | Pending | |
 | TLS expiry date | `REPLACE_WITH_OPERATOR_VALUE_OUTSIDE_GIT` | renewal window documented | Pending | |
 | HTTPS status | `REPLACE_WITH_OPERATOR_VALUE_OUTSIDE_GIT` | HTTP 200 on live endpoints | Pending | |

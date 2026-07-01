@@ -5,6 +5,7 @@
 !.env.local.example
 !.env.pilot.example
 !.env.production.example
+!.env.utbe.pilot.example
 node_modules/
 coverage/
 dist/
