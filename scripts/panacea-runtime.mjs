@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import fs from "node:fs";
 import {
   compose,
   execFile,
@@ -8,6 +9,17 @@ import {
 } from "./lib/runtime-validation.mjs";
 
 const action = process.argv[2];
+const healthAttempts = Number(process.env.PANACEA_HEALTH_ATTEMPTS ?? 60);
+const healthDelayMs = Number(process.env.PANACEA_HEALTH_DELAY_MS ?? 2000);
+
+const pilotDocuments = Object.freeze([
+  "docs/user-guides/Production_Like_Deployment_Runbook.md",
+  "docs/user-guides/Panacea_Start_Stop_Status_Guide.md",
+  "docs/user-guides/Backup_And_Restore_Guide.md",
+  "docs/user-guides/Security_Boundary_Validation_Guide.md",
+  "docs/user-guides/Operator_Production_Readiness_Guide.md",
+  "docs/roadmap/Sprint_116_Production_Hardening_Final_Release_Report.md"
+]);
 
 function write(message) {
   process.stdout.write(`${message}\n`);
@@ -30,6 +42,27 @@ function inspectContainer(container) {
   }
   const [status, health] = result.stdout.trim().split(/\s+/);
   return { exists: true, status, health };
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function waitForContainerHealth(container, label) {
+  let lastState = { exists: false, status: "missing", health: "missing" };
+  for (let attempt = 1; attempt <= healthAttempts; attempt += 1) {
+    lastState = inspectContainer(container);
+    if (lastState.exists && lastState.status === "running" && (lastState.health === "healthy" || lastState.health === "no-healthcheck")) {
+      return lastState;
+    }
+    if (lastState.exists && ["dead", "exited"].includes(lastState.status)) {
+      throw new Error(`${label} container stopped unexpectedly with state=${lastState.status} health=${lastState.health}`);
+    }
+    if (attempt < healthAttempts) {
+      await sleep(healthDelayMs);
+    }
+  }
+  throw new Error(`${label} container did not become healthy after ${healthAttempts} attempts: state=${lastState.status} health=${lastState.health}`);
 }
 
 function assertDockerAvailable() {
@@ -63,13 +96,11 @@ function showStatus() {
 }
 
 async function checkService(service) {
-  const state = inspectContainer(service.container);
-  if (!state.exists || state.status !== "running") {
-    throw new Error(`${service.name} container is ${state.status}; run npm run panacea:start first`);
+  const initialState = inspectContainer(service.container);
+  if (!initialState.exists) {
+    throw new Error(`${service.name} container is ${initialState.status}; run npm run panacea:start first`);
   }
-  if (state.health !== "healthy" && state.health !== "no-healthcheck") {
-    throw new Error(`${service.name} container health is ${state.health}`);
-  }
+  const state = await waitForContainerHealth(service.container, service.name);
 
   const endpoints = {
     live: `${service.basePath}/live`,
@@ -91,10 +122,11 @@ async function checkService(service) {
 
 async function checkHealth() {
   assertDockerAvailable();
-  const postgres = inspectContainer(postgresContainer);
-  if (!postgres.exists || postgres.status !== "running") {
-    throw new Error(`PostgreSQL container is ${postgres.status}; run npm run panacea:start first`);
+  const postgresInitial = inspectContainer(postgresContainer);
+  if (!postgresInitial.exists) {
+    throw new Error(`PostgreSQL container is ${postgresInitial.status}; run npm run panacea:start first`);
   }
+  const postgres = await waitForContainerHealth(postgresContainer, "PostgreSQL");
   const pgReady = execFile("docker", ["exec", postgresContainer, "pg_isready", "-U", "panacea", "-d", "panacea_runtime"], {
     allowFailure: true
   });
@@ -106,6 +138,45 @@ async function checkHealth() {
     await checkService(service);
   }
   write("panacea.health result=pass");
+}
+
+function showPilotConfig() {
+  write("panacea.pilot.config mode=controlled-production-like-pilot");
+  write("panacea.pilot.config database=postgres container=panacea-runtime-postgres hostPort=55433 databaseName=panacea_runtime");
+  for (const service of runtimeServices) {
+    write(`panacea.pilot.config service=${service.name} port=${service.hostPort} live=${service.basePath}/live ready=${service.basePath}/ready metrics=${service.basePath}/metrics openapi=${service.basePath}/docs/openapi.json`);
+  }
+  write("panacea.pilot.config identity=external-foundation-provider-required liveMode=requires-foundation-issued-token");
+}
+
+function checkPilotReadiness() {
+  const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
+  for (const script of [
+    "panacea:start",
+    "panacea:stop",
+    "panacea:restart",
+    "panacea:status",
+    "panacea:health",
+    "panacea:pilot:check",
+    "panacea:pilot:config"
+  ]) {
+    if (!packageJson.scripts?.[script]) {
+      throw new Error(`Missing required pilot script: ${script}`);
+    }
+  }
+  for (const documentPath of pilotDocuments) {
+    if (!fs.existsSync(documentPath)) {
+      throw new Error(`Missing required pilot document: ${documentPath}`);
+    }
+  }
+  for (const service of runtimeServices) {
+    for (const endpoint of ["/live", "/ready", "/metrics", "/docs/openapi.json"]) {
+      if (!`${service.basePath}${endpoint}`.startsWith("/api/v")) {
+        throw new Error(`${service.name} pilot endpoint is not versioned: ${service.basePath}${endpoint}`);
+      }
+    }
+  }
+  write(`panacea.pilot.check result=pass services=${runtimeServices.length} documents=${pilotDocuments.length}`);
 }
 
 async function main() {
@@ -128,6 +199,14 @@ async function main() {
   }
   if (action === "health") {
     await checkHealth();
+    return;
+  }
+  if (action === "pilot-config") {
+    showPilotConfig();
+    return;
+  }
+  if (action === "pilot-check") {
+    checkPilotReadiness();
     return;
   }
   const script = execFileSync("node", ["-e", "const p=require('./package.json'); console.log(Object.keys(p.scripts).filter((s)=>s.startsWith('panacea:')).join('\\n'))"], {

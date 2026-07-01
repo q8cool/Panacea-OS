@@ -101,9 +101,15 @@ Pharmacy workflows require `documentedMedicationSafetyRulesApplied: true`.
 
 ## Example Create Patient Request
 
+Set the Authorization header from a Foundation-issued token stored outside Git:
+
+```bash
+export PANACEA_AUTH_HEADER="Authorization: Bearer <REPLACE_WITH_FOUNDATION_JWT_OUTSIDE_GIT>"
+```
+
 ```bash
 curl -X POST \
-  -H 'Authorization: Bearer validation-token' \
+  -H "$PANACEA_AUTH_HEADER" \
   -H 'X-Tenant-Id: tenant-global-command' \
   -H 'X-Actor-Id: doctor-pilot-115' \
   -H 'X-Roles: doctor' \
@@ -154,7 +160,7 @@ List accepted workflow events:
 
 ```bash
 curl \
-  -H 'Authorization: Bearer validation-token' \
+  -H "$PANACEA_AUTH_HEADER" \
   -H 'X-Tenant-Id: tenant-global-command' \
   -H 'X-Actor-Id: operator-pilot-115' \
   -H 'X-Roles: operator' \
@@ -168,7 +174,7 @@ List projection status:
 
 ```bash
 curl \
-  -H 'Authorization: Bearer validation-token' \
+  -H "$PANACEA_AUTH_HEADER" \
   -H 'X-Tenant-Id: tenant-global-command' \
   -H 'X-Actor-Id: operator-pilot-115' \
   -H 'X-Roles: operator' \
@@ -184,4 +190,3 @@ curl \
 - Web tests: `apps/panacea-web/test/app.test.ts`
 - OpenAPI: `docs/contracts/openapi/real-time-global-healthcare-command-intelligence-platform.openapi.json`
 - Runtime orchestration: `npm run runtime:orchestration`
-

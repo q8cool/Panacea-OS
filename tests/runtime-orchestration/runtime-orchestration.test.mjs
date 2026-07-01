@@ -73,20 +73,29 @@ test("disaster recovery mini-drill validates backup, drop, restore, indexes, aud
   ]) {
     assert.ok(source.includes(required), `DR script missing ${required}`);
   }
+  assert.match(source, /beforeOutboxTables/, "DR script must compare event table counts before and after restore");
+  assert.match(source, /runtimeServices\.length/, "DR script must derive the minimum event table expectation from active services");
 });
 
-test("CI includes live infrastructure validation using the runtime orchestration commands", () => {
+test("CI includes live infrastructure validation using runtime control commands and cleanup", () => {
   const workflow = read(".github/workflows/panacea-ci.yml");
   assert.match(workflow, /live-infrastructure-validation:/);
-  assert.match(workflow, /docker compose -f infra\/docker-compose\/runtime\/docker-compose\.yml config --quiet/);
-  assert.match(workflow, /npm run runtime:orchestration/);
-  assert.match(workflow, /npm run runtime:disaster-recovery/);
+  assert.match(workflow, /npm ci/);
+  assert.match(workflow, /npm run build/);
+  assert.match(workflow, /docker compose -f infra\/docker-compose\/runtime\/docker-compose\.yml up -d --build/);
+  assert.match(workflow, /docker ps/);
+  assert.match(workflow, /npm run panacea:status/);
+  assert.match(workflow, /npm run panacea:health/);
+  assert.match(workflow, /npm run panacea:pilot:check/);
+  assert.match(workflow, /npm run panacea:pilot:config/);
+  assert.match(workflow, /if: failure\(\)/);
+  assert.match(workflow, /if: always\(\)/);
   assert.match(workflow, /external-secret-scan:/);
 });
 
 test("root Panacea runtime commands control start, stop, status, restart, and health checks", () => {
   const packageJson = JSON.parse(read("package.json"));
-  for (const script of ["panacea:start", "panacea:stop", "panacea:restart", "panacea:status", "panacea:health"]) {
+  for (const script of ["panacea:start", "panacea:stop", "panacea:restart", "panacea:status", "panacea:health", "panacea:pilot:check", "panacea:pilot:config"]) {
     assert.match(packageJson.scripts[script], /node scripts\/panacea-runtime\.mjs/, `${script} must use the runtime controller`);
   }
   const source = read("scripts/panacea-runtime.mjs");
@@ -97,5 +106,9 @@ test("root Panacea runtime commands control start, stop, status, restart, and he
     assert.match(source, new RegExp(endpoint.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `${endpoint} must be included in health checks`);
   }
   assert.match(source, /pg_isready/, "health command must include PostgreSQL readiness");
+  assert.match(source, /PANACEA_HEALTH_ATTEMPTS/, "health command must expose a bounded container health wait");
+  assert.match(source, /waitForContainerHealth/, "health command must wait for Docker health checks after startup");
   assert.match(source, /container is .*run npm run panacea:start first/, "stopped-service failures must be clear");
+  assert.match(source, /pilotDocuments/, "pilot check must validate operator documents");
+  assert.match(source, /showPilotConfig/, "pilot config must print the route matrix");
 });

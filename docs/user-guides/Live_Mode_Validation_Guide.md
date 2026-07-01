@@ -42,10 +42,16 @@ X-Permissions: global_command_intelligence.write_workflows.retry
 
 ## Live Read Checks
 
+Set the Authorization header from a Foundation-issued token stored outside Git:
+
+```bash
+export PANACEA_AUTH_HEADER="Authorization: Bearer <REPLACE_WITH_FOUNDATION_JWT_OUTSIDE_GIT>"
+```
+
 Doctor:
 
 ```bash
-curl -H 'Authorization: Bearer validation-token' \
+curl -H "$PANACEA_AUTH_HEADER" \
   -H 'X-Tenant-Id: tenant-global-command' \
   -H 'X-Actor-Id: doctor-pilot-115' \
   -H 'X-Roles: doctor' \
@@ -58,7 +64,7 @@ curl -H 'Authorization: Bearer validation-token' \
 Patient portal:
 
 ```bash
-curl -H 'Authorization: Bearer validation-token' \
+curl -H "$PANACEA_AUTH_HEADER" \
   -H 'X-Tenant-Id: tenant-global-command' \
   -H 'X-Actor-Id: patient-pilot-115' \
   -H 'X-Roles: patient' \
@@ -79,7 +85,7 @@ curl -i http://localhost:18095/api/v4/global-command-intelligence/read-models/cl
 Wrong role:
 
 ```bash
-curl -i -H 'Authorization: Bearer validation-token' \
+curl -i -H "$PANACEA_AUTH_HEADER" \
   -H 'X-Tenant-Id: tenant-global-command' \
   -H 'X-Actor-Id: patient-pilot-115' \
   -H 'X-Roles: patient' \
@@ -118,4 +124,3 @@ npm run web:check
 ```
 
 The Sprint 115 web test renders live evidence for doctor, patient, laboratory, radiology, pharmacy, administration, and operator transaction review screens.
-

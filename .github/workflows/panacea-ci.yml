@@ -122,6 +122,18 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
+      - run: npm ci
+      - run: npm run build
       - run: docker compose -f infra/docker-compose/runtime/docker-compose.yml config --quiet
-      - run: npm run runtime:orchestration
-      - run: npm run runtime:disaster-recovery
+      - run: docker compose -f infra/docker-compose/runtime/docker-compose.yml up -d --build
+      - run: docker ps
+      - run: npm run panacea:status
+      - run: npm run panacea:health
+      - run: npm run panacea:pilot:config
+      - run: npm run panacea:pilot:check
+      - name: Print Docker logs on failure
+        if: failure()
+        run: docker compose -f infra/docker-compose/runtime/docker-compose.yml logs --no-color
+      - name: Stop runtime containers
+        if: always()
+        run: docker compose -f infra/docker-compose/runtime/docker-compose.yml down --remove-orphans

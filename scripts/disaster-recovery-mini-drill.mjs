@@ -40,6 +40,7 @@ async function main() {
     const beforeEvents = await queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_events WHERE actor_id='sprint89-dr-validator';");
     const beforeAudits = await queryScalar("SELECT COUNT(*) FROM autonomous_healthcare_intelligence_audit_entries WHERE actor_id='sprint89-dr-validator';");
     const beforeIndexes = await queryScalar("SELECT COUNT(*) FROM pg_indexes WHERE schemaname='public';");
+    const beforeOutboxTables = await queryScalar("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name LIKE '%events';");
 
     compose(["stop", serviceName]);
     const exitCode = containerExitCode(service.container);
@@ -71,15 +72,15 @@ async function main() {
     const afterIndexes = await queryScalar("SELECT COUNT(*) FROM pg_indexes WHERE schemaname='public';");
     const outboxTables = await queryScalar("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name LIKE '%events';");
 
-    if (beforeRecords !== afterRecords || beforeEvents !== afterEvents || beforeAudits !== afterAudits || beforeIndexes !== afterIndexes) {
+    if (beforeRecords !== afterRecords || beforeEvents !== afterEvents || beforeAudits !== afterAudits || beforeIndexes !== afterIndexes || beforeOutboxTables !== outboxTables) {
       throw new Error([
         "DR restore verification failed",
-        `before records=${beforeRecords} events=${beforeEvents} audits=${beforeAudits} indexes=${beforeIndexes}`,
-        `after records=${afterRecords} events=${afterEvents} audits=${afterAudits} indexes=${afterIndexes}`
+        `before records=${beforeRecords} events=${beforeEvents} audits=${beforeAudits} indexes=${beforeIndexes} eventOutboxTables=${beforeOutboxTables}`,
+        `after records=${afterRecords} events=${afterEvents} audits=${afterAudits} indexes=${afterIndexes} eventOutboxTables=${outboxTables}`
       ].join("\n"));
     }
-    if (outboxTables !== "9") {
-      throw new Error(`expected 9 event outbox tables after restore, found ${outboxTables}`);
+    if (Number(outboxTables) < runtimeServices.length) {
+      throw new Error(`expected at least ${runtimeServices.length} event outbox tables after restore, found ${outboxTables}`);
     }
 
     process.stdout.write([
