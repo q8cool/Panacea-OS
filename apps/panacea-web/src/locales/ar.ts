@@ -156,6 +156,7 @@ export const ar: Record<string, string> = {
   "Endpoint Preview": "معاينة نقاط النهاية",
   "Open the API Explorer for filtering, schemas, response codes, and curl generation.": "افتح مستكشف واجهات البرمجة للتصفية والمخططات ورموز الاستجابة وتوليد أوامر curl.",
   "Searchable release, audit, API, user, and architecture documents.": "وثائق الإصدار والتدقيق وواجهات البرمجة والمستخدم والمعمارية قابلة للتصفح.",
+  "Searchable product, release, API, operator, and governance documents.": "وثائق المنتج والإصدار وواجهات البرمجة والمشغل والحوكمة قابلة للتصفح.",
   "Select a document.": "اختر وثيقة.",
   "Document not found in generated data.": "لم يتم العثور على الوثيقة ضمن البيانات المولدة.",
   "The referenced document is not available in this checkout.": "الوثيقة المشار إليها غير متاحة في هذه النسخة.",

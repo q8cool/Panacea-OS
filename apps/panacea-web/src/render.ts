@@ -1,4 +1,3 @@
-import { marked } from "marked";
 import type { BrowserApiClassification } from "./apiAllowlist";
 import { activeServiceModules, allModules, clinicalModules, enterpriseDocModules, innovationModules, navSections, searchNav } from "./catalog";
 import type { ProviderLoginDiscoveryResult } from "./foundationLoginDiscovery";
@@ -25,8 +24,6 @@ import type {
   TokenValidationResult
 } from "./types";
 import type { FoundationProbeResult } from "./foundation";
-
-marked.use({ gfm: true, async: false });
 
 let activeLocale: Locale = "en";
 
@@ -819,7 +816,7 @@ function renderDocumentationCenter(data: AppData, state: RenderState): string {
   const selected = state.selectedDocumentId ? data.documents.find((doc) => doc.id === state.selectedDocumentId) : findDoc(data, "docs/user-guides/How_To_Run_Panacea_OS.md");
   return `
     <div class="page-grid">
-      ${renderPageHeader("Documentation Center", "Searchable release, audit, API, user, and architecture documents.", `${data.documents.length} docs`, "BookOpen")}
+      ${renderPageHeader("Documentation Center", "Searchable product, release, API, operator, and governance documents.", `${data.documents.length} docs`, "BookOpen")}
       <section class="band docs-workspace">
         <div class="docs-list">
           ${Object.entries(documents).map(([group, docs]) => `
@@ -1370,7 +1367,99 @@ function pageTitle(route: string): string {
 }
 
 function markdown(body: string): string {
-  return marked.parse(body, { async: false }) as string;
+  const lines = body.split(/\r?\n/);
+  const output: string[] = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index] ?? "";
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    const heading = /^(#{1,4})\s+(.+)$/.exec(trimmed);
+    if (heading) {
+      const level = heading[1].length;
+      output.push(`<h${level}>${inlineMarkdown(heading[2])}</h${level}>`);
+      continue;
+    }
+
+    if (trimmed.startsWith("```")) {
+      const code: string[] = [];
+      index += 1;
+      while (index < lines.length && !(lines[index] ?? "").trim().startsWith("```")) {
+        code.push(lines[index] ?? "");
+        index += 1;
+      }
+      output.push(`<pre><code>${escapeHtml(code.join("\n"))}</code></pre>`);
+      continue;
+    }
+
+    if (isTableStart(lines, index)) {
+      const tableRows: string[][] = [];
+      tableRows.push(markdownTableCells(lines[index]));
+      index += 2;
+      while (index < lines.length && (lines[index] ?? "").includes("|") && (lines[index] ?? "").trim()) {
+        tableRows.push(markdownTableCells(lines[index]));
+        index += 1;
+      }
+      index -= 1;
+      const [header, ...rows] = tableRows;
+      output.push(`
+        <table>
+          <thead><tr>${header.map((cell) => `<th>${inlineMarkdown(cell)}</th>`).join("")}</tr></thead>
+          <tbody>${rows.map((row) => `<tr>${row.map((cell) => `<td>${inlineMarkdown(cell)}</td>`).join("")}</tr>`).join("")}</tbody>
+        </table>
+      `);
+      continue;
+    }
+
+    if (/^[-*]\s+/.test(trimmed)) {
+      const items: string[] = [];
+      while (index < lines.length && /^[-*]\s+/.test((lines[index] ?? "").trim())) {
+        items.push((lines[index] ?? "").trim().replace(/^[-*]\s+/, ""));
+        index += 1;
+      }
+      index -= 1;
+      output.push(`<ul>${items.map((item) => `<li>${inlineMarkdown(item)}</li>`).join("")}</ul>`);
+      continue;
+    }
+
+    if (/^\d+\.\s+/.test(trimmed)) {
+      const items: string[] = [];
+      while (index < lines.length && /^\d+\.\s+/.test((lines[index] ?? "").trim())) {
+        items.push((lines[index] ?? "").trim().replace(/^\d+\.\s+/, ""));
+        index += 1;
+      }
+      index -= 1;
+      output.push(`<ol>${items.map((item) => `<li>${inlineMarkdown(item)}</li>`).join("")}</ol>`);
+      continue;
+    }
+
+    const paragraph: string[] = [trimmed];
+    while (index + 1 < lines.length) {
+      const next = (lines[index + 1] ?? "").trim();
+      if (!next || next.startsWith("#") || next.startsWith("```") || isTableStart(lines, index + 1) || /^[-*]\s+/.test(next) || /^\d+\.\s+/.test(next)) break;
+      paragraph.push(next);
+      index += 1;
+    }
+    output.push(`<p>${inlineMarkdown(paragraph.join(" "))}</p>`);
+  }
+  return output.join("\n");
+}
+
+function isTableStart(lines: string[], index: number): boolean {
+  const current = lines[index] ?? "";
+  const next = lines[index + 1] ?? "";
+  return current.includes("|") && /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(next);
+}
+
+function markdownTableCells(line: string): string[] {
+  return line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((cell) => cell.trim());
+}
+
+function inlineMarkdown(value: string): string {
+  return escapeHtml(value)
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+|#[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
 }
 
 function shortCommit(commit: string): string {

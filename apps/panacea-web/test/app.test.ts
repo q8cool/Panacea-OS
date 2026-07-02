@@ -88,13 +88,33 @@ describe("Panacea web platform", () => {
   it("publishes professional browser documentation without prototype language", () => {
     const publicData = JSON.stringify(data);
     expect(publicData).not.toContain("Demo Mode");
+    expect(data.documents.map((document) => document.body).join("\n")).not.toMatch(/\bDemo\b/i);
+    expect(publicData).not.toMatch(/\bGuided Preview\b/i);
     expect(publicData).not.toContain("non-production rows");
+    expect(publicData).not.toMatch(/\bnon-production\b/i);
     expect(publicData).not.toContain("future work");
     expect(publicData).not.toContain("workflow screens remain future work");
+    expect(publicData).not.toMatch(/\bdocumentation[- ]only\b/i);
+    expect(publicData).not.toMatch(/\bprototype\b/i);
+    expect(publicData).not.toMatch(/\bexperimental\b/i);
+    expect(data.documents.map((document) => document.body).join("\n")).not.toMatch(/\bSprint\s+\d+\b/i);
     expect(publicData).not.toMatch(/\blocalhost\b/i);
     expect(publicData).toContain(publicApiBaseUrl);
     expect(publicData).toContain("Clinical and legal approval required before real clinical production use.");
     expect(publicData).toContain("Protected sample records");
+  });
+
+  it("publishes only current professional documents in the browser data bundle", () => {
+    const publicDocumentPaths = data.documents.map((document) => document.relativePath);
+    expect(publicDocumentPaths.length).toBeGreaterThan(20);
+    expect(publicDocumentPaths).toContain("docs/user-guides/How_To_Run_Panacea_OS.md");
+    expect(publicDocumentPaths).toContain("docs/user-guides/Web_Login_Guide.md");
+    expect(publicDocumentPaths).toContain("docs/releases/v4.0.0/Official_Closure_Report.md");
+    expect(publicDocumentPaths).toContain("docs/contracts/AI_Assurance_API.md");
+    expect(publicDocumentPaths).not.toContain("docs/roadmap/Sprint_108_Live_Integration_Enablement_Report.md");
+    expect(publicDocumentPaths).not.toContain("docs/roadmap/Sprint_110_Operational_Demo_Report.md");
+    expect(publicDocumentPaths).not.toContain("docs/user-guides/Demo_Access_Plan.md");
+    expect(publicDocumentPaths.every((relativePath) => !/\/Sprint_\d+|Demo|Guided[_ -]?Preview|Pilot/i.test(relativePath))).toBe(true);
   });
 
   it("derives active service status checks from docs/contracts OpenAPI paths", () => {

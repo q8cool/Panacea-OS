@@ -1,4 +1,3 @@
-import { createIcons, icons } from "lucide";
 import "./styles.css";
 import { allowlistSummary, buildBrowserApiAllowlist } from "./apiAllowlist";
 import { defaultRoute } from "./catalog";
@@ -22,6 +21,7 @@ import { pageFromRoute, roleDefaultRoute, workspaceFromRoute } from "./roleWorks
 import { localeDirection, normalizeLocale } from "./locales";
 import type { AppData } from "./types";
 import { buildWebConfig } from "./webConfig";
+import { renderPanaceaIcons } from "./icons";
 
 const root = document.querySelector<HTMLDivElement>("#app");
 
@@ -59,7 +59,7 @@ function render() {
   document.title = state.language === "ar" ? "باناسيا أو إس" : "Panacea OS";
   root.innerHTML = renderApp(data, route, state);
   bindEvents();
-  createIcons({ icons });
+  renderPanaceaIcons();
   void afterRender(route);
 }
 
@@ -330,7 +330,7 @@ function bindEvents() {
     if (button) {
       button.disabled = true;
       button.innerHTML = '<i data-lucide="LoaderCircle"></i> Probing';
-      createIcons({ icons });
+      renderPanaceaIcons();
     }
     state = { ...state, foundationProbe: await probeFoundation(data) };
     render();

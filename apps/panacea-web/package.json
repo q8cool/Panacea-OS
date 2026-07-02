@@ -12,14 +12,13 @@
     "generate:data": "node scripts/generate-data.mjs"
   },
   "dependencies": {
-    "lucide": "^1.22.0",
-    "marked": "^18.0.5"
+    "lucide": "^1.22.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
+    "jsdom": "^29.1.1",
     "typescript": "^5.7.2",
     "vite": "^8.1.1",
-    "vitest": "^4.1.9",
-    "jsdom": "^29.1.1"
+    "vitest": "^4.1.9"
   }
 }
