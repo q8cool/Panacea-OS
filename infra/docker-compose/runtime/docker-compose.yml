@@ -31,7 +31,7 @@ services:
       POSTGRES_PASSWORD: panacea
       POSTGRES_DB: panacea_runtime
     ports:
-      - "55433:5432"
+      - "127.0.0.1:55433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U panacea -d panacea_runtime"]
       interval: 5s
@@ -53,7 +53,7 @@ services:
       DATABASE_URL: postgres://panacea:panacea@postgres:5432/panacea_runtime
       PORT: 8094
     ports:
-      - "18094:8094"
+      - "127.0.0.1:18094:8094"
     depends_on:
       postgres:
         condition: service_healthy
@@ -72,7 +72,7 @@ services:
       PANACEA_GLOBAL_AI_ASSURANCE_PORT: 8146
       PORT: 8146
     ports:
-      - "18146:8146"
+      - "127.0.0.1:18146:8146"
     depends_on:
       postgres:
         condition: service_healthy
@@ -91,7 +91,7 @@ services:
       PANACEA_GLOBAL_COMPLIANCE_PORT: 8145
       PORT: 8145
     ports:
-      - "18145:8145"
+      - "127.0.0.1:18145:8145"
     depends_on:
       postgres:
         condition: service_healthy
@@ -110,7 +110,7 @@ services:
       PANACEA_GLOBAL_CUSTOMER_SUCCESS_PORT: 8143
       PORT: 8143
     ports:
-      - "18143:8143"
+      - "127.0.0.1:18143:8143"
     depends_on:
       postgres:
         condition: service_healthy
@@ -129,7 +129,7 @@ services:
       PANACEA_GLOBAL_PRIVACY_PORT: 8147
       PORT: 8147
     ports:
-      - "18147:8147"
+      - "127.0.0.1:18147:8147"
     depends_on:
       postgres:
         condition: service_healthy
@@ -148,7 +148,7 @@ services:
       PANACEA_GLOBAL_LEGAL_PORT: 8142
       PORT: 8142
     ports:
-      - "18142:8142"
+      - "127.0.0.1:18142:8142"
     depends_on:
       postgres:
         condition: service_healthy
@@ -167,7 +167,7 @@ services:
       PANACEA_GLOBAL_PRODUCT_MANAGEMENT_PORT: 8144
       PORT: 8144
     ports:
-      - "18144:8144"
+      - "127.0.0.1:18144:8144"
     depends_on:
       postgres:
         condition: service_healthy
@@ -186,7 +186,7 @@ services:
       PANACEA_GLOBAL_WORKFORCE_PORT: 8141
       PORT: 8141
     ports:
-      - "18141:8141"
+      - "127.0.0.1:18141:8141"
     depends_on:
       postgres:
         condition: service_healthy
@@ -204,7 +204,7 @@ services:
       DATABASE_URL: postgres://panacea:panacea@postgres:5432/panacea_runtime
       PORT: 8095
     ports:
-      - "18095:8095"
+      - "127.0.0.1:18095:8095"
     depends_on:
       postgres:
         condition: service_healthy

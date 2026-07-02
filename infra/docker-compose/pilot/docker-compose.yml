@@ -48,7 +48,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD outside Git}
       POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 10s
@@ -72,7 +72,7 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:?Set POSTGRES_USER}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD outside Git}@postgres:5432/${POSTGRES_DB:?Set POSTGRES_DB}
       PORT: 8094
     ports:
-      - "${PANACEA_PORT_AUTONOMOUS_HEALTHCARE_INTELLIGENCE:-18094}:8094"
+      - "127.0.0.1:${PANACEA_PORT_AUTONOMOUS_HEALTHCARE_INTELLIGENCE:-18094}:8094"
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8094/api/v4/autonomous-healthcare-intelligence/live').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
       interval: 10s
@@ -91,7 +91,7 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:?Set POSTGRES_USER}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD outside Git}@postgres:5432/${POSTGRES_DB:?Set POSTGRES_DB}
       PORT: 8095
     ports:
-      - "${PANACEA_PORT_GLOBAL_COMMAND_INTELLIGENCE:-18095}:8095"
+      - "127.0.0.1:${PANACEA_PORT_GLOBAL_COMMAND_INTELLIGENCE:-18095}:8095"
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8095/api/v4/global-command-intelligence/live').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
       interval: 10s
@@ -111,7 +111,7 @@ services:
       PANACEA_GLOBAL_WORKFORCE_PORT: 8141
       PORT: 8141
     ports:
-      - "${PANACEA_PORT_GLOBAL_WORKFORCE:-18141}:8141"
+      - "127.0.0.1:${PANACEA_PORT_GLOBAL_WORKFORCE:-18141}:8141"
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8141/api/v3/global-workforce/live').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
       interval: 10s
@@ -131,7 +131,7 @@ services:
       PANACEA_GLOBAL_LEGAL_PORT: 8142
       PORT: 8142
     ports:
-      - "${PANACEA_PORT_GLOBAL_LEGAL_GOVERNANCE:-18142}:8142"
+      - "127.0.0.1:${PANACEA_PORT_GLOBAL_LEGAL_GOVERNANCE:-18142}:8142"
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8142/api/v3/global-legal-governance/live').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
       interval: 10s
@@ -151,7 +151,7 @@ services:
       PANACEA_GLOBAL_CUSTOMER_SUCCESS_PORT: 8143
       PORT: 8143
     ports:
-      - "${PANACEA_PORT_GLOBAL_CUSTOMER_SUCCESS:-18143}:8143"
+      - "127.0.0.1:${PANACEA_PORT_GLOBAL_CUSTOMER_SUCCESS:-18143}:8143"
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8143/api/v3/global-customer-success/live').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
       interval: 10s
@@ -171,7 +171,7 @@ services:
       PANACEA_GLOBAL_PRODUCT_MANAGEMENT_PORT: 8144
       PORT: 8144
     ports:
-      - "${PANACEA_PORT_GLOBAL_PRODUCT_MANAGEMENT:-18144}:8144"
+      - "127.0.0.1:${PANACEA_PORT_GLOBAL_PRODUCT_MANAGEMENT:-18144}:8144"
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8144/api/v3/global-product-management/live').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
       interval: 10s
@@ -191,7 +191,7 @@ services:
       PANACEA_GLOBAL_COMPLIANCE_PORT: 8145
       PORT: 8145
     ports:
-      - "${PANACEA_PORT_GLOBAL_COMPLIANCE:-18145}:8145"
+      - "127.0.0.1:${PANACEA_PORT_GLOBAL_COMPLIANCE:-18145}:8145"
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8145/api/v3/global-compliance/live').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
       interval: 10s
@@ -211,7 +211,7 @@ services:
       PANACEA_GLOBAL_AI_ASSURANCE_PORT: 8146
       PORT: 8146
     ports:
-      - "${PANACEA_PORT_GLOBAL_AI_ASSURANCE:-18146}:8146"
+      - "127.0.0.1:${PANACEA_PORT_GLOBAL_AI_ASSURANCE:-18146}:8146"
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8146/api/v3/global-ai-assurance/live').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
       interval: 10s
@@ -231,7 +231,7 @@ services:
       PANACEA_GLOBAL_PRIVACY_PORT: 8147
       PORT: 8147
     ports:
-      - "${PANACEA_PORT_GLOBAL_PRIVACY:-18147}:8147"
+      - "127.0.0.1:${PANACEA_PORT_GLOBAL_PRIVACY:-18147}:8147"
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8147/api/v3/global-privacy/live').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
       interval: 10s

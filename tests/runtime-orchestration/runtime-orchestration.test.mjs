@@ -24,10 +24,12 @@ test("Docker Compose runtime profile defines PostgreSQL and every active service
   }
 });
 
-test("Docker Compose runtime profile exposes required health, readiness, metrics, and OpenAPI ports", () => {
+test("Docker Compose runtime profile exposes required health, readiness, metrics, and OpenAPI ports on loopback only", () => {
   for (const port of ["18094", "18141", "18142", "18143", "18144", "18145", "18146", "18147", "18095"]) {
-    assert.match(composeSource, new RegExp(`"${port}:`), `host port ${port} missing`);
+    assert.match(composeSource, new RegExp(`"127\\.0\\.0\\.1:${port}:`), `host port ${port} must bind to loopback`);
+    assert.doesNotMatch(composeSource, new RegExp(`"(?<!127\\.0\\.0\\.1:)${port}:`), `host port ${port} must not bind publicly`);
   }
+  assert.match(composeSource, /"127\.0\.0\.1:55433:5432"/, "PostgreSQL runtime port must bind to loopback");
   const runtimeScript = read("scripts/runtime-orchestration-validate.mjs");
   for (const endpoint of ["/live", "/ready", "/metrics", "/docs/openapi.json"]) {
     assert.match(runtimeScript, new RegExp(endpoint.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `${endpoint} not validated`);
@@ -169,4 +171,10 @@ test("external pilot deployment artifacts are present and versioned", () => {
   const utbeMatrix = read("docs/operations/UTBE_External_API_Route_Matrix.md");
   assert.match(utbeMatrix, /https:\/\/panacea\.utbe\.ai/);
   assert.match(utbeMatrix, /https:\/\/api\.panacea\.utbe\.ai/);
+
+  const pilotCompose = read("infra/docker-compose/pilot/docker-compose.yml");
+  for (const port of ["18094", "18141", "18142", "18143", "18144", "18145", "18146", "18147", "18095"]) {
+    assert.match(pilotCompose, new RegExp(`127\\.0\\.0\\.1:\\$\\{PANACEA_PORT_[A-Z_]+:-${port}\\}`), `pilot port ${port} must bind to loopback`);
+  }
+  assert.match(pilotCompose, /127\.0\.0\.1:\$\{POSTGRES_PORT:-5432\}:5432/, "pilot PostgreSQL port must bind to loopback");
 });

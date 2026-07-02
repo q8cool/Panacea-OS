@@ -290,6 +290,40 @@ function assertHealthMatrix() {
   }
 }
 
+function assertLoopbackPortBindings() {
+  const runtimeCompose = fs.readFileSync("infra/docker-compose/runtime/docker-compose.yml", "utf8");
+  const loopbackRuntimePorts = ["55433", ...runtimeServices.map((service) => String(service.hostPort))];
+  for (const port of loopbackRuntimePorts) {
+    if (!runtimeCompose.includes(`"127.0.0.1:${port}:`)) {
+      throw new Error(`runtime Docker Compose must bind host port ${port} to 127.0.0.1`);
+    }
+    for (const unsafeBinding of [`"${port}:`, `"0.0.0.0:${port}:`, `":${port}:`]) {
+      if (runtimeCompose.includes(unsafeBinding)) {
+        throw new Error(`runtime Docker Compose exposes unsafe host port binding: ${unsafeBinding}`);
+      }
+    }
+  }
+
+  const pilotCompose = fs.readFileSync("infra/docker-compose/pilot/docker-compose.yml", "utf8");
+  const requiredPilotBindings = [
+    "127.0.0.1:${POSTGRES_PORT:-5432}:5432",
+    "127.0.0.1:${PANACEA_PORT_AUTONOMOUS_HEALTHCARE_INTELLIGENCE:-18094}:8094",
+    "127.0.0.1:${PANACEA_PORT_GLOBAL_COMMAND_INTELLIGENCE:-18095}:8095",
+    "127.0.0.1:${PANACEA_PORT_GLOBAL_WORKFORCE:-18141}:8141",
+    "127.0.0.1:${PANACEA_PORT_GLOBAL_LEGAL_GOVERNANCE:-18142}:8142",
+    "127.0.0.1:${PANACEA_PORT_GLOBAL_CUSTOMER_SUCCESS:-18143}:8143",
+    "127.0.0.1:${PANACEA_PORT_GLOBAL_PRODUCT_MANAGEMENT:-18144}:8144",
+    "127.0.0.1:${PANACEA_PORT_GLOBAL_COMPLIANCE:-18145}:8145",
+    "127.0.0.1:${PANACEA_PORT_GLOBAL_AI_ASSURANCE:-18146}:8146",
+    "127.0.0.1:${PANACEA_PORT_GLOBAL_PRIVACY:-18147}:8147"
+  ];
+  for (const binding of requiredPilotBindings) {
+    if (!pilotCompose.includes(binding)) {
+      throw new Error(`pilot Docker Compose must bind through loopback only: ${binding}`);
+    }
+  }
+}
+
 async function startRuntime() {
   assertDockerAvailable();
   compose(["up", "-d", "--build"], { stdio: "inherit" });
@@ -373,6 +407,7 @@ function checkPilotReadiness() {
   assertEnvironmentTemplates();
   assertPilotEnvironmentIfActive();
   assertHealthMatrix();
+  assertLoopbackPortBindings();
   const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
   for (const script of [
     "panacea:start",
@@ -404,6 +439,7 @@ function verifyDeploymentReadiness() {
   assertSafeEnvironmentTemplatePatterns();
   assertNoCommittedRealEnvFiles();
   assertHealthMatrix();
+  assertLoopbackPortBindings();
   const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
   for (const script of [
     "runtime:orchestration",
@@ -432,6 +468,7 @@ function verifyUtbeReadiness() {
   assertSafeEnvironmentTemplatePatterns();
   assertNoCommittedRealEnvFiles();
   assertHealthMatrix();
+  assertLoopbackPortBindings();
 
   const tracked = readTrackedFiles();
   if (tracked.includes(".env.utbe.pilot")) {

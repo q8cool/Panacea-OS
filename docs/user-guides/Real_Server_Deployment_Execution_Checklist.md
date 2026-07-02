@@ -167,9 +167,28 @@ sudo ss -tulpn
 
 Expected:
 
-- SSH allowed only from approved operator locations where possible.
-- HTTP and HTTPS open as needed for certificate issuance and pilot traffic.
-- Internal service ports are not exposed publicly unless explicitly approved.
+- SSH `22/tcp` allowed only from approved operator locations where possible.
+- HTTP `80/tcp` open for redirect and certificate renewal.
+- HTTPS `443/tcp` open for pilot web and API traffic.
+- PostgreSQL ports remain closed externally.
+- Direct runtime service ports `18094`, `18095`, and `18141-18147` are not publicly reachable.
+
+Recommended UFW baseline:
+
+```bash
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow 22/tcp
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw deny 18094/tcp
+sudo ufw deny 18095/tcp
+sudo ufw deny 18141:18147/tcp
+sudo ufw deny 5432/tcp
+sudo ufw deny 55433/tcp
+sudo ufw enable
+sudo ufw status verbose
+```
 
 ## 14. Backup Verification
 
