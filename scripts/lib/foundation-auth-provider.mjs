@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import http from "node:http";
+import argon2 from "argon2";
 
 const DEFAULT_ISSUER = "https://foundation.utbe.ai";
 const DEFAULT_AUDIENCE = "panacea-os";
@@ -40,8 +41,8 @@ export function generateFoundationAuthKeyPair() {
   });
 }
 
-export function hashFoundationUserPassword(password, {
-  salt = crypto.randomBytes(16).toString("base64url"),
+export async function hashFoundationUserPassword(password, {
+  salt,
   memory = 65536,
   passes = 3,
   parallelism = 1,
@@ -50,20 +51,23 @@ export function hashFoundationUserPassword(password, {
   if (!password) {
     throw new FoundationAuthConfigurationError("password value is required before deriving a hash");
   }
-  const digest = crypto.argon2Sync("argon2id", {
-    message: String(password),
-    nonce: Buffer.from(salt, "base64url"),
+  const options = {
+    type: argon2.argon2id,
+    memoryCost: memory,
+    timeCost: passes,
     parallelism,
-    tagLength,
-    memory,
-    passes
-  }).toString("base64url");
-  return `argon2id$v=19$m=${memory},t=${passes},p=${parallelism},l=${tagLength}$${salt}$${digest}`;
+    hashLength: tagLength
+  };
+  if (salt) {
+    options.salt = Buffer.isBuffer(salt) ? salt : Buffer.from(String(salt), "base64url");
+  }
+  const encoded = await argon2.hash(String(password), options);
+  return encoded.replace(/^\$/, "");
 }
 
 export const hashFoundationOperatorPassword = hashFoundationUserPassword;
 
-export function buildFoundationAuthProviderEnv(overrides = {}) {
+export async function buildFoundationAuthProviderEnv(overrides = {}) {
   const keyPair = generateFoundationAuthKeyPair();
   return {
     PANACEA_FOUNDATION_URL: DEFAULT_ISSUER,
@@ -73,7 +77,7 @@ export function buildFoundationAuthProviderEnv(overrides = {}) {
     PANACEA_FOUNDATION_AUTH_PUBLIC_KEY_PEM: keyPair.publicKey,
     PANACEA_FOUNDATION_AUTH_KEY_ID: "foundation-auth-test-key",
     PANACEA_FOUNDATION_OPERATOR_USERNAME: "operator",
-    PANACEA_FOUNDATION_OPERATOR_PASSWORD_HASH: hashFoundationUserPassword("operator-test-password", {
+    PANACEA_FOUNDATION_OPERATOR_PASSWORD_HASH: await hashFoundationUserPassword("operator-test-password", {
       salt: "panacea-auth-test-salt",
       memory: 8192,
       passes: 2
@@ -101,9 +105,8 @@ export function loadFoundationAuthProviderConfig(env = process.env) {
   const privateKeyPem = normalizePem(readRequired(env, "PANACEA_FOUNDATION_AUTH_PRIVATE_KEY_PEM"));
   const publicKeyPem = normalizePem(env.PANACEA_FOUNDATION_AUTH_PUBLIC_KEY_PEM?.trim() || derivePublicKeyPem(privateKeyPem));
   const operatorPasswordHash = env.PANACEA_FOUNDATION_OPERATOR_PASSWORD_HASH?.trim();
-  const operatorPassword = env.PANACEA_FOUNDATION_OPERATOR_PASSWORD?.trim();
   const hasUserSource = Boolean(env.PANACEA_FOUNDATION_USERS_FILE?.trim() || env.PANACEA_FOUNDATION_USERS_JSON?.trim());
-  if (!hasUserSource && !operatorPasswordHash && !operatorPassword) {
+  if (!hasUserSource && !operatorPasswordHash) {
     throw new FoundationAuthConfigurationError(
       "PANACEA_FOUNDATION_USERS_FILE, PANACEA_FOUNDATION_USERS_JSON, or PANACEA_FOUNDATION_OPERATOR_PASSWORD_HASH is required"
     );
@@ -113,7 +116,7 @@ export function loadFoundationAuthProviderConfig(env = process.env) {
     ? undefined
     : {
       username: readRequired(env, "PANACEA_FOUNDATION_OPERATOR_USERNAME"),
-      passwordHash: operatorPasswordHash || hashFoundationUserPassword(operatorPassword),
+      passwordHash: operatorPasswordHash,
       userId: env.PANACEA_FOUNDATION_OPERATOR_USER_ID?.trim() || "foundation-operator",
       displayName: env.PANACEA_FOUNDATION_OPERATOR_DISPLAY_NAME?.trim() || env.PANACEA_FOUNDATION_OPERATOR_USERNAME?.trim() || "Foundation Operator",
       tenantId: env.PANACEA_FOUNDATION_OPERATOR_TENANT_ID?.trim() || "utbe-health-system",
@@ -228,13 +231,13 @@ export class FoundationAuthProvider {
     };
   }
 
-  login({ username, password, tenantId, ipAddress = "unknown" }) {
+  async login({ username, password, tenantId, ipAddress = "unknown" }) {
     const normalizedUsername = String(username || "").trim();
     const requestedTenant = String(tenantId || "").trim();
     this.assertLoginAllowed(normalizedUsername, ipAddress);
 
     const user = this.findUser(normalizedUsername, requestedTenant);
-    if (!user || !this.verifyPassword(String(password || ""), user)) {
+    if (!user || !(await this.verifyPassword(String(password || ""), user))) {
       this.recordLoginFailure(normalizedUsername, ipAddress, requestedTenant);
       throw new FoundationAuthError(401, "invalid_credentials", "Invalid username, password, or tenant.");
     }
@@ -245,7 +248,7 @@ export class FoundationAuthProvider {
     return response;
   }
 
-  token(input, context = {}) {
+  async token(input, context = {}) {
     const grantType = input.grantType || input.grant_type;
     if (grantType === "password") {
       return this.login({ ...input, ipAddress: context.ipAddress });
@@ -344,7 +347,7 @@ export class FoundationAuthProvider {
     };
   }
 
-  verifyPassword(candidatePassword, user) {
+  async verifyPassword(candidatePassword, user) {
     return verifyPasswordHash(candidatePassword, user.passwordHash);
   }
 
@@ -465,10 +468,10 @@ export function createFoundationAuthProviderServer({ config, provider = new Foun
       if (request.method === "POST" && url.pathname === "/api/v1/audit-records") return json(response, 200, authProvider.appendAudit(await readJson(request)));
       if (request.method === "POST" && url.pathname === "/api/v1/policy/evaluate") return json(response, 200, authProvider.evaluatePolicy(await readJson(request)));
       if (request.method === "POST" && url.pathname === "/api/v1/auth/login") {
-        return json(response, 200, authProvider.login({ ...(await readJson(request)), ipAddress: clientAddress(request) }));
+        return json(response, 200, await authProvider.login({ ...(await readJson(request)), ipAddress: clientAddress(request) }));
       }
       if (request.method === "POST" && url.pathname === "/api/v1/auth/token") {
-        return json(response, 200, authProvider.token(await readJson(request), { ipAddress: clientAddress(request) }));
+        return json(response, 200, await authProvider.token(await readJson(request), { ipAddress: clientAddress(request) }));
       }
       if (request.method === "POST" && url.pathname === "/api/v1/auth/refresh") {
         return json(response, 200, authProvider.refresh(await readJson(request)));
@@ -564,6 +567,7 @@ function normalizeUser(user, index) {
   const passwordHash = String(user?.passwordHash || "").trim();
   if (!passwordHash) throw new FoundationAuthConfigurationError(`${label} must include passwordHash`);
   if (!passwordHash.startsWith("argon2id$")) throw new FoundationAuthConfigurationError(`${label} passwordHash must use argon2id`);
+  validateArgon2idHashFormat(passwordHash, label);
   const normalized = {
     userId: String(user?.userId || "").trim(),
     username: String(user?.username || "").trim(),
@@ -580,6 +584,25 @@ function normalizeUser(user, index) {
   if (normalized.roles.length === 0) throw new FoundationAuthConfigurationError(`${label} must include at least one role`);
   if (normalized.permissions.length === 0) throw new FoundationAuthConfigurationError(`${label} must include at least one permission`);
   return normalized;
+}
+
+function validateArgon2idHashFormat(passwordHash, label) {
+  const parts = passwordHash.split("$");
+  if (parts.length !== 5 || parts[0] !== "argon2id" || parts[1] !== "v=19" || !parts[2] || !parts[3] || !parts[4]) {
+    throw new FoundationAuthConfigurationError(`${label} passwordHash must use argon2id$v=19 format`);
+  }
+  const params = Object.fromEntries(parts[2].split(",").map((item) => item.split("=")));
+  for (const key of ["m", "t", "p"]) {
+    const parsed = Number.parseInt(params[key], 10);
+    if (!Number.isInteger(parsed) || parsed <= 0) {
+      throw new FoundationAuthConfigurationError(`${label} passwordHash must include valid argon2id parameters`);
+    }
+  }
+  for (const encodedPart of [parts[3], parts[4]]) {
+    if (!/^[A-Za-z0-9+/]+={0,2}$/.test(encodedPart)) {
+      throw new FoundationAuthConfigurationError(`${label} passwordHash must contain valid argon2 salt and hash values`);
+    }
+  }
 }
 
 function signJwt({ claims, privateKeyPem, keyId }) {
@@ -637,41 +660,27 @@ function publicUser(user) {
   };
 }
 
-function verifyPasswordHash(password, stored) {
+export async function verifyFoundationUserPassword(password, stored) {
+  return verifyPasswordHash(password, stored);
+}
+
+async function verifyPasswordHash(password, stored) {
   if (stored.startsWith("argon2id$")) {
     return verifyArgon2idPasswordHash(password, stored);
   }
   throw new FoundationAuthConfigurationError("password hash must use argon2id");
 }
 
-function verifyArgon2idPasswordHash(password, stored) {
+async function verifyArgon2idPasswordHash(password, stored) {
   const parts = stored.split("$");
-  if (parts.length !== 5 || parts[0] !== "argon2id" || parts[1] !== "v=19") {
+  if (parts.length !== 5 || parts[0] !== "argon2id" || parts[1] !== "v=19" || !parts[2] || !parts[3] || !parts[4]) {
     throw new FoundationAuthConfigurationError("password hash must use argon2id$v=19 format");
   }
-  const params = Object.fromEntries(parts[2].split(",").map((item) => item.split("=")));
-  const memory = Number.parseInt(params.m, 10);
-  const passes = Number.parseInt(params.t, 10);
-  const parallelism = Number.parseInt(params.p, 10);
-  const tagLength = Number.parseInt(params.l || "32", 10);
-  const actual = crypto.argon2Sync("argon2id", {
-    message: String(password || ""),
-    nonce: Buffer.from(parts[3], "base64url"),
-    parallelism,
-    tagLength,
-    memory,
-    passes
-  }).toString("base64url");
-  return timingSafeStringEqual(actual, parts[4]);
-}
-
-function timingSafeStringEqual(left, right) {
-  const leftBuffer = Buffer.from(String(left || ""));
-  const rightBuffer = Buffer.from(String(right || ""));
-  if (leftBuffer.length !== rightBuffer.length) {
-    return false;
+  try {
+    return await argon2.verify(`$${stored}`, String(password || ""));
+  } catch {
+    throw new FoundationAuthConfigurationError("password hash must be a valid argon2id value");
   }
-  return crypto.timingSafeEqual(leftBuffer, rightBuffer);
 }
 
 function loginAttemptKey(username, ipAddress) {

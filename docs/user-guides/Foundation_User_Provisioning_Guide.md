@@ -9,12 +9,12 @@ Do not commit real user files, password hashes, private keys, refresh-token stor
 Copy the example file to a secured server location:
 
 ```sh
-sudo mkdir -p /etc/panacea
-sudo cp foundation-users.example.json /etc/panacea/foundation-users.json
-sudo chmod 600 /etc/panacea/foundation-users.json
+sudo mkdir -p /etc/panacea/foundation-auth
+sudo cp foundation-users.example.json /etc/panacea/foundation-auth/foundation-users.json
+sudo chmod 600 /etc/panacea/foundation-auth/foundation-users.json
 ```
 
-Edit `/etc/panacea/foundation-users.json` on the server only.
+Edit `/etc/panacea/foundation-auth/foundation-users.json` on the server only.
 
 ## Required Users
 
@@ -59,23 +59,15 @@ Edit `/etc/panacea/foundation-users.json` on the server only.
 
 ## Generate Argon2id Password Hash
 
-Run this on the server. The password is read without echoing:
+Run this from the repository root on the server. The password is read without echoing when the terminal supports hidden input:
 
 ```sh
-printf "Password: "
-stty -echo
-IFS= read -r FOUNDATION_PASSWORD
-stty echo
-printf "\n"
-
-FOUNDATION_PASSWORD="$FOUNDATION_PASSWORD" node --input-type=module <<'NODE'
-import { hashFoundationUserPassword } from "./scripts/lib/foundation-auth-provider.mjs";
-console.log(hashFoundationUserPassword(process.env.FOUNDATION_PASSWORD));
-NODE
-unset FOUNDATION_PASSWORD
+npm run foundation:hash-password
 ```
 
-Place only the resulting Argon2id hash into `/etc/panacea/foundation-users.json`.
+The command prints only the Argon2id hash. Paste that value into the `passwordHash` field in `/etc/panacea/foundation-auth/foundation-users.json`.
+
+Do not store the plaintext password in shell history, Git, environment files, logs, screenshots, or documentation.
 
 ## Required JWT Claims After Login
 

@@ -31,6 +31,7 @@
     "panacea:utbe:verify": "node scripts/panacea-runtime.mjs utbe-verify",
     "panacea:utbe:external-health": "node scripts/panacea-runtime.mjs utbe-external-health",
     "foundation:auth-provider": "node scripts/start-foundation-auth-provider.mjs",
+    "foundation:hash-password": "node scripts/foundation-hash-password.mjs",
     "web:dev": "npm --prefix apps/panacea-web run dev",
     "web:build": "npm --prefix apps/panacea-web run build",
     "web:check": "npm --prefix apps/panacea-web run check",
@@ -38,5 +39,8 @@
   },
   "engines": {
     "node": ">=22"
+  },
+  "dependencies": {
+    "argon2": "^0.44.0"
   }
 }

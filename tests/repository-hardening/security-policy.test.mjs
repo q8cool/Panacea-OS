@@ -27,6 +27,6 @@ test("service security layers enforce authentication, tenant isolation, RBAC, AB
 test("root package identity is Panacea OS only", () => {
   const packageJson = JSON.parse(fs.readFileSync(path.join(repoRoot, "package.json"), "utf8"));
   assert.equal(packageJson.name, "panacea-os-enterprise");
-  assert.deepEqual(packageJson.dependencies ?? {}, {});
+  assert.deepEqual(Object.keys(packageJson.dependencies ?? {}).sort(), ["argon2"]);
   assert.deepEqual(packageJson.devDependencies ?? {}, {});
 });

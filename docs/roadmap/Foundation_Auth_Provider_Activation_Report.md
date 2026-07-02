@@ -62,8 +62,8 @@ The repository Foundation Auth Provider exposes:
 ## User Provisioning Design
 
 - Users are loaded from `PANACEA_FOUNDATION_USERS_FILE` or `PANACEA_FOUNDATION_USERS_JSON`.
-- The recommended server path is `/etc/panacea/foundation-users.json`.
-- Passwords use Argon2id hashes.
+- The recommended server path is `/etc/panacea/foundation-auth/foundation-users.json`.
+- Passwords use Argon2id hashes generated and verified through the `argon2` runtime package.
 - Real user files are ignored by Git.
 - `foundation-users.example.json` documents the required shape without real credentials.
 
@@ -141,12 +141,12 @@ Repository validation:
 
 - `npm run check`: PASS.
 - `npm run build`: PASS.
-- `npm run test:run`: PASS, 153 tests.
+- `npm run test:run`: PASS, 155 tests.
 - `npm run openapi`: PASS, 26 OpenAPI documents.
 - `npm run web:check`: PASS, 60 web tests.
 - `npm run web:build`: PASS.
 - `npm run quality:gate`: PASS.
-- Foundation auth provider tests: PASS, 15 tests.
+- Foundation auth provider tests: PASS, 17 tests.
 - Discovery endpoint: PASS.
 - JWKS: PASS.
 - Login success: PASS.
@@ -174,7 +174,7 @@ Live domain validation must be rerun after the UTBE server is updated and nginx 
 On the UTBE server:
 
 1. Pull the updated `develop/v4.0` branch.
-2. Create `/etc/panacea/foundation-users.json` from `foundation-users.example.json`.
+2. Create `/etc/panacea/foundation-auth/foundation-users.json` from `foundation-users.example.json`.
 3. Generate Argon2id password hashes outside Git.
 4. Provide RS256 key material outside Git.
 5. Start `npm run foundation:auth-provider` on `127.0.0.1:8080`.

@@ -12,7 +12,7 @@ Store these files outside the repository:
 |---|---|---|
 | RSA private key | Signs RS256 access tokens | `/etc/panacea/foundation-auth-private-key.pem` |
 | RSA public key | Exposed through JWKS | `/etc/panacea/foundation-auth-public-key.pem` |
-| Users file | Contains Argon2id password hashes and roles | `/etc/panacea/foundation-users.json` |
+| Users file | Contains Argon2id password hashes and roles | `/etc/panacea/foundation-auth/foundation-users.json` |
 | Refresh token store | Stores hashed refresh-token lifecycle rows | `/var/lib/panacea/foundation-refresh-sessions.json` |
 
 Recommended permissions:
@@ -20,7 +20,7 @@ Recommended permissions:
 ```sh
 sudo chown -R panacea:panacea /etc/panacea /var/lib/panacea
 sudo chmod 700 /etc/panacea /var/lib/panacea
-sudo chmod 600 /etc/panacea/foundation-users.json
+sudo chmod 600 /etc/panacea/foundation-auth/foundation-users.json
 sudo chmod 600 /etc/panacea/foundation-auth-private-key.pem
 ```
 
@@ -33,11 +33,27 @@ export PANACEA_FOUNDATION_AUTH_AUDIENCE="panacea-os"
 export PANACEA_FOUNDATION_AUTH_PRIVATE_KEY_PEM="$(cat /etc/panacea/foundation-auth-private-key.pem)"
 export PANACEA_FOUNDATION_AUTH_PUBLIC_KEY_PEM="$(cat /etc/panacea/foundation-auth-public-key.pem)"
 export PANACEA_FOUNDATION_AUTH_KEY_ID="foundation-auth-key-2026-07"
-export PANACEA_FOUNDATION_USERS_FILE="/etc/panacea/foundation-users.json"
+export PANACEA_FOUNDATION_USERS_FILE="/etc/panacea/foundation-auth/foundation-users.json"
 export PANACEA_FOUNDATION_AUTH_REFRESH_TOKEN_STORE_FILE="/var/lib/panacea/foundation-refresh-sessions.json"
 export PANACEA_FOUNDATION_AUTH_CORS_ORIGIN="https://panacea.utbe.ai"
 export PANACEA_FOUNDATION_AUTH_PORT="8080"
 ```
+
+## Install Runtime Dependencies
+
+```sh
+npm ci
+```
+
+The Foundation Auth Provider uses the `argon2` package for Argon2id password hashing and verification. Node.js built-in `crypto` Argon2 APIs are not required.
+
+## Create User Password Hashes
+
+```sh
+npm run foundation:hash-password
+```
+
+Paste the printed `argon2id$...` value into `/etc/panacea/foundation-auth/foundation-users.json`.
 
 ## Start
 

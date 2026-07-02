@@ -32,13 +32,19 @@ export PANACEA_FOUNDATION_AUTH_AUDIENCE="panacea-os"
 export PANACEA_FOUNDATION_AUTH_PRIVATE_KEY_PEM="$FOUNDATION_RS256_PRIVATE_KEY_PEM"
 export PANACEA_FOUNDATION_AUTH_PUBLIC_KEY_PEM="$FOUNDATION_RS256_PUBLIC_KEY_PEM"
 export PANACEA_FOUNDATION_AUTH_KEY_ID="foundation-auth-key-1"
-export PANACEA_FOUNDATION_USERS_FILE="/etc/panacea/foundation-users.json"
+export PANACEA_FOUNDATION_USERS_FILE="/etc/panacea/foundation-auth/foundation-users.json"
 export PANACEA_FOUNDATION_AUTH_REFRESH_TOKEN_STORE_FILE="/var/lib/panacea/foundation-refresh-sessions.json"
 export PANACEA_FOUNDATION_AUTH_CORS_ORIGIN="https://panacea.utbe.ai"
 export PANACEA_FOUNDATION_AUTH_PORT="8080"
 ```
 
-Use Argon2id password hashes in the external users file. Do not place real user credentials, private keys, refresh token stores, or generated secrets in Git.
+Use Argon2id password hashes in the external users file. Generate them with:
+
+```sh
+npm run foundation:hash-password
+```
+
+Do not place real user credentials, private keys, refresh token stores, or generated secrets in Git.
 
 ## Start Provider
 

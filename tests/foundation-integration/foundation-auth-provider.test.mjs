@@ -10,13 +10,14 @@ import {
   FoundationAuthProvider,
   hashFoundationUserPassword,
   loadFoundationAuthProviderConfig,
-  verifyFoundationAccessToken
+  verifyFoundationAccessToken,
+  verifyFoundationUserPassword
 } from "../../scripts/lib/foundation-auth-provider.mjs";
 
 const secretValue = "operator-test-password";
 
 function startAuthProvider(overrides = {}) {
-  return startAuthProviderWithEnv(buildFoundationAuthProviderEnv(overrides));
+  return buildFoundationAuthProviderEnv(overrides).then((env) => startAuthProviderWithEnv(env));
 }
 
 function startAuthProviderWithEnv(env) {
@@ -110,6 +111,52 @@ test("Foundation auth read endpoints support HEAD for proxy and browser validati
     }
   } finally {
     await close(server);
+  }
+});
+
+test("Foundation auth password hashing creates and verifies argon2id values", async () => {
+  const hash = await hashFoundationUserPassword("safe-password", {
+    salt: "panacea-password-test",
+    memory: 8192,
+    passes: 2
+  });
+  assert.equal(hash.startsWith("argon2id$"), true);
+  assert.equal(await verifyFoundationUserPassword("safe-password", hash), true);
+  assert.equal(await verifyFoundationUserPassword("wrong-password", hash), false);
+});
+
+test("Foundation auth rejects example sentinel password hash values", async () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "panacea-foundation-invalid-hash-"));
+  const usersFile = path.join(directory, "foundation-users.json");
+  const keyPair = crypto.generateKeyPairSync("rsa", {
+    modulusLength: 2048,
+    publicKeyEncoding: { type: "spki", format: "pem" },
+    privateKeyEncoding: { type: "pkcs8", format: "pem" }
+  });
+  fs.writeFileSync(usersFile, JSON.stringify({
+    users: [
+      {
+        userId: "project-owner",
+        username: "project-owner",
+        displayName: "Project Owner",
+        tenantId: "utbe-health-system",
+        passwordHash: "REPLACE_WITH_ARGON2ID_HASH_GENERATED_OUTSIDE_GIT",
+        roles: ["operator"],
+        permissions: ["panacea:operate"]
+      }
+    ]
+  }));
+  try {
+    assert.throws(() => loadFoundationAuthProviderConfig({
+      PANACEA_FOUNDATION_URL: "https://foundation.utbe.ai",
+      PANACEA_FOUNDATION_JWT_ISSUER: "https://foundation.utbe.ai",
+      PANACEA_FOUNDATION_AUTH_AUDIENCE: "panacea-os",
+      PANACEA_FOUNDATION_AUTH_PRIVATE_KEY_PEM: keyPair.privateKey,
+      PANACEA_FOUNDATION_AUTH_PUBLIC_KEY_PEM: keyPair.publicKey,
+      PANACEA_FOUNDATION_USERS_FILE: usersFile
+    }), /argon2id/);
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
   }
 });
 
@@ -274,7 +321,7 @@ test("Foundation auth CORS preflight allows the UTBE production web origin", asy
 test("Foundation auth supports external users file with administrator security user", async () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "panacea-foundation-users-"));
   const usersFile = path.join(directory, "foundation-users.json");
-  const adminHash = hashFoundationUserPassword("security-password", {
+  const adminHash = await hashFoundationUserPassword("security-password", {
     salt: "panacea-security-user",
     memory: 8192,
     passes: 2
@@ -319,7 +366,7 @@ test("Foundation auth users file does not require fallback operator settings", a
         username: "project-owner",
         displayName: "Project Owner",
         tenantId: "utbe-health-system",
-        passwordHash: hashFoundationUserPassword("owner-password", {
+        passwordHash: await hashFoundationUserPassword("owner-password", {
           salt: "panacea-project-owner",
           memory: 8192,
           passes: 2
@@ -329,7 +376,7 @@ test("Foundation auth users file does not require fallback operator settings", a
       }
     ]
   }));
-  const env = buildFoundationAuthProviderEnv({
+  const env = await buildFoundationAuthProviderEnv({
     PANACEA_FOUNDATION_USERS_FILE: usersFile
   });
   for (const key of [
