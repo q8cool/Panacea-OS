@@ -1,12 +1,12 @@
 # Web Login Guide
 
-Panacea Web supports three visible modes:
+Panacea Web supports three visible access modes:
 
 | Mode | Description |
 |---|---|
 | Provider Login | Real Foundation login with username, password, tenant, signed access token, refresh, and logout |
-| Operator JWT | Manual entry of a Foundation-issued JWT for controlled validation |
-| Demo | Visual role workspaces with clearly labeled non-production rows |
+| Operator Access Token | Manual entry of a Foundation-issued JWT for controlled access validation |
+| Guided Preview | Guided role workspaces with protected sample records and clear governance boundaries |
 
 ## Provider Login Flow
 
@@ -33,7 +33,7 @@ Logout:
 
 - calls `/api/v1/auth/logout` when a provider refresh token exists;
 - clears browser local storage;
-- returns the UI to Demo Mode.
+- clears the active secure session and returns to guided preview access.
 
 ## Error Handling
 

@@ -109,11 +109,11 @@ It is not yet a set of full role-specific clinical, patient, finance, or departm
 
 | Area | Current journey |
 |---|---|
-| What they can do now | Explore OpenAPI contracts, generate curl commands, inspect docs, run demo mode, check release evidence |
-| Endpoint or UI | `#/developer/api-explorer`, `#/developer/documentation`, `#/developer/demo-mode` |
+| What they can do now | Explore OpenAPI contracts, generate curl commands, inspect docs, review guided environment access, check release evidence |
+| Endpoint or UI | `#/developer/api-explorer`, `#/developer/documentation`, `#/developer/access-environment` |
 | Not yet visible | Interactive authenticated API calls from browser |
 | Needed UI | Developer console with token handling and request execution |
 
 ## Overall Journey Conclusion
 
-The operator and developer journeys are now visually supported. Clinical, patient, departmental, and finance journeys are visible as coverage maps, but their workflow screens remain future work.
+The operator and developer journeys are now visually supported. Clinical, patient, departmental, and finance journeys are represented as structured coverage maps, with expanded workflow surfaces managed through the product roadmap.

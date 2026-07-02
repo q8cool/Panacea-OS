@@ -85,6 +85,18 @@ describe("Panacea web platform", () => {
     expect(data.services.every((service) => service.runtimeChecks.every((check) => check.url.startsWith(publicApiBaseUrl)))).toBe(true);
   });
 
+  it("publishes professional browser documentation without prototype language", () => {
+    const publicData = JSON.stringify(data);
+    expect(publicData).not.toContain("Demo Mode");
+    expect(publicData).not.toContain("non-production rows");
+    expect(publicData).not.toContain("future work");
+    expect(publicData).not.toContain("workflow screens remain future work");
+    expect(publicData).not.toMatch(/\blocalhost\b/i);
+    expect(publicData).toContain(publicApiBaseUrl);
+    expect(publicData).toContain("Clinical and legal approval required before real clinical production use.");
+    expect(publicData).toContain("Protected sample records");
+  });
+
   it("derives active service status checks from docs/contracts OpenAPI paths", () => {
     const docsByPath = new Map(data.openApiDocuments.map((document) => [document.relativePath, document]));
 

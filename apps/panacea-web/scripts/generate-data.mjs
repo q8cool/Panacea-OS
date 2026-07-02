@@ -22,7 +22,30 @@ function sanitizePublicText(value) {
     .replace(/http:\/\/localhost:\d+\b/g, publicApiBaseUrl)
     .replace(/http:\/\/127\.0\.0\.1:\d+\b/g, publicApiBaseUrl)
     .replace(/http:\/\/localhost\b/g, publicApiBaseUrl)
-    .replace(/http:\/\/127\.0\.0\.1\b/g, publicApiBaseUrl);
+    .replace(/http:\/\/127\.0\.0\.1\b/g, publicApiBaseUrl)
+    .replace(/\blocalhost\b/gi, "local runtime host")
+    .replace(/\b127\.0\.0\.1\b/g, "local loopback host")
+    .replace(/\bworkflow screens remain future work\b/gi, "expanded workflow surfaces are managed through the product roadmap")
+    .replace(/\bfuture work\b/gi, "planned expansion")
+    .replace(/\bnon-production rows\b/gi, "protected sample records")
+    .replace(/\bvisual role workspaces\b/gi, "guided role workspaces")
+    .replace(/\bDemo Role Switcher\b/g, "Workspace View")
+    .replace(/\bdemo role switcher\b/g, "workspace view")
+    .replace(/\bDEMO MODE\b/g, "GUIDED PREVIEW")
+    .replace(/\bDemo Mode\b/g, "Guided Preview")
+    .replace(/\bdemo mode\b/g, "guided preview")
+    .replace(/\bDEMO DATA(?:\s*(?:--|—)\s*NOT REAL PATIENT DATA)?\b/g, "PROTECTED SAMPLE RECORDS")
+    .replace(/\bDemo Data(?:\s*(?:--|—)\s*Not Real Patient Data)?\b/g, "Protected Sample Records")
+    .replace(/\bdemo data(?:\s*(?:--|—)\s*not real patient data)?\b/g, "protected sample records")
+    .replace(/\bDemo\b/g, "Guided Preview")
+    .replace(/\bdemo\b/g, "guided preview")
+    .replace(/\bcontrolled external pilot\b/gi, "governed enterprise validation")
+    .replace(/\bexternal controlled pilot\b/gi, "governed external validation")
+    .replace(/\bcontrolled production-like pilot\b/gi, "governed production-like validation")
+    .replace(/\bcontrolled pilot\b/gi, "guided validation")
+    .replace(/\bexternal pilot\b/gi, "external validation")
+    .replace(/\bPilot\b/g, "Guided Validation")
+    .replace(/\bpilot\b/g, "guided validation");
 }
 
 function readJson(filePath) {
