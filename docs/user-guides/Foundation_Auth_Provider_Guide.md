@@ -1,6 +1,6 @@
 # Foundation Auth Provider Guide
 
-Sprint 106 adds Foundation authentication infrastructure for Panacea OS web Live Mode.
+This guide describes the Foundation authentication provider used by Panacea OS web secure access.
 
 This provider is authentication infrastructure only. It does not add healthcare modules, clinical logic, AI behavior, diagnosis, treatment recommendations, or workflow execution.
 
@@ -12,7 +12,7 @@ The Foundation auth provider exposes:
 |---|---|---|
 | GET | `/.well-known/openid-configuration` | OpenID-compatible discovery metadata |
 | GET | `/.well-known/jwks.json` | RS256 public keys |
-| POST | `/api/v1/auth/login` | Bootstrap operator login |
+| POST | `/api/v1/auth/login` | Username, password, and tenant login |
 | POST | `/api/v1/auth/token` | Password or refresh grant endpoint |
 | POST | `/api/v1/auth/refresh` | Refresh-token rotation |
 | POST | `/api/v1/auth/logout` | Refresh-token revocation |
@@ -28,21 +28,17 @@ The Foundation auth provider exposes:
 ```sh
 export PANACEA_FOUNDATION_URL="https://foundation.utbe.ai"
 export PANACEA_FOUNDATION_JWT_ISSUER="https://foundation.utbe.ai"
-export PANACEA_FOUNDATION_AUTH_AUDIENCE="panacea-web"
+export PANACEA_FOUNDATION_AUTH_AUDIENCE="panacea-os"
 export PANACEA_FOUNDATION_AUTH_PRIVATE_KEY_PEM="$FOUNDATION_RS256_PRIVATE_KEY_PEM"
 export PANACEA_FOUNDATION_AUTH_PUBLIC_KEY_PEM="$FOUNDATION_RS256_PUBLIC_KEY_PEM"
 export PANACEA_FOUNDATION_AUTH_KEY_ID="foundation-auth-key-1"
-export PANACEA_FOUNDATION_OPERATOR_USERNAME="operator"
-export PANACEA_FOUNDATION_OPERATOR_PASSWORD_HASH="$FOUNDATION_OPERATOR_PASSWORD_HASH"
-export PANACEA_FOUNDATION_OPERATOR_USER_ID="foundation-operator"
-export PANACEA_FOUNDATION_OPERATOR_TENANT_ID="default"
-export PANACEA_FOUNDATION_OPERATOR_ROLES="operator"
-export PANACEA_FOUNDATION_OPERATOR_PERMISSIONS="foundation:read,foundation:audit:append,foundation:policy:evaluate,panacea:operate"
-export PANACEA_FOUNDATION_AUTH_CORS_ORIGIN="http://localhost:5174"
+export PANACEA_FOUNDATION_USERS_FILE="/etc/panacea/foundation-users.json"
+export PANACEA_FOUNDATION_AUTH_REFRESH_TOKEN_STORE_FILE="/var/lib/panacea/foundation-refresh-sessions.json"
+export PANACEA_FOUNDATION_AUTH_CORS_ORIGIN="https://panacea.utbe.ai"
 export PANACEA_FOUNDATION_AUTH_PORT="8080"
 ```
 
-Use a derived password hash for production. Plain environment bootstrap password support exists only for controlled bootstrap validation and should be replaced with `PANACEA_FOUNDATION_OPERATOR_PASSWORD_HASH` before sustained use.
+Use Argon2id password hashes in the external users file. Do not place real user credentials, private keys, refresh token stores, or generated secrets in Git.
 
 ## Start Provider
 
@@ -77,13 +73,14 @@ Required paths:
 
 - RS256 access tokens are required.
 - JWKS publishes only the public key.
-- Operator credentials come from environment.
+- User credentials come from an environment-backed or mounted JSON file outside Git.
 - Login errors do not reveal which credential was wrong.
 - Login attempts are rate-limited.
 - Refresh tokens rotate on refresh.
 - Logout revokes the refresh token when it is known to the provider process.
+- Refresh token storage keeps token hashes and lifecycle metadata, not raw refresh tokens.
 - Auth events are audit-recorded without passwords or raw tokens.
-- CORS allows `http://localhost:5174` and required Panacea headers.
+- CORS allows `https://panacea.utbe.ai` and required Panacea headers.
 - Wildcard credentialed CORS is not used.
 
 ## Validation Commands
@@ -92,9 +89,9 @@ Required paths:
 curl https://foundation.utbe.ai/.well-known/openid-configuration
 curl https://foundation.utbe.ai/.well-known/jwks.json
 curl -i -X OPTIONS https://foundation.utbe.ai/api/v1/auth/login \
-  -H "Origin: http://localhost:5174" \
+  -H "Origin: https://panacea.utbe.ai" \
   -H "Access-Control-Request-Method: POST" \
-  -H "Access-Control-Request-Headers: Authorization,Content-Type,X-Tenant-Id,X-User-Id,X-Request-Id,X-Correlation-Id"
+  -H "Access-Control-Request-Headers: Authorization,Content-Type,X-Tenant-ID,X-Request-ID,X-Correlation-ID"
 ```
 
 Login validation requires approved operator credentials from the deployment environment. Do not write passwords in shell history or reports.

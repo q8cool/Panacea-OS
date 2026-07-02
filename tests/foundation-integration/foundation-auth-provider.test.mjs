@@ -1,18 +1,27 @@
 import assert from "node:assert/strict";
 import crypto from "node:crypto";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
 import {
   buildFoundationAuthProviderEnv,
   createFoundationAuthProviderServer,
   FoundationAuthProvider,
-  loadFoundationAuthProviderConfig
+  hashFoundationUserPassword,
+  loadFoundationAuthProviderConfig,
+  verifyFoundationAccessToken
 } from "../../scripts/lib/foundation-auth-provider.mjs";
 
 const secretValue = "operator-test-password";
 
 function startAuthProvider(overrides = {}) {
+  return startAuthProviderWithEnv(buildFoundationAuthProviderEnv(overrides));
+}
+
+function startAuthProviderWithEnv(env) {
   const logs = [];
-  const config = loadFoundationAuthProviderConfig(buildFoundationAuthProviderEnv(overrides));
+  const config = loadFoundationAuthProviderConfig(env);
   const provider = new FoundationAuthProvider({
     config,
     logger: (entry) => logs.push(entry)
@@ -47,7 +56,7 @@ async function login(baseUrl, body = {}) {
     body: JSON.stringify({
       username: "operator",
       password: secretValue,
-      tenantId: "default",
+      tenantId: "utbe-health-system",
       ...body
     })
   });
@@ -63,9 +72,14 @@ test("Foundation auth discovery returns the required issuer and endpoints", asyn
     assert.equal(body.issuer, config.issuer);
     assert.equal(body.jwks_uri, `${config.baseUrl}/.well-known/jwks.json`);
     assert.equal(body.token_endpoint, `${config.baseUrl}/api/v1/auth/token`);
+    assert.equal(body.login_endpoint, `${config.baseUrl}/api/v1/auth/login`);
     assert.equal(body.userinfo_endpoint, `${config.baseUrl}/api/v1/auth/me`);
+    assert.equal(body.revocation_endpoint, `${config.baseUrl}/api/v1/auth/logout`);
+    assert.equal(body.authorization_endpoint, null);
     assert.deepEqual(body.id_token_signing_alg_values_supported, ["RS256"]);
+    assert.deepEqual(body.grant_types_supported, ["password", "refresh_token"]);
     assert.ok(body.claims_supported.includes("tenantId"));
+    assert.ok(body.claims_supported.includes("jti"));
   } finally {
     await close(server);
   }
@@ -107,12 +121,16 @@ test("Foundation auth login succeeds with bootstrap credentials and issues signe
     assert.equal(result.body.tokenType, "Bearer");
     assert.equal(result.body.expiresIn, 3600);
     assert.equal(result.body.user.username, "operator");
-    assert.equal(result.body.user.tenantId, "default");
+    assert.equal(result.body.user.tenantId, "utbe-health-system");
+    assert.equal(result.body.user.displayName, "Foundation Operator");
     assert.ok(result.body.accessToken);
     assert.ok(result.body.refreshToken);
 
     const jwks = await json(await fetch(`${baseUrl}/.well-known/jwks.json`));
-    assert.equal(verifyJwtWithJwk(result.body.accessToken, jwks.keys[0], config), true);
+    const payload = verifyJwtWithJwk(result.body.accessToken, jwks.keys[0], config);
+    assert.equal(payload.aud, "panacea-os");
+    assert.equal(payload.tenantId, "utbe-health-system");
+    assert.ok(payload.jti);
   } finally {
     await close(server);
   }
@@ -125,6 +143,17 @@ test("Foundation auth login fails without revealing which credential was wrong",
     assert.equal(result.response.status, 401);
     assert.equal(result.body.error, "invalid_credentials");
     assert.equal(result.body.message, "Invalid username, password, or tenant.");
+  } finally {
+    await close(server);
+  }
+});
+
+test("Foundation auth login rejects invalid tenant", async () => {
+  const { server, baseUrl } = await startAuthProvider();
+  try {
+    const result = await login(baseUrl, { tenantId: "wrong-tenant" });
+    assert.equal(result.response.status, 401);
+    assert.equal(result.body.error, "invalid_credentials");
   } finally {
     await close(server);
   }
@@ -190,7 +219,7 @@ test("Foundation auth me returns authenticated user context", async () => {
     const body = await json(response);
     assert.equal(response.status, 200);
     assert.equal(body.user.username, "operator");
-    assert.equal(body.user.tenantId, "default");
+    assert.equal(body.user.tenantId, "utbe-health-system");
     assert.deepEqual(body.user.roles, ["operator"]);
     assert.ok(body.user.permissions.includes("panacea:operate"));
   } finally {
@@ -199,7 +228,9 @@ test("Foundation auth me returns authenticated user context", async () => {
 });
 
 test("Foundation auth CORS preflight allows Panacea web origin and required headers", async () => {
-  const { server, baseUrl } = await startAuthProvider();
+  const { server, baseUrl } = await startAuthProvider({
+    PANACEA_FOUNDATION_AUTH_CORS_ORIGIN: "http://localhost:5174"
+  });
   try {
     for (const path of ["/api/v1/auth/login", "/api/v1/audit-records", "/api/v1/policy/evaluate"]) {
       const response = await fetch(`${baseUrl}${path}`, {
@@ -213,8 +244,138 @@ test("Foundation auth CORS preflight allows Panacea web origin and required head
       assert.equal(response.status, 204, `${path} should support OPTIONS`);
       assert.equal(response.headers.get("access-control-allow-origin"), "http://localhost:5174");
       assert.match(response.headers.get("access-control-allow-methods") || "", /GET,POST,OPTIONS/);
-      assert.match(response.headers.get("access-control-allow-headers") || "", /X-Tenant-Id/);
+      assert.match(response.headers.get("access-control-allow-headers") || "", /X-Tenant-ID/);
     }
+  } finally {
+    await close(server);
+  }
+});
+
+test("Foundation auth CORS preflight allows the UTBE production web origin", async () => {
+  const { server, baseUrl } = await startAuthProvider({
+    PANACEA_FOUNDATION_AUTH_CORS_ORIGIN: "https://panacea.utbe.ai"
+  });
+  try {
+    const response = await fetch(`${baseUrl}/api/v1/auth/login`, {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://panacea.utbe.ai",
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "Authorization,Content-Type,X-Tenant-ID,X-Request-ID,X-Correlation-ID"
+      }
+    });
+    assert.equal(response.status, 204);
+    assert.equal(response.headers.get("access-control-allow-origin"), "https://panacea.utbe.ai");
+  } finally {
+    await close(server);
+  }
+});
+
+test("Foundation auth supports external users file with administrator security user", async () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "panacea-foundation-users-"));
+  const usersFile = path.join(directory, "foundation-users.json");
+  const adminHash = hashFoundationUserPassword("security-password", {
+    salt: "panacea-security-user",
+    memory: 8192,
+    passes: 2
+  });
+  fs.writeFileSync(usersFile, JSON.stringify({
+    users: [
+      {
+        userId: "security-admin",
+        username: "security-admin",
+        displayName: "Security Administrator",
+        tenantId: "utbe-health-system",
+        passwordHash: adminHash,
+        roles: ["administrator"],
+        permissions: ["panacea:admin", "panacea:read", "panacea:write"]
+      }
+    ]
+  }));
+  const { server, baseUrl } = await startAuthProvider({
+    PANACEA_FOUNDATION_USERS_FILE: usersFile
+  });
+  try {
+    const result = await login(baseUrl, {
+      username: "security-admin",
+      password: "security-password"
+    });
+    assert.equal(result.response.status, 200);
+    assert.deepEqual(result.body.user.roles, ["administrator"]);
+    assert.ok(result.body.user.permissions.includes("panacea:admin"));
+  } finally {
+    await close(server);
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("Foundation auth users file does not require fallback operator settings", async () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "panacea-foundation-users-only-"));
+  const usersFile = path.join(directory, "foundation-users.json");
+  fs.writeFileSync(usersFile, JSON.stringify({
+    users: [
+      {
+        userId: "project-owner",
+        username: "project-owner",
+        displayName: "Project Owner",
+        tenantId: "utbe-health-system",
+        passwordHash: hashFoundationUserPassword("owner-password", {
+          salt: "panacea-project-owner",
+          memory: 8192,
+          passes: 2
+        }),
+        roles: ["operator"],
+        permissions: ["panacea:operate", "panacea:read", "panacea:write"]
+      }
+    ]
+  }));
+  const env = buildFoundationAuthProviderEnv({
+    PANACEA_FOUNDATION_USERS_FILE: usersFile
+  });
+  for (const key of [
+    "PANACEA_FOUNDATION_OPERATOR_USERNAME",
+    "PANACEA_FOUNDATION_OPERATOR_PASSWORD_HASH",
+    "PANACEA_FOUNDATION_OPERATOR_PASSWORD",
+    "PANACEA_FOUNDATION_OPERATOR_USER_ID",
+    "PANACEA_FOUNDATION_OPERATOR_DISPLAY_NAME",
+    "PANACEA_FOUNDATION_OPERATOR_TENANT_ID",
+    "PANACEA_FOUNDATION_OPERATOR_ROLES",
+    "PANACEA_FOUNDATION_OPERATOR_PERMISSIONS"
+  ]) {
+    delete env[key];
+  }
+  const { server, baseUrl } = await startAuthProviderWithEnv(env);
+  try {
+    const result = await login(baseUrl, {
+      username: "project-owner",
+      password: "owner-password"
+    });
+    assert.equal(result.response.status, 200);
+    assert.equal(result.body.user.username, "project-owner");
+    assert.deepEqual(result.body.user.roles, ["operator"]);
+  } finally {
+    await close(server);
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("Foundation auth rejects expired, wrong issuer, and wrong audience tokens", async () => {
+  const { server, config } = await startAuthProvider();
+  try {
+    const user = {
+      userId: "foundation-operator",
+      username: "operator",
+      tenantId: "utbe-health-system",
+      roles: ["operator"],
+      permissions: ["panacea:operate"]
+    };
+    const expired = makeJwt(config, user, { exp: Math.floor(Date.now() / 1000) - 5 });
+    const wrongIssuer = makeJwt({ ...config, issuer: "https://wrong.example.invalid" }, user);
+    const wrongAudience = makeJwt({ ...config, audience: "wrong-audience" }, user);
+
+    assert.throws(() => verifyFoundationAccessToken(expired, config), /expired/);
+    assert.throws(() => verifyFoundationAccessToken(wrongIssuer, config), /issuer/);
+    assert.throws(() => verifyFoundationAccessToken(wrongAudience, config), /audience/);
   } finally {
     await close(server);
   }
@@ -241,10 +402,33 @@ function verifyJwtWithJwk(token, jwk, config) {
   const payload = JSON.parse(Buffer.from(payloadPart, "base64url").toString("utf8"));
   assert.equal(payload.iss, config.issuer);
   assert.equal(payload.aud, config.audience);
-  assert.equal(payload.tenantId, "default");
+  assert.equal(payload.tenantId, "utbe-health-system");
   assert.deepEqual(payload.roles, ["operator"]);
   const publicKey = crypto.createPublicKey({ key: jwk, format: "jwk" });
-  return crypto.createVerify("RSA-SHA256")
+  assert.equal(crypto.createVerify("RSA-SHA256")
     .update(`${headerPart}.${payloadPart}`)
-    .verify(publicKey, Buffer.from(signaturePart, "base64url"));
+    .verify(publicKey, Buffer.from(signaturePart, "base64url")), true);
+  return payload;
+}
+
+function makeJwt(config, user, overrides = {}) {
+  const now = Math.floor(Date.now() / 1000);
+  const header = { alg: "RS256", typ: "JWT", kid: config.keyId };
+  const payload = {
+    iss: config.issuer,
+    sub: user.userId,
+    aud: config.audience,
+    exp: now + 3600,
+    iat: now,
+    jti: crypto.randomUUID(),
+    tenantId: user.tenantId,
+    roles: user.roles,
+    permissions: user.permissions,
+    username: user.username,
+    userId: user.userId,
+    ...overrides
+  };
+  const signingInput = `${Buffer.from(JSON.stringify(header)).toString("base64url")}.${Buffer.from(JSON.stringify(payload)).toString("base64url")}`;
+  const signature = crypto.createSign("RSA-SHA256").update(signingInput).sign(config.privateKeyPem).toString("base64url");
+  return `${signingInput}.${signature}`;
 }

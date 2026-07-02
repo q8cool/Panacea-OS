@@ -1,14 +1,16 @@
 import crypto from "node:crypto";
+import fs from "node:fs";
 import http from "node:http";
 
 const DEFAULT_ISSUER = "https://foundation.utbe.ai";
-const DEFAULT_AUDIENCE = "panacea-web";
-const DEFAULT_CORS_ORIGIN = "http://localhost:5174";
+const DEFAULT_AUDIENCE = "panacea-os";
+const DEFAULT_CORS_ORIGIN = "https://panacea.utbe.ai";
 const JSON_CONTENT_TYPE = "application/json; charset=utf-8";
 const SAFE_HEADERS = [
   "Authorization",
   "Content-Type",
   "X-Tenant-Id",
+  "X-Tenant-ID",
   "X-User-Id",
   "X-Request-Id",
   "X-Correlation-Id"
@@ -38,13 +40,28 @@ export function generateFoundationAuthKeyPair() {
   });
 }
 
-export function hashFoundationOperatorPassword(password, { salt = crypto.randomBytes(16).toString("base64url"), iterations = 210000 } = {}) {
+export function hashFoundationUserPassword(password, {
+  salt = crypto.randomBytes(16).toString("base64url"),
+  memory = 65536,
+  passes = 3,
+  parallelism = 1,
+  tagLength = 32
+} = {}) {
   if (!password) {
-    throw new FoundationAuthConfigurationError("operator password value is required before deriving a hash");
+    throw new FoundationAuthConfigurationError("password value is required before deriving a hash");
   }
-  const digest = crypto.pbkdf2Sync(password, salt, iterations, 32, "sha256").toString("base64url");
-  return `pbkdf2_sha256$${iterations}$${salt}$${digest}`;
+  const digest = crypto.argon2Sync("argon2id", {
+    message: String(password),
+    nonce: Buffer.from(salt, "base64url"),
+    parallelism,
+    tagLength,
+    memory,
+    passes
+  }).toString("base64url");
+  return `argon2id$v=19$m=${memory},t=${passes},p=${parallelism},l=${tagLength}$${salt}$${digest}`;
 }
+
+export const hashFoundationOperatorPassword = hashFoundationUserPassword;
 
 export function buildFoundationAuthProviderEnv(overrides = {}) {
   const keyPair = generateFoundationAuthKeyPair();
@@ -56,14 +73,16 @@ export function buildFoundationAuthProviderEnv(overrides = {}) {
     PANACEA_FOUNDATION_AUTH_PUBLIC_KEY_PEM: keyPair.publicKey,
     PANACEA_FOUNDATION_AUTH_KEY_ID: "foundation-auth-test-key",
     PANACEA_FOUNDATION_OPERATOR_USERNAME: "operator",
-    PANACEA_FOUNDATION_OPERATOR_PASSWORD_HASH: hashFoundationOperatorPassword("operator-test-password", {
+    PANACEA_FOUNDATION_OPERATOR_PASSWORD_HASH: hashFoundationUserPassword("operator-test-password", {
       salt: "panacea-auth-test-salt",
-      iterations: 120000
+      memory: 8192,
+      passes: 2
     }),
     PANACEA_FOUNDATION_OPERATOR_USER_ID: "foundation-operator",
-    PANACEA_FOUNDATION_OPERATOR_TENANT_ID: "default",
+    PANACEA_FOUNDATION_OPERATOR_DISPLAY_NAME: "Foundation Operator",
+    PANACEA_FOUNDATION_OPERATOR_TENANT_ID: "utbe-health-system",
     PANACEA_FOUNDATION_OPERATOR_ROLES: "operator",
-    PANACEA_FOUNDATION_OPERATOR_PERMISSIONS: "foundation:read,foundation:audit:append,foundation:policy:evaluate,panacea:operate",
+    PANACEA_FOUNDATION_OPERATOR_PERMISSIONS: "panacea:operate,panacea:read,panacea:write,global_command_intelligence.write_workflows.write",
     PANACEA_FOUNDATION_AUTH_ACCESS_TOKEN_TTL_SECONDS: "3600",
     PANACEA_FOUNDATION_AUTH_REFRESH_TOKEN_TTL_SECONDS: "86400",
     PANACEA_FOUNDATION_AUTH_RATE_LIMIT_ATTEMPTS: "5",
@@ -81,13 +100,26 @@ export function loadFoundationAuthProviderConfig(env = process.env) {
   }
   const privateKeyPem = normalizePem(readRequired(env, "PANACEA_FOUNDATION_AUTH_PRIVATE_KEY_PEM"));
   const publicKeyPem = normalizePem(env.PANACEA_FOUNDATION_AUTH_PUBLIC_KEY_PEM?.trim() || derivePublicKeyPem(privateKeyPem));
-  const operatorPassword = env.PANACEA_FOUNDATION_OPERATOR_PASSWORD?.trim();
   const operatorPasswordHash = env.PANACEA_FOUNDATION_OPERATOR_PASSWORD_HASH?.trim();
-  if (!operatorPassword && !operatorPasswordHash) {
+  const operatorPassword = env.PANACEA_FOUNDATION_OPERATOR_PASSWORD?.trim();
+  const hasUserSource = Boolean(env.PANACEA_FOUNDATION_USERS_FILE?.trim() || env.PANACEA_FOUNDATION_USERS_JSON?.trim());
+  if (!hasUserSource && !operatorPasswordHash && !operatorPassword) {
     throw new FoundationAuthConfigurationError(
-      "PANACEA_FOUNDATION_OPERATOR_PASSWORD_HASH or PANACEA_FOUNDATION_OPERATOR_PASSWORD is required"
+      "PANACEA_FOUNDATION_USERS_FILE, PANACEA_FOUNDATION_USERS_JSON, or PANACEA_FOUNDATION_OPERATOR_PASSWORD_HASH is required"
     );
   }
+
+  const fallbackOperator = hasUserSource
+    ? undefined
+    : {
+      username: readRequired(env, "PANACEA_FOUNDATION_OPERATOR_USERNAME"),
+      passwordHash: operatorPasswordHash || hashFoundationUserPassword(operatorPassword),
+      userId: env.PANACEA_FOUNDATION_OPERATOR_USER_ID?.trim() || "foundation-operator",
+      displayName: env.PANACEA_FOUNDATION_OPERATOR_DISPLAY_NAME?.trim() || env.PANACEA_FOUNDATION_OPERATOR_USERNAME?.trim() || "Foundation Operator",
+      tenantId: env.PANACEA_FOUNDATION_OPERATOR_TENANT_ID?.trim() || "utbe-health-system",
+      roles: splitCsv(env.PANACEA_FOUNDATION_OPERATOR_ROLES || "operator"),
+      permissions: splitCsv(env.PANACEA_FOUNDATION_OPERATOR_PERMISSIONS || "panacea:operate,panacea:read")
+    };
 
   return {
     baseUrl,
@@ -96,37 +128,32 @@ export function loadFoundationAuthProviderConfig(env = process.env) {
     privateKeyPem,
     publicKeyPem,
     keyId: env.PANACEA_FOUNDATION_AUTH_KEY_ID?.trim() || "foundation-auth-key",
-    operator: {
-      username: readRequired(env, "PANACEA_FOUNDATION_OPERATOR_USERNAME"),
-      password: operatorPassword,
-      passwordHash: operatorPasswordHash,
-      userId: env.PANACEA_FOUNDATION_OPERATOR_USER_ID?.trim() || "foundation-operator",
-      tenantId: env.PANACEA_FOUNDATION_OPERATOR_TENANT_ID?.trim() || "default",
-      roles: splitCsv(env.PANACEA_FOUNDATION_OPERATOR_ROLES || "operator"),
-      permissions: splitCsv(env.PANACEA_FOUNDATION_OPERATOR_PERMISSIONS || "foundation:read,panacea:operate")
-    },
+    users: loadFoundationUsers(env, fallbackOperator),
     accessTokenTtlSeconds: positiveInteger(env.PANACEA_FOUNDATION_AUTH_ACCESS_TOKEN_TTL_SECONDS, 3600),
     refreshTokenTtlSeconds: positiveInteger(env.PANACEA_FOUNDATION_AUTH_REFRESH_TOKEN_TTL_SECONDS, 86400),
     rateLimitAttempts: positiveInteger(env.PANACEA_FOUNDATION_AUTH_RATE_LIMIT_ATTEMPTS, 5),
     rateLimitWindowMs: positiveInteger(env.PANACEA_FOUNDATION_AUTH_RATE_LIMIT_WINDOW_MS, 60000),
-    corsOrigin: env.PANACEA_FOUNDATION_AUTH_CORS_ORIGIN?.trim() || DEFAULT_CORS_ORIGIN
+    corsOrigins: splitCsv(env.PANACEA_FOUNDATION_AUTH_CORS_ORIGIN || DEFAULT_CORS_ORIGIN),
+    refreshTokenStoreFile: env.PANACEA_FOUNDATION_AUTH_REFRESH_TOKEN_STORE_FILE?.trim() || ""
   };
 }
 
 export function createFoundationAccessToken({ config, user, nowSeconds = Math.floor(Date.now() / 1000) }) {
+  const displayName = user.displayName || user.name || user.username;
   const claims = {
     iss: config.issuer,
     sub: user.userId,
     aud: config.audience,
     exp: nowSeconds + config.accessTokenTtlSeconds,
     iat: nowSeconds,
+    jti: crypto.randomUUID(),
     tenantId: user.tenantId,
     tenant_id: user.tenantId,
     roles: user.roles,
     permissions: user.permissions,
     userId: user.userId,
     username: user.username,
-    name: user.username
+    name: displayName
   };
   return signJwt({ claims, privateKeyPem: config.privateKeyPem, keyId: config.keyId });
 }
@@ -143,11 +170,17 @@ export function verifyFoundationAccessToken(token, config, nowSeconds = Math.flo
     throw new FoundationAuthError(401, "invalid_token", "Bearer token signature validation failed.");
   }
   const claims = decoded.claims;
-  if (claims.iss !== config.issuer || claims.aud !== config.audience) {
-    throw new FoundationAuthError(401, "invalid_token", "Bearer token issuer or audience is invalid.");
+  if (claims.iss !== config.issuer) {
+    throw new FoundationAuthError(401, "invalid_token", "Bearer token issuer is invalid.");
+  }
+  if (claims.aud !== config.audience) {
+    throw new FoundationAuthError(401, "invalid_token", "Bearer token audience is invalid.");
   }
   if (!claims.exp || claims.exp <= nowSeconds) {
     throw new FoundationAuthError(401, "invalid_token", "Bearer token is expired.");
+  }
+  if (!claims.tenantId && !claims.tenant_id) {
+    throw new FoundationAuthError(401, "invalid_token", "Bearer token tenant claim is missing.");
   }
   return claims;
 }
@@ -157,7 +190,7 @@ export class FoundationAuthProvider {
     this.config = config;
     this.clock = clock;
     this.logger = logger;
-    this.refreshSessions = new Map();
+    this.refreshSessions = loadRefreshSessions(config);
     this.loginAttempts = new Map();
     this.auditEvents = [];
   }
@@ -166,14 +199,16 @@ export class FoundationAuthProvider {
     return {
       issuer: this.config.issuer,
       jwks_uri: `${this.config.baseUrl}/.well-known/jwks.json`,
+      authorization_endpoint: null,
       token_endpoint: `${this.config.baseUrl}/api/v1/auth/token`,
-      userinfo_endpoint: `${this.config.baseUrl}/api/v1/auth/me`,
       login_endpoint: `${this.config.baseUrl}/api/v1/auth/login`,
+      userinfo_endpoint: `${this.config.baseUrl}/api/v1/auth/me`,
+      revocation_endpoint: `${this.config.baseUrl}/api/v1/auth/logout`,
       end_session_endpoint: `${this.config.baseUrl}/api/v1/auth/logout`,
       response_types_supported: ["token"],
       subject_types_supported: ["public"],
       id_token_signing_alg_values_supported: ["RS256"],
-      claims_supported: ["iss", "sub", "aud", "exp", "iat", "tenantId", "roles", "permissions", "userId", "username"],
+      claims_supported: ["iss", "sub", "aud", "exp", "iat", "jti", "tenantId", "roles", "permissions", "userId", "username", "name"],
       grant_types_supported: ["password", "refresh_token"]
     };
   }
@@ -185,6 +220,7 @@ export class FoundationAuthProvider {
         {
           ...jwk,
           kid: this.config.keyId,
+          kty: "RSA",
           use: "sig",
           alg: "RS256"
         }
@@ -197,17 +233,13 @@ export class FoundationAuthProvider {
     const requestedTenant = String(tenantId || "").trim();
     this.assertLoginAllowed(normalizedUsername, ipAddress);
 
-    if (
-      normalizedUsername !== this.config.operator.username ||
-      requestedTenant !== this.config.operator.tenantId ||
-      !this.verifyPassword(String(password || ""))
-    ) {
+    const user = this.findUser(normalizedUsername, requestedTenant);
+    if (!user || !this.verifyPassword(String(password || ""), user)) {
       this.recordLoginFailure(normalizedUsername, ipAddress, requestedTenant);
       throw new FoundationAuthError(401, "invalid_credentials", "Invalid username, password, or tenant.");
     }
 
     this.resetLoginAttempts(normalizedUsername, ipAddress);
-    const user = this.operatorUser();
     const response = this.issueSession(user);
     this.audit("auth.login.success", user, { tenantId: user.tenantId });
     return response;
@@ -250,7 +282,7 @@ export class FoundationAuthProvider {
   appendAudit(entry) {
     const safeEntry = {
       testOnly: Boolean(entry?.testOnly),
-      tenantId: entry?.tenantId || "default",
+      tenantId: entry?.tenantId || "utbe-health-system",
       actor: entry?.actor || entry?.actorId || "unknown",
       action: entry?.action || "foundation.audit.append",
       occurredAt: entry?.occurredAt || new Date(this.clock()).toISOString()
@@ -261,49 +293,59 @@ export class FoundationAuthProvider {
   }
 
   evaluatePolicy(input) {
-    const tenantId = input?.tenantId || "default";
+    const tenantId = input?.tenantId || "utbe-health-system";
     const permission = input?.permission || "";
     const allowed = Boolean(tenantId && permission);
     this.log("policy.evaluate.completed", { tenantId, allowed });
     return {
       allowed,
       decision: allowed ? "allow" : "deny",
-      reason: allowed ? "Validation policy accepted the tenant-aware request." : "Tenant and permission are required."
+      reason: allowed ? "Tenant-aware request accepted by the configured policy contract." : "Tenant and permission are required."
     };
   }
 
   operatorUser() {
-    return {
-      userId: this.config.operator.userId,
-      username: this.config.operator.username,
-      tenantId: this.config.operator.tenantId,
-      roles: this.config.operator.roles,
-      permissions: this.config.operator.permissions
-    };
+    return this.config.users[0];
+  }
+
+  findUser(username, tenantId) {
+    return this.config.users.find((user) => (
+      user.username === username &&
+      user.tenantId === tenantId &&
+      user.enabled !== false
+    ));
   }
 
   issueSession(user) {
     const nowSeconds = Math.floor(this.clock() / 1000);
     const accessToken = createFoundationAccessToken({ config: this.config, user, nowSeconds });
     const refreshToken = crypto.randomBytes(32).toString("base64url");
-    this.refreshSessions.set(refreshToken, {
+    const now = this.clock();
+    const tokenHash = refreshTokenHash(refreshToken);
+    this.refreshSessions.set(tokenHash, {
+      tokenId: crypto.randomUUID(),
+      tokenHash,
       user,
-      expiresAt: this.clock() + this.config.refreshTokenTtlSeconds * 1000
+      userId: user.userId,
+      tenantId: user.tenantId,
+      expiresAt: now + this.config.refreshTokenTtlSeconds * 1000,
+      revoked: false,
+      createdAt: new Date(now).toISOString(),
+      rotatedAt: undefined,
+      lastUsedAt: undefined
     });
+    this.persistRefreshSessions();
     return {
       accessToken,
       refreshToken,
       expiresIn: this.config.accessTokenTtlSeconds,
       tokenType: "Bearer",
-      user
+      user: publicUser(user)
     };
   }
 
-  verifyPassword(candidatePassword) {
-    if (this.config.operator.passwordHash) {
-      return verifyPasswordHash(candidatePassword, this.config.operator.passwordHash);
-    }
-    return timingSafeStringEqual(sha256(candidatePassword), sha256(this.config.operator.password));
+  verifyPassword(candidatePassword, user) {
+    return verifyPasswordHash(candidatePassword, user.passwordHash);
   }
 
   assertLoginAllowed(username, ipAddress) {
@@ -335,22 +377,43 @@ export class FoundationAuthProvider {
   }
 
   consumeRefreshToken(refreshToken) {
-    const session = this.refreshSessions.get(String(refreshToken || ""));
+    const key = refreshTokenHash(refreshToken);
+    const session = this.refreshSessions.get(key);
     if (!session) {
       throw new FoundationAuthError(401, "invalid_refresh_token", "Refresh token is invalid or expired.");
     }
-    this.refreshSessions.delete(String(refreshToken));
-    if (session.expiresAt <= this.clock()) {
+    session.lastUsedAt = new Date(this.clock()).toISOString();
+    if (session.revoked || session.expiresAt <= this.clock()) {
+      session.revoked = true;
+      this.persistRefreshSessions();
       throw new FoundationAuthError(401, "invalid_refresh_token", "Refresh token is invalid or expired.");
     }
+    session.revoked = true;
+    session.rotatedAt = new Date(this.clock()).toISOString();
+    this.persistRefreshSessions();
     return session;
   }
 
   revokeRefreshToken(refreshToken) {
-    const key = String(refreshToken || "");
+    const key = refreshTokenHash(refreshToken);
     const session = this.refreshSessions.get(key);
-    this.refreshSessions.delete(key);
+    if (session) {
+      session.revoked = true;
+      session.lastUsedAt = new Date(this.clock()).toISOString();
+      this.persistRefreshSessions();
+    }
     return session;
+  }
+
+  persistRefreshSessions() {
+    if (!this.config.refreshTokenStoreFile) return;
+    const payload = {
+      version: 1,
+      updatedAt: new Date(this.clock()).toISOString(),
+      sessions: [...this.refreshSessions.values()]
+    };
+    fs.mkdirSync(directoryName(this.config.refreshTokenStoreFile), { recursive: true });
+    fs.writeFileSync(this.config.refreshTokenStoreFile, `${JSON.stringify(payload, null, 2)}\n`, { mode: 0o600 });
   }
 
   audit(action, user, metadata = {}) {
@@ -427,6 +490,20 @@ export function createFoundationAuthProviderServer({ config, provider = new Foun
   });
 }
 
+function loadRefreshSessions(config) {
+  const sessions = new Map();
+  if (!config.refreshTokenStoreFile || !fs.existsSync(config.refreshTokenStoreFile)) return sessions;
+  try {
+    const parsed = JSON.parse(fs.readFileSync(config.refreshTokenStoreFile, "utf8"));
+    for (const session of parsed.sessions || []) {
+      if (session.tokenHash) sessions.set(session.tokenHash, session);
+    }
+  } catch {
+    throw new FoundationAuthConfigurationError("Refresh token store file must contain valid JSON");
+  }
+  return sessions;
+}
+
 function readRequired(env, name) {
   const value = env[name];
   if (typeof value !== "string" || value.trim().length === 0) {
@@ -458,6 +535,51 @@ function derivePublicKeyPem(privateKeyPem) {
 
 function splitCsv(value) {
   return String(value).split(",").map((item) => item.trim()).filter(Boolean);
+}
+
+function loadFoundationUsers(env, fallbackOperator) {
+  const sourceFile = env.PANACEA_FOUNDATION_USERS_FILE?.trim();
+  const sourceJson = env.PANACEA_FOUNDATION_USERS_JSON?.trim();
+  const raw = sourceFile
+    ? fs.readFileSync(sourceFile, "utf8")
+    : sourceJson;
+  const users = raw ? parseUsers(raw, sourceFile || "PANACEA_FOUNDATION_USERS_JSON") : [fallbackOperator];
+  if (!Array.isArray(users) || users.length === 0) {
+    throw new FoundationAuthConfigurationError("At least one Foundation user is required");
+  }
+  return users.map((user, index) => normalizeUser(user, index));
+}
+
+function parseUsers(raw, source) {
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : parsed.users;
+  } catch {
+    throw new FoundationAuthConfigurationError(`${source} must contain valid JSON`);
+  }
+}
+
+function normalizeUser(user, index) {
+  const label = `Foundation user at index ${index}`;
+  const passwordHash = String(user?.passwordHash || "").trim();
+  if (!passwordHash) throw new FoundationAuthConfigurationError(`${label} must include passwordHash`);
+  if (!passwordHash.startsWith("argon2id$")) throw new FoundationAuthConfigurationError(`${label} passwordHash must use argon2id`);
+  const normalized = {
+    userId: String(user?.userId || "").trim(),
+    username: String(user?.username || "").trim(),
+    displayName: String(user?.displayName || user?.name || user?.username || "").trim(),
+    tenantId: String(user?.tenantId || "").trim(),
+    passwordHash,
+    roles: Array.isArray(user?.roles) ? user.roles.map(String).map((role) => role.trim()).filter(Boolean) : splitCsv(user?.roles || ""),
+    permissions: Array.isArray(user?.permissions) ? user.permissions.map(String).map((permission) => permission.trim()).filter(Boolean) : splitCsv(user?.permissions || ""),
+    enabled: user?.enabled !== false
+  };
+  for (const field of ["userId", "username", "tenantId"]) {
+    if (!normalized[field]) throw new FoundationAuthConfigurationError(`${label} must include ${field}`);
+  }
+  if (normalized.roles.length === 0) throw new FoundationAuthConfigurationError(`${label} must include at least one role`);
+  if (normalized.permissions.length === 0) throw new FoundationAuthConfigurationError(`${label} must include at least one permission`);
+  return normalized;
 }
 
 function signJwt({ claims, privateKeyPem, keyId }) {
@@ -496,22 +618,51 @@ function userFromClaims(claims) {
   return {
     userId: claims.userId || claims.sub,
     username: claims.username || claims.sub,
+    displayName: claims.name || claims.username || claims.sub,
     tenantId: claims.tenantId || claims.tenant_id,
     roles: Array.isArray(claims.roles) ? claims.roles : [],
     permissions: Array.isArray(claims.permissions) ? claims.permissions : []
   };
 }
 
+function publicUser(user) {
+  return {
+    id: user.userId,
+    userId: user.userId,
+    username: user.username,
+    displayName: user.displayName || user.username,
+    tenantId: user.tenantId,
+    roles: user.roles,
+    permissions: user.permissions
+  };
+}
+
 function verifyPasswordHash(password, stored) {
-  const parts = stored.split("$");
-  if (parts.length !== 4 || parts[0] !== "pbkdf2_sha256") {
-    throw new FoundationAuthConfigurationError("operator password hash must use pbkdf2_sha256 format");
+  if (stored.startsWith("argon2id$")) {
+    return verifyArgon2idPasswordHash(password, stored);
   }
-  const iterations = Number.parseInt(parts[1], 10);
-  const salt = parts[2];
-  const expected = parts[3];
-  const actual = crypto.pbkdf2Sync(password, salt, iterations, 32, "sha256").toString("base64url");
-  return timingSafeStringEqual(actual, expected);
+  throw new FoundationAuthConfigurationError("password hash must use argon2id");
+}
+
+function verifyArgon2idPasswordHash(password, stored) {
+  const parts = stored.split("$");
+  if (parts.length !== 5 || parts[0] !== "argon2id" || parts[1] !== "v=19") {
+    throw new FoundationAuthConfigurationError("password hash must use argon2id$v=19 format");
+  }
+  const params = Object.fromEntries(parts[2].split(",").map((item) => item.split("=")));
+  const memory = Number.parseInt(params.m, 10);
+  const passes = Number.parseInt(params.t, 10);
+  const parallelism = Number.parseInt(params.p, 10);
+  const tagLength = Number.parseInt(params.l || "32", 10);
+  const actual = crypto.argon2Sync("argon2id", {
+    message: String(password || ""),
+    nonce: Buffer.from(parts[3], "base64url"),
+    parallelism,
+    tagLength,
+    memory,
+    passes
+  }).toString("base64url");
+  return timingSafeStringEqual(actual, parts[4]);
 }
 
 function timingSafeStringEqual(left, right) {
@@ -521,10 +672,6 @@ function timingSafeStringEqual(left, right) {
     return false;
   }
   return crypto.timingSafeEqual(leftBuffer, rightBuffer);
-}
-
-function sha256(value) {
-  return crypto.createHash("sha256").update(String(value || "")).digest("base64url");
 }
 
 function loginAttemptKey(username, ipAddress) {
@@ -538,6 +685,16 @@ function sanitizeAuditMetadata(metadata) {
     result[key] = value;
   }
   return result;
+}
+
+function refreshTokenHash(refreshToken) {
+  return crypto.createHash("sha256").update(String(refreshToken || "")).digest("base64url");
+}
+
+function directoryName(filePath) {
+  const normalized = String(filePath || "").trim();
+  const lastSlash = Math.max(normalized.lastIndexOf("/"), normalized.lastIndexOf("\\"));
+  return lastSlash > 0 ? normalized.slice(0, lastSlash) : ".";
 }
 
 async function readJson(request) {
@@ -561,7 +718,7 @@ async function readJson(request) {
 
 function applyCors(response, request, config) {
   const origin = request.headers.origin;
-  if (origin === config.corsOrigin) {
+  if (origin && config.corsOrigins.includes(origin)) {
     response.setHeader("Access-Control-Allow-Origin", origin);
     response.setHeader("Vary", "Origin");
     response.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
@@ -583,6 +740,9 @@ function text(response, status, body, contentType, method = "GET") {
 function normalizeError(error) {
   if (error instanceof FoundationAuthError) {
     return { status: error.status, code: error.code, message: error.message };
+  }
+  if (error instanceof FoundationAuthConfigurationError) {
+    return { status: 500, code: "foundation_auth_configuration_error", message: "Foundation authentication provider is not configured." };
   }
   return { status: 500, code: "foundation_auth_error", message: "Foundation authentication request failed." };
 }

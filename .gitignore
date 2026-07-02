@@ -17,3 +17,6 @@ build/
 .cache/
 reports/tmp/
 apps/panacea-web/public/panacea-data.json
+foundation-users.json
+foundation-users.local.json
+foundation-refresh-sessions.json

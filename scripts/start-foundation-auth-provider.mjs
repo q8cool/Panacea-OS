@@ -19,7 +19,7 @@ server.listen(port, "0.0.0.0", () => {
     event: "foundation.auth.provider.started",
     port,
     issuer: config.issuer,
-    corsOrigin: config.corsOrigin,
+    corsOrigins: config.corsOrigins,
     at: new Date().toISOString()
   }));
   process.stdout.write("\n");

@@ -1,0 +1,33 @@
+{
+  "users": [
+    {
+      "userId": "project-owner-user-id",
+      "username": "project-owner",
+      "displayName": "Project Owner",
+      "tenantId": "utbe-health-system",
+      "passwordHash": "REPLACE_WITH_ARGON2ID_HASH_GENERATED_OUTSIDE_GIT",
+      "roles": ["operator"],
+      "permissions": [
+        "panacea:operate",
+        "panacea:read",
+        "panacea:write",
+        "global_command_intelligence.write_workflows.write"
+      ],
+      "enabled": true
+    },
+    {
+      "userId": "security-administrator-user-id",
+      "username": "security-admin",
+      "displayName": "Security Administrator",
+      "tenantId": "utbe-health-system",
+      "passwordHash": "REPLACE_WITH_ARGON2ID_HASH_GENERATED_OUTSIDE_GIT",
+      "roles": ["administrator"],
+      "permissions": [
+        "panacea:admin",
+        "panacea:read",
+        "panacea:write"
+      ],
+      "enabled": true
+    }
+  ]
+}
