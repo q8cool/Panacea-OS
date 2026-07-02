@@ -117,6 +117,42 @@ Expected:
 - refresh rotates the session token.
 - logout revokes the refresh token.
 
+## Operational Hospital Core Permissions
+
+Operational Hospital Core workflows call the live command service. A successful username/password login must issue service-level claims in addition to the broader Panacea platform claims.
+
+Recommended project-owner permissions:
+
+```json
+[
+  "panacea:operate",
+  "panacea:read",
+  "panacea:write",
+  "read",
+  "global_command_intelligence.read_models.read",
+  "global_command_intelligence.write_workflows.write",
+  "global_command_intelligence.write_workflows.read",
+  "global_command_intelligence.write_workflows.retry"
+]
+```
+
+Recommended administrator permissions:
+
+```json
+[
+  "panacea:admin",
+  "panacea:read",
+  "panacea:write",
+  "read",
+  "global_command_intelligence.read_models.read",
+  "global_command_intelligence.write_workflows.write",
+  "global_command_intelligence.write_workflows.read",
+  "global_command_intelligence.write_workflows.retry"
+]
+```
+
+If patient registration succeeds but patient list or patient-file reads return `403`, update `/etc/panacea/foundation-auth/foundation-users.json` with these claims and restart the provider. Panacea Web also expands `panacea:read`, `panacea:write`, and `panacea:operate` into the compatible service headers for existing approved tokens, but the provider should still issue the canonical claims.
+
 ## Clinical Boundary
 
 Foundation authentication enables secure access only. Real clinical production use still requires organizational, legal, privacy, security, regulatory, and clinical approval.

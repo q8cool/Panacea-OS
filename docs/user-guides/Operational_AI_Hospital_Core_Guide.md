@@ -17,6 +17,23 @@ The restored AI Hospital Core is the executable hospital workflow entry for Pana
 3. After successful authentication, Panacea opens `#/hospital-core`.
 4. Confirm the session banner shows the authenticated user, role, and tenant.
 
+## Project Owner / Administrator Access
+
+The `project-owner` account should use the `operator` role with both Panacea platform permissions and command-service permissions. The token must include:
+
+- `panacea:operate`
+- `panacea:read`
+- `panacea:write`
+- `read`
+- `global_command_intelligence.read_models.read`
+- `global_command_intelligence.write_workflows.write`
+- `global_command_intelligence.write_workflows.read`
+- `global_command_intelligence.write_workflows.retry`
+
+The `security-admin` account should use the `administrator` role and include the same read/write command-service permissions plus `panacea:admin`.
+
+If login succeeds but patient registration, patient list, or patient-file opening returns `403`, update `/etc/panacea/foundation-auth/foundation-users.json` on the server and restart the Foundation Auth Provider. The web client also sends compatible service headers for approved `panacea:*` claims, but the provider should issue canonical permissions so API and audit evidence remain consistent.
+
 ## What You Can Do
 
 The restored hospital core supports:
@@ -55,4 +72,3 @@ Open:
 ```text
 https://panacea.utbe.ai/#/hospital-core
 ```
-

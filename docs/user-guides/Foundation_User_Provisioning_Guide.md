@@ -32,7 +32,11 @@ Edit `/etc/panacea/foundation-auth/foundation-users.json` on the server only.
     "panacea:operate",
     "panacea:read",
     "panacea:write",
-    "global_command_intelligence.write_workflows.write"
+    "read",
+    "global_command_intelligence.read_models.read",
+    "global_command_intelligence.write_workflows.write",
+    "global_command_intelligence.write_workflows.read",
+    "global_command_intelligence.write_workflows.retry"
   ],
   "enabled": true
 }
@@ -51,7 +55,12 @@ Edit `/etc/panacea/foundation-auth/foundation-users.json` on the server only.
   "permissions": [
     "panacea:admin",
     "panacea:read",
-    "panacea:write"
+    "panacea:write",
+    "read",
+    "global_command_intelligence.read_models.read",
+    "global_command_intelligence.write_workflows.write",
+    "global_command_intelligence.write_workflows.read",
+    "global_command_intelligence.write_workflows.retry"
   ],
   "enabled": true
 }
@@ -83,6 +92,16 @@ The provider issues access tokens with:
 - `iat`
 - `exp`
 - `jti`
+
+For operational Hospital Core use, the `project-owner` and administrator tokens must include both the platform-level Panacea permissions and the service-level permissions used by the live command service:
+
+- `read`
+- `global_command_intelligence.read_models.read`
+- `global_command_intelligence.write_workflows.write`
+- `global_command_intelligence.write_workflows.read`
+- `global_command_intelligence.write_workflows.retry`
+
+If the server already has `/etc/panacea/foundation-auth/foundation-users.json`, update that secured server file with the permissions above and restart the Foundation Auth Provider. A valid password alone is not sufficient; patient list, patient file opening, and Hospital Core transactions require these claims in the issued token.
 
 ## Validation
 

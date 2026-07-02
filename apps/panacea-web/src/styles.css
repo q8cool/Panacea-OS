@@ -1639,6 +1639,22 @@ pre {
   font-size: 0.82rem;
 }
 
+.access-line {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--green);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.access-line svg {
+  width: 16px;
+  height: 16px;
+}
+
 .live-write-form .button {
   justify-content: center;
 }

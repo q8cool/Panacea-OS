@@ -1,6 +1,6 @@
 import { findOperationalCoreWriteEndpoint, GLOBAL_COMMAND_API_BASE, resolveTemplatePath } from "./liveApi";
 import { translate, type Locale } from "./locales";
-import type { AppData, LiveApiResult, PanaceaWebConfig } from "./types";
+import type { AppData, AuthSession, LiveApiResult, PanaceaWebConfig } from "./types";
 import type { RenderState } from "./render";
 
 type FieldKind = "text" | "textarea" | "file" | "select";
@@ -183,7 +183,7 @@ export function renderOperationalHospitalCore(data: AppData, state: RenderState)
           </div>
         </div>
         <div class="operational-action-grid">
-          ${operationalCoreActions.map((item) => renderAction(item, data, config, patientId, locale)).join("")}
+          ${operationalCoreActions.map((item) => renderAction(item, data, config, patientId, locale, session)).join("")}
         </div>
       </section>
       <section id="operational-audit-evidence" class="band">
@@ -246,7 +246,7 @@ function operationConsole(locale: Locale, patientId: string, apiBase: string): s
   `;
 }
 
-function renderAction(item: OperationalAction, data: AppData, config: PanaceaWebConfig | undefined, patientId: string, locale: Locale): string {
+function renderAction(item: OperationalAction, data: AppData, config: PanaceaWebConfig | undefined, patientId: string, locale: Locale, session: AuthSession | undefined): string {
   const fullTemplatePath = `${GLOBAL_COMMAND_API_BASE}${item.templatePath}`;
   const resolvedPath = resolveTemplatePath(fullTemplatePath, {
     patientId,
@@ -261,6 +261,13 @@ function renderAction(item: OperationalAction, data: AppData, config: PanaceaWeb
     orderId: "order-restored-001"
   }) : undefined;
   const endpointReady = Boolean(endpoint?.available);
+  const accessAllowed = !session || hasOperationalWorkflowAccess(session);
+  const submitEnabled = endpointReady && accessAllowed;
+  const accessLabel = !session
+    ? "Foundation sign-in required before submit"
+    : accessAllowed
+      ? "Operational access active"
+      : "Operational write permission required";
   const translatedTitle = l(locale, item.title);
   const submitLabel = locale === "ar" ? `إرسال ${translatedTitle}` : `Submit ${translatedTitle}`;
   return `
@@ -279,14 +286,42 @@ function renderAction(item: OperationalAction, data: AppData, config: PanaceaWeb
           <span><i data-lucide="ShieldAlert"></i> ${escapeHtml(l(locale, "No autonomous treatment"))}</span>
           <span><i data-lucide="FileClock"></i> ${escapeHtml(l(locale, "Audited write workflow"))}</span>
         </div>
-        <button class="button primary" type="submit" ${endpointReady ? "" : "disabled"}>
+        <button class="button primary" type="submit" ${submitEnabled ? "" : "disabled"}>
           <i data-lucide="Send"></i>
           ${escapeHtml(submitLabel)}
         </button>
+        <p class="access-line"><i data-lucide="ShieldCheck"></i>${escapeHtml(l(locale, accessLabel))}</p>
         <p class="endpoint-line">${escapeHtml(l(locale, endpointReady ? "Live endpoint" : "OpenAPI route required"))} · ${escapeHtml(endpoint?.url ?? `${data.publicApiBaseUrl}${resolvedPath}`)}</p>
       </form>
     </article>
   `;
+}
+
+function hasOperationalWorkflowAccess(session: AuthSession): boolean {
+  const roles = new Set(session.roles);
+  const permissions = expandedOperationalPermissions(session.permissions);
+  const hasOperationalRole = [
+    "operator",
+    "administrator",
+    "doctor",
+    "pharmacy",
+    "laboratory",
+    "radiology",
+    "global-command-intelligence-admin"
+  ].some((role) => roles.has(role));
+  return hasOperationalRole && permissions.has("global_command_intelligence.write_workflows.write");
+}
+
+function expandedOperationalPermissions(permissions: string[]): Set<string> {
+  const expanded = new Set(permissions);
+  if (expanded.has("panacea:write")) {
+    expanded.add("global_command_intelligence.write_workflows.write");
+  }
+  if (expanded.has("panacea:admin")) {
+    expanded.add("global_command_intelligence.write_workflows.write");
+    expanded.add("global_command_intelligence.read_models.read");
+  }
+  return expanded;
 }
 
 function renderField(item: OperationalField, locale: Locale, patientId: string): string {

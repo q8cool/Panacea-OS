@@ -170,6 +170,11 @@ test("Foundation auth login succeeds with bootstrap credentials and issues signe
     assert.equal(result.body.user.username, "operator");
     assert.equal(result.body.user.tenantId, "utbe-health-system");
     assert.equal(result.body.user.displayName, "Foundation Operator");
+    assert.ok(result.body.user.permissions.includes("read"));
+    assert.ok(result.body.user.permissions.includes("global_command_intelligence.read_models.read"));
+    assert.ok(result.body.user.permissions.includes("global_command_intelligence.write_workflows.write"));
+    assert.ok(result.body.user.permissions.includes("global_command_intelligence.write_workflows.read"));
+    assert.ok(result.body.user.permissions.includes("global_command_intelligence.write_workflows.retry"));
     assert.ok(result.body.accessToken);
     assert.ok(result.body.refreshToken);
 
@@ -269,6 +274,8 @@ test("Foundation auth me returns authenticated user context", async () => {
     assert.equal(body.user.tenantId, "utbe-health-system");
     assert.deepEqual(body.user.roles, ["operator"]);
     assert.ok(body.user.permissions.includes("panacea:operate"));
+    assert.ok(body.user.permissions.includes("global_command_intelligence.read_models.read"));
+    assert.ok(body.user.permissions.includes("global_command_intelligence.write_workflows.write"));
   } finally {
     await close(server);
   }
@@ -350,6 +357,10 @@ test("Foundation auth supports external users file with administrator security u
     assert.equal(result.response.status, 200);
     assert.deepEqual(result.body.user.roles, ["administrator"]);
     assert.ok(result.body.user.permissions.includes("panacea:admin"));
+    assert.ok(result.body.user.permissions.includes("read"));
+    assert.ok(result.body.user.permissions.includes("global_command_intelligence.read_models.read"));
+    assert.ok(result.body.user.permissions.includes("global_command_intelligence.write_workflows.write"));
+    assert.ok(result.body.user.permissions.includes("global_command_intelligence.write_workflows.retry"));
   } finally {
     await close(server);
     fs.rmSync(directory, { recursive: true, force: true });
@@ -400,6 +411,10 @@ test("Foundation auth users file does not require fallback operator settings", a
     assert.equal(result.response.status, 200);
     assert.equal(result.body.user.username, "project-owner");
     assert.deepEqual(result.body.user.roles, ["operator"]);
+    assert.ok(result.body.user.permissions.includes("read"));
+    assert.ok(result.body.user.permissions.includes("global_command_intelligence.read_models.read"));
+    assert.ok(result.body.user.permissions.includes("global_command_intelligence.write_workflows.write"));
+    assert.ok(result.body.user.permissions.includes("global_command_intelligence.write_workflows.read"));
   } finally {
     await close(server);
     fs.rmSync(directory, { recursive: true, force: true });

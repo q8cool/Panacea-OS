@@ -86,7 +86,7 @@ export async function buildFoundationAuthProviderEnv(overrides = {}) {
     PANACEA_FOUNDATION_OPERATOR_DISPLAY_NAME: "Foundation Operator",
     PANACEA_FOUNDATION_OPERATOR_TENANT_ID: "utbe-health-system",
     PANACEA_FOUNDATION_OPERATOR_ROLES: "operator",
-    PANACEA_FOUNDATION_OPERATOR_PERMISSIONS: "panacea:operate,panacea:read,panacea:write,global_command_intelligence.write_workflows.write",
+    PANACEA_FOUNDATION_OPERATOR_PERMISSIONS: "panacea:operate,panacea:read,panacea:write,read,global_command_intelligence.read_models.read,global_command_intelligence.write_workflows.write,global_command_intelligence.write_workflows.read,global_command_intelligence.write_workflows.retry",
     PANACEA_FOUNDATION_AUTH_ACCESS_TOKEN_TTL_SECONDS: "3600",
     PANACEA_FOUNDATION_AUTH_REFRESH_TOKEN_TTL_SECONDS: "86400",
     PANACEA_FOUNDATION_AUTH_RATE_LIMIT_ATTEMPTS: "5",
@@ -568,14 +568,16 @@ function normalizeUser(user, index) {
   if (!passwordHash) throw new FoundationAuthConfigurationError(`${label} must include passwordHash`);
   if (!passwordHash.startsWith("argon2id$")) throw new FoundationAuthConfigurationError(`${label} passwordHash must use argon2id`);
   validateArgon2idHashFormat(passwordHash, label);
+  const roles = Array.isArray(user?.roles) ? user.roles.map(String).map((role) => role.trim()).filter(Boolean) : splitCsv(user?.roles || "");
+  const permissions = Array.isArray(user?.permissions) ? user.permissions.map(String).map((permission) => permission.trim()).filter(Boolean) : splitCsv(user?.permissions || "");
   const normalized = {
     userId: String(user?.userId || "").trim(),
     username: String(user?.username || "").trim(),
     displayName: String(user?.displayName || user?.name || user?.username || "").trim(),
     tenantId: String(user?.tenantId || "").trim(),
     passwordHash,
-    roles: Array.isArray(user?.roles) ? user.roles.map(String).map((role) => role.trim()).filter(Boolean) : splitCsv(user?.roles || ""),
-    permissions: Array.isArray(user?.permissions) ? user.permissions.map(String).map((permission) => permission.trim()).filter(Boolean) : splitCsv(user?.permissions || ""),
+    roles,
+    permissions: expandFoundationPermissions(permissions, roles),
     enabled: user?.enabled !== false
   };
   for (const field of ["userId", "username", "tenantId"]) {
@@ -584,6 +586,29 @@ function normalizeUser(user, index) {
   if (normalized.roles.length === 0) throw new FoundationAuthConfigurationError(`${label} must include at least one role`);
   if (normalized.permissions.length === 0) throw new FoundationAuthConfigurationError(`${label} must include at least one permission`);
   return normalized;
+}
+
+function expandFoundationPermissions(permissions, roles = []) {
+  const expanded = new Set(permissions);
+  if (expanded.has("panacea:read")) {
+    expanded.add("read");
+    expanded.add("global_command_intelligence.read_models.read");
+  }
+  if (expanded.has("panacea:write")) {
+    expanded.add("global_command_intelligence.write_workflows.write");
+  }
+  if (expanded.has("panacea:operate")) {
+    expanded.add("global_command_intelligence.write_workflows.read");
+    expanded.add("global_command_intelligence.write_workflows.retry");
+  }
+  if (expanded.has("panacea:admin") || roles.includes("administrator")) {
+    expanded.add("read");
+    expanded.add("global_command_intelligence.read_models.read");
+    expanded.add("global_command_intelligence.write_workflows.write");
+    expanded.add("global_command_intelligence.write_workflows.read");
+    expanded.add("global_command_intelligence.write_workflows.retry");
+  }
+  return [...expanded];
 }
 
 function validateArgon2idHashFormat(passwordHash, label) {

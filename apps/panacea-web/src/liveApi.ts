@@ -437,16 +437,16 @@ export async function apiRequest(
   const headers: Record<string, string> = {
     Accept: "application/json",
     Authorization: `Bearer ${session.token}`,
-      "X-Tenant-Id": session.tenantId,
-      "X-User-Id": session.subject,
-      "X-Actor-Id": session.subject,
-      "X-Roles": session.roles.join(","),
-      "X-Permissions": session.permissions.join(","),
-      "X-Country-Codes": "KW",
-      "X-Region-Codes": "GCC",
-      "X-Request-Id": id,
-      "X-Correlation-Id": id
-    };
+    "X-Tenant-Id": session.tenantId,
+    "X-User-Id": session.subject,
+    "X-Actor-Id": session.subject,
+    "X-Roles": session.roles.join(","),
+    "X-Permissions": serviceHeaderPermissions(session).join(","),
+    "X-Country-Codes": "KW",
+    "X-Region-Codes": "GCC",
+    "X-Request-Id": id,
+    "X-Correlation-Id": id
+  };
   if (body !== undefined) headers["Content-Type"] = "application/json";
 
   try {
@@ -486,6 +486,29 @@ export async function apiRequest(
       durationMs: Math.round(performance.now() - started)
     };
   }
+}
+
+export function serviceHeaderPermissions(session: AuthSession): string[] {
+  const expanded = new Set(session.permissions);
+  if (expanded.has("panacea:read")) {
+    expanded.add("read");
+    expanded.add("global_command_intelligence.read_models.read");
+  }
+  if (expanded.has("panacea:write")) {
+    expanded.add("global_command_intelligence.write_workflows.write");
+  }
+  if (expanded.has("panacea:operate")) {
+    expanded.add("global_command_intelligence.write_workflows.read");
+    expanded.add("global_command_intelligence.write_workflows.retry");
+  }
+  if (expanded.has("panacea:admin")) {
+    expanded.add("read");
+    expanded.add("global_command_intelligence.read_models.read");
+    expanded.add("global_command_intelligence.write_workflows.write");
+    expanded.add("global_command_intelligence.write_workflows.read");
+    expanded.add("global_command_intelligence.write_workflows.retry");
+  }
+  return [...expanded];
 }
 
 function readModelPathForWorkspacePage(workspaceId: string, pageId: string): string | undefined {

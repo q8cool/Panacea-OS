@@ -719,6 +719,31 @@ describe("Panacea web platform", () => {
     expect((headers as Record<string, string>)["X-Correlation-Id"]).toBeTruthy();
   });
 
+  it("API client expands Panacea platform permissions into service-level live workflow headers", async () => {
+    let headers: HeadersInit | undefined;
+    const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {
+      headers = init?.headers;
+      return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    }) as unknown as typeof fetch;
+    const ownerSession: AuthSession = {
+      ...sessionFor("operator"),
+      permissions: ["panacea:operate", "panacea:read", "panacea:write"]
+    };
+
+    const result = await apiRequest("GET", allowedReadFixture.url, ownerSession, config, undefined, fetchImpl, [allowedReadFixture]);
+    expect(result.state).toBe("online");
+
+    const sentPermissions = String((headers as Record<string, string>)["X-Permissions"]).split(",");
+    expect(sentPermissions).toContain("panacea:operate");
+    expect(sentPermissions).toContain("panacea:read");
+    expect(sentPermissions).toContain("panacea:write");
+    expect(sentPermissions).toContain("read");
+    expect(sentPermissions).toContain("global_command_intelligence.read_models.read");
+    expect(sentPermissions).toContain("global_command_intelligence.write_workflows.write");
+    expect(sentPermissions).toContain("global_command_intelligence.write_workflows.read");
+    expect(sentPermissions).toContain("global_command_intelligence.write_workflows.retry");
+  });
+
   it("API client handles 401, 403, and unavailable APIs without throwing", async () => {
     const session = sessionFor("administrator");
     const unauthorized = await apiRequest("GET", allowedReadFixture.url, session, config, undefined, vi.fn(async () => new Response("no", { status: 401 })) as unknown as typeof fetch, [allowedReadFixture]);
@@ -1032,6 +1057,32 @@ describe("Panacea web platform", () => {
     expect(container.querySelector<HTMLInputElement>('#action-analyze-report input[name="patientId"]')?.value).toBe("patient-live-2026");
     expect(container.textContent).not.toContain("الخدمة غير متاحة مؤقتاً");
     expect(container.textContent).not.toContain("واجهة قراءة فقط");
+  });
+
+  it("keeps Hospital Core operational for project-owner platform permissions after Foundation login", () => {
+    const ownerSession: AuthSession = {
+      ...sessionFor("operator"),
+      displayName: "Project Owner",
+      tenantId: "utbe-health-system",
+      permissions: ["panacea:operate", "panacea:read", "panacea:write"]
+    };
+    const html = renderRoute(data, "/hospital-core", {
+      ...initialState,
+      webConfig: config,
+      authSession: ownerSession,
+      operationalPatientId: "patient-owner-001",
+      selectedRole: "administrator"
+    });
+    const container = document.createElement("main");
+    container.innerHTML = html;
+    const submitButtons = Array.from(container.querySelectorAll<HTMLButtonElement>(".operational-core-form button[type='submit']"));
+
+    expect(container.textContent).toContain("Project Owner");
+    expect(container.textContent).toContain("Operational access active");
+    expect(submitButtons).toHaveLength(operationalCoreActions.length);
+    expect(submitButtons.every((button) => !button.disabled)).toBe(true);
+    expect(container.querySelector<HTMLInputElement>('#action-register-patient input[name="subjectId"]')).not.toBeNull();
+    expect(container.querySelector<HTMLInputElement>('#action-attach-report input[name="patientId"]')?.value).toBe("patient-owner-001");
   });
 
   it("renders the restored old patient-list open-file flow inside Hospital Core", () => {

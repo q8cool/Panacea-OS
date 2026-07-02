@@ -11,7 +11,11 @@
         "panacea:operate",
         "panacea:read",
         "panacea:write",
-        "global_command_intelligence.write_workflows.write"
+        "read",
+        "global_command_intelligence.read_models.read",
+        "global_command_intelligence.write_workflows.write",
+        "global_command_intelligence.write_workflows.read",
+        "global_command_intelligence.write_workflows.retry"
       ],
       "enabled": true
     },
@@ -25,7 +29,12 @@
       "permissions": [
         "panacea:admin",
         "panacea:read",
-        "panacea:write"
+        "panacea:write",
+        "read",
+        "global_command_intelligence.read_models.read",
+        "global_command_intelligence.write_workflows.write",
+        "global_command_intelligence.write_workflows.read",
+        "global_command_intelligence.write_workflows.retry"
       ],
       "enabled": true
     }
