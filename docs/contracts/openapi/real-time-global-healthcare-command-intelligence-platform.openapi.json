@@ -3284,7 +3284,7 @@
         ],
         "operationId": "listClinicalPatientsReadModel",
         "summary": "List tenant-scoped clinical patient read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -3370,7 +3370,7 @@
         ],
         "operationId": "getClinicalPatientProfileReadModel",
         "summary": "Get a tenant-scoped clinical patient profile read model",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -3466,7 +3466,7 @@
         ],
         "operationId": "getClinicalPatientSummaryReadModel",
         "summary": "Get a clinical summary read model",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -3562,7 +3562,477 @@
         ],
         "operationId": "listClinicalPatientTimelineReadModel",
         "summary": "List clinical timeline read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Read-model patientId selector."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "description": "Maximum read-model rows to return."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            },
+            "description": "Read-model row offset."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant-scoped live read-model rows returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadModelListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/files": {
+      "get": {
+        "tags": [
+          "live_read_models"
+        ],
+        "operationId": "listClinicalPatientFilesReadModel",
+        "summary": "List patient file review read models",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Read-model patientId selector."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "description": "Maximum read-model rows to return."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            },
+            "description": "Read-model row offset."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant-scoped live read-model rows returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadModelListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/reports": {
+      "get": {
+        "tags": [
+          "live_read_models"
+        ],
+        "operationId": "listClinicalPatientReportsReadModel",
+        "summary": "List patient report analysis read models",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Read-model patientId selector."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "description": "Maximum read-model rows to return."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            },
+            "description": "Read-model row offset."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant-scoped live read-model rows returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadModelListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/chat": {
+      "get": {
+        "tags": [
+          "live_read_models"
+        ],
+        "operationId": "listClinicalPatientChatReadModel",
+        "summary": "List patient-scoped clinical assistant review read models",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Read-model patientId selector."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "description": "Maximum read-model rows to return."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            },
+            "description": "Read-model row offset."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant-scoped live read-model rows returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadModelListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/read-models/clinical/chat": {
+      "get": {
+        "tags": [
+          "live_read_models"
+        ],
+        "operationId": "listClinicalGlobalChatReadModel",
+        "summary": "List global clinical assistant review read models",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "description": "Maximum read-model rows to return."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            },
+            "description": "Read-model row offset."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant-scoped live read-model rows returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadModelListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/workflow": {
+      "get": {
+        "tags": [
+          "live_read_models"
+        ],
+        "operationId": "listClinicalPatientWorkflowReadModel",
+        "summary": "List patient workflow action read models",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -3658,7 +4128,7 @@
         ],
         "operationId": "listClinicalPatientEncountersReadModel",
         "summary": "List encounter read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -3754,7 +4224,7 @@
         ],
         "operationId": "listClinicalPatientAllergiesReadModel",
         "summary": "List allergy read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -3850,7 +4320,7 @@
         ],
         "operationId": "listClinicalPatientConditionsReadModel",
         "summary": "List condition read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -3946,7 +4416,7 @@
         ],
         "operationId": "listClinicalPatientMedicationsReadModel",
         "summary": "List medication read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -4042,7 +4512,7 @@
         ],
         "operationId": "listClinicalPatientVitalsReadModel",
         "summary": "List vital sign read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -4138,7 +4608,7 @@
         ],
         "operationId": "listClinicalPatientNotesReadModel",
         "summary": "List clinical note read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -4234,7 +4704,7 @@
         ],
         "operationId": "listClinicalPatientOrdersReadModel",
         "summary": "List order overview read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -4330,7 +4800,7 @@
         ],
         "operationId": "listClinicalPatientLabsReadModel",
         "summary": "List lab result summary read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -4426,7 +4896,7 @@
         ],
         "operationId": "listClinicalPatientRadiologyReadModel",
         "summary": "List radiology report summary read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -4522,7 +4992,7 @@
         ],
         "operationId": "listClinicalPatientPharmacyReviewReadModel",
         "summary": "List pharmacy medication review read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -4618,7 +5088,7 @@
         ],
         "operationId": "listClinicalPatientAlertsReadModel",
         "summary": "List clinical alert read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -4714,7 +5184,7 @@
         ],
         "operationId": "listClinicalPatientTasksReadModel",
         "summary": "List clinical task read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -4810,7 +5280,7 @@
         ],
         "operationId": "listClinicalPatientCareTeamReadModel",
         "summary": "List care team read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -4906,7 +5376,7 @@
         ],
         "operationId": "getPatientPortalMeReadModel",
         "summary": "Get authenticated patient profile read model",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -4992,7 +5462,7 @@
         ],
         "operationId": "listPatientPortalAppointmentsReadModel",
         "summary": "List authenticated patient appointment read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -5078,7 +5548,7 @@
         ],
         "operationId": "listPatientPortalVisitsReadModel",
         "summary": "List authenticated patient visit read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -5164,7 +5634,7 @@
         ],
         "operationId": "listPatientPortalMedicationsReadModel",
         "summary": "List authenticated patient medication read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -5250,7 +5720,7 @@
         ],
         "operationId": "listPatientPortalAllergiesReadModel",
         "summary": "List authenticated patient allergy read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -5336,7 +5806,7 @@
         ],
         "operationId": "listPatientPortalLabsReadModel",
         "summary": "List authenticated patient lab result read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -5422,7 +5892,7 @@
         ],
         "operationId": "listPatientPortalRadiologyReadModel",
         "summary": "List authenticated patient radiology report read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -5508,7 +5978,7 @@
         ],
         "operationId": "listPatientPortalDocumentsReadModel",
         "summary": "List authenticated patient document read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -5594,7 +6064,7 @@
         ],
         "operationId": "listPatientPortalInvoicesReadModel",
         "summary": "List authenticated patient invoice read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -5680,7 +6150,7 @@
         ],
         "operationId": "listPatientPortalMessagesReadModel",
         "summary": "List authenticated patient message read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -5766,7 +6236,7 @@
         ],
         "operationId": "listPatientPortalCareInstructionsReadModel",
         "summary": "List authenticated patient care instruction read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -5852,7 +6322,7 @@
         ],
         "operationId": "listLaboratoryDashboardReadModel",
         "summary": "List laboratory dashboard read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -5938,7 +6408,7 @@
         ],
         "operationId": "listLaboratoryOrdersReadModel",
         "summary": "List laboratory orders read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -6024,7 +6494,7 @@
         ],
         "operationId": "listLaboratorySpecimensReadModel",
         "summary": "List laboratory specimens read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -6110,7 +6580,7 @@
         ],
         "operationId": "listLaboratoryResultsReadModel",
         "summary": "List laboratory results read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -6196,7 +6666,7 @@
         ],
         "operationId": "listLaboratoryCriticalResultsReadModel",
         "summary": "List laboratory critical results read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -6282,7 +6752,7 @@
         ],
         "operationId": "listLaboratoryQualityControlReadModel",
         "summary": "List laboratory quality control read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -6368,7 +6838,7 @@
         ],
         "operationId": "listLaboratoryReportsReadModel",
         "summary": "List laboratory reports read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -6454,7 +6924,7 @@
         ],
         "operationId": "getLaboratorySpecimenReadModel",
         "summary": "Get laboratory specimen read model",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -6550,7 +7020,7 @@
         ],
         "operationId": "listRadiologyDashboardReadModel",
         "summary": "List radiology dashboard read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -6636,7 +7106,7 @@
         ],
         "operationId": "listRadiologyOrdersReadModel",
         "summary": "List radiology orders read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -6722,7 +7192,7 @@
         ],
         "operationId": "listRadiologyStudiesReadModel",
         "summary": "List radiology studies read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -6808,7 +7278,7 @@
         ],
         "operationId": "listRadiologyPacsStatusReadModel",
         "summary": "List radiology pacs status read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -6894,7 +7364,7 @@
         ],
         "operationId": "listRadiologyReportingWorklistReadModel",
         "summary": "List radiology reporting worklist read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -6980,7 +7450,7 @@
         ],
         "operationId": "listRadiologyReportsReadModel",
         "summary": "List radiology reports read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -7066,7 +7536,7 @@
         ],
         "operationId": "listRadiologyCriticalFindingsReadModel",
         "summary": "List radiology critical findings read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -7152,7 +7622,7 @@
         ],
         "operationId": "listRadiologyTimelineReadModel",
         "summary": "List radiology timeline read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -7238,7 +7708,7 @@
         ],
         "operationId": "getRadiologyStudyReadModel",
         "summary": "Get radiology study read model",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -7334,7 +7804,7 @@
         ],
         "operationId": "getRadiologyDicomMetadataReadModel",
         "summary": "Get radiology DICOM metadata read model",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -7430,7 +7900,7 @@
         ],
         "operationId": "listPharmacyDashboardReadModel",
         "summary": "List pharmacy dashboard read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -7516,7 +7986,7 @@
         ],
         "operationId": "listPharmacyMedicationsReadModel",
         "summary": "List pharmacy medications read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -7602,7 +8072,7 @@
         ],
         "operationId": "listPharmacyPrescriptionsReadModel",
         "summary": "List pharmacy prescriptions read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -7688,7 +8158,7 @@
         ],
         "operationId": "listPharmacyDispensingReadModel",
         "summary": "List pharmacy dispensing read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -7774,7 +8244,7 @@
         ],
         "operationId": "listPharmacyInventoryReadModel",
         "summary": "List pharmacy inventory read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -7860,7 +8330,7 @@
         ],
         "operationId": "listPharmacyBatchesReadModel",
         "summary": "List pharmacy batches read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -7946,7 +8416,7 @@
         ],
         "operationId": "listPharmacyExpirationWarningsReadModel",
         "summary": "List pharmacy expiration warnings read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -8032,7 +8502,7 @@
         ],
         "operationId": "listPharmacySafetyAlertsReadModel",
         "summary": "List pharmacy safety alerts read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -8118,7 +8588,7 @@
         ],
         "operationId": "listPharmacyControlledMedicationsReadModel",
         "summary": "List pharmacy controlled medications read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -8204,7 +8674,7 @@
         ],
         "operationId": "getPharmacyPrescriptionReadModel",
         "summary": "Get pharmacy prescription read model",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -8300,7 +8770,7 @@
         ],
         "operationId": "listAdminUsersReadModel",
         "summary": "List administration users read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -8386,7 +8856,7 @@
         ],
         "operationId": "listAdminRolesReadModel",
         "summary": "List administration roles read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -8472,7 +8942,7 @@
         ],
         "operationId": "listAdminPermissionsReadModel",
         "summary": "List administration permissions read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -8558,7 +9028,7 @@
         ],
         "operationId": "listAdminTenantsReadModel",
         "summary": "List administration tenants read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -8644,7 +9114,7 @@
         ],
         "operationId": "listAdminOrganizationsReadModel",
         "summary": "List administration organizations read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -8730,7 +9200,7 @@
         ],
         "operationId": "listAdminFacilitiesReadModel",
         "summary": "List administration facilities read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -8816,7 +9286,7 @@
         ],
         "operationId": "listAdminDepartmentsReadModel",
         "summary": "List administration departments read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -8902,7 +9372,7 @@
         ],
         "operationId": "listAdminConfigurationReadModel",
         "summary": "List administration configuration read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -8988,7 +9458,7 @@
         ],
         "operationId": "listAdminAuditLogsReadModel",
         "summary": "List administration audit logs read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -9074,7 +9544,7 @@
         ],
         "operationId": "listAdminSecurityReadModel",
         "summary": "List administration security read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -9160,7 +9630,7 @@
         ],
         "operationId": "listAdminPrivacyReadModel",
         "summary": "List administration privacy read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -9246,7 +9716,7 @@
         ],
         "operationId": "listAdminComplianceReadModel",
         "summary": "List administration compliance read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -9332,7 +9802,7 @@
         ],
         "operationId": "listAdminSystemHealthReadModel",
         "summary": "List administration system health read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -9418,7 +9888,7 @@
         ],
         "operationId": "listAdminReleaseEvidenceReadModel",
         "summary": "List administration release evidence read models",
-        "description": "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
             "bearerAuth": []
@@ -10149,6 +10619,988 @@
         ],
         "operationId": "updateClinicalCareTeamWriteWorkflow",
         "summary": "Update patient care team assignments",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/patients": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "registerOperationalCorePatient",
+        "summary": "Register a patient through the operational hospital core workflow",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/files": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "ingestOperationalCorePatientFile",
+        "summary": "Attach a patient file for governed clinical review",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/files/analyze": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "analyzeOperationalCorePatientFile",
+        "summary": "Record governed patient file analysis for clinician review",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/chat": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "recordOperationalCorePatientChat",
+        "summary": "Record patient-scoped clinical assistant chat for clinician review",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/chat": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "recordOperationalCoreGlobalChat",
+        "summary": "Record global clinical assistant chat for governed review",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/prescriptions": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "requestOperationalCorePrescriptionApproval",
+        "summary": "Submit a prescription workflow for clinician approval and pharmacy safety review",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/prescriptions/{prescriptionId}/approve": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "approveOperationalCorePrescription",
+        "summary": "Record clinician approval for a prescription after safety review",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          },
+          {
+            "name": "prescriptionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow prescriptionId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/treatment-orders": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "requestOperationalCoreTreatmentOrder",
+        "summary": "Submit a treatment or order workflow for clinician approval",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/treatment-orders/{orderId}/approve": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "approveOperationalCoreTreatmentOrder",
+        "summary": "Record clinician approval for a treatment or order workflow",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          },
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow orderId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/reports/analyze": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "analyzeOperationalCoreReport",
+        "summary": "Record governed lab, radiology, or clinical report analysis",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/reports/translate": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "translateOperationalCoreReport",
+        "summary": "Record governed clinical report translation for review",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/workflow/advance": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "advanceOperationalCoreClinicalWorkflow",
+        "summary": "Advance a governed patient workflow step with clinician oversight",
         "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
         "security": [
           {
@@ -13056,7 +14508,7 @@
         ],
         "operationId": "listLiveWriteWorkflowEvents",
         "summary": "List accepted live write workflow events",
-        "description": "Operator and administrator review endpoint for tenant-scoped live write events and read-model projections. It is read-only, fully auditable, and does not re-execute clinical decisions.",
+        "description": "Operator and administrator review endpoint for tenant-scoped live write events and read-model projections. It is review-scoped, fully auditable, and does not re-execute clinical decisions.",
         "security": [
           {
             "bearerAuth": []
@@ -13097,6 +14549,13 @@
               "enum": [
                 "patient.created",
                 "patient.updated",
+                "clinical.file.ingested",
+                "clinical.file.analyzed",
+                "clinical.patient.chat.logged",
+                "clinical.global.chat.logged",
+                "clinical.report.analyzed",
+                "clinical.report.translated",
+                "clinical.workflow.advanced",
                 "encounter.created",
                 "clinical.note.created",
                 "allergy.created",
@@ -13118,6 +14577,8 @@
                 "radiology.report.approved",
                 "critical.finding.flagged",
                 "prescription.created",
+                "prescription.approval.requested",
+                "prescription.doctor.approved",
                 "prescription.reviewed",
                 "medication.safety.validated",
                 "medication.dispensed",
@@ -13128,6 +14589,8 @@
                 "appointment.cancelled",
                 "appointment.checked_in",
                 "appointment.completed",
+                "treatment.order.requested",
+                "treatment.order.doctor.approved",
                 "user.created",
                 "user.updated",
                 "role.assigned",
@@ -13196,7 +14659,7 @@
         ],
         "operationId": "listLiveWriteWorkflowProjections",
         "summary": "List live write workflow projection statuses",
-        "description": "Operator and administrator review endpoint for tenant-scoped live write events and read-model projections. It is read-only, fully auditable, and does not re-execute clinical decisions.",
+        "description": "Operator and administrator review endpoint for tenant-scoped live write events and read-model projections. It is review-scoped, fully auditable, and does not re-execute clinical decisions.",
         "security": [
           {
             "bearerAuth": []
@@ -13252,6 +14715,13 @@
               "enum": [
                 "patient.created",
                 "patient.updated",
+                "clinical.file.ingested",
+                "clinical.file.analyzed",
+                "clinical.patient.chat.logged",
+                "clinical.global.chat.logged",
+                "clinical.report.analyzed",
+                "clinical.report.translated",
+                "clinical.workflow.advanced",
                 "encounter.created",
                 "clinical.note.created",
                 "allergy.created",
@@ -13273,6 +14743,8 @@
                 "radiology.report.approved",
                 "critical.finding.flagged",
                 "prescription.created",
+                "prescription.approval.requested",
+                "prescription.doctor.approved",
                 "prescription.reviewed",
                 "medication.safety.validated",
                 "medication.dispensed",
@@ -13283,6 +14755,8 @@
                 "appointment.cancelled",
                 "appointment.checked_in",
                 "appointment.completed",
+                "treatment.order.requested",
+                "treatment.order.doctor.approved",
                 "user.created",
                 "user.updated",
                 "role.assigned",
@@ -14181,6 +15655,13 @@
             "enum": [
               "patient.created",
               "patient.updated",
+              "clinical.file.ingested",
+              "clinical.file.analyzed",
+              "clinical.patient.chat.logged",
+              "clinical.global.chat.logged",
+              "clinical.report.analyzed",
+              "clinical.report.translated",
+              "clinical.workflow.advanced",
               "encounter.created",
               "clinical.note.created",
               "allergy.created",
@@ -14202,6 +15683,8 @@
               "radiology.report.approved",
               "critical.finding.flagged",
               "prescription.created",
+              "prescription.approval.requested",
+              "prescription.doctor.approved",
               "prescription.reviewed",
               "medication.safety.validated",
               "medication.dispensed",
@@ -14212,6 +15695,8 @@
               "appointment.cancelled",
               "appointment.checked_in",
               "appointment.completed",
+              "treatment.order.requested",
+              "treatment.order.doctor.approved",
               "user.created",
               "user.updated",
               "role.assigned",
@@ -14291,6 +15776,13 @@
                 "enum": [
                   "patient.created",
                   "patient.updated",
+                  "clinical.file.ingested",
+                  "clinical.file.analyzed",
+                  "clinical.patient.chat.logged",
+                  "clinical.global.chat.logged",
+                  "clinical.report.analyzed",
+                  "clinical.report.translated",
+                  "clinical.workflow.advanced",
                   "encounter.created",
                   "clinical.note.created",
                   "allergy.created",
@@ -14312,6 +15804,8 @@
                   "radiology.report.approved",
                   "critical.finding.flagged",
                   "prescription.created",
+                  "prescription.approval.requested",
+                  "prescription.doctor.approved",
                   "prescription.reviewed",
                   "medication.safety.validated",
                   "medication.dispensed",
@@ -14322,6 +15816,8 @@
                   "appointment.cancelled",
                   "appointment.checked_in",
                   "appointment.completed",
+                  "treatment.order.requested",
+                  "treatment.order.doctor.approved",
                   "user.created",
                   "user.updated",
                   "role.assigned",
@@ -14370,6 +15866,13 @@
             "enum": [
               "patient.created",
               "patient.updated",
+              "clinical.file.ingested",
+              "clinical.file.analyzed",
+              "clinical.patient.chat.logged",
+              "clinical.global.chat.logged",
+              "clinical.report.analyzed",
+              "clinical.report.translated",
+              "clinical.workflow.advanced",
               "encounter.created",
               "clinical.note.created",
               "allergy.created",
@@ -14391,6 +15894,8 @@
               "radiology.report.approved",
               "critical.finding.flagged",
               "prescription.created",
+              "prescription.approval.requested",
+              "prescription.doctor.approved",
               "prescription.reviewed",
               "medication.safety.validated",
               "medication.dispensed",
@@ -14401,6 +15906,8 @@
               "appointment.cancelled",
               "appointment.checked_in",
               "appointment.completed",
+              "treatment.order.requested",
+              "treatment.order.doctor.approved",
               "user.created",
               "user.updated",
               "role.assigned",
@@ -14475,6 +15982,13 @@
             "enum": [
               "patient.created",
               "patient.updated",
+              "clinical.file.ingested",
+              "clinical.file.analyzed",
+              "clinical.patient.chat.logged",
+              "clinical.global.chat.logged",
+              "clinical.report.analyzed",
+              "clinical.report.translated",
+              "clinical.workflow.advanced",
               "encounter.created",
               "clinical.note.created",
               "allergy.created",
@@ -14496,6 +16010,8 @@
               "radiology.report.approved",
               "critical.finding.flagged",
               "prescription.created",
+              "prescription.approval.requested",
+              "prescription.doctor.approved",
               "prescription.reviewed",
               "medication.safety.validated",
               "medication.dispensed",
@@ -14506,6 +16022,8 @@
               "appointment.cancelled",
               "appointment.checked_in",
               "appointment.completed",
+              "treatment.order.requested",
+              "treatment.order.doctor.approved",
               "user.created",
               "user.updated",
               "role.assigned",
@@ -14789,6 +16307,68 @@
         "workspace": "clinical",
         "modelKey": "clinical_timeline",
         "path": "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/timeline",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.read_models.read"
+      },
+      {
+        "workspace": "clinical",
+        "modelKey": "files",
+        "path": "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/files",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.read_models.read"
+      },
+      {
+        "workspace": "clinical",
+        "modelKey": "reports",
+        "path": "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/reports",
+        "roles": [
+          "doctor",
+          "laboratory",
+          "radiology",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.read_models.read"
+      },
+      {
+        "workspace": "clinical",
+        "modelKey": "patient_chat",
+        "path": "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/chat",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.read_models.read"
+      },
+      {
+        "workspace": "clinical",
+        "modelKey": "global_chat",
+        "path": "/api/v4/global-command-intelligence/read-models/clinical/chat",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.read_models.read"
+      },
+      {
+        "workspace": "clinical",
+        "modelKey": "workflow_actions",
+        "path": "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/workflow",
         "roles": [
           "doctor",
           "administrator",
@@ -15686,6 +17266,166 @@
         "workflowKey": "update_care_team",
         "eventType": "care.team.updated",
         "path": "/api/v4/global-command-intelligence/write-workflows/clinical/patients/{patientId}/care-team",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "operational_patient_register",
+        "eventType": "patient.created",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "operational_patient_file_ingest",
+        "eventType": "clinical.file.ingested",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/files",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "operational_patient_file_analyze",
+        "eventType": "clinical.file.analyzed",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/files/analyze",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "operational_patient_chat",
+        "eventType": "clinical.patient.chat.logged",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/chat",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "operational_global_chat",
+        "eventType": "clinical.global.chat.logged",
+        "path": "/api/v4/global-command-intelligence/operational-core/chat",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "operational_prescription_request",
+        "eventType": "prescription.approval.requested",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/prescriptions",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "operational_prescription_approve",
+        "eventType": "prescription.doctor.approved",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/prescriptions/{prescriptionId}/approve",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "operational_treatment_order_request",
+        "eventType": "treatment.order.requested",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/treatment-orders",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "operational_treatment_order_approve",
+        "eventType": "treatment.order.doctor.approved",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/treatment-orders/{orderId}/approve",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "operational_report_analyze",
+        "eventType": "clinical.report.analyzed",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/reports/analyze",
+        "roles": [
+          "doctor",
+          "laboratory",
+          "radiology",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "operational_report_translate",
+        "eventType": "clinical.report.translated",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/reports/translate",
+        "roles": [
+          "doctor",
+          "laboratory",
+          "radiology",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "operational_workflow_advance",
+        "eventType": "clinical.workflow.advanced",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/workflow/advance",
         "roles": [
           "doctor",
           "administrator",

@@ -185,6 +185,10 @@ function classifyEndpoint(endpoint: EndpointRecord, config: PanaceaWebConfig): B
     return entry(endpoint, url, "ALLOWED_LIVE_WRITE", workspaceScopes, "Authenticated browser Live Mode may submit approved Sprint 113 transactional write workflows only. Requests require tenant, role, audit, and workflow control claims.");
   }
 
+  if (method === "POST" && path.includes("/operational-core/")) {
+    return entry(endpoint, url, "ALLOWED_LIVE_WRITE", workspaceScopes, "Authenticated browser Live Mode may submit approved operational hospital core workflows only. Requests require tenant, role, audit, and workflow control claims.");
+  }
+
   if (method !== "GET" && CLINICAL_TERMS.some((term) => text.includes(term))) {
     return entry(endpoint, url, "BLOCKED_CLINICAL_ACTION", workspaceScopes, "Clinical, safety, recommendation, approval, or patient-affecting action endpoints are blocked in browser Live Mode.");
   }

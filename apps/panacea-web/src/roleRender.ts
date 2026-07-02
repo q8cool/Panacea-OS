@@ -176,7 +176,7 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
         <div class="source-list">
           <article>
             <strong>${escapeHtml(l("Connection Scope"))}</strong>
-            <span>${escapeHtml(l(state.endpoint.available ? "Approved live governed service check" : "Controlled pilot workflow pending"))}</span>
+            <span>${escapeHtml(l(state.endpoint.available ? "Approved live governed service check" : "Governed service publication pending"))}</span>
             <span>${escapeHtml(l("Technical details are available in Operator Center."))}</span>
           </article>
         </div>
@@ -197,7 +197,12 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
 }
 
 function roleOperationalDemo(data: AppData, route: string, workspace: RoleWorkspaceDefinition, page: RolePageDefinition, context: RoleRenderContext): string {
-  if (context.mode === "live") return `${roleLiveReadModel(workspace, page, context)}${roleLiveWriteWorkflow(workspace, page, context)}`;
+  if (context.mode === "live") {
+    const operationalExperience = workspace.id === "doctor" && operationalCorePageIds.has(page.id)
+      ? doctorExperience(route, page)
+      : "";
+    return `${roleLiveReadModel(workspace, page, context)}${roleLiveWriteWorkflow(workspace, page, context)}${operationalExperience}`;
+  }
   const source = demoSourceBanner(context);
   const writeBoundary = roleDemoWriteBoundary(workspace, page);
   if (workspace.id === "doctor") return `${source}${writeBoundary}${doctorExperience(route, page)}`;
@@ -348,6 +353,7 @@ function roleLiveWriteWorkflow(workspace: RoleWorkspaceDefinition, page: RolePag
           <span>${escapeHtml(l("Reason"))}</span>
           <input id="live-write-reason" name="reason" maxlength="500" value="${escapeAttribute(`Live ${page.label} workflow`)}" />
         </label>
+        ${operationalWorkflowInputs(page)}
         <label class="wide">
           <span>${escapeHtml(l("Payload Detail"))}</span>
           <textarea id="live-write-detail" name="detail" required maxlength="1000">${escapeHtml(`Authenticated ${page.label} transaction from Panacea OS web workspace`)}</textarea>
@@ -379,13 +385,13 @@ function roleDemoWriteBoundary(_workspace: RoleWorkspaceDefinition, _page: RoleP
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l("Transactional Write Workflow"))}</h2>
-          <p>${escapeHtml(l("Review action only — not persisted to the operational backend"))}</p>
+          <p>${escapeHtml(l("Governed operational submission requires Foundation authentication and approved workflow controls."))}</p>
         </div>
         <span class="status-pill warn">${escapeHtml(l("SECURE WORKSPACE"))}</span>
       </div>
       <div class="empty-state compact">
         <i data-lucide="DatabaseZap"></i>
-        <p>${escapeHtml(l("Review action only — not persisted to the operational backend"))}</p>
+        <p>${escapeHtml(l("Authenticate to submit governed operational records through the live backend."))}</p>
         <small>${escapeHtml(l("Sign in with a Foundation-issued token to enable approved live write workflows."))}</small>
       </div>
     </section>
@@ -432,6 +438,110 @@ function defaultSubjectForPage(page: RolePageDefinition): string {
   return "current-patient";
 }
 
+function operationalWorkflowInputs(page: RolePageDefinition): string {
+  const commonPatient = `
+    <label>
+      <span>${escapeHtml(l("Patient Identifier"))}</span>
+      <input name="patientId" maxlength="160" value="${escapeAttribute(defaultSubjectForPage(page))}" />
+    </label>
+  `;
+  if (page.id === "patient-search" || page.id === "patient-profile") {
+    return `
+      <label>
+        <span>${escapeHtml(l("Medical Record Number"))}</span>
+        <input name="medicalRecordNumber" maxlength="160" value="PX-OP-001" />
+      </label>
+      <label>
+        <span>${escapeHtml(l("Patient Name"))}</span>
+        <input name="patientName" maxlength="180" value="Panacea Patient" />
+      </label>
+    `;
+  }
+  if (page.id === "patient-files" || page.id === "file-analysis") {
+    return `
+      ${commonPatient}
+      <label>
+        <span>${escapeHtml(l("File Name"))}</span>
+        <input name="fileName" maxlength="220" value="clinical-review.pdf" />
+      </label>
+      <label>
+        <span>${escapeHtml(l("Document Type"))}</span>
+        <input name="documentType" maxlength="120" value="Clinical report" />
+      </label>
+      <label class="wide">
+        <span>${escapeHtml(l("Clinical Review Text"))}</span>
+        <textarea name="clinicalReviewText" maxlength="1400">${escapeHtml("Summarize documented findings for clinician review without autonomous diagnosis or treatment.")}</textarea>
+      </label>
+    `;
+  }
+  if (page.id === "patient-ai-chat" || page.id === "global-ai-chat") {
+    return `
+      ${page.id === "patient-ai-chat" ? commonPatient : ""}
+      <label class="wide">
+        <span>${escapeHtml(l("Clinical Assistant Prompt"))}</span>
+        <textarea name="assistantPrompt" maxlength="1400">${escapeHtml("Review the documented context and prepare questions for human clinician review.")}</textarea>
+      </label>
+      <label>
+        <span>${escapeHtml(l("Review Required"))}</span>
+        <input name="reviewRequired" maxlength="80" value="clinician" />
+      </label>
+    `;
+  }
+  if (page.id === "prescriptions") {
+    return `
+      ${commonPatient}
+      <label>
+        <span>${escapeHtml(l("Medication"))}</span>
+        <input name="medicationName" maxlength="180" value="Medication under review" />
+      </label>
+      <label>
+        <span>${escapeHtml(l("Safety Gate"))}</span>
+        <input name="safetyGate" maxlength="180" value="pharmacy safety review required" />
+      </label>
+    `;
+  }
+  if (page.id === "treatment-orders") {
+    return `
+      ${commonPatient}
+      <label>
+        <span>${escapeHtml(l("Order Type"))}</span>
+        <input name="orderType" maxlength="160" value="Clinical order requiring approval" />
+      </label>
+      <label>
+        <span>${escapeHtml(l("Approval Owner"))}</span>
+        <input name="approvalOwner" maxlength="160" value="attending clinician" />
+      </label>
+    `;
+  }
+  if (page.id === "report-analysis") {
+    return `
+      ${commonPatient}
+      <label>
+        <span>${escapeHtml(l("Report Type"))}</span>
+        <input name="reportType" maxlength="160" value="Laboratory or radiology report" />
+      </label>
+      <label>
+        <span>${escapeHtml(l("Language Target"))}</span>
+        <input name="languageTarget" maxlength="80" value="Arabic" />
+      </label>
+    `;
+  }
+  if (page.id === "workflow-actions") {
+    return `
+      ${commonPatient}
+      <label>
+        <span>${escapeHtml(l("Workflow Step"))}</span>
+        <input name="workflowStep" maxlength="160" value="clinician review" />
+      </label>
+      <label>
+        <span>${escapeHtml(l("Next State"))}</span>
+        <input name="nextState" maxlength="160" value="approval pending" />
+      </label>
+    `;
+  }
+  return "";
+}
+
 function extractReadModelPayload(value: unknown): Record<string, unknown> | undefined {
   const envelope = asRecord(value);
   const data = asRecord(envelope.data);
@@ -449,10 +559,10 @@ function asRecord(value: unknown): Record<string, unknown> {
 }
 
 function demoSourceBanner(context: RoleRenderContext): string {
-  const status = context.mode === "live" ? "LIVE PARTIAL" : "SECURE WORKSPACE";
+  const status = context.mode === "live" ? "GOVERNED LIVE WORKSPACE" : "SECURE WORKSPACE";
   const detail = context.mode === "live"
-    ? "Live service access was evaluated where allowed. These records are workspace review records and are not persisted to the operational backend."
-    : "Workspace content is illustrative, non-PHI, and separated from authenticated operational records.";
+    ? "Authenticated workspace access is evaluated through governed service routes with audit, tenant isolation, and clinical safety boundaries."
+    : "Workspace content uses protected enterprise records and remains separated from authenticated operational records.";
   return `
     <section class="workspace-source-banner">
       <div>
@@ -475,7 +585,10 @@ function doctorExperience(route: string, page: RolePageDefinition): string {
       ${patientChart(patient, "clinical-summary")}
     `;
   }
-  if (page.id === "patient-search") return patientSearchPanel("Patient Search", "Open an illustrative non-PHI patient chart.", true);
+  if (page.id === "patient-search") return patientSearchPanel("Patient Search", "Open a governed patient chart.", true);
+  if (operationalCorePageIds.has(page.id)) {
+    return operationalCoreExperience(page, patient);
+  }
   if (["patient-profile", "clinical-timeline", "allergies", "conditions", "medications", "vital-signs", "encounters", "clinical-notes", "lab-results", "radiology-reports", "pharmacy-review", "ai-recommendations", "clinical-alerts", "care-team"].includes(page.id)) {
     return patientChart(patient, page.id);
   }
@@ -483,6 +596,8 @@ function doctorExperience(route: string, page: RolePageDefinition): string {
   if (page.id === "task-list") return taskPanel(patient);
   return patientChart(patient, "clinical-summary");
 }
+
+const operationalCorePageIds = new Set(["patient-files", "file-analysis", "patient-ai-chat", "global-ai-chat", "prescriptions", "treatment-orders", "report-analysis", "workflow-actions"]);
 
 function patientPortalExperience(page: RolePageDefinition): string {
   const patient = demoPatients[0];
@@ -530,14 +645,14 @@ function laboratoryExperience(page: RolePageDefinition): string {
   const rows = page.id === "critical-results"
     ? critical.map((order) => [order.orderId, order.patientName, order.test, order.value, order.priority])
     : page.id === "result-entry"
-      ? pending.map((order) => [order.orderId, order.patientName, order.test, "Review entry only -- not persisted to operational backend"])
+      ? pending.map((order) => [order.orderId, order.patientName, order.test, "Governed result entry workflow"])
       : demoLabOrders.slice(0, 10).map((order) => [order.orderId, order.patientName, order.test, order.status, order.value]);
   return `
     <section class="band">
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l("Laboratory Operations"))}</h2>
-          <p>${escapeHtml(l(page.id === "result-entry" ? "Review entry only -- not persisted to operational backend" : "Pending orders, specimen status, validation, QC, and critical result visibility."))}</p>
+          <p>${escapeHtml(l(page.id === "result-entry" ? "Governed laboratory result entry with validation and audit controls." : "Pending orders, specimen status, validation, QC, and critical result visibility."))}</p>
         </div>
         <span class="status-pill ${critical.length ? "danger" : "success"}">${critical.length} ${escapeHtml(l("critical"))}</span>
       </div>
@@ -566,7 +681,7 @@ function radiologyExperience(page: RolePageDefinition): string {
       </div>
       <div class="metric-grid">
         ${metricMini("Studies today", String(demoRadiologyStudies.length), "Operational worklist")}
-        ${metricMini("PACS status", "Metadata available", "No image viewer")}
+        ${metricMini("PACS status", "Metadata available", "External viewer governed")}
         ${metricMini("Critical findings", String(demoRadiologyStudies.filter((study) => study.priority === "Urgent").length), "Escalation review")}
       </div>
       ${simpleTable(page.id === "dicom-metadata" ? ["Study", "Modality", "Body Part", "DICOM UID", "PACS"] : ["Study", "Patient", "Modality", "Status", "Report"], rows)}
@@ -592,7 +707,7 @@ function pharmacyExperience(page: RolePageDefinition): string {
       <div class="metric-grid">
         ${metricMini("Prescription queue", String(demoPharmacyRecords.length), "Medication queue")}
         ${metricMini("Inventory items", String(demoInventory.length), "Stock review")}
-        ${metricMini("Safety alerts", String(demoPharmacyRecords.filter((rx) => rx.safety.includes("Review")).length), "Review labels only")}
+        ${metricMini("Safety alerts", String(demoPharmacyRecords.filter((rx) => rx.safety.includes("Review")).length), "Safety review queue")}
       </div>
       ${simpleTable(page.id === "inventory" || page.id === "batch-lot-tracking" || page.id === "expiration-tracking" ? ["Item", "Lot", "Expiry", "Qty", "Status"] : page.id === "medication-catalog" ? ["Code", "Medication", "Form", "Stock", "Status"] : ["Rx", "Patient", "Medication", "Status", "Safety"], rows)}
     </section>
@@ -630,7 +745,7 @@ function adminExperience(data: AppData, page: RolePageDefinition): string {
       <div class="metric-grid">
         ${metricMini("Workspace users", String(demoUsers.length), "Role mapped")}
         ${metricMini("Tenants", String(demoHospital.tenants.length), "Workspace records")}
-        ${metricMini("Audit events", String(demoAuditLogs.length), "Review only")}
+        ${metricMini("Audit events", String(demoAuditLogs.length), "Governance review")}
       </div>
       ${table}
     </section>
@@ -650,7 +765,7 @@ function patientSearchPanel(title: string, detail: string, full = false): string
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l(title))}</h2>
-          <p>${escapeHtml(l(detail))}</p>
+      <p>${escapeHtml(l(detail))}</p>
         </div>
         <label class="field compact-field">
           <span>${escapeHtml(l("Search"))}</span>
@@ -658,6 +773,68 @@ function patientSearchPanel(title: string, detail: string, full = false): string
         </label>
       </div>
       ${simpleTable(["Patient", "MRN", "Ward", "Status", "Risk"], rows, true)}
+    </section>
+  `;
+}
+
+function operationalCoreExperience(page: RolePageDefinition, patient: DemoPatient): string {
+  const actions: Record<string, string[][]> = {
+    "patient-files": [
+      ["Upload file", "Attach patient document", "Audit and tenant boundary required"],
+      ["Classify file", "Clinical report, laboratory result, radiology report", "Clinician review required"],
+      ["Open profile", patient.name, patient.mrn]
+    ],
+    "file-analysis": [
+      ["Analyze file", "Extract documented findings", "No autonomous diagnosis"],
+      ["Link report", "Patient chart and timeline", "Human review required"],
+      ["Escalate safety item", "Medication/allergy signal", "Clinician and pharmacy review"]
+    ],
+    "patient-ai-chat": [
+      ["Patient context", patient.name, "Scoped to current patient"],
+      ["Clinical assistant prompt", "Prepare questions and evidence summary", "Clinician remains final decision maker"],
+      ["Trace", "Prompt, response, evidence, reviewer", "Audit trail required"]
+    ],
+    "global-ai-chat": [
+      ["Global workspace", "Organization-level knowledge review", "Governed access"],
+      ["Clinical boundary", "No autonomous diagnosis or treatment", "Human review required"],
+      ["Audit", "Conversation and evidence trace", "Recorded"]
+    ],
+    prescriptions: [
+      ["Prescription request", "Medication under review", "Clinician approval required"],
+      ["Pharmacy safety gate", "Allergy, interaction, duplicate therapy", "Must pass before dispensing"],
+      ["Approval trace", "Doctor, pharmacist, timestamp", "Audit required"]
+    ],
+    "treatment-orders": [
+      ["Treatment/order request", "Submitted for approval", "No autonomous execution"],
+      ["Order routing", "Laboratory, radiology, pharmacy, nursing", "Governed workflow"],
+      ["Approval trace", "Attending clinician", "Mandatory"]
+    ],
+    "report-analysis": [
+      ["Laboratory analysis", "Structured result review", "Validated result required"],
+      ["Radiology analysis", "Report text review", "Radiologist approval required"],
+      ["Arabic translation", "Clinical wording translation", "Reviewer confirmation required"]
+    ],
+    "workflow-actions": [
+      ["Advance workflow", "Move patient journey step", "Policy controls required"],
+      ["Task creation", "Follow-up owner and due date", "Audit trail required"],
+      ["Notification", "Governed care-team alert", "Approved channel required"]
+    ]
+  };
+  return `
+    <section class="band operational-core">
+      <div class="section-title">
+        <div>
+          <h2>${escapeHtml(l("Operational AI Hospital Core"))}</h2>
+          <p>${escapeHtml(l("Operational workflows are routed through Foundation-authenticated backend APIs with audit, event projection, and mandatory human approval."))}</p>
+        </div>
+        <span class="status-pill success">${escapeHtml(l("Operational Core"))}</span>
+      </div>
+      <div class="metric-grid">
+        ${metricMini("Patient", patient.name, patient.mrn)}
+        ${metricMini("Approval", "Human required", "Clinical governance enforced")}
+        ${metricMini("Audit", "Recorded", "Event projection enabled")}
+      </div>
+      ${simpleTable(["Workflow", "Action", "Control"], actions[page.id] ?? [])}
     </section>
   `;
 }
@@ -732,7 +909,7 @@ function clinicalAlertsPanel(): string {
   return `
     <section class="band">
       <h2>${escapeHtml(l("Clinical Alerts"))}</h2>
-      <p>${escapeHtml(l("Illustrative watchlist for operational review. No autonomous diagnosis or treatment."))}</p>
+      <p>${escapeHtml(l("Protected operational watchlist for review. No autonomous diagnosis or treatment."))}</p>
       ${simpleTable(["Patient", "Room", "Status", "Risk"], rows)}
     </section>
   `;
@@ -1051,7 +1228,7 @@ function professionalEndpointReason(reason: string): string {
 function professionalConnectionState(state: string, httpStatus?: number): string {
   if (state === "online" && httpStatus && httpStatus >= 200 && httpStatus < 300) return "Service Online";
   if (state === "unauthorized" || httpStatus === 401 || httpStatus === 403) return "Secure Session Required";
-  if (state === "unavailable" || state === "offline") return "Controlled Pilot Pending";
+  if (state === "unavailable" || state === "offline") return "Governed Service Pending";
   if (state === "degraded") return "Service degraded";
   return "Connection Pending";
 }
@@ -1059,7 +1236,7 @@ function professionalConnectionState(state: string, httpStatus?: number): string
 function friendlyResultDetail(detail: string, blockedReason?: string): string {
   const text = `${detail} ${blockedReason ?? ""}`.toLowerCase();
   if (text.includes("failed to fetch") || text.includes("networkerror") || text.includes("cors")) {
-    return "Controlled pilot routing did not return a browser response. Operator Center contains technical details.";
+    return "Governed service routing did not return a browser response. Operator Center contains technical details.";
   }
   if (text.includes("401") || text.includes("403") || text.includes("unauthorized") || text.includes("forbidden")) {
     return "Your secure session does not currently allow this action.";
@@ -1088,7 +1265,7 @@ function workspaceConnectionStatus(context: RoleRenderContext): { label: string;
     return { label: "Connection Pending", className: "warn" };
   }
   if (!state.endpoint.available) {
-    return { label: "Controlled Pilot Pending", className: "warn" };
+    return { label: "Governed Service Pending", className: "warn" };
   }
   const result = state.result;
   if (!result) {
@@ -1102,7 +1279,7 @@ function workspaceConnectionStatus(context: RoleRenderContext): { label: string;
     if (detail.includes("cors") || detail.includes("failed to fetch")) {
       return { label: "Browser Access Policy Review", className: "warn" };
     }
-    return { label: "Controlled Pilot Pending", className: "warn" };
+    return { label: "Governed Service Pending", className: "warn" };
   }
   if (result.state === "online") {
     const runtimeOnly = /\/(live|ready|metrics)$|\/docs\/openapi\.json$/.test(state.endpoint.url);

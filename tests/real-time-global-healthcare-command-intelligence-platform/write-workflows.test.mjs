@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { buildOpenApiDocument } from "../../services/real-time-global-healthcare-command-intelligence-platform/src/api/openapi.mjs";
 import {
+  matchWriteWorkflowRoute,
   requiredWriteWorkflowEvents,
   writeWorkflowDefinitions,
   writeWorkflowPermission
@@ -224,6 +225,106 @@ test("Sprint 113 OpenAPI exposes every approved live write workflow", () => {
   assert.equal(document["x-panacea"].liveWriteWorkflows.length, writeWorkflowDefinitions.length);
 });
 
+test("operational AI Hospital Core routes restore governed patient, file, chat, prescription, report, and workflow transactions", async () => {
+  const operationalDefinitions = writeWorkflowDefinitions.filter((item) => item.path.startsWith("/operational-core/"));
+  const operationalEvents = new Set(operationalDefinitions.map((item) => item.eventType));
+  assert.equal(operationalDefinitions.length, 12);
+  assert.deepEqual(operationalEvents, new Set([
+    "patient.created",
+    "clinical.file.ingested",
+    "clinical.file.analyzed",
+    "clinical.patient.chat.logged",
+    "clinical.global.chat.logged",
+    "prescription.approval.requested",
+    "prescription.doctor.approved",
+    "treatment.order.requested",
+    "treatment.order.doctor.approved",
+    "clinical.report.analyzed",
+    "clinical.report.translated",
+    "clinical.workflow.advanced"
+  ]));
+
+  const document = buildOpenApiDocument();
+  for (const definition of operationalDefinitions) {
+    const contractPath = `/api/v4/global-command-intelligence${definition.path}`;
+    assert.equal(document.paths[contractPath]?.post?.operationId, definition.operationId);
+    const matched = matchWriteWorkflowRoute(concreteOperationalPath(definition.path), "POST");
+    assert.equal(matched.definition.operationId, definition.operationId);
+  }
+
+  const { service, repository } = createServiceWithRepository();
+  const patientId = "patient-operational-core-001";
+  for (const definition of operationalDefinitions) {
+    const actor = principal({
+      roles: [preferredRole(definition)],
+      permissions: [writeWorkflowPermission]
+    });
+    const result = await service.executeWriteWorkflow(
+      definition,
+      concreteOperationalParams(definition),
+      baseWriteWorkflow({
+        subjectId: definition.subjectParam ? undefined : patientId,
+        title: `Operational core ${definition.workflowKey}`,
+        idempotencyKey: `operational-core-${definition.workflowKey}`,
+        payload: {
+          patientId,
+          fileId: "file-operational-core-001",
+          prescriptionId: "prescription-operational-core-001",
+          orderId: "order-operational-core-001",
+          workflowId: "workflow-operational-core-001",
+          detail: "Governed operational hospital core transaction with mandatory human approval.",
+          pharmacySafetyGateRequired: definition.eventType.startsWith("prescription."),
+          clinicianApprovalRequired: definition.eventType.startsWith("prescription.") || definition.eventType.startsWith("treatment."),
+          noAutonomousDiagnosis: true,
+          noAutonomousTreatment: true
+        }
+      }),
+      actor,
+      {
+        requestId: `operational-core-request-${definition.workflowKey}`,
+        correlationId: `operational-core-correlation-${definition.workflowKey}`
+      }
+    );
+    assert.equal(result.event.eventType, definition.eventType);
+    assert.ok(result.projections.length > 0);
+  }
+
+  assert.equal(repository.writeWorkflows.length, operationalDefinitions.length);
+  assert.equal(repository.writeWorkflowEvents.length, operationalDefinitions.length);
+  assert.ok(repository.audits.every((entry) => entry.metadata?.workflowKey?.startsWith("operational_")));
+  assertReadModel(repository, "clinical", "files", patientId);
+  assertReadModel(repository, "clinical", "patient_chat", patientId);
+  assertReadModel(repository, "clinical", "reports", patientId);
+  assertReadModel(repository, "clinical", "workflow_actions", patientId);
+  assertReadModel(repository, "clinical", "orders", patientId);
+  assertReadModel(repository, "clinical", "clinical_timeline", patientId);
+  assertReadModel(repository, "pharmacy", "prescriptions", patientId);
+  assertReadModel(repository, "clinical", "pharmacy_review", patientId);
+
+  const files = await readModel(service, "clinical", "files", patientId, principal({
+    roles: ["doctor"],
+    permissions: [readModelPermission]
+  }));
+  assert.equal(files.items.length, 2);
+  assert.ok(files.items.every((item) => item.payload.controls.demoData === false));
+
+  const treatmentDefinition = operationalDefinitions.find((item) => item.eventType === "treatment.order.requested");
+  await assert.rejects(
+    () => service.executeWriteWorkflow(
+      treatmentDefinition,
+      concreteOperationalParams(treatmentDefinition),
+      baseWriteWorkflow({
+        workflowControls: {
+          ...baseWriteWorkflow().workflowControls,
+          noAutonomousDiagnosis: false
+        }
+      }),
+      principal({ roles: ["doctor"], permissions: [writeWorkflowPermission] })
+    ),
+    (error) => error instanceof CommandValidationError && error.message.includes("noAutonomousDiagnosis")
+  );
+});
+
 test("Sprint 115 end-to-end pilot journeys persist transactions, audit, events, projections, read models, and role boundaries", async () => {
   const { service, repository } = createServiceWithRepository();
   const patientId = "patient-pilot-115";
@@ -424,6 +525,21 @@ function routeParams(definition) {
   return {
     [definition.subjectParam]: `${definition.subjectParam}-001`
   };
+}
+
+function concreteOperationalPath(path) {
+  return path
+    .replaceAll("{patientId}", "patient-operational-core-001")
+    .replaceAll("{prescriptionId}", "prescription-operational-core-001")
+    .replaceAll("{orderId}", "order-operational-core-001");
+}
+
+function concreteOperationalParams(definition) {
+  const params = {};
+  if (definition.path.includes("{patientId}")) params.patientId = "patient-operational-core-001";
+  if (definition.path.includes("{prescriptionId}")) params.prescriptionId = "prescription-operational-core-001";
+  if (definition.path.includes("{orderId}")) params.orderId = "order-operational-core-001";
+  return params;
 }
 
 function sprint115JourneySteps(patientId) {

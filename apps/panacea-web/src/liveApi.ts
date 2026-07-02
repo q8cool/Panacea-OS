@@ -26,6 +26,10 @@ const roleReadModelPaths: Record<string, Record<string, string>> = {
     dashboard: `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients`,
     "patient-search": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients`,
     "patient-profile": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}`,
+    "patient-files": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/files`,
+    "file-analysis": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/files`,
+    "patient-ai-chat": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/chat`,
+    "global-ai-chat": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/chat`,
     "clinical-timeline": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/timeline`,
     encounters: `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/encounters`,
     allergies: `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/allergies`,
@@ -34,6 +38,10 @@ const roleReadModelPaths: Record<string, Record<string, string>> = {
     "vital-signs": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/vitals`,
     "clinical-notes": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/notes`,
     "orders-overview": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/orders`,
+    prescriptions: `${GLOBAL_COMMAND_API_BASE}/read-models/pharmacy/prescriptions`,
+    "treatment-orders": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/orders`,
+    "report-analysis": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/reports`,
+    "workflow-actions": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/workflow`,
     "lab-results": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/labs`,
     "radiology-reports": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/radiology`,
     "pharmacy-review": `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/{patientId}/pharmacy-review`,
@@ -123,8 +131,12 @@ const roleReadModelPaths: Record<string, Record<string, string>> = {
 const roleWriteWorkflowPaths: Record<string, Record<string, string>> = {
   doctor: {
     dashboard: `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients`,
-    "patient-search": `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients`,
+    "patient-search": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients`,
     "patient-profile": `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}`,
+    "patient-files": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/files`,
+    "file-analysis": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/files/analyze`,
+    "patient-ai-chat": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/chat`,
+    "global-ai-chat": `${GLOBAL_COMMAND_API_BASE}/operational-core/chat`,
     encounters: `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/encounters`,
     "clinical-notes": `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/notes`,
     allergies: `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/allergies`,
@@ -132,7 +144,11 @@ const roleWriteWorkflowPaths: Record<string, Record<string, string>> = {
     medications: `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/medications`,
     "vital-signs": `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/vitals`,
     "care-team": `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/care-team`,
-    "orders-overview": `${GLOBAL_COMMAND_API_BASE}/write-workflows/scheduling/appointments`
+    "orders-overview": `${GLOBAL_COMMAND_API_BASE}/write-workflows/scheduling/appointments`,
+    prescriptions: `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/prescriptions`,
+    "treatment-orders": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/treatment-orders`,
+    "report-analysis": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/reports/analyze`,
+    "workflow-actions": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/workflow/advance`
   },
   patient: {
     appointments: `${GLOBAL_COMMAND_API_BASE}/write-workflows/patient-portal/appointment-requests`,
@@ -199,7 +215,7 @@ export function findReadOnlyEndpoint(
         url: "",
         source: "Governed read-model OpenAPI route pending publication",
         available: false,
-        reason: "Controlled pilot workflow is mapped to a backend read model, but the OpenAPI contract has not published that endpoint."
+        reason: "Governed workflow is mapped to a backend read model, but the OpenAPI contract has not published that endpoint."
       };
     }
     const resolvedPath = resolveReadModelPath(readModelPath, route);
@@ -242,7 +258,7 @@ export function findReadOnlyEndpoint(
       url: "",
       source: "Governed service check pending OpenAPI publication",
       available: false,
-      reason: "Controlled pilot workflow is governed through approved backend/API publication for this workspace page."
+      reason: "Governed workflow is awaiting approved backend/API publication for this workspace page."
     };
   }
 
@@ -432,7 +448,7 @@ export async function apiRequest(
       method,
       url,
       state: "unavailable",
-      detail: error instanceof Error ? error.message : "Controlled pilot API response pending",
+      detail: error instanceof Error ? error.message : "Governed API response pending",
       checkedAt: new Date().toISOString(),
       durationMs: Math.round(performance.now() - started)
     };
@@ -464,6 +480,7 @@ function resolveWorkflowPath(templatePath: string, route: string): string {
     .replaceAll("{studyId}", encodeURIComponent(routeSubject || "current-study"))
     .replaceAll("{specimenId}", encodeURIComponent(routeSubject || "current-specimen"))
     .replaceAll("{prescriptionId}", encodeURIComponent(routeSubject || "current-prescription"))
+    .replaceAll("{orderId}", encodeURIComponent(routeSubject || "current-order"))
     .replaceAll("{resultId}", encodeURIComponent(routeSubject || "current-result"))
     .replaceAll("{reportId}", encodeURIComponent(routeSubject || "current-report"))
     .replaceAll("{appointmentId}", encodeURIComponent(routeSubject || "current-appointment"))

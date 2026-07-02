@@ -26,12 +26,18 @@ test("service migrations define tenant, audit, event, constraint, and index stru
   assert.ok(files.length >= 9);
   for (const file of files) {
     const sql = fs.readFileSync(file, "utf8");
-    assert.match(sql, /CREATE TABLE IF NOT EXISTS/i);
-    assert.match(sql, /CREATE\s+(?:UNIQUE\s+)?INDEX/i);
-    assert.match(sql, /\btenant_id\b/i);
-    assert.match(sql, /audit_entries|created_by|updated_by|actor_id/i);
-    assert.match(sql, /events|published_at|event_type/i);
+    const createsTable = /CREATE TABLE IF NOT EXISTS/i.test(sql);
+    const altersSchema = /ALTER TABLE/i.test(sql);
+    assert.ok(createsTable || altersSchema, `${path.basename(file)} must create or evolve schema`);
     assert.match(sql, /CHECK\s*\(|CONSTRAINT|PRIMARY KEY/i);
+    if (createsTable) {
+      assert.match(sql, /CREATE\s+(?:UNIQUE\s+)?INDEX/i);
+      assert.match(sql, /\btenant_id\b/i);
+      assert.match(sql, /audit_entries|created_by|updated_by|actor_id/i);
+      assert.match(sql, /events|published_at|event_type/i);
+    } else {
+      assert.match(sql, /DROP CONSTRAINT|ADD CONSTRAINT/i);
+    }
   }
 });
 

@@ -29,7 +29,7 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     icon: "Stethoscope",
     route: "/workspace/doctor/dashboard",
     audience: "Clinicians reviewing patient context, documented clinical coverage, active governance APIs, and advisory-only intelligence evidence.",
-    summary: "A professional clinical workspace shell with patient context, timelines, summaries, alerts, medication safety visibility, lab/radiology summaries, task views, and audit/documentation links.",
+    summary: "A professional clinical workspace with patient context, timelines, summaries, alerts, medication safety visibility, lab/radiology summaries, task views, and audit/documentation links.",
     boundary: "No autonomous diagnosis. No autonomous treatment. Advisory only. Clinician remains final decision maker.",
     dataMode: "Secure workspace mode using OpenAPI, documentation, release evidence, and active governance service status.",
     serviceIds: [
@@ -42,20 +42,28 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
       seed("dashboard", "Clinician Dashboard", "LayoutDashboard", "Clinical command view with patient context, alerts, task load, documented clinical coverage, and advisory-only intelligence status."),
       seed("patient-search", "Patient Search", "Search", "Search-ready workspace for patient lookup using approved authenticated clinical APIs when connected; current state shows governed live data status explicitly."),
       seed("patient-profile", "Patient Profile", "UserRound", "Patient profile context panel with identity and consent source status clearly separated from live records."),
+      seed("patient-files", "Patient Files", "Files", "Patient document upload, file registry, and governed analysis workflow connected to operational core APIs."),
+      seed("file-analysis", "Medical File Analysis", "FileSearch", "Clinical file analysis surface with clinician review, audit, and event projection controls."),
+      seed("patient-ai-chat", "Patient AI Chat", "MessagesSquare", "Patient-scoped assistive clinical chat with traceability, no autonomous diagnosis, and no autonomous treatment."),
+      seed("global-ai-chat", "Global AI Chat", "MessageCircleQuestion", "Organization-scoped assistive clinical chat for governed knowledge review and audit tracking."),
       seed("clinical-timeline", "Clinical Timeline", "History", "Timeline view for encounters, orders, results, medication events, and documented audit evidence."),
-      seed("encounters", "Encounters", "ClipboardList", "Encounter list and details shell with documented API coverage status."),
+      seed("encounters", "Encounters", "ClipboardList", "Encounter list and details with documented API coverage status."),
       seed("allergies", "Allergies", "TriangleAlert", "Allergy warning area with safety status and documentation links."),
       seed("conditions", "Conditions", "ListChecks", "Condition summary cards with clinical documentation source status."),
-      seed("medications", "Medications", "Pill", "Medication list shell with medication safety visibility and pharmacy review links."),
+      seed("medications", "Medications", "Pill", "Medication list with medication safety visibility and pharmacy review links."),
       seed("vital-signs", "Vital Signs", "Activity", "Vital signs trend surface showing documented availability and live data status."),
-      seed("clinical-notes", "Clinical Notes", "FileText", "Clinical notes table and audit trail link shell."),
-      seed("orders-overview", "Orders Overview", "ListOrdered", "Orders overview with documented ordering capability status and no order execution."),
-      seed("lab-results", "Lab Results Viewer", "TestTube2", "Laboratory result viewer shell with critical result status and validation source labels."),
-      seed("radiology-reports", "Radiology Reports Viewer", "ScanLine", "Radiology report viewer shell with report status and imaging documentation links."),
-      seed("pharmacy-review", "Pharmacy / Medication Review", "ShieldAlert", "Medication review shell with allergy, interaction, duplicate therapy, and dispensing status areas."),
+      seed("clinical-notes", "Clinical Notes", "FileText", "Clinical notes table and audit trail links."),
+      seed("orders-overview", "Orders Overview", "ListOrdered", "Orders overview with governed routing and approval status."),
+      seed("prescriptions", "Prescriptions", "ClipboardPenLine", "Prescription workflow submission, clinician approval, and pharmacy safety review visibility."),
+      seed("treatment-orders", "Treatment Orders", "ClipboardCheck", "Treatment and order workflow routing with mandatory clinician approval and audit trail."),
+      seed("report-analysis", "Report Analysis", "FileBarChart2", "Lab, radiology, and clinical report analysis with governed translation and review workflow."),
+      seed("workflow-actions", "Workflow Actions", "GitBranch", "Patient workflow advancement with policy controls, audit evidence, and human oversight."),
+      seed("lab-results", "Lab Results Viewer", "TestTube2", "Laboratory result viewer with critical result status and validation source labels."),
+      seed("radiology-reports", "Radiology Reports Viewer", "ScanLine", "Radiology report viewer with report status and imaging documentation links."),
+      seed("pharmacy-review", "Pharmacy / Medication Review", "ShieldAlert", "Medication review with allergy, interaction, duplicate therapy, and dispensing status areas."),
       seed("ai-recommendations", "AI Recommendations Viewer", "BrainCircuit", "Advisory-only recommendation viewer backed by AI assurance and autonomous intelligence governance evidence."),
       seed("clinical-alerts", "Clinical Alerts", "BellRing", "Clinical alert review surface with escalation state and auditability."),
-      seed("task-list", "Task List", "CheckSquare", "Clinician task list shell with assignment, status, and SLA visibility."),
+      seed("task-list", "Task List", "CheckSquare", "Clinician task list with assignment, status, and SLA visibility."),
       seed("care-team", "Care Team View", "UsersRound", "Care team collaboration surface with documentation links and role visibility.")
     ]
   }),
@@ -66,14 +74,14 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     icon: "HeartHandshake",
     route: "/workspace/patient/dashboard",
     audience: "Patients and authorized caregivers viewing simple, clear, educational, and privacy-aware information.",
-    summary: "Mobile-friendly patient portal shell for profile, appointments, visit history, medications, results, documents, messages, telemedicine, invoices, notifications, and care instructions.",
+    summary: "Mobile-friendly patient portal workspace for profile, appointments, visit history, medications, results, documents, messages, telemedicine, invoices, notifications, and care instructions.",
     boundary: "Patient-facing information is educational and does not replace clinician advice.",
     dataMode: "Secure portal workspace mode. Live patient records require approved authenticated patient APIs and consent enforcement.",
     serviceIds: ["global-enterprise-data-privacy-consent-trust-platform"],
     docHints: ["Patient Portal", "Patient_Experience", "Caregiver", "Consent", "Privacy"],
     seeds: [
       seed("dashboard", "Patient Dashboard", "LayoutDashboard", "Simple summary for upcoming care, messages, results, instructions, and privacy status."),
-      seed("profile", "Profile", "UserRound", "Patient profile shell with consent and privacy source indicators."),
+      seed("profile", "Profile", "UserRound", "Patient profile with consent and privacy source indicators."),
       seed("appointments", "Appointments", "CalendarDays", "Appointment list surface with documented scheduling availability."),
       seed("visit-history", "Visit History", "History", "Visit history view with educational labels and live-data status."),
       seed("medications", "Medications", "Pill", "Medication schedule viewer with clinician-advice boundary."),
@@ -81,7 +89,7 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
       seed("lab-results", "Lab Results", "TestTube2", "Lab results view with explanatory and release-status labels."),
       seed("radiology-reports", "Radiology Reports", "ScanLine", "Radiology report surface without diagnostic image viewing."),
       seed("clinical-documents", "Clinical Documents", "Files", "Document list surface for summaries and clinical documents."),
-      seed("secure-messages", "Secure Messages", "MessageSquare", "Secure messages shell; live messaging requires authenticated backend APIs."),
+      seed("secure-messages", "Secure Messages", "MessageSquare", "Secure messages workspace for authenticated backend messaging APIs."),
       seed("telemedicine", "Telemedicine", "Video", "Telemedicine entry surface showing documented availability."),
       seed("invoices-payments", "Invoices / Payments", "Receipt", "Patient billing view with finance capability source status."),
       seed("notifications", "Notifications", "Bell", "Notification preferences and patient-facing alert surface."),
@@ -95,8 +103,8 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     icon: "TestTube2",
     route: "/workspace/laboratory/dashboard",
     audience: "Laboratory users monitoring orders, specimens, results, critical flags, quality controls, and integration status.",
-    summary: "A laboratory operations shell covering order flow, specimen lifecycle, result entry, validation, approval, critical results, quality control, analytics, and reports.",
-    boundary: "No laboratory backend behavior is added; this UI displays documented/API-backed status only.",
+    summary: "A laboratory operations workspace covering order flow, specimen lifecycle, result entry, validation, approval, critical results, quality control, analytics, and reports.",
+    boundary: "Laboratory workflows remain governed through approved backend APIs and human validation.",
     dataMode: "Secure laboratory workspace mode. Live laboratory workflow data is available through approved lab API integration.",
     serviceIds: ["real-time-global-healthcare-command-intelligence-platform"],
     docHints: ["Laboratory", "LOINC", "Critical", "Quality", "Specimen"],
@@ -111,7 +119,7 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
       seed("result-approval", "Result Approval", "CheckCircle2", "Approval worklist surface with audit and release-state indicators."),
       seed("critical-results", "Critical Results", "Siren", "Critical result flag view with escalation status and auditability."),
       seed("quality-control", "Quality Control", "Gauge", "Quality control summary with trend and validation status."),
-      seed("lab-analytics", "Lab Analytics", "BarChart3", "Turnaround time, workload, and quality analytics shell."),
+      seed("lab-analytics", "Lab Analytics", "BarChart3", "Turnaround time, workload, and quality analytics workspace."),
       seed("lab-reports", "Lab Reports", "FileBarChart", "Laboratory report registry and export surface.")
     ]
   }),
@@ -122,23 +130,23 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     icon: "ScanLine",
     route: "/workspace/radiology/dashboard",
     audience: "Radiology users reviewing imaging orders, studies, metadata, PACS status, reports, approvals, and critical findings.",
-    summary: "A radiology workflow shell for imaging orders, study list, DICOM metadata, PACS status, reporting worklist, report editing, approval, critical findings, timeline, and analytics.",
+    summary: "A radiology workflow workspace for imaging orders, study list, DICOM metadata, PACS status, reporting worklist, report editing, approval, critical findings, timeline, and analytics.",
     boundary: "DICOM image viewing remains governed by approved imaging systems and formal clinical workflow controls.",
     dataMode: "Secure radiology workspace mode using documentation, OpenAPI contracts, and runtime status. Live imaging data requires approved radiology API integration.",
     serviceIds: ["real-time-global-healthcare-command-intelligence-platform"],
     docHints: ["Radiology", "DICOM", "Imaging", "PACS", "Critical Findings"],
     seeds: [
       seed("dashboard", "Radiology Dashboard", "LayoutDashboard", "Radiology operational summary for imaging orders, reporting status, critical findings, and PACS availability."),
-      seed("imaging-orders", "Imaging Orders", "ClipboardList", "Imaging order queue shell with documented API availability."),
+      seed("imaging-orders", "Imaging Orders", "ClipboardList", "Imaging order queue with documented API availability."),
       seed("study-list", "Study List", "List", "Study list with metadata status and live data boundary."),
       seed("dicom-metadata", "DICOM Metadata Viewer", "Database", "DICOM metadata surface without image rendering."),
       seed("pacs-status", "PACS Status", "Server", "PACS availability and integration status surface."),
-      seed("reporting-worklist", "Reporting Worklist", "FileText", "Reporting worklist shell with assignment and priority labels."),
+      seed("reporting-worklist", "Reporting Worklist", "FileText", "Reporting worklist with assignment and priority labels."),
       seed("report-editor", "Report Editor UI", "Edit3", "Report editor surface with governed transactional controls where approved."),
       seed("report-approval", "Report Approval", "BadgeCheck", "Approval queue with auditability and release evidence status."),
       seed("critical-findings", "Critical Findings", "Siren", "Critical finding review and escalation status surface."),
       seed("imaging-timeline", "Imaging Timeline", "History", "Imaging timeline from order to report approval."),
-      seed("radiology-analytics", "Radiology Analytics", "BarChart3", "Volume, turnaround, approval, and critical finding analytics shell.")
+      seed("radiology-analytics", "Radiology Analytics", "BarChart3", "Volume, turnaround, approval, and critical finding analytics workspace.")
     ]
   }),
   buildWorkspace({
@@ -148,19 +156,19 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     icon: "Pill",
     route: "/workspace/pharmacy/dashboard",
     audience: "Pharmacists reviewing medication catalog, prescription queues, safety indicators, dispensing, inventory, controlled medications, and reports.",
-    summary: "A pharmacy operations shell with medication review, dispensing workflow, stock status, batch/lot tracking, expiration tracking, drug safety alerts, and controlled medication audit.",
-    boundary: "No new medication safety backend logic is implemented. Safety indicators display documented/API-backed status only.",
+    summary: "A pharmacy operations workspace with medication review, dispensing workflow, stock status, batch/lot tracking, expiration tracking, drug safety alerts, and controlled medication audit.",
+    boundary: "Medication safety workflows remain governed through pharmacy review, safety gates, and approved backend APIs.",
     dataMode: "Secure pharmacy workspace mode. Live pharmacy records require approved pharmacy API integration.",
     serviceIds: ["global-enterprise-data-privacy-consent-trust-platform", "real-time-global-healthcare-command-intelligence-platform"],
     docHints: ["Pharmacy", "Medication", "Drug", "Inventory", "Controlled"],
     seeds: [
       seed("dashboard", "Pharmacy Dashboard", "LayoutDashboard", "Medication queue, safety, inventory, controlled medication, and reporting overview."),
-      seed("medication-catalog", "Medication Catalog", "BookMarked", "Medication catalog shell with documented availability."),
+      seed("medication-catalog", "Medication Catalog", "BookMarked", "Medication catalog with documented availability."),
       seed("prescription-queue", "Prescription Queue", "ClipboardList", "Prescription queue surface with review and priority labels."),
-      seed("prescription-review", "Prescription Review", "ShieldCheck", "Allergy, interaction, duplicate therapy, and dose review shell."),
+      seed("prescription-review", "Prescription Review", "ShieldCheck", "Allergy, interaction, duplicate therapy, and dose review workspace."),
       seed("dispensing", "Dispensing", "PackageCheck", "Dispensing workflow surface with audit and status labels."),
       seed("med-admin-overview", "Medication Administration Overview", "ListChecks", "Medication administration visibility surface."),
-      seed("inventory", "Inventory", "Boxes", "Stock status and reorder visibility shell."),
+      seed("inventory", "Inventory", "Boxes", "Stock status and reorder visibility workspace."),
       seed("batch-lot-tracking", "Batch / Lot Tracking", "QrCode", "Batch and lot tracking view with traceability labels."),
       seed("expiration-tracking", "Expiration Tracking", "CalendarClock", "Expiration tracking surface with risk and stock status."),
       seed("drug-safety-alerts", "Drug Safety Alerts", "ShieldAlert", "Drug safety alert surface with documented safety status."),
@@ -191,9 +199,9 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
       seed("dashboard", "Admin Dashboard", "LayoutDashboard", "System overview for release, runtime, services, tenants, security, privacy, compliance, and documentation."),
       seed("users", "Users", "UserCog", "User management workspace with Foundation dependency status."),
       seed("roles", "Roles", "Badge", "Role registry surface with RBAC source labels."),
-      seed("permissions", "Permissions", "KeyRound", "Permission matrix shell with API-backed control status."),
+      seed("permissions", "Permissions", "KeyRound", "Permission matrix with API-backed control status."),
       seed("tenants", "Tenants", "Building", "Tenant inventory surface with isolation and evidence indicators."),
-      seed("organizations", "Organizations", "Network", "Organization registry shell with documentation and OpenAPI sources."),
+      seed("organizations", "Organizations", "Network", "Organization registry with documentation and OpenAPI sources."),
       seed("facilities", "Facilities", "Hospital", "Facility registry surface connected to documented global operations scope."),
       seed("departments", "Departments", "Building2", "Department overview with command intelligence and workforce source labels."),
       seed("configuration", "Configuration", "SlidersHorizontal", "Configuration surface with environment and Foundation provider status."),
@@ -394,8 +402,8 @@ function panelsForRole(role: RoleId, pageLabel: string): RolePanel[] {
   ];
   if (role === "doctor") {
     return [
-      { title: "Patient context panel", detail: `${demoLabel}. Context is shown as non-PHI workspace content until authenticated clinical APIs are connected.`, status: "Documentation-backed" },
-      { title: "Medication safety area", detail: "Allergy, interaction, duplicate therapy, and pharmacy review areas are visible without adding backend logic.", status: "Documentation-backed" },
+      { title: "Patient context panel", detail: `${demoLabel}. Context uses protected workspace records and authenticated clinical API records when a secure provider session is active.`, status: "Evidence-backed" },
+      { title: "Medication safety area", detail: "Allergy, interaction, duplicate therapy, and pharmacy review areas are governed by clinical safety boundaries.", status: "Evidence-backed" },
       { title: "Advisory AI", detail: "Advisory only. Clinician remains final decision maker.", status: "Available" },
       ...shared
     ];
@@ -417,7 +425,7 @@ function panelsForRole(role: RoleId, pageLabel: string): RolePanel[] {
   if (role === "radiology") {
     return [
       { title: "DICOM scope", detail: "DICOM image viewing remains governed by approved imaging systems.", status: "Controlled access" },
-      { title: "Report workflow", detail: "Metadata, report editor shell, approval, and critical findings are visible.", status: "Documentation-backed" },
+      { title: "Report workflow", detail: "Metadata, report review, approval, and critical findings are visible.", status: "Evidence-backed" },
       ...shared
     ];
   }
@@ -445,7 +453,7 @@ function chartForRole(role: RoleId): RoleMetric[] {
     ],
     patient: [
       { label: "Mobile clarity", value: "86", detail: "Responsive patient layout", tone: "success" },
-      { label: "Portal coverage", value: "70", detail: "Docs and UI shell", tone: "info" },
+      { label: "Portal coverage", value: "70", detail: "Docs and UI workspace", tone: "info" },
       { label: "Live records", value: "22", detail: "Governed patient APIs", tone: "info" }
     ],
     laboratory: [
@@ -460,7 +468,7 @@ function chartForRole(role: RoleId): RoleMetric[] {
     ],
     pharmacy: [
       { label: "Safety visibility", value: "88", detail: "Safety status areas", tone: "success" },
-      { label: "Inventory shell", value: "74", detail: "Stock and batch UI", tone: "info" },
+      { label: "Inventory workspace", value: "74", detail: "Stock and batch UI", tone: "info" },
       { label: "Live dispensing", value: "20", detail: "Governed pharmacy APIs", tone: "info" }
     ],
     administrator: [

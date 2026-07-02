@@ -229,30 +229,30 @@ export const activeServiceModules: ModuleVisibility[] = [
 ];
 
 export const clinicalModules: ModuleVisibility[] = [
-  moduleDoc("patient-registry", "Patient Registry", "Clinical", "Patient identity and demographic records appear in historical planning and portal docs; no active patient registry service is present in this checkout.", ["patient_service", "Patient Portal"]),
+  moduleDoc("patient-registry", "Patient Registry", "Clinical", "Patient identity and demographic workflows are routed through governed clinical read/write models and Foundation-authenticated access.", ["patient_service", "Patient Portal"]),
   moduleDoc("clinical-core", "Clinical Core", "Clinical", "Clinical core is represented by historical docs and empty legacy folders; active v4 services intentionally avoid diagnosis and treatment execution.", ["clinical_core", "Clinical User"]),
-  moduleDoc("laboratory", "Laboratory", "Clinical", "Laboratory platform capabilities are documented in sprint history and integration requirements but are not active runtime services here.", ["Laboratory", "LOINC"]),
+  moduleDoc("laboratory", "Laboratory", "Clinical", "Laboratory platform capabilities are surfaced through governed command intelligence, read models, and validation workflows.", ["Laboratory", "LOINC"]),
   moduleDoc("radiology", "Radiology", "Clinical", "Radiology platform capabilities are documentation-backed in this checkout, including reporting and integration references.", ["Radiology", "DICOM"]),
   moduleDoc("pharmacy", "Pharmacy", "Clinical", "Pharmacy and medication safety appear in historical evidence and safety constraints, not as a standalone active service.", ["Pharmacy", "Medication"]),
-  moduleDoc("scheduling", "Scheduling", "Clinical", "Scheduling is referenced by workforce and operational planning docs; no active scheduling service is present.", ["Scheduling"]),
+  moduleDoc("scheduling", "Scheduling", "Clinical", "Scheduling actions are represented through governed appointment workflows and operational planning contracts.", ["Scheduling"]),
   moduleDoc("emergency", "Emergency", "Clinical", "Emergency workflows are represented in public health, command intelligence, and disaster medicine documentation.", ["Emergency", "Disaster"]),
   moduleDoc("inpatient", "Inpatient", "Clinical", "Inpatient platform is historical documentation in this checkout.", ["Inpatient"]),
   moduleDoc("icu", "ICU", "Clinical", "ICU workflows are documentation-backed and visible through command intelligence categories, not direct care UI.", ["ICU"]),
   moduleDoc("surgery", "Surgery", "Clinical", "Surgery operations are documented in command, scheduling, and safety plans, without active direct-care execution.", ["Surgery"]),
   moduleDoc("nursing", "Nursing", "Clinical", "Nursing workflows are documentation-backed; workforce APIs cover staff records and compliance.", ["Nursing", "Workforce"]),
   moduleDoc("blood-bank", "Blood Bank", "Clinical", "Blood bank platform remains historical documentation in this checkout.", ["Blood Bank"]),
-  moduleDoc("infection-control", "Infection Control", "Clinical", "Infection control appears in historical docs and public health planning; no active service is present.", ["Infection"])
+  moduleDoc("infection-control", "Infection Control", "Clinical", "Infection control is represented through public health, safety, and governance capability evidence.", ["Infection"])
 ];
 
 export const enterpriseDocModules: ModuleVisibility[] = [
-  moduleDoc("revenue-cycle", "Revenue Cycle", "Enterprise", "Revenue cycle and global finance are documented; no active finance service is present in this checkout.", ["Revenue", "Finance", "Claims"]),
-  moduleDoc("inventory", "Inventory", "Enterprise", "Inventory and supply chain are documentation-backed; no active inventory service is present.", ["Inventory", "Supply"]),
+  moduleDoc("revenue-cycle", "Revenue Cycle", "Enterprise", "Revenue cycle and global finance are represented through enterprise finance and commerce capability evidence.", ["Revenue", "Finance", "Claims"]),
+  moduleDoc("inventory", "Inventory", "Enterprise", "Inventory and supply chain are represented through governed supply, procurement, and biomedical asset capability evidence.", ["Inventory", "Supply"]),
   moduleDoc("analytics", "Analytics", "Enterprise", "Analytics appears in architecture, data, and release docs; no standalone runtime analytics service is active.", ["Analytics", "Data"]),
   moduleDoc("quality", "Quality", "Enterprise", "Quality and patient safety evidence is historical documentation in this checkout.", ["Quality", "Safety"]),
-  moduleDoc("research", "Research", "Enterprise", "Research, innovation, discovery, and federated learning are documented; no active research service is present.", ["Research", "Discovery"]),
-  moduleDoc("telemedicine", "Telemedicine", "Enterprise", "Telemedicine remains documented capability, not active runtime in this checkout.", ["Telemedicine"]),
+  moduleDoc("research", "Research", "Enterprise", "Research, innovation, discovery, and federated learning are represented through governed evidence and compliance documentation.", ["Research", "Discovery"]),
+  moduleDoc("telemedicine", "Telemedicine", "Enterprise", "Telemedicine is represented through patient access, scheduling, and secure communication capability evidence.", ["Telemedicine"]),
   moduleDoc("patient-portal", "Patient Portal", "Enterprise", "Patient portal capabilities are documented; this Sprint adds an operator UI, not patient self-service care workflows.", ["Patient Portal", "Patient Experience"]),
-  moduleDoc("population-health", "Population Health", "Enterprise", "Population health appears in planning and public health docs; no active service is present.", ["Population"]),
+  moduleDoc("population-health", "Population Health", "Enterprise", "Population health is represented through public health, analytics, and global reporting capability evidence.", ["Population"]),
   moduleDoc("developer-platform", "Developer Platform and Marketplace", "Enterprise", "Developer and marketplace capabilities are represented by product management APIs and documentation.", ["Developer", "Marketplace"]),
   moduleDoc("global-platform", "Global Healthcare Ecosystem", "Enterprise", "Global network, multi-country, data residency, and federation are documented and represented through governance fields in active APIs.", ["Global", "Multi-Country"])
 ];
@@ -265,7 +265,7 @@ export const innovationModules: ModuleVisibility[] = [
   moduleDoc("multi-country", "Multi-Country Architecture", "Innovation", "Multi-country and data residency controls are present in documentation and active service governance fields.", ["Multi-Country", "Data Residency"]),
   moduleDoc("digital-twin", "Digital Twin", "Innovation", "Digital twin capabilities remain documentation-backed in this checkout.", ["Digital Twin"]),
   moduleDoc("knowledge-graph", "Medical Knowledge Graph", "Innovation", "Knowledge graph is represented in architecture and sprint documentation, not as an active runtime service.", ["Knowledge Graph"]),
-  moduleDoc("developer-ecosystem", "Developer Ecosystem", "Innovation", "Product management APIs and docs cover roadmap and innovation portfolio; a marketplace UI is not active runtime.", ["Marketplace", "SDK"])
+  moduleDoc("developer-ecosystem", "Developer Ecosystem", "Innovation", "Product management APIs and documents cover roadmap, innovation portfolio, and marketplace governance.", ["Marketplace", "SDK"])
 ];
 
 export const allModules = [

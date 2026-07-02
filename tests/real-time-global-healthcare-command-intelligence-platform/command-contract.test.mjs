@@ -80,10 +80,11 @@ test("OpenAPI declares command, emergency, regional, country, and governance con
 });
 
 test("PostgreSQL migration defines live write workflows with tenant, audit, indexes, and outbox fields", () => {
-  const sql = fs.readFileSync(
-    path.join(repoRoot, "services/real-time-global-healthcare-command-intelligence-platform/migrations/003_live_write_workflows.sql"),
-    "utf8"
-  );
+  const migrationDir = path.join(repoRoot, "services/real-time-global-healthcare-command-intelligence-platform/migrations");
+  const sql = [
+    "003_live_write_workflows.sql",
+    "005_operational_core_write_events.sql"
+  ].map((fileName) => fs.readFileSync(path.join(migrationDir, fileName), "utf8")).join("\n");
   for (const tableName of [
     "global_command_intelligence_write_workflows",
     "global_command_intelligence_write_workflow_events"

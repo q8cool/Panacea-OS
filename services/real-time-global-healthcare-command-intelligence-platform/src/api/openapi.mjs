@@ -67,7 +67,7 @@ function createReadModelPath(definition) {
       tags: ["live_read_models"],
       operationId: definition.operationId,
       summary: definition.summary,
-      description: "Read-only live workspace model. The endpoint returns tenant-scoped backend records only; it does not return browser demo records and does not perform writes or clinical actions.",
+      description: "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
       security: [{ bearerAuth: [] }, { tenantHeaders: [] }],
       parameters: [
         ...pathParameters,
@@ -143,7 +143,7 @@ function createProjectionListPath(kind) {
       tags: ["live_event_projection"],
       operationId: isEvents ? "listLiveWriteWorkflowEvents" : "listLiveWriteWorkflowProjections",
       summary: isEvents ? "List accepted live write workflow events" : "List live write workflow projection statuses",
-      description: "Operator and administrator review endpoint for tenant-scoped live write events and read-model projections. It is read-only, fully auditable, and does not re-execute clinical decisions.",
+      description: "Operator and administrator review endpoint for tenant-scoped live write events and read-model projections. It is review-scoped, fully auditable, and does not re-execute clinical decisions.",
       security: [{ bearerAuth: [] }, { tenantHeaders: [] }],
       parameters: [
         {

@@ -12,7 +12,7 @@ import {
 import { buildCurl, endpointBaseUrl, flattenEndpoints, filterEndpoints } from "../src/apiExplorer";
 import { probeFoundation } from "../src/foundation";
 import { discoverFoundationLogin } from "../src/foundationLoginDiscovery";
-import { apiRequest, appendOperatorAuditTest, executeWriteWorkflowRequest, findWriteWorkflowEndpoint, pollRuntimeStatus } from "../src/liveApi";
+import { apiRequest, appendOperatorAuditTest, executeWriteWorkflowRequest, findReadOnlyEndpoint, findWriteWorkflowEndpoint, pollRuntimeStatus } from "../src/liveApi";
 import { languageOptions, translate } from "../src/locales";
 import { allRoleRoutes, roleDefaultRoute, roleSwitcherOptions, roleWorkspaces } from "../src/roleWorkspaces";
 import { initialState, renderApp, renderRoute } from "../src/render";
@@ -499,7 +499,7 @@ describe("Panacea web platform", () => {
           url: "",
           source: "contract",
           available: false,
-          reason: "Controlled pilot workflow is governed through approved backend/API publication"
+          reason: "Governed workflow is awaiting approved backend/API publication"
         },
         result: {
           requestId: "friendly-error",
@@ -511,8 +511,8 @@ describe("Panacea web platform", () => {
         }
       }
     });
-    expect(unavailable).toContain("Controlled Pilot Pending");
-    expect(unavailable).toContain("Controlled pilot routing did not return a browser response. Operator Center contains technical details.");
+    expect(unavailable).toContain("Governed Service Pending");
+    expect(unavailable).toContain("Governed service routing did not return a browser response. Operator Center contains technical details.");
     expect(unavailable).not.toContain("Failed to fetch");
   });
 
@@ -771,7 +771,7 @@ describe("Panacea web platform", () => {
     const page = workspace.pages.find((item) => item.id === "patient-search")!;
     const endpoint = findWriteWorkflowEndpoint(data, workspace, page, config, page.route);
     expect(endpoint.available).toBe(true);
-    expect(endpoint.url).toContain("/write-workflows/clinical/patients");
+    expect(endpoint.url).toContain("/operational-core/patients");
 
     let requestBody = "";
     const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {
@@ -807,6 +807,55 @@ describe("Panacea web platform", () => {
     expect(response.result.state).toBe("online");
     expect(response.result.httpStatus).toBe(201);
     expect(JSON.parse(requestBody).workflowControls.demoData).toBe(false);
+  });
+
+  it("restores operational AI Hospital Core workspace routes with governed live API bindings", () => {
+    const workspace = roleWorkspaces.find((item) => item.id === "doctor")!;
+    const operationalPages = [
+      ["patient-search", "/operational-core/patients", "Patient Search"],
+      ["patient-files", "/operational-core/patients/current-patient/files", "Patient Files"],
+      ["file-analysis", "/operational-core/patients/current-patient/files/analyze", "Medical File Analysis"],
+      ["patient-ai-chat", "/operational-core/patients/current-patient/chat", "Patient AI Chat"],
+      ["global-ai-chat", "/operational-core/chat", "Global AI Chat"],
+      ["prescriptions", "/operational-core/patients/current-patient/prescriptions", "Prescriptions"],
+      ["treatment-orders", "/operational-core/patients/current-patient/treatment-orders", "Treatment Orders"],
+      ["report-analysis", "/operational-core/patients/current-patient/reports/analyze", "Report Analysis"],
+      ["workflow-actions", "/operational-core/patients/current-patient/workflow/advance", "Workflow Actions"]
+    ] as const;
+
+    for (const [pageId, path, label] of operationalPages) {
+      const page = workspace.pages.find((item) => item.id === pageId)!;
+      const readEndpoint = findReadOnlyEndpoint(data, workspace, page, config, page.route);
+      const endpoint = findWriteWorkflowEndpoint(data, workspace, page, config, page.route);
+      expect(endpoint.available, `${pageId} endpoint available`).toBe(true);
+      expect(endpoint.url).toBe(`${publicApiBaseUrl}/api/v4/global-command-intelligence${path}`);
+
+      const html = renderRoute(data, page.route, {
+        ...initialState,
+        selectedRole: "doctor",
+        authSession: { ...sessionFor("doctor"), permissions: ["global_command_intelligence.write_workflows.write"] },
+        liveWorkspaceState: {
+          endpoint: readEndpoint,
+          writeEndpoint: endpoint
+        }
+      });
+      expect(html).toContain(label);
+      if (pageId !== "patient-search") {
+        expect(html).toContain("Operational AI Hospital Core");
+        expect(html).toContain("Operational workflows are routed through Foundation-authenticated backend APIs");
+      }
+      expect(html).toContain(publicApiBaseUrl);
+      expect(html).toContain("No autonomous diagnosis");
+      expect(html).toContain("No autonomous treatment");
+      expect(html).not.toContain("Lab API not active");
+      expect(html).not.toContain("Future LIS feed");
+      expect(html).not.toContain("Notification API required");
+      expect(html).not.toContain("Read-only");
+      expect(html).not.toContain("read-only");
+      expect(html).not.toContain("الخدمة غير متاحة مؤقتاً");
+      expect(html).not.toContain("واجهة قراءة فقط");
+      expect(html).not.toContain("localhost");
+    }
   });
 
   it("operator audit test remains restricted to operator role", async () => {
@@ -871,14 +920,14 @@ describe("Panacea web platform", () => {
         url: "",
         source: "OpenAPI contract",
         available: false,
-        reason: "Controlled pilot workflow is governed through approved backend/API publication"
+          reason: "Governed workflow is awaiting approved backend/API publication"
       },
       result: {
         requestId: "req-test",
         method: "GET",
         url: "Governed service check pending OpenAPI publication",
         state: "unavailable",
-        detail: "Controlled pilot API response pending",
+        detail: "Governed API response pending",
         checkedAt: new Date().toISOString(),
         allowlistClassification: "ALLOWED_READ",
         blockedReason: "No browser-visible read model returned records."
@@ -890,7 +939,7 @@ describe("Panacea web platform", () => {
       liveWorkspaceState
     });
     expect(html).toContain("Live Mode — Authenticated Governed Session");
-    expect(html).toContain("Controlled Pilot Pending");
+    expect(html).toContain("Governed Service Pending");
     expect(html).toContain("Live Records");
     expect(html).toContain("Approved governed access");
     expect(html).not.toContain("Rows are UI-state examples");
@@ -948,7 +997,7 @@ describe("Panacea web platform", () => {
       language: "ar",
       selectedRole: "laboratory"
     });
-    expect(arabicDemo).toContain("إجراء مراجعة فقط — لا يتم حفظه في الخادم التشغيلي");
+    expect(arabicDemo).toContain("يتطلب الإرسال التشغيلي المحكوم مصادقة المزود الأساسي وضوابط سير عمل معتمدة.");
   });
 
   it("renders live backend read-model rows without demo workspace records", () => {
@@ -1335,7 +1384,8 @@ describe("Panacea web platform", () => {
   it("renders operational records for lab, radiology, pharmacy, and administration", () => {
     const lab = renderRoute(data, "/workspace/laboratory/result-entry", initialState);
     expect(lab).toContain("Laboratory Operations");
-    expect(lab).toContain("Review entry only -- not persisted to operational backend");
+    expect(lab).toContain("Governed laboratory result entry with validation and audit controls.");
+    expect(lab).toContain("Governed result entry workflow");
 
     const radiology = renderRoute(data, "/workspace/radiology/dicom-metadata", initialState);
     expect(radiology).toContain("Radiology Operations");

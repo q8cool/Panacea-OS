@@ -179,6 +179,41 @@ function projectionTargets(context) {
     }
     return rows;
   }
+  if (event.eventType === "clinical.file.ingested" || event.eventType === "clinical.file.analyzed") {
+    return [
+      target(context, "clinical", "files", context.subjectId, context.title),
+      target(context, "clinical", "clinical_timeline", context.subjectId, `${context.title} timeline`),
+      target(context, "patient_portal", "documents", context.subjectId, `${context.title} patient document`)
+    ];
+  }
+  if (event.eventType === "clinical.patient.chat.logged") {
+    return [
+      target(context, "clinical", "patient_chat", context.subjectId, context.title),
+      target(context, "clinical", "notes", context.subjectId, `${context.title} note`),
+      target(context, "clinical", "clinical_timeline", context.subjectId, `${context.title} timeline`)
+    ];
+  }
+  if (event.eventType === "clinical.global.chat.logged") {
+    return [
+      target(context, "clinical", "global_chat", context.subjectId, context.title),
+      target(context, "admin", "audit_logs", context.subjectId, `${context.title} audit`)
+    ];
+  }
+  if (event.eventType === "clinical.report.analyzed" || event.eventType === "clinical.report.translated") {
+    return [
+      target(context, "clinical", "reports", context.subjectId, context.title),
+      target(context, "clinical", "labs", context.subjectId, `${context.title} lab review`),
+      target(context, "clinical", "radiology", context.subjectId, `${context.title} radiology review`),
+      target(context, "clinical", "clinical_timeline", context.subjectId, `${context.title} timeline`)
+    ];
+  }
+  if (event.eventType === "clinical.workflow.advanced") {
+    return [
+      target(context, "clinical", "workflow_actions", context.subjectId, context.title),
+      target(context, "clinical", "tasks", context.subjectId, `${context.title} task`),
+      target(context, "clinical", "clinical_timeline", context.subjectId, `${context.title} timeline`)
+    ];
+  }
   if (event.eventType.startsWith("lab.") || event.eventType.startsWith("specimen.") || event.eventType.startsWith("critical.lab.")) {
     return laboratoryTargets(context);
   }
@@ -190,6 +225,13 @@ function projectionTargets(context) {
   }
   if (event.eventType.startsWith("appointment.")) {
     return appointmentTargets(context);
+  }
+  if (event.eventType.startsWith("treatment.")) {
+    return [
+      target(context, "clinical", "orders", context.subjectId, context.title),
+      target(context, "clinical", "tasks", context.subjectId, `${context.title} review task`),
+      target(context, "clinical", "clinical_timeline", context.subjectId, `${context.title} timeline`)
+    ];
   }
   if (event.eventType.startsWith("patient.")) {
     return patientPortalTargets(context);
@@ -357,6 +399,9 @@ function subjectFrom(record) {
     record.payload?.studyId,
     record.payload?.reportId,
     record.payload?.prescriptionId,
+    record.payload?.fileId,
+    record.payload?.orderId,
+    record.payload?.workflowId,
     record.id
   ];
   return String(candidates.find((value) => typeof value === "string" && value.trim()) ?? record.id);

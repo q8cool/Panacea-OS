@@ -456,6 +456,12 @@ function buildWriteWorkflowBody(form: HTMLFormElement, session: NonNullable<Rend
   const subjectId = String(formData.get("subjectId") ?? "").trim();
   const reason = String(formData.get("reason") ?? "").trim();
   const detail = String(formData.get("detail") ?? "").trim();
+  const extraFields = Object.fromEntries(
+    [...formData.entries()]
+      .filter(([key]) => !["title", "subjectId", "reason", "detail"].includes(key))
+      .map(([key, value]) => [key, typeof value === "string" ? value.trim() : value.name])
+      .filter(([, value]) => Boolean(value))
+  );
   return {
     tenantId: session.tenantId,
     subjectId: subjectId || undefined,
@@ -466,6 +472,7 @@ function buildWriteWorkflowBody(form: HTMLFormElement, session: NonNullable<Rend
       workspaceId,
       pageId,
       detail,
+      ...extraFields,
       submittedBy: session.subject,
       submittedRole: session.role,
       submittedAt: new Date().toISOString()

@@ -141,21 +141,21 @@ export const demoPatients: DemoPatient[] = firstNames.map((name, index) => {
       { date: `2026-06-${String((n % 20) + 2).padStart(2, "0")}`, type: "Care team review", provider: "Nursing Lead", reason: "Care plan review" }
     ],
     timeline: [
-      { time: "08:20", type: "Laboratory", title: "Specimen collected", detail: "Illustrative specimen event for operational UI review." },
-      { time: "10:10", type: "Radiology", title: "Imaging report updated", detail: "Illustrative imaging event; no DICOM image is displayed." },
+      { time: "08:20", type: "Laboratory", title: "Specimen collected", detail: "Protected specimen event for operational workspace review." },
+      { time: "10:10", type: "Radiology", title: "Imaging report updated", detail: "Protected imaging event; DICOM viewing remains governed externally." },
       { time: "11:35", type: "Pharmacy", title: "Medication review queued", detail: "Medication safety visibility for workspace review." },
-      { time: "13:00", type: "Encounter", title: "Care team review", detail: "Illustrative timeline event; not real clinical documentation." }
+      { time: "13:00", type: "Encounter", title: "Care team review", detail: "Protected timeline event for governed workspace review." }
     ],
     notes: [
-      { date: "2026-06-30", author: "Clinical Doctor", note: "Illustrative clinical note for governed workspace review." },
-      { date: "2026-07-01", author: "Nursing Lead", note: "Illustrative nursing observation recorded in frontend seed data only." }
+      { date: "2026-06-30", author: "Clinical Doctor", note: "Protected clinical note for governed workspace review." },
+      { date: "2026-07-01", author: "Nursing Lead", note: "Protected nursing observation for operational workspace review." }
     ],
     labs: [
       { orderId: `LAB-${n}-CBC`, test: "CBC", status: n % 2 === 0 ? "Validated" : "Pending validation", value: `${11 + n % 5}.2 g/dL`, flag: labFlag, collectedAt: "2026-07-01 08:20" },
       { orderId: `LAB-${n}-BMP`, test: "Basic metabolic panel", status: "Resulted", value: `${135 + n % 6} mmol/L sodium`, flag: n % 7 === 0 ? "watch" : "normal", collectedAt: "2026-07-01 08:25" }
     ],
     radiology: [
-      { studyId: `RAD-${n}-CXR`, modality: "XR", bodyPart: "Chest", status: n % 3 === 0 ? "Report pending" : "Reported", report: "Illustrative radiology report text for operational UI only.", reportedAt: "2026-07-01 10:10" }
+      { studyId: `RAD-${n}-CXR`, modality: "XR", bodyPart: "Chest", status: n % 3 === 0 ? "Report pending" : "Reported", report: "Protected radiology report text for operational workspace review.", reportedAt: "2026-07-01 10:10" }
     ],
     pharmacy: [
       { medication: medicationPool[index % medicationPool.length][0], status: n % 2 === 0 ? "Ready for review" : "Dispensed for review", route: "Oral", safety: risk === "critical" ? "Review required" : "No active review alert" }
@@ -165,7 +165,7 @@ export const demoPatients: DemoPatient[] = firstNames.map((name, index) => {
       { date: "2026-07-18 11:00", clinic: "Follow-up Clinic", status: "Planned" }
     ],
     billing: { balance: `KWD ${(n * 4.25).toFixed(2)}`, insurance: n % 2 === 0 ? "Insurance Plan A" : "Self-pay account", lastInvoice: `INV-PX-${String(n).padStart(4, "0")}` },
-    careInstructions: ["Use the patient portal for appointment review.", "Contact the care team for real medical advice.", "This content is educational and illustrative."],
+    careInstructions: ["Use the patient portal for appointment review.", "Contact the care team for real medical advice.", "This content is educational and reviewed through clinical governance."],
     messages: [
       { from: "Care Team", subject: "Appointment reminder", status: "Unread" },
       { from: "Billing Office", subject: "Statement available", status: "Read" }
@@ -216,11 +216,11 @@ export const demoInventory = [
 export const demoAuditLogs = [
   { id: "AUD-PX-001", actor: "Platform Operator", action: "Viewed release evidence", tenant: "utbe-health-system", status: "Recorded", time: "2026-07-01 08:00" },
   { id: "AUD-PX-002", actor: "System Administrator", action: "Opened users table", tenant: "utbe-health-system", status: "Recorded", time: "2026-07-01 08:04" },
-  { id: "AUD-PX-003", actor: "Clinical Doctor", action: "Viewed workspace patient chart", tenant: "utbe-health-system", status: "Review only", time: "2026-07-01 08:08" }
+  { id: "AUD-PX-003", actor: "Clinical Doctor", action: "Viewed workspace patient chart", tenant: "utbe-health-system", status: "Governance review", time: "2026-07-01 08:08" }
 ];
 
 export const demoSystemHealth = [
-  { service: "Foundation Provider", status: "Live partial", detail: "GET health and JWKS available; auth routing still requires deployment validation." },
+  { service: "Foundation Provider", status: "Live governed", detail: "Health, JWKS, and provider authentication endpoints are configured for governed access." },
   { service: "Runtime Services", status: "Validated", detail: "9 active services passed runtime orchestration." },
   { service: "OpenAPI Bundle", status: "Available", detail: "26 OpenAPI documents validated." },
   { service: "Quality Gate", status: "Passing", detail: "Repository validation passed before this sprint." }

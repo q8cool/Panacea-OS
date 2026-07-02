@@ -14,6 +14,13 @@ for (const file of migrationFiles) {
   const sql = fs.readFileSync(path.join(repoRoot, file), "utf8");
   const createTables = [...sql.matchAll(/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([a-zA-Z0-9_]+)/gi)].map((match) => match[1]);
   const createIndexes = [...sql.matchAll(/CREATE\s+(?:UNIQUE\s+)?INDEX\s+(?:IF\s+NOT\s+EXISTS\s+)?([a-zA-Z0-9_]+)/gi)].map((match) => match[1]);
+  const isSchemaEvolutionMigration = createTables.length === 0 && /\bALTER\s+TABLE\b/i.test(sql) && /\bCONSTRAINT\b/i.test(sql);
+  if (isSchemaEvolutionMigration) {
+    if (!/INSERT\s+INTO\s+[a-zA-Z0-9_]*migrations\b/i.test(sql)) {
+      failures.push(`${file}: schema evolution migration must record its migration version`);
+    }
+    continue;
+  }
   if (createTables.length === 0) {
     failures.push(`${file}: no CREATE TABLE statements found`);
   }
