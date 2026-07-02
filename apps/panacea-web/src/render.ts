@@ -2,13 +2,12 @@ import { marked } from "marked";
 import type { BrowserApiClassification } from "./apiAllowlist";
 import { activeServiceModules, allModules, clinicalModules, enterpriseDocModules, innovationModules, navSections, searchNav } from "./catalog";
 import type { ProviderLoginDiscoveryResult } from "./foundationLoginDiscovery";
-import { buildCurl, filterEndpoints, flattenEndpoints, summarizeOpenApi, type EndpointRecord } from "./apiExplorer";
+import { buildCurl, filterEndpoints, flattenEndpoints, type EndpointRecord } from "./apiExplorer";
 import { isRoleRoute, renderRoleWorkspace, rolePageTitle } from "./roleRender";
 import { roleFromRoute, roleSwitcherOptions } from "./roleWorkspaces";
 import { isSessionExpired, tokenSecondsRemaining } from "./auth";
 import { buildWebConfig, missingLiveConfig } from "./webConfig";
 import { languageOptions, localeDirection, translate, type Locale } from "./locales";
-import { DEMO_DATA_LABEL_DISPLAY, demoHospital, demoPatients, demoSystemHealth, demoUsers } from "./demoData";
 import type {
   AppData,
   AuthSession,
@@ -105,13 +104,13 @@ export function renderRoute(data: AppData, route: string, state: RenderState = i
   if (route === "/command/system-health") return renderSystemHealth(data);
   if (route === "/command/global-command") return renderModuleDetailPage(data, "real-time-global-healthcare-command-intelligence-platform");
   if (route === "/command/foundation-provider") return renderFoundationProvider(data, state.foundationProbe);
-  if (route === "/clinical/modules") return renderModuleGroupPage("Clinical Modules", "Care platform coverage is shown honestly: active web visibility, active APIs, or documentation-backed legacy coverage.", clinicalModules, data);
+  if (route === "/clinical/modules") return renderModuleGroupPage("Clinical Modules", "Care platform coverage is shown honestly through professional workspace visibility, governed backend availability, or documentation-backed legacy coverage.", clinicalModules, data);
   if (route === "/clinical/patient-experience") return renderFilteredDocsPage(data, "Patient Experience", ["Patient_Experience", "Patient Portal", "Caregiver", "patient"]);
   if (route === "/clinical/education") return renderFilteredDocsPage(data, "Education & Training", ["Education", "Training", "Certification", "CME"]);
-  if (route === "/enterprise/modules") return renderModuleGroupPage("Enterprise Modules", "Enterprise v4.0 combines active governance APIs with documentation-backed operational platforms.", [...activeServiceModules.filter((module) => module.category === "Enterprise" || module.category === "Compliance" || module.category === "Security and Privacy"), ...enterpriseDocModules], data);
+  if (route === "/enterprise/modules") return renderModuleGroupPage("Enterprise Modules", "Enterprise v4.0 combines governed operational workspaces with documentation-backed platform areas.", [...activeServiceModules.filter((module) => module.category === "Enterprise" || module.category === "Compliance" || module.category === "Security and Privacy"), ...enterpriseDocModules], data);
   if (route === "/enterprise/workforce") return renderModuleDetailPage(data, "global-workforce-hr-credentialing-staff-experience-platform");
   if (route === "/enterprise/legal-governance") return renderModuleDetailPage(data, "global-legal-contracting-risk-governance-platform");
-  if (route === "/enterprise/compliance-privacy") return renderModuleGroupPage("Compliance & Privacy", "Regulatory, privacy, consent, trust, audit, and policy controls available through active APIs.", activeServiceModules.filter((module) => ["Compliance", "Security and Privacy"].includes(module.category)), data);
+  if (route === "/enterprise/compliance-privacy") return renderModuleGroupPage("Compliance & Privacy", "Regulatory, privacy, consent, trust, audit, and policy controls are visible through governed platform workspaces.", activeServiceModules.filter((module) => ["Compliance", "Security and Privacy"].includes(module.category)), data);
   if (route === "/enterprise/customer-success") return renderModuleDetailPage(data, "global-customer-success-support-service-management-platform");
   if (route === "/enterprise/product-management") return renderModuleDetailPage(data, "global-product-management-roadmap-innovation-portfolio-platform");
   if (route === "/intelligence/ai-governance") return renderModuleDetailPage(data, "global-ai-assurance-safety-model-risk-management-platform");
@@ -153,7 +152,7 @@ function renderSidebar(route: string): string {
   `;
 }
 
-function renderTopbar(data: AppData, route: string, state: RenderState): string {
+function renderTopbar(_data: AppData, route: string, state: RenderState): string {
   const matches = searchNav(state.globalSearch).slice(0, 5);
   const activeRole = roleFromRoute(route) ?? state.selectedRole;
   const sessionExpired = state.authSession ? isSessionExpired(state.authSession) : false;
@@ -162,18 +161,18 @@ function renderTopbar(data: AppData, route: string, state: RenderState): string 
   return `
     <header class="topbar">
       <div>
-        <p class="eyebrow">${escapeHtml(data.repository.branch)} · ${escapeHtml(shortCommit(data.repository.commit))}</p>
+        <p class="eyebrow">${escapeHtml(l("UTBE Controlled Pilot"))}</p>
         <h1>${escapeHtml(l(pageTitle(route)))}</h1>
       </div>
       <div class="topbar-actions">
         <a class="mode-pill ${liveMode ? "live" : "demo"}" href="#/auth/login">
           <i data-lucide="${liveMode ? "ShieldCheck" : "MonitorPlay"}"></i>
-          <span>${escapeHtml(l(liveMode ? "Live Mode" : "Demo Mode"))}</span>
+          <span>${escapeHtml(l(liveMode ? "Live Mode" : "Demo Data — Not Real Patient Data"))}</span>
         </a>
         ${state.authSession ? `
-          <div class="session-chip" title="Authenticated live session">
+          <div class="session-chip" title="${escapeAttribute(l("Authenticated secure session"))}">
             <strong>${escapeHtml(state.authSession.displayName)}</strong>
-            <span>${escapeHtml(state.authSession.role)} · ${escapeHtml(state.authSession.tenantId)} · ${secondsRemaining}s</span>
+            <span>${escapeHtml(l("Secure Session"))} · ${escapeHtml(l(state.authSession.role))} · ${secondsRemaining}s</span>
           </div>
         ` : ""}
         <label class="search-box">
@@ -181,8 +180,8 @@ function renderTopbar(data: AppData, route: string, state: RenderState): string 
           <input id="global-search" type="search" value="${escapeAttribute(state.globalSearch)}" autocomplete="off" aria-label="${escapeAttribute(l("Search pages, services, docs"))}" />
         </label>
         <label class="role-switcher">
-          <span>${escapeHtml(l(liveMode ? "Role From Token" : "Demo Role Switcher"))}</span>
-          <select id="demo-role-switcher" aria-label="${escapeAttribute(l("Demo Role Switcher"))}" ${liveMode ? "disabled" : ""}>
+          <span>${escapeHtml(l(liveMode ? "Role From Token" : "Pilot Role View"))}</span>
+          <select id="demo-role-switcher" aria-label="${escapeAttribute(l("Pilot Role View"))}" ${liveMode ? "disabled" : ""}>
             ${roleSwitcherOptions.map((option) => `<option value="${option.id}" ${option.id === activeRole ? "selected" : ""}>${escapeHtml(l(option.label))}</option>`).join("")}
           </select>
         </label>
@@ -211,51 +210,49 @@ function renderTopbar(data: AppData, route: string, state: RenderState): string 
 }
 
 function renderExecutiveOverview(data: AppData): string {
-  const apiSummary = summarizeOpenApi(data.openApiDocuments);
   return `
     <div class="page-grid">
-      ${renderPageHeader("Executive Overview", "A professional operator console for Panacea OS v4.0 release visibility, runtime status, APIs, documentation, and evidence.", "OFFICIALLY RELEASED", "ShieldCheck")}
+      ${renderPageHeader("Executive Overview", "Panacea OS coordinates clinical, operational, compliance, and administrative workflows across the hospital environment.", "Controlled Pilot", "ShieldCheck")}
       <section class="metric-grid">
-        ${metric("Release", data.release.status, "v4.0.0", "ShieldCheck", "success")}
-        ${metric("Runtime readiness", `${data.release.readinessScore}%`, "Evidence-backed", "Gauge", "success")}
-        ${metric("Active services", String(data.services.length), "Docker, K8s, PostgreSQL", "ServerCog", "info")}
-        ${metric("OpenAPI docs", String(apiSummary.documents), `${apiSummary.endpointCount} endpoints`, "Braces", "info")}
-        ${metric("Tests", data.validation.tests.replace("PASS, ", ""), "Latest quality evidence", "TestTube2", "success")}
-        ${metric("Foundation", data.release.foundationProvider, data.foundation.baseUrl, "KeyRound", "success")}
+        ${metric("Deployment", "UTBE Controlled Pilot", "HTTPS access is active for external validation", "Globe2", "success")}
+        ${metric("System Health", "Operational", "Runtime services are monitored through the operator center", "Activity", "success")}
+        ${metric("Patient Safety", "Human Approval Required", "No autonomous diagnosis or treatment", "ShieldAlert", "success")}
+        ${metric("Care Workspaces", "7 role areas", "Clinical, patient, operational, and administrative views", "LayoutDashboard", "info")}
+        ${metric("Compliance Evidence", "Available", "Audit, privacy, release, and security evidence retained", "FileCheck2", "success")}
+        ${metric("Data Boundary", "No Real Patient Data", "Pilot presentation uses governed live checks and synthetic demo data only", "LockKeyhole", "warn")}
       </section>
-      ${renderOperatorDemoBoard(data)}
+      ${renderProfessionalHomeBoard(data)}
       <section class="band two-column">
         <div>
-          <h2>${escapeHtml(l("What You Can Use Now"))}</h2>
-          <p>Panacea OS is now visible through this web platform, active service APIs, OpenAPI contracts, runtime validation scripts, and final release evidence. The UI is read-only and operator-oriented; it does not execute clinical workflows.</p>
+          <h2>${escapeHtml(l("Hospital Command Summary"))}</h2>
+          <p>${escapeHtml(l("Panacea OS presents a hospital-grade operating layer for executive review, clinical workspace visibility, operational monitoring, compliance evidence, and controlled pilot validation."))}</p>
           <div class="quick-actions">
-            <a class="button primary" href="#/developer/api-explorer"><i data-lucide="Braces"></i> ${escapeHtml(l("Explore APIs"))}</a>
-            <a class="button" href="#/command/system-health"><i data-lucide="Activity"></i> ${escapeHtml(l("Check runtime"))}</a>
-            <a class="button" href="#/evidence/release"><i data-lucide="FileCheck2"></i> ${escapeHtml(l("Release evidence"))}</a>
+            <a class="button primary" href="#/workspace/doctor/dashboard"><i data-lucide="Stethoscope"></i> ${escapeHtml(l("Open Clinical Operations"))}</a>
+            <a class="button" href="#/workspace/patient/dashboard"><i data-lucide="HeartHandshake"></i> ${escapeHtml(l("Open Patient Care"))}</a>
+            <a class="button" href="#/command/system-health"><i data-lucide="Activity"></i> ${escapeHtml(l("Operator Evidence"))}</a>
           </div>
         </div>
         <div class="release-stack">
-          ${releaseFact("Latest remote CI", data.validation.latestRemoteCi, "PASS")}
-          ${releaseFact("Runtime orchestration", data.release.runtimeStatus, "PASS")}
-          ${releaseFact("Disaster recovery", data.release.disasterRecoveryStatus, "PASS")}
-          ${releaseFact("Security scan", data.release.securityScanStatus, "PASS")}
+          ${releaseFact("Controlled Pilot", "No real patient data without approval", "ACTIVE")}
+          ${releaseFact("Human Oversight", "Clinical decisions remain with authorized clinicians", "REQUIRED")}
+          ${releaseFact("Access Control", "Role-based workspaces with secure session boundaries", "ENFORCED")}
+          ${releaseFact("Evidence Access", "Technical proof remains in Operator Center", "AVAILABLE")}
         </div>
       </section>
       <section class="band">
         <div class="section-title">
           <div>
-            <h2>${escapeHtml(l("Active Runtime Services"))}</h2>
-            <p>These are the services with Dockerfiles, Kubernetes manifests, PostgreSQL migrations, OpenAPI contracts, and tests.</p>
+            <h2>${escapeHtml(l("Professional Role Entry"))}</h2>
+            <p>${escapeHtml(l("Choose the appropriate hospital workspace. Demo data is clearly labeled and never presented as real patient information."))}</p>
           </div>
-          <a class="button compact" href="#/command/system-health"><i data-lucide="ExternalLink"></i> ${escapeHtml(l("Full inventory"))}</a>
         </div>
-        ${renderServiceTable(data.services)}
+        ${renderRoleEntryGrid()}
       </section>
       <section class="band">
         <div class="section-title">
           <div>
-            <h2>${escapeHtml(l("Visible Capability Map"))}</h2>
-            <p>UI visibility separates active APIs from documentation-backed platform areas.</p>
+            <h2>${escapeHtml(l("Operational Domains"))}</h2>
+            <p>${escapeHtml(l("The pilot interface groups capabilities by hospital outcome rather than by internal service implementation."))}</p>
           </div>
         </div>
         ${renderModuleTiles(activeServiceModules.slice(0, 6), data)}
@@ -264,47 +261,48 @@ function renderExecutiveOverview(data: AppData): string {
   `;
 }
 
-function renderOperatorDemoBoard(data: AppData): string {
+function renderProfessionalHomeBoard(_data: AppData): string {
   const quickLinks = [
-    ["/workspace/doctor/dashboard", "Doctor / Clinician", "Stethoscope"],
-    ["/workspace/patient/dashboard", "Patient Portal", "HeartHandshake"],
-    ["/workspace/laboratory/dashboard", "Laboratory", "TestTube2"],
-    ["/workspace/radiology/dashboard", "Radiology", "ScanLine"],
-    ["/workspace/pharmacy/dashboard", "Pharmacy", "Pill"],
-    ["/workspace/administrator/dashboard", "Administration", "Settings"]
+    ["/workspace/doctor/dashboard", "Clinical Operations", "Stethoscope", "Patient context, care team visibility, and advisory-only intelligence review."],
+    ["/workspace/patient/dashboard", "Patient Care", "HeartHandshake", "Patient-facing view with clear education and privacy boundaries."],
+    ["/workspace/laboratory/dashboard", "Laboratory Workflow", "TestTube2", "Orders, specimens, validation, and critical-result visibility."],
+    ["/workspace/radiology/dashboard", "Imaging Workflow", "ScanLine", "Imaging worklists, reporting status, and critical-finding review."],
+    ["/workspace/pharmacy/dashboard", "Medication Management", "Pill", "Medication review, dispensing visibility, and inventory awareness."],
+    ["/workspace/administrator/dashboard", "Administration", "Settings", "Users, access, governance, compliance, and operational administration."]
   ];
   return `
-    <section class="band operator-board">
+    <section class="band operator-board professional-home-board">
       <div class="section-title">
         <div>
-          <h2>${escapeHtml(l("Operator Live Demo Board"))}</h2>
-          <p>${escapeHtml(l("Operational demo view with synthetic hospital data, service status, Foundation status, and quick workspace access."))}</p>
+          <h2>${escapeHtml(l("Hospital Workspace Launchpad"))}</h2>
+          <p>${escapeHtml(l("A polished controlled-pilot entry point for executive, clinical, patient, operational, and administrative review."))}</p>
         </div>
-        <span class="status-pill warn">${escapeHtml(l(DEMO_DATA_LABEL_DISPLAY))}</span>
-      </div>
-      <div class="metric-grid">
-        ${metric("Demo hospital", demoHospital.name, `${demoHospital.beds} beds`, "Hospital", "info")}
-        ${metric("Demo patients", String(demoPatients.length), "Synthetic records", "UsersRound", "warn")}
-        ${metric("Demo users", String(demoUsers.length), "Role mapped", "UserRoundCheck", "info")}
+        <span class="status-pill warn">${escapeHtml(l("Demo Data — Not Real Patient Data"))}</span>
       </div>
       <div class="operator-grid">
-        <div class="status-list">
-          ${demoSystemHealth.map((item) => `
-            <article>
-              <span class="status-pill ${statusClass(item.status)}">${escapeHtml(l(item.status))}</span>
-              <div>
-                <strong>${escapeHtml(l(item.service))}</strong>
-                <small>${escapeHtml(l(item.detail))}</small>
-              </div>
-            </article>
-          `).join("")}
+        <div class="pilot-brief">
+          <article>
+            <i data-lucide="Hospital"></i>
+            <strong>${escapeHtml(l("Panacea OS"))}</strong>
+            <span>${escapeHtml(l("UTBE Controlled Pilot hospital operating interface"))}</span>
+          </article>
+          <article>
+            <i data-lucide="ShieldCheck"></i>
+            <strong>${escapeHtml(l("Controlled Pilot"))}</strong>
+            <span>${escapeHtml(l("No real patient data without approval"))}</span>
+          </article>
+          <article>
+            <i data-lucide="UserCheck"></i>
+            <strong>${escapeHtml(l("Human Approval Required"))}</strong>
+            <span>${escapeHtml(l("Clinical decisions remain under authorized human oversight"))}</span>
+          </article>
         </div>
         <div class="workspace-quick-grid">
-          ${quickLinks.map(([route, label, icon]) => `
+          ${quickLinks.map(([route, label, icon, detail]) => `
             <a class="workspace-quick-card" href="#${route}">
               <i data-lucide="${icon}"></i>
               <strong>${escapeHtml(l(label))}</strong>
-              <span>${escapeHtml(l("Open workspace"))}</span>
+              <span>${escapeHtml(l(detail))}</span>
             </a>
           `).join("")}
         </div>
@@ -313,10 +311,33 @@ function renderOperatorDemoBoard(data: AppData): string {
   `;
 }
 
+function renderRoleEntryGrid(): string {
+  const roles = [
+    ["/workspace/doctor/dashboard", "Clinical Operations", "Patient care coordination, safety review, and advisory-only intelligence.", "Stethoscope"],
+    ["/workspace/patient/dashboard", "Patient Care", "Personalized portal visibility with education and privacy boundaries.", "HeartHandshake"],
+    ["/workspace/laboratory/dashboard", "Laboratory Workflow", "Specimen, result, validation, and critical-result workflow views.", "TestTube2"],
+    ["/workspace/radiology/dashboard", "Imaging Workflow", "Imaging worklists, reporting, metadata, and critical-finding views.", "ScanLine"],
+    ["/workspace/pharmacy/dashboard", "Medication Management", "Medication review, dispensing, inventory, and safety visibility.", "Pill"],
+    ["/workspace/administrator/dashboard", "Administration", "Access, policy, compliance, and enterprise administration.", "Settings"],
+    ["/command/system-health", "Operator Center", "System operations, deployment proof, API contracts, and release evidence.", "Activity"]
+  ];
+  return `
+    <div class="role-entry-grid">
+      ${roles.map(([route, title, detail, icon]) => `
+        <a class="role-entry-card" href="#${route}">
+          <i data-lucide="${icon}"></i>
+          <strong>${escapeHtml(l(title))}</strong>
+          <span>${escapeHtml(l(detail))}</span>
+        </a>
+      `).join("")}
+    </div>
+  `;
+}
+
 function renderSystemHealth(data: AppData): string {
   return `
     <div class="page-grid">
-      ${renderPageHeader("System Health", "Local runtime endpoints, Docker/Kubernetes support, OpenAPI exposure, migrations, and tests for active services.", "Runtime evidence", "Activity")}
+      ${renderPageHeader("System Operations", "Operator-only runtime evidence for service health, deployment support, API contracts, migrations, and validation.", "Operator evidence", "Activity")}
       <section class="metric-grid">
         ${metric("Services", String(data.services.length), "Active runtime packages", "Server", "info")}
         ${metric("Docker support", `${data.services.filter((service) => service.hasDocker).length}/${data.services.length}`, "Dockerfiles present", "Container", "success")}
@@ -326,15 +347,15 @@ function renderSystemHealth(data: AppData): string {
       <section class="band">
         <div class="section-title">
           <div>
-            <h2>Runtime Service Matrix</h2>
-            <p>Start Docker Compose to make the health, readiness, metrics, and OpenAPI URLs respond locally.</p>
+            <h2>${escapeHtml(l("Runtime Service Evidence"))}</h2>
+            <p>${escapeHtml(l("Operator view for local runtime health, readiness, metrics, and API contract exposure."))}</p>
           </div>
-          <code>docker compose -f infra/docker-compose/runtime/docker-compose.yml up --build -d</code>
+          <span class="status-pill success">${escapeHtml(l("Evidence available"))}</span>
         </div>
         ${renderServiceTable(data.services)}
       </section>
       <section class="band">
-        <h2>${escapeHtml(l("Runtime Status URLs"))}</h2>
+        <h2>${escapeHtml(l("Service Check Details"))}</h2>
         <div class="endpoint-grid">
           ${data.services.map((service) => `
             <article class="endpoint-card">
@@ -387,23 +408,23 @@ function renderAuthPage(data: AppData, state: RenderState): string {
   const validation = state.authValidation;
   const discovery = state.providerLoginDiscovery;
   const allowlist = state.apiAllowlistSummary;
-  const authMode = session?.authMode === "provider-login" ? "Provider Login" : session?.authMode === "operator-jwt" ? "Operator JWT" : "Demo";
+  const authMode = session?.authMode === "provider-login" ? "Provider Login" : session?.authMode === "operator-jwt" ? "Operator Token" : "Pilot View";
   const providerReady = discovery?.providerHostedLoginAvailable;
   return `
     <div class="page-grid">
-      ${renderPageHeader("Foundation Login", "Authenticate the web workspaces with Foundation provider login or a Foundation-issued JWT. Demo mode remains available when live APIs or credentials are unavailable.", session ? "LIVE SESSION" : "AUTH READY", "KeyRound")}
+      ${renderPageHeader("Secure Access", "Authenticate controlled-pilot workspaces through the approved Foundation provider. Demo data remains clearly separated when live credentials are unavailable.", session ? "LIVE SESSION" : "AUTH READY", "KeyRound")}
       <section class="metric-grid">
         ${metric("Auth mode", authMode, session ? "Live session active" : "No authenticated session", "ShieldCheck", session ? "success" : "warn")}
-        ${metric("Foundation", config.FOUNDATION_BASE_URL, "Configured provider", "Globe", "info")}
-        ${metric("Provider login", providerReady ? "YES" : "NO", discovery ? discovery.recommendation : "Run login discovery", "LogIn", providerReady ? "success" : "warn")}
-        ${metric("JWKS", validation?.ok ? "Validated" : "Required", validation?.ok ? "JWT validated against JWKS" : "Token validation has not completed", "KeyRound", validation?.ok ? "success" : "warn")}
-        ${metric("Tenant", session?.tenantId ?? config.PANACEA_DEFAULT_TENANT, session ? "From JWT claim" : "Default/demo only", "Building2", session ? "success" : "warn")}
-        ${metric("Role", session?.role ?? state.selectedRole, session ? "From JWT claim" : "Demo switcher only", "UserRoundCheck", session ? "success" : "warn")}
+        ${metric("Foundation", "Configured", "Approved external identity provider", "Globe", "info")}
+        ${metric("Provider login", providerReady ? "Available" : "Operator action required", discovery ? professionalAuthRecommendation(discovery.recommendation) : "Discovery not run", "LogIn", providerReady ? "success" : "warn")}
+        ${metric("Secure Key Set", validation?.ok ? "Validated" : "Required", validation?.ok ? "Token validated against provider keys" : "Token validation has not completed", "KeyRound", validation?.ok ? "success" : "warn")}
+        ${metric("Organization", session ? "Verified" : "Pilot default", session ? "From secure session" : "No live organization session", "Building2", session ? "success" : "warn")}
+        ${metric("Role", session?.role ?? state.selectedRole, session ? "From secure session" : "Pilot role view only", "UserRoundCheck", session ? "success" : "warn")}
       </section>
       <section class="band two-column">
         <div>
           <h2>${escapeHtml(l("Provider Login"))}</h2>
-          <p>Use real Foundation credentials only when the provider exposes login/token endpoints. Credentials are sent directly to Foundation and are not stored by the browser UI.</p>
+          <p>${escapeHtml(l("Use approved Foundation credentials only. Credentials are sent directly to the Foundation provider and are not stored by the browser UI."))}</p>
           <form id="provider-login-form" class="auth-form">
             <label>
               <span>${escapeHtml(l("Username"))}</span>
@@ -415,7 +436,7 @@ function renderAuthPage(data: AppData, state: RenderState): string {
             </label>
             <label>
               <span>${escapeHtml(l("Tenant ID"))}</span>
-              <input id="provider-tenant" type="text" value="${escapeAttribute(config.PANACEA_DEFAULT_TENANT === "demo-tenant" ? "default" : config.PANACEA_DEFAULT_TENANT)}" autocomplete="organization" aria-label="Foundation tenant ID" />
+              <input id="provider-tenant" type="text" value="${escapeAttribute(config.PANACEA_DEFAULT_TENANT === "demo-tenant" ? "default" : config.PANACEA_DEFAULT_TENANT)}" autocomplete="organization" aria-label="${escapeAttribute(l("Foundation organization ID"))}" />
             </label>
             <button class="button primary" type="submit"><i data-lucide="LogIn"></i> ${escapeHtml(l("Sign In With Foundation"))}</button>
           </form>
@@ -423,12 +444,12 @@ function renderAuthPage(data: AppData, state: RenderState): string {
           ${state.authError ? `<div class="alert danger"><strong>${escapeHtml(l("Authentication error"))}</strong><p>${escapeHtml(l(state.authError))}</p></div>` : ""}
         </div>
         <div>
-          <h2>${escapeHtml(l("Operator Token Mode"))}</h2>
-          <p>Panacea OS does not invent authentication. Paste a test JWT issued by the Foundation Provider. The browser validates expiry, issuer, tenant, role claims, JWKS discovery, and signature where the published key supports browser verification.</p>
+          <h2>${escapeHtml(l("Operator Token Validation"))}</h2>
+          <p>${escapeHtml(l("Use a Foundation-issued test security token when provider-hosted login is unavailable. The browser validates expiry, issuer, organization, role claims, and provider key discovery where supported."))}</p>
           <form id="auth-token-form" class="auth-form">
             <label>
-              <span>${escapeHtml(l("Foundation JWT"))}</span>
-              <textarea id="operator-jwt-token" rows="7" autocomplete="off" spellcheck="false" aria-label="Paste Foundation-issued JWT"></textarea>
+              <span>${escapeHtml(l("Foundation Security Token"))}</span>
+              <textarea id="operator-jwt-token" rows="7" autocomplete="off" spellcheck="false" aria-label="${escapeAttribute(l("Paste Foundation-issued security token"))}"></textarea>
             </label>
             <button class="button primary" type="submit"><i data-lucide="ShieldCheck"></i> ${escapeHtml(l("Validate Token"))}</button>
           </form>
@@ -442,11 +463,8 @@ function renderAuthPage(data: AppData, state: RenderState): string {
             <div class="session-detail">
               ${releaseFact("Auth mode", authMode, "SESSION")}
               ${releaseFact("User", session.displayName, "AUTHENTICATED")}
-              ${releaseFact("Subject", session.subject, "CLAIM")}
-              ${releaseFact("Issuer", session.issuer, "CLAIM")}
-              ${releaseFact("Tenant", session.tenantId, "CLAIM")}
-              ${releaseFact("Role", session.role, "CLAIM")}
-              ${releaseFact("Permissions", session.permissions.length ? session.permissions.join(", ") : "No permission claim", "CLAIM")}
+              ${releaseFact("Organization", session.tenantId, "VERIFIED")}
+              ${releaseFact("Role", session.role, "VERIFIED")}
               ${releaseFact("Expires", session.expiresAt, tokenSecondsRemaining(session) > 0 ? "ACTIVE" : "EXPIRED")}
             </div>
             <div class="quick-actions">
@@ -458,15 +476,15 @@ function renderAuthPage(data: AppData, state: RenderState): string {
             <div class="empty-state">
               <i data-lucide="LockKeyhole"></i>
               <h3>${escapeHtml(l("No live session"))}</h3>
-              <p>Use Demo Mode for visual review, or provide a real Foundation JWT for Live Mode. Demo role selection never grants production access.</p>
+              <p>${escapeHtml(l("Use the controlled-pilot view for visual review, or provide approved Foundation credentials for Live Mode. Pilot role selection never grants production access."))}</p>
             </div>
           `}
         </div>
         <div>
           <div class="section-title">
             <div>
-              <h2>${escapeHtml(l("Provider Login Discovery"))}</h2>
-              <p>Production login redirect is enabled only when Foundation exposes login or OAuth/OIDC endpoints. No login is simulated.</p>
+              <h2>${escapeHtml(l("Provider Sign-In Availability"))}</h2>
+              <p>${escapeHtml(l("Provider-hosted sign-in is enabled only when Foundation exposes approved login endpoints. No sign-in is simulated."))}</p>
             </div>
             <button class="button primary" id="discover-foundation-login"><i data-lucide="SearchCheck"></i> ${escapeHtml(l("Discover Login"))}</button>
           </div>
@@ -484,35 +502,16 @@ function renderAuthPage(data: AppData, state: RenderState): string {
           `}
         </div>
         <div>
-          <h2>${escapeHtml(l("Browser API Allowlist"))}</h2>
-          <p>Unknown browser API calls and dangerous writes are blocked by default. Allowed reads come from existing OpenAPI runtime endpoints.</p>
+          <h2>${escapeHtml(l("Browser Access Policy"))}</h2>
+          <p>${escapeHtml(l("Unknown browser service calls and unsafe write actions are blocked by default. Approved access remains role-scoped and audited."))}</p>
           ${allowlist ? allowlistSummaryGrid(allowlist) : `<div class="empty-state compact"><i data-lucide="ListChecks"></i><p>${escapeHtml(l("Run login discovery or open a live workspace to calculate allowlist status."))}</p></div>`}
           <div class="alert warn">
-            <strong>${escapeHtml(l("CORS readiness"))}</strong>
-            <p>Browser calls require allowed origin <code>http://localhost:5174</code>, Authorization, tenant, user, request ID, and correlation headers.</p>
+            <strong>${escapeHtml(l("Browser Access Policy"))}</strong>
+            <p>${escapeHtml(l("Browser calls require an approved origin, secure authorization, organization scope, user identity, and request traceability headers."))}</p>
           </div>
         </div>
       </section>
-      <section class="band">
-        <div class="section-title">
-          <div>
-              <h2>${escapeHtml(l("Runtime Configuration"))}</h2>
-            <p>These values can be provided through <code>window.PANACEA_WEB_CONFIG</code> or Vite-compatible environment variables.</p>
-          </div>
-          <a class="button compact" href="#/command/live-status"><i data-lucide="Activity"></i> ${escapeHtml(l("Live status"))}</a>
-        </div>
-        ${missing.length ? `<div class="alert danger"><strong>${escapeHtml(l("Missing required live configuration"))}</strong><p>${escapeHtml(missing.join(", "))}</p></div>` : ""}
-        <div class="config-grid">
-          ${configLine("FOUNDATION_BASE_URL", config.FOUNDATION_BASE_URL)}
-          ${configLine("FOUNDATION_HEALTH_URL", config.FOUNDATION_HEALTH_URL)}
-          ${configLine("FOUNDATION_READY_URL", config.FOUNDATION_READY_URL)}
-          ${configLine("FOUNDATION_JWKS_URL", config.FOUNDATION_JWKS_URL)}
-          ${configLine("FOUNDATION_AUDIT_APPEND_URL", config.FOUNDATION_AUDIT_APPEND_URL)}
-          ${configLine("FOUNDATION_POLICY_URL", config.FOUNDATION_POLICY_URL)}
-          ${configLine("PANACEA_API_BASE_URL", config.PANACEA_API_BASE_URL)}
-          ${configLine("PANACEA_ENABLE_DEMO_MODE", String(config.PANACEA_ENABLE_DEMO_MODE))}
-        </div>
-      </section>
+      ${missing.length ? `<section class="band"><div class="alert danger"><strong>${escapeHtml(l("Secure access configuration incomplete"))}</strong><p>${escapeHtml(l("Please contact the system operator to complete Foundation provider configuration."))}</p></div></section>` : ""}
     </div>
   `;
 }
@@ -698,7 +697,7 @@ function renderModuleGroupPage(title: string, description: string, modules: Modu
         ${renderModuleTiles(modules, data)}
       </section>
       <section class="band">
-        <h2>${escapeHtml(l("Visibility Matrix"))}</h2>
+        <h2>${escapeHtml(l("Pilot Capability View"))}</h2>
         ${renderModuleTable(modules, data)}
       </section>
     </div>
@@ -710,35 +709,34 @@ function renderModuleDetailPage(data: AppData, serviceId: string): string {
   const service = data.services.find((item) => item.id === serviceId);
   if (!module || !service) return renderModuleGroupPage("Module", "No matching runtime service found.", [], data);
   const docs = relatedDocs(data, module);
-  const apiDoc = data.openApiDocuments.find((document) => document.relativePath === `services/${service.id}/docs/openapi.json`);
   return `
     <div class="page-grid">
-      ${renderPageHeader(module.title, module.summary, module.status, "Workflow")}
+      ${renderPageHeader(module.title, module.summary, professionalModuleStatus(module.status), "Workflow")}
       <section class="metric-grid">
-        ${metric("API paths", String(service.pathCount), `${service.endpointCount} operations`, "Braces", "info")}
-        ${metric("Database", service.hasMigration ? "Migration present" : "No migration", service.migrations.join(", "), "Database", service.hasMigration ? "success" : "warn")}
-        ${metric("Runtime", service.runtimeStatus, `Port ${service.localPort}`, "ServerCog", "success")}
-        ${metric("Tests", `${service.testFiles} files`, "Unit, integration, contract", "TestTube2", "success")}
+        ${metric("Capability Status", professionalModuleStatus(module.status), "Visible in controlled pilot", "BadgeCheck", module.hasUi ? "success" : "warn")}
+        ${metric("Governance", "Auditable", "Actions remain policy-controlled", "ShieldCheck", "success")}
+        ${metric("Data Boundary", "Tenant Aware", "Organization separation remains enforced", "Building2", "success")}
+        ${metric("Validation", service.testFiles ? "Validated" : "Needs Review", "Evidence retained in Operator Center", "TestTube2", service.testFiles ? "success" : "warn")}
       </section>
       <section class="band two-column">
         <div>
           <h2>${escapeHtml(l("How To Use"))}</h2>
-          <p>Start the runtime profile, then open the documented runtime status and OpenAPI endpoints below. POST operations require valid Foundation authentication and tenant headers in real use.</p>
+          <p>${escapeHtml(l("Use this area as a professional view of the governed platform capability. Technical contracts, ports, and route evidence are kept in the Operator Center."))}</p>
           <div class="link-list">
-            ${runtimeCheckLinks(service)}
+            <p class="link-line"><strong>${escapeHtml(l("Primary workspace"))}</strong><a href="#${module.route}">${escapeHtml(l(module.title))}</a></p>
+            <p class="link-line"><strong>${escapeHtml(l("Operator evidence"))}</strong><a href="#/command/system-health">${escapeHtml(l("System Operations"))}</a></p>
           </div>
         </div>
         <div>
           <h2>${escapeHtml(l("Safety Boundary"))}</h2>
-          <p>This UI exposes service contracts and release evidence only. It does not perform diagnosis, treatment, autonomous clinical actions, or AI reasoning expansion.</p>
+          <p>${escapeHtml(l("This UI does not perform diagnosis, treatment, autonomous clinical action, or AI reasoning expansion."))}</p>
           <ul class="check-list">
-            <li><i data-lucide="CheckCircle2"></i> Tenant-aware API contracts</li>
-            <li><i data-lucide="CheckCircle2"></i> Audit and event evidence</li>
-            <li><i data-lucide="CheckCircle2"></i> Human governance preserved</li>
+            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Organization boundary controls"))}</li>
+            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Audit and evidence retained"))}</li>
+            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Human governance preserved"))}</li>
           </ul>
         </div>
       </section>
-      ${apiDoc ? renderEndpointPreview(apiDoc.endpoints.slice(0, 8)) : ""}
       <section class="band">
         <h2>${escapeHtml(l("Related Documentation"))}</h2>
         ${renderDocList(docs.slice(0, 8))}
@@ -843,37 +841,42 @@ function renderDocumentationCenter(data: AppData, state: RenderState): string {
   `;
 }
 
-function renderDemoMode(data: AppData): string {
+function renderDemoMode(_data: AppData): string {
   return `
     <div class="page-grid">
-      ${renderPageHeader("Demo Mode", "The fastest safe way to see Panacea OS without adding new backend behavior.", "Operator demo", "MonitorPlay")}
+      ${renderPageHeader("Controlled Pilot Access", "A safe presentation mode for reviewing Panacea OS without real patient data or clinical production approval.", "Controlled Pilot", "MonitorPlay")}
       <section class="band two-column">
         <div>
-          <h2>${escapeHtml(l("Start Local Runtime"))}</h2>
-          <pre><code>docker compose -f infra/docker-compose/runtime/docker-compose.yml up --build -d</code></pre>
-          <p>Then open this web app and the active service OpenAPI URLs. All demo requests should use test tenant values and non-PHI payloads.</p>
+          <h2>${escapeHtml(l("Pilot Review Mode"))}</h2>
+          <p>${escapeHtml(l("Use the role workspaces to review the hospital experience with synthetic data, clear safety boundaries, and no real patient information."))}</p>
+          <ul class="check-list">
+            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Demo Data — Not Real Patient Data"))}</li>
+            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Human Approval Required"))}</li>
+            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Controlled Pilot — No Real Patient Data Without Approval"))}</li>
+          </ul>
         </div>
         <div>
-          <h2>${escapeHtml(l("Validate Current Checkout"))}</h2>
-          <pre><code>npm run check
-npm run test:run
-npm run openapi
-npm run web:check
-npm run web:build</code></pre>
+          <h2>${escapeHtml(l("Operator Validation"))}</h2>
+          <p>${escapeHtml(l("Operational commands, deployment verification, and technical evidence remain in the controlled operator documentation package."))}</p>
+          <div class="quick-actions">
+            <a class="button primary" href="#/command/system-health"><i data-lucide="Activity"></i> ${escapeHtml(l("System Operations"))}</a>
+            <a class="button" href="#/evidence/release"><i data-lucide="FileCheck2"></i> ${escapeHtml(l("Compliance Evidence"))}</a>
+          </div>
         </div>
       </section>
       <section class="band">
-        <h2>${escapeHtml(l("Open These First"))}</h2>
-        <div class="endpoint-grid">
-          ${data.services.slice(0, 6).map((service) => `
-            <article class="endpoint-card">
-              <h3>${escapeHtml(service.title)}</h3>
-              ${runtimeCheckLinks(service)}
-            </article>
-          `).join("")}
+        <h2>${escapeHtml(l("Recommended Pilot Walkthrough"))}</h2>
+        ${renderRoleEntryGrid()}
+      </section>
+      <section class="band">
+        <div class="section-title">
+          <div>
+            <h2>${escapeHtml(l("Demo Access Plan"))}</h2>
+            <p>${escapeHtml(l("The detailed operator runbook remains available in the documentation center for authorized technical review."))}</p>
+          </div>
+          <a class="button compact" href="#/developer/documentation"><i data-lucide="BookOpen"></i> ${escapeHtml(l("Documentation Center"))}</a>
         </div>
       </section>
-      ${renderDocumentView(findDoc(data, "docs/user-guides/Demo_Access_Plan.md"), "Demo Access Plan")}
     </div>
   `;
 }
@@ -931,23 +934,22 @@ function renderPageHeader(title: string, description: string, status: string, ic
   `;
 }
 
-function renderModuleTiles(modules: ModuleVisibility[], data: AppData): string {
+function renderModuleTiles(modules: ModuleVisibility[], _data: AppData): string {
   if (modules.length === 0) return "<p>No module records match this page.</p>";
   return `<div class="module-grid">
     ${modules.map((module) => {
-      const service = module.serviceId ? data.services.find((item) => item.id === module.serviceId) : undefined;
       return `
         <article class="module-card">
           <div class="module-card-top">
-            <span class="status-pill ${statusClass(module.status)}">${escapeHtml(l(module.status))}</span>
+            <span class="status-pill ${statusClass(module.status)}">${escapeHtml(l(professionalModuleStatus(module.status)))}</span>
             <span>${escapeHtml(l(module.category))}</span>
           </div>
           <h3>${escapeHtml(l(module.title))}</h3>
           <p>${escapeHtml(l(module.summary))}</p>
           <div class="module-facts">
-            <span>${escapeHtml(l(module.hasUi ? "UI visible" : "No role UI"))}</span>
-            <span>${escapeHtml(l(module.hasApi ? "API" : "Docs"))}</span>
-            <span>${module.hasOpenApi ? `${service?.pathCount ?? 0} ${escapeHtml(l("paths"))}` : escapeHtml(l("No OpenAPI"))}</span>
+            <span>${escapeHtml(l(module.hasUi ? "Workspace visible" : "Documented capability"))}</span>
+            <span>${escapeHtml(l(module.hasApi ? "Governed backend available" : "Documentation-backed"))}</span>
+            <span>${escapeHtml(l(module.userVisible ? "User-visible" : "Operator evidence only"))}</span>
           </div>
           <a class="button compact" href="#${module.route}"><i data-lucide="ArrowRight"></i> ${escapeHtml(l("Open"))}</a>
         </article>
@@ -960,19 +962,17 @@ function renderModuleTable(modules: ModuleVisibility[], data: AppData): string {
   return `
     <div class="table-wrap">
       <table>
-        <thead><tr><th>${escapeHtml(l("Platform"))}</th><th>${escapeHtml(l("UI"))}</th><th>${escapeHtml(l("API"))}</th><th>OpenAPI</th><th>${escapeHtml(l("Migration"))}</th><th>Docker</th><th>${escapeHtml(l("Tests"))}</th><th>${escapeHtml(l("User visible"))}</th></tr></thead>
+        <thead><tr><th>${escapeHtml(l("Platform"))}</th><th>${escapeHtml(l("Workspace"))}</th><th>${escapeHtml(l("Backend availability"))}</th><th>${escapeHtml(l("Governance"))}</th><th>${escapeHtml(l("Evidence"))}</th><th>${escapeHtml(l("User-visible"))}</th></tr></thead>
         <tbody>
           ${modules.map((module) => {
             const service = module.serviceId ? data.services.find((item) => item.id === module.serviceId) : undefined;
             return `<tr>
-              <td><strong>${escapeHtml(l(module.title))}</strong><small>${escapeHtml(l(module.status))}</small></td>
-              <td>${yesNo(module.hasUi)}</td>
-              <td>${yesNo(module.hasApi)}</td>
-              <td>${yesNo(module.hasOpenApi)}${service ? `<small>${service.pathCount} ${escapeHtml(l("paths"))}</small>` : ""}</td>
-              <td>${yesNo(module.hasDatabaseMigration)}</td>
-              <td>${yesNo(module.hasDockerRuntime)}</td>
-              <td>${yesNo(module.hasTests)}</td>
-              <td>${yesNo(module.userVisible)}</td>
+              <td><strong>${escapeHtml(l(module.title))}</strong><small>${escapeHtml(l(professionalModuleStatus(module.status)))}</small></td>
+              <td>${escapeHtml(l(module.hasUi ? "Available" : "Documented"))}</td>
+              <td>${escapeHtml(l(module.hasApi ? "Governed backend available" : "Documentation-backed"))}</td>
+              <td>${escapeHtml(l(module.hasDatabaseMigration ? "Auditable and tenant aware" : "Reviewed in documentation"))}</td>
+              <td>${escapeHtml(l(service?.testFiles ? "Validated evidence available" : "Needs operator review"))}</td>
+              <td>${escapeHtml(l(module.userVisible ? "YES" : "NO"))}</td>
             </tr>`;
           }).join("")}
         </tbody>
@@ -1033,8 +1033,8 @@ function renderDocList(documents: MarkdownDocument[]): string {
     ${documents.map((doc) => `
       <article class="doc-card">
         <h3>${escapeHtml(l(doc.title))}</h3>
-        <p>${escapeHtml(l(doc.excerpt || "Documentation available in repository."))}</p>
-        <code dir="ltr">${escapeHtml(doc.relativePath)}</code>
+        <p>${escapeHtml(l("Professional documentation is available for authorized operator review."))}</p>
+        <span class="doc-availability">${escapeHtml(l("Documentation available in Operator Center"))}</span>
       </article>
     `).join("")}
   </div>`;
@@ -1174,8 +1174,7 @@ function providerDiscoveryList(discovery: ProviderLoginDiscoveryResult): string 
           <span class="status-pill ${check.status === "available" ? "success" : check.status === "missing" ? "warn" : "danger"}">${escapeHtml(l(check.status))}</span>
           <div>
             <strong>${escapeHtml(l(check.label))}</strong>
-            <a class="ltr-text" dir="ltr" href="${escapeAttribute(check.url)}" target="_blank" rel="noreferrer">${escapeHtml(check.url)}</a>
-            <small>${escapeHtml(check.httpStatus ? `HTTP ${check.httpStatus} · ${check.detail}` : check.detail)}</small>
+            <small>${escapeHtml(l(professionalAvailabilityDetail(check.status, check.detail)))}</small>
           </div>
         </article>
       `).join("")}
@@ -1188,8 +1187,8 @@ function allowlistSummaryGrid(summary: Record<BrowserApiClassification, number>)
     <div class="config-grid">
       ${Object.entries(summary).map(([label, value]) => `
         <article class="config-item">
-          <strong>${escapeHtml(l(label))}</strong>
-          <code>${escapeHtml(value)}</code>
+          <strong>${escapeHtml(l(professionalAllowlistLabel(label as BrowserApiClassification)))}</strong>
+          <span>${escapeHtml(value)}</span>
         </article>
       `).join("")}
     </div>
@@ -1285,6 +1284,44 @@ function statusClass(status: string): string {
   if (normalized.includes("unauthorized") || normalized.includes("unavailable")) return "danger";
   if (normalized.includes("documentation") || normalized.includes("evidence") || normalized.includes("pending") || normalized.includes("degraded")) return "warn";
   return "neutral";
+}
+
+function professionalModuleStatus(status: string): string {
+  if (status === "Active API") return "Operational capability";
+  if (status === "Evidence-backed") return "Evidence-backed";
+  if (status === "Documentation-backed") return "Documentation-backed";
+  return status;
+}
+
+function professionalAuthRecommendation(value: string): string {
+  const normalized = value.toLowerCase();
+  if (normalized.includes("operator jwt") || normalized.includes("token")) return "Operator validation required";
+  if (normalized.includes("available")) return "Provider sign-in available";
+  return "Operator review required";
+}
+
+function professionalAvailabilityDetail(status: string, detail: string): string {
+  if (status === "available") return "Available for approved provider sign-in.";
+  if (status === "missing") return "Not currently exposed by the provider.";
+  if (detail.toLowerCase().includes("failed") || detail.toLowerCase().includes("network")) {
+    return "The system could not reach this provider check.";
+  }
+  return "Provider capability checked.";
+}
+
+function professionalAllowlistLabel(label: BrowserApiClassification): string {
+  const labels: Record<BrowserApiClassification, string> = {
+    ALLOWED_READ: "Approved read-only access",
+    ALLOWED_LIVE_WRITE: "Approved live workflow access",
+    ALLOWED_OPERATOR_TEST: "Operator test access",
+    ALLOWED_OPERATOR_ACTION: "Operator action access",
+    BLOCKED_WRITE: "Blocked unsafe write attempts",
+    BLOCKED_CLINICAL_ACTION: "Blocked clinical action attempts",
+    BLOCKED_ADMIN_DANGEROUS: "Blocked sensitive admin attempts",
+    SERVER_ONLY: "Server-only operations",
+    UNKNOWN: "Unrecognized browser requests"
+  };
+  return labels[label];
 }
 
 function pageTitle(route: string): string {

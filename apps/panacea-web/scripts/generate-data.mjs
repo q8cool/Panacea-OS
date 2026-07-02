@@ -213,6 +213,13 @@ function runtimeChecksForService({ serviceOpenApi, hostPort }) {
   return checks;
 }
 
+function hostPortFromBinding(binding = "") {
+  const clean = binding.replace(/^['"]|['"]$/g, "");
+  const parts = clean.split(":");
+  if (parts.length >= 3) return parts[parts.length - 2];
+  return parts[0] ?? "";
+}
+
 function runtimeUrlForKind(runtimeChecks, kind) {
   return runtimeChecks.find((check) => check.kind === kind)?.url ?? "";
 }
@@ -238,7 +245,7 @@ function loadServices(openApiDocuments) {
       ? fs.readdirSync(testsPath).filter((file) => file.endsWith(".mjs")).sort()
       : [];
     const portMatch = compose.match(new RegExp(`${name}[\\s\\S]*?ports:\\n\\s+- "([^"]+)"`));
-    const hostPort = portMatch?.[1]?.split(":")[0] ?? "";
+    const hostPort = hostPortFromBinding(portMatch?.[1] ?? "");
     const runtimeChecks = runtimeChecksForService({ serviceOpenApi, hostPort });
     return {
       id: name,

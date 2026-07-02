@@ -18,11 +18,11 @@ export const navSections: NavSection[] = [
     title: "Command",
     items: [
       { label: "Executive Overview", route: "/command/executive-overview", icon: "LayoutDashboard", keywords: ["release", "overview", "status"] },
-      { label: "Foundation Login", route: "/auth/login", icon: "KeyRound", keywords: ["login", "jwt", "jwks", "tenant", "role"] },
-      { label: "System Health", route: "/command/system-health", icon: "Activity", keywords: ["health", "readiness", "metrics"] },
-      { label: "Live API Status", route: "/command/live-status", icon: "Wifi", keywords: ["live", "api", "cors", "polling"] },
+      { label: "Secure Access", route: "/auth/login", icon: "KeyRound", keywords: ["login", "secure", "tenant", "role"] },
+      { label: "System Operations", route: "/command/system-health", icon: "Activity", keywords: ["health", "readiness", "metrics"] },
+      { label: "Operational Connectivity", route: "/command/live-status", icon: "Wifi", keywords: ["live", "api", "cors", "polling"] },
       { label: "Command Intelligence", route: "/command/global-command", icon: "Radar", keywords: ["command", "alerts", "crisis"] },
-      { label: "Transaction Review", route: "/command/transaction-review", icon: "ListChecks", keywords: ["projection", "event", "transaction", "audit"] },
+      { label: "Transaction Evidence", route: "/command/transaction-review", icon: "ListChecks", keywords: ["projection", "event", "transaction", "audit"] },
       { label: "Foundation Provider", route: "/command/foundation-provider", icon: "ShieldCheck", keywords: ["foundation", "jwks", "audit", "policy"] }
     ]
   },
@@ -54,11 +54,11 @@ export const navSections: NavSection[] = [
     ]
   },
   {
-    title: "Developer",
+    title: "Operator Center",
     items: [
-      { label: "API Explorer", route: "/developer/api-explorer", icon: "Braces", keywords: ["openapi", "endpoint", "curl"] },
+      { label: "API Contract Explorer", route: "/developer/api-explorer", icon: "Braces", keywords: ["openapi", "endpoint", "curl"] },
       { label: "Documentation Center", route: "/developer/documentation", icon: "BookOpen", keywords: ["docs", "guide", "manual"] },
-      { label: "Demo Mode", route: "/developer/demo-mode", icon: "MonitorPlay", keywords: ["demo", "operator", "run"] }
+      { label: "Controlled Pilot Access", route: "/developer/demo-mode", icon: "MonitorPlay", keywords: ["demo", "operator", "run"] }
     ]
   },
   {

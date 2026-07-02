@@ -29,12 +29,14 @@ const providerKeyPair = crypto.generateKeyPairSync("rsa", {
 });
 
 describe("Panacea web platform", () => {
-  it("renders the executive overview with real release evidence", () => {
+  it("renders the executive overview as a professional controlled-pilot hospital interface", () => {
     const html = renderRoute(data, "/command/executive-overview", initialState);
     expect(html).toContain("Executive Overview");
-    expect(html).toContain("OFFICIALLY RELEASED");
-    expect(html).toContain(String(data.services.length));
-    expect(html).toContain("Explore APIs");
+    expect(html).toContain("UTBE Controlled Pilot");
+    expect(html).toContain("Hospital Workspace Launchpad");
+    expect(html).toContain("Clinical Operations");
+    expect(html).toContain("Patient Care");
+    expect(html).toContain("No Real Patient Data");
   });
 
   it("loads English and Arabic locale dictionaries", () => {
@@ -63,9 +65,9 @@ describe("Panacea web platform", () => {
     expect(arabic).toContain("مساحات العمل حسب الدور");
   });
 
-  it("renders active service health and OpenAPI links", () => {
+  it("keeps active service technical health details in the operator system area", () => {
     const html = renderRoute(data, "/command/system-health", initialState);
-    expect(html).toContain("Runtime Service Matrix");
+    expect(html).toContain("Runtime Service Evidence");
     expect(html).toContain("http://localhost:18095");
     expect(html).toContain("docs/openapi.json");
   });
@@ -181,7 +183,7 @@ describe("Panacea web platform", () => {
       ...initialState,
       selectedRole: "doctor"
     });
-    expect(html).toContain("Demo Role Switcher");
+    expect(html).toContain("Pilot Role View");
     expect(html).toContain("Doctor");
     expect(html).toContain("Patient");
     expect(html).toContain("Administrator");
@@ -202,9 +204,9 @@ describe("Panacea web platform", () => {
         selectedRole: workspace.id
       });
       expect(html).toContain(workspace.title);
-      expect(html).toContain("DEMO DATA -- NOT REAL PATIENT DATA");
+      expect(html).toContain("DEMO DATA — NOT REAL PATIENT DATA");
       expect(html).toContain("Workflow Timeline");
-      expect(html).toContain("API And Documentation Sources");
+      expect(html).toContain("Governance And Evidence");
     }
   });
 
@@ -233,7 +235,7 @@ describe("Panacea web platform", () => {
       const html = renderRoute(data, route, initialState);
       expect(html).toContain("Worklist");
       expect(html).toContain("Read-only");
-      expect(html).toContain("Live data unavailable");
+      expect(html).toContain("Service temporarily unavailable.");
       expect(html).not.toContain("No module records match this page");
     }
   });
@@ -265,17 +267,102 @@ describe("Panacea web platform", () => {
     expect(renderRoute(data, "/workspace/administrator/audit-logs", initialState)).toContain("Audit Logs");
   });
 
-  it("renders the Foundation login screen and operator token mode", () => {
+  it("renders the secure access screen without raw configuration keys", () => {
     const html = renderRoute(data, "/auth/login", {
       ...initialState,
       webConfig: config
     });
-    expect(html).toContain("Foundation Login");
+    expect(html).toContain("Secure Access");
     expect(html).toContain("Provider Login");
-    expect(html).toContain("Operator Token Mode");
+    expect(html).toContain("Operator Token Validation");
     expect(html).toContain("Sign In With Foundation");
-    expect(html).toContain("Paste Foundation-issued JWT");
-    expect(html).toContain("FOUNDATION_JWKS_URL");
+    expect(html).toContain("Foundation Security Token");
+    expect(html).not.toContain("FOUNDATION_JWKS_URL");
+  });
+
+  it("keeps general product pages free of raw technical artifacts", () => {
+    const generalRoutes = [
+      "/command/executive-overview",
+      "/auth/login",
+      "/workspace/doctor/dashboard",
+      "/workspace/patient/dashboard",
+      "/enterprise/workforce",
+      "/clinical/modules",
+      "/developer/demo-mode"
+    ];
+    const forbidden = [
+      "http://localhost",
+      "/api/v",
+      "curl -X",
+      "<pre><code>",
+      "FOUNDATION_",
+      "PANACEA_",
+      ".openapi.json",
+      "docs/openapi.json"
+    ];
+
+    for (const route of generalRoutes) {
+      const html = renderRoute(data, route, initialState);
+      for (const marker of forbidden) {
+        expect(html, `${route} exposes ${marker}`).not.toContain(marker);
+      }
+    }
+  });
+
+  it("keeps technical evidence available inside operator-only areas", () => {
+    const system = renderRoute(data, "/command/system-health", initialState);
+    const explorer = renderRoute(data, "/developer/api-explorer", {
+      ...initialState,
+      apiQuery: "live",
+      apiMethod: "GET"
+    });
+    expect(system).toContain("http://localhost");
+    expect(system).toContain("docs/openapi.json");
+    expect(explorer).toContain("curl -X GET");
+    expect(explorer).toContain("/api/v");
+  });
+
+  it("renders professional pilot badges, role cards, Arabic labels, and friendly error states", () => {
+    const home = renderRoute(data, "/command/executive-overview", initialState);
+    expect(home).toContain("Controlled Pilot");
+    expect(home).toContain("Demo Data — Not Real Patient Data");
+    expect(home).toContain("Human Approval Required");
+    expect(home).toContain("Clinical Operations");
+    expect(home).toContain("Medication Management");
+
+    const arabic = renderApp(data, "/command/executive-overview", {
+      ...initialState,
+      language: "ar"
+    });
+    expect(arabic).toContain("التشغيل التجريبي المحكوم على UTBE");
+    expect(arabic).toContain("رعاية المرضى");
+    expect(arabic).toContain("مركز المشغل");
+
+    const unavailable = renderRoute(data, "/workspace/doctor/dashboard", {
+      ...initialState,
+      authSession: sessionFor("doctor"),
+      liveWorkspaceState: {
+        endpoint: {
+          label: "Service health",
+          method: "GET",
+          url: "",
+          source: "contract",
+          available: false,
+          reason: "Live API unavailable"
+        },
+        result: {
+          requestId: "friendly-error",
+          method: "GET",
+          url: "",
+          state: "unavailable",
+          detail: "Failed to fetch",
+          checkedAt: new Date().toISOString()
+        }
+      }
+    });
+    expect(unavailable).toContain("Service temporarily unavailable.");
+    expect(unavailable).toContain("The system could not reach this service. Please contact the system operator if this continues.");
+    expect(unavailable).not.toContain("Failed to fetch");
   });
 
   it("provider auth endpoints are derived from Foundation base URL", () => {
@@ -446,7 +533,7 @@ describe("Panacea web platform", () => {
     expect(html).toContain("Live Mode");
     expect(html).toContain("Role From Token");
     expect(html).toContain("disabled");
-    expect(html).toContain(session.tenantId);
+    expect(html).toContain("Secure Session");
   });
 
   it("API client adds Authorization, tenant, and request correlation headers", async () => {
@@ -604,7 +691,7 @@ describe("Panacea web platform", () => {
     expect(html).toContain("unavailable");
   });
 
-  it("renders allowlist and CORS readiness status on the login page", () => {
+  it("renders browser access policy status on the login page", () => {
     const html = renderRoute(data, "/auth/login", {
       ...initialState,
       webConfig: config,
@@ -620,9 +707,9 @@ describe("Panacea web platform", () => {
         UNKNOWN: 0
       }
     });
-    expect(html).toContain("Browser API Allowlist");
-    expect(html).toContain("CORS readiness");
-    expect(html).toContain("ALLOWED_READ");
+    expect(html).toContain("Browser Access Policy");
+    expect(html).toContain("Approved read-only access");
+    expect(html).not.toContain("ALLOWED_READ");
   });
 
   it("renders live workspace unavailable states without presenting demo rows as live data", () => {
@@ -651,11 +738,10 @@ describe("Panacea web platform", () => {
       authSession: sessionFor("patient"),
       liveWorkspaceState
     });
-    expect(html).toContain("LIVE MODE -- AUTHENTICATED READ-ONLY SESSION");
-    expect(html).toContain("LIVE API UNAVAILABLE");
-    expect(html).toContain("Live Read Model");
-    expect(html).toContain("Live API unavailable");
-    expect(html).toContain("ALLOWED_READ");
+    expect(html).toContain("Live Mode — Authenticated Read-Only Session");
+    expect(html).toContain("Service temporarily unavailable.");
+    expect(html).toContain("Live Records");
+    expect(html).toContain("Approved read-only access");
     expect(html).not.toContain("Rows are UI-state examples");
     expect(html).not.toContain("Patient Portal Demo");
     expect(html).not.toContain("Cardiology Clinic");
@@ -702,9 +788,9 @@ describe("Panacea web platform", () => {
     });
     expect(live).toContain("Transactional Write Workflow");
     expect(live).toContain("Submit Live Write");
-    expect(live).toContain("patient.created");
-    expect(live).toContain("Projection Status");
-    expect(live).toContain("clinical.patients.patient-live-001=projected");
+    expect(live).toContain("Governed transaction accepted");
+    expect(live).toContain("Synchronization Status");
+    expect(live).not.toContain("clinical.patients.patient-live-001=projected");
 
     const arabicDemo = renderRoute(data, "/workspace/laboratory/result-entry", {
       ...initialState,
@@ -759,11 +845,12 @@ describe("Panacea web platform", () => {
       authSession: sessionFor("doctor"),
       liveWorkspaceState
     });
-    expect(html).toContain("Live Read Model");
+    expect(html).toContain("Live Records");
     expect(html).toContain("Live Read Patient");
-    expect(html).toContain("LIVE READ MODEL");
+    expect(html).toContain("Service Online");
     expect(html).not.toContain("Demo Patient Alpha");
     expect(html).not.toContain("Doctor Patient Search");
+    expect(html).not.toContain("patientId:");
   });
 
   it("renders Sprint 115 pilot journey evidence across live role workspaces", () => {
@@ -890,11 +977,11 @@ describe("Panacea web platform", () => {
         authSession: { ...sessionFor(item.role), permissions: ["read", "global_command_intelligence.write_workflows.write"] },
         liveWorkspaceState
       });
-      expect(html).toContain("LIVE MODE -- AUTHENTICATED READ-ONLY SESSION");
-      expect(html).toContain("Live Read Model");
+      expect(html).toContain("Live Mode — Authenticated Read-Only Session");
+      expect(html).toContain("Live Records");
       expect(html).toContain(item.title);
-      expect(html).toContain(item.write);
-      expect(html).toContain(item.projection);
+      expect(html).toContain("Governed transaction accepted");
+      expect(html).not.toContain(item.projection);
       expect(html).not.toContain("Rows are UI-state examples");
     }
   });
@@ -1014,7 +1101,7 @@ describe("Panacea web platform", () => {
         }
       }
     });
-    expect(partial).toContain("LIVE PARTIAL");
+    expect(partial).toContain("Connection Pending");
 
     const authBlocked = renderRoute(data, "/workspace/doctor/dashboard", {
       ...baseState,
@@ -1031,7 +1118,7 @@ describe("Panacea web platform", () => {
         }
       }
     });
-    expect(authBlocked).toContain("BLOCKED BY AUTH");
+    expect(authBlocked).toContain("Secure Session Required");
 
     const corsBlocked = renderRoute(data, "/workspace/doctor/dashboard", {
       ...baseState,
@@ -1047,14 +1134,14 @@ describe("Panacea web platform", () => {
         }
       }
     });
-    expect(corsBlocked).toContain("BLOCKED BY CORS");
+    expect(corsBlocked).toContain("Browser Access Policy Blocked");
   });
 
-  it("renders the operator operational demo board with quick workspace access", () => {
+  it("renders the professional hospital workspace launchpad with quick workspace access", () => {
     const html = renderRoute(data, "/command/executive-overview", initialState);
-    expect(html).toContain("Operator Live Demo Board");
-    expect(html).toContain("Panacea Gulf Demo Hospital");
-    expect(html).toContain("DEMO DATA — NOT REAL PATIENT DATA");
+    expect(html).toContain("Hospital Workspace Launchpad");
+    expect(html).toContain("UTBE Controlled Pilot hospital operating interface");
+    expect(html).toContain("Demo Data — Not Real Patient Data");
     expect(html).toContain("#/workspace/doctor/dashboard");
     expect(html).toContain("#/workspace/administrator/dashboard");
   });

@@ -77,8 +77,8 @@ function roleHeader(workspace: RoleWorkspaceDefinition, page: RolePageDefinition
         <h2>${escapeHtml(l(page.label))}</h2>
         <p>${escapeHtml(l(page.description))}</p>
         <div class="role-hero-facts">
-          <span><i data-lucide="Database"></i>${serviceCount} ${escapeHtml(l("active source service(s)"))}</span>
-          <span><i data-lucide="BookOpen"></i>${docCount} ${escapeHtml(l("related document(s)"))}</span>
+          <span><i data-lucide="Database"></i>${serviceCount} ${escapeHtml(l("governed backend source(s)"))}</span>
+          <span><i data-lucide="BookOpen"></i>${docCount} ${escapeHtml(l("evidence reference(s)"))}</span>
           <span><i data-lucide="ShieldCheck"></i>${escapeHtml(l(workspace.boundary))}</span>
         </div>
       </div>
@@ -118,8 +118,8 @@ function modeNotice(workspace: RoleWorkspaceDefinition, context: RoleRenderConte
       <section class="demo-notice live">
         <i data-lucide="ShieldCheck"></i>
         <div>
-          <strong>${escapeHtml(l("LIVE MODE -- AUTHENTICATED READ-ONLY SESSION"))}</strong>
-          <p>${escapeHtml(l("User"))} ${escapeHtml(context.session.displayName)} ${escapeHtml(l("is scoped to role"))} ${escapeHtml(l(context.session.role))} ${escapeHtml(l("and tenant"))} ${escapeHtml(context.session.tenantId)}. ${escapeHtml(l("Demo role switching is disabled for this session."))}</p>
+          <strong>${escapeHtml(l("Live Mode — Authenticated Read-Only Session"))}</strong>
+          <p>${escapeHtml(l("User"))} ${escapeHtml(context.session.displayName)} ${escapeHtml(l("is scoped to role"))} ${escapeHtml(l(context.session.role))}. ${escapeHtml(l("Pilot role switching is disabled for this session."))}</p>
         </div>
       </section>
     `;
@@ -143,7 +143,7 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
         <div class="section-title">
           <div>
             <h2>${escapeHtml(l("Live Data Connection"))}</h2>
-            <p>${escapeHtml(l("Data source:"))} ${escapeHtml(l(page.source))}. ${escapeHtml(l("Demo Mode is active. Open Foundation Login and provide a valid JWT to execute read-only API checks."))}</p>
+            <p>${escapeHtml(l("Controlled pilot view is active. Open Secure Access and provide approved Foundation credentials to use live read-only checks."))}</p>
           </div>
           <span class="status-pill ${connection.className}">${escapeHtml(l(connection.label))}</span>
           <a class="button compact" href="#/auth/login"><i data-lucide="KeyRound"></i> ${escapeHtml(l("Foundation Login"))}</a>
@@ -158,7 +158,7 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
         <div class="section-title">
           <div>
             <h2>${escapeHtml(l("Live Data Connection"))}</h2>
-            <p>${escapeHtml(l("Data source:"))} ${escapeHtml(l(page.source))}. ${escapeHtml(l("Waiting for read-only API evaluation for this workspace page."))}</p>
+            <p>${escapeHtml(l("Waiting for the authenticated service evaluation for this workspace page."))}</p>
           </div>
           <span class="status-pill ${connection.className}">${escapeHtml(l(connection.label))}</span>
         </div>
@@ -170,26 +170,25 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
       <div class="section-title">
           <div>
             <h2>${escapeHtml(l("Live Data Connection"))}</h2>
-            <p>${escapeHtml(l("Data source:"))} ${escapeHtml(l(page.source))}. ${escapeHtml(l(state.endpoint.reason))}</p>
+            <p>${escapeHtml(l(professionalEndpointReason(state.endpoint.reason)))}</p>
         </div>
         <span class="status-pill ${connection.className}">${escapeHtml(l(connection.label))}</span>
       </div>
       <div class="role-source-grid">
         <div class="source-list">
           <article>
-            <strong>${escapeHtml(l(state.endpoint.label))}</strong>
-            <span class="ltr-text" dir="ltr">${escapeHtml(state.endpoint.url || l("Live API unavailable"))}</span>
-            <span class="ltr-text" dir="ltr">${escapeHtml(state.endpoint.source)}</span>
+            <strong>${escapeHtml(l("Connection Scope"))}</strong>
+            <span>${escapeHtml(l(state.endpoint.available ? "Approved live read-only service check" : "Service temporarily unavailable."))}</span>
+            <span>${escapeHtml(l("Technical details are available in Operator Center."))}</span>
           </article>
         </div>
         <div class="source-list">
           ${state.result ? `
             <article>
-              <strong>${escapeHtml(state.result.httpStatus ? `HTTP ${state.result.httpStatus}` : state.result.state)}</strong>
-              <span>${escapeHtml(l(state.result.detail))}</span>
+              <strong>${escapeHtml(l(professionalConnectionState(state.result.state, state.result.httpStatus)))}</strong>
+              <span>${escapeHtml(l(friendlyResultDetail(state.result.detail, state.result.blockedReason)))}</span>
               ${state.result.blockedReason ? `<span>${escapeHtml(l(state.result.blockedReason))}</span>` : ""}
-              ${state.result.allowlistClassification ? `<span>${escapeHtml(state.result.allowlistClassification)}</span>` : ""}
-              <span class="ltr-text" dir="ltr">${escapeHtml(state.result.requestId)}</span>
+              ${state.result.allowlistClassification ? `<span>${escapeHtml(l(professionalAccessClassification(state.result.allowlistClassification)))}</span>` : ""}
             </article>
           ` : `<article><strong>${escapeHtml(l("No response yet"))}</strong><span>${escapeHtml(l("Refresh or navigate to retry read-only API execution."))}</span></article>`}
         </div>
@@ -224,8 +223,8 @@ function roleLiveReadModel(workspace: RoleWorkspaceDefinition, page: RolePageDef
   if (result.state !== "online") {
     return liveReadModelShell(
       page,
-      result.httpStatus ? `HTTP ${result.httpStatus}` : result.state,
-      result.blockedReason || result.detail,
+      professionalConnectionState(result.state, result.httpStatus),
+      friendlyResultDetail(result.detail, result.blockedReason),
       statusClass(result.state)
     );
   }
@@ -233,27 +232,27 @@ function roleLiveReadModel(workspace: RoleWorkspaceDefinition, page: RolePageDef
   if (!readModel || readModel.demoData !== false) {
     return liveReadModelShell(
       page,
-      "Backend read model unavailable",
-      "The live endpoint responded, but did not return the expected read-model contract with demoData false.",
+      "Live records unavailable",
+      "The service responded, but did not return a governed live records package for this workspace.",
       "warn",
       result.bodyPreview
     );
   }
   const items = Array.isArray(readModel.items) ? readModel.items : [];
   const summary = [
-    metricMini("Live rows", String(items.length), "Tenant-scoped backend rows"),
-    metricMini("Tenant", String(readModel.tenantId ?? context.session?.tenantId ?? "Unknown"), "Authenticated scope"),
-    metricMini("Model", String(readModel.modelKey ?? page.id), String(readModel.workspace ?? workspace.id))
+    metricMini("Live records", String(items.length), "Authenticated workspace rows"),
+    metricMini("Organization Scope", String(readModel.tenantId ?? context.session?.tenantId ?? "Verified"), "Secure session boundary"),
+    metricMini("Workspace", String(readModel.workspace ?? workspace.id), "Role-scoped view")
   ].join("");
 
   return `
     <section class="band live-read-model">
       <div class="section-title">
         <div>
-          <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Live Read Model"))}</h2>
-          <p>${escapeHtml(l("Live Mode displays only authenticated backend read-model responses. Demo rows are not mixed with live data."))}</p>
+          <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Live Records"))}</h2>
+          <p>${escapeHtml(l("Live Mode displays only authenticated service records. Demo rows are not mixed with live data."))}</p>
         </div>
-        <span class="status-pill success">${escapeHtml(l("LIVE READ MODEL"))}</span>
+        <span class="status-pill success">${escapeHtml(l("Service Online"))}</span>
       </div>
       <div class="metric-grid">${summary}</div>
       ${items.length ? liveReadModelTable(items) : `
@@ -271,15 +270,15 @@ function liveReadModelShell(page: RolePageDefinition, title: string, detail: str
     <section class="band live-read-model">
       <div class="section-title">
         <div>
-          <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Live Read Model"))}</h2>
-          <p>${escapeHtml(l("Live Mode displays only authenticated backend read-model responses. Demo rows are not mixed with live data."))}</p>
+          <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Live Records"))}</h2>
+          <p>${escapeHtml(l("Live Mode displays only authenticated service records. Demo rows are not mixed with live data."))}</p>
         </div>
         <span class="status-pill ${escapeAttribute(tone)}">${escapeHtml(l(title))}</span>
       </div>
       <div class="empty-state compact">
         <i data-lucide="DatabaseZap"></i>
         <p>${escapeHtml(l(detail))}</p>
-        ${preview ? `<small class="ltr-text" dir="ltr">${escapeHtml(preview)}</small>` : ""}
+        ${preview ? `<small>${escapeHtml(l("Operator Center contains technical response details for this condition."))}</small>` : ""}
       </div>
     </section>
   `;
@@ -296,7 +295,7 @@ function liveReadModelTable(items: unknown[]): string {
       formatPayloadPreview(record.payload)
     ];
   });
-  return simpleTable(["Title", "Status", "Subject", "Updated", "Payload"], rows);
+  return simpleTable(["Record", "Status", "Scope", "Updated", "Summary"], rows);
 }
 
 function roleLiveWriteWorkflow(workspace: RoleWorkspaceDefinition, page: RolePageDefinition, context: RoleRenderContext): string {
@@ -320,21 +319,21 @@ function roleLiveWriteWorkflow(workspace: RoleWorkspaceDefinition, page: RolePag
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l("Transactional Write Workflow"))}</h2>
-          <p>${escapeHtml(l("Live writes require Foundation authentication, tenant isolation, RBAC/ABAC, validation, audit, and event outbox persistence."))}</p>
+          <p>${escapeHtml(l("Live submissions require approved identity, organization boundary checks, role access, validation, audit, and event recording."))}</p>
         </div>
-        <span class="status-pill ${endpoint.available ? "success" : "warn"}">${escapeHtml(l(endpoint.available ? "LIVE WRITE READY" : "LIVE WRITE UNAVAILABLE"))}</span>
+        <span class="status-pill ${endpoint.available ? "success" : "warn"}">${escapeHtml(l(endpoint.available ? "Submission Ready" : "Submission Unavailable"))}</span>
       </div>
       <div class="role-source-grid">
         <article class="source-list">
-          <strong>${escapeHtml(l(endpoint.label))}</strong>
-          <span class="ltr-text" dir="ltr">${escapeHtml(endpoint.url)}</span>
-          <span class="ltr-text" dir="ltr">${escapeHtml(endpoint.source)}</span>
+          <strong>${escapeHtml(l("Approved Workflow"))}</strong>
+          <span>${escapeHtml(l(professionalEndpointReason(endpoint.reason)))}</span>
+          <span>${escapeHtml(l("Technical route evidence is restricted to Operator Center."))}</span>
           <span>${escapeHtml(l("No autonomous diagnosis. No autonomous treatment. Human approval remains mandatory."))}</span>
         </article>
         <article class="source-list">
           <strong>${escapeHtml(l("Write Boundary"))}</strong>
-          <span>${escapeHtml(l("Only approved Sprint 113 transactional forms can submit POST requests from the browser."))}</span>
-          <span>${escapeHtml(l("Unknown or dangerous browser writes remain blocked by the allowlist."))}</span>
+          <span>${escapeHtml(l("Only approved controlled-pilot transactional forms can submit browser requests."))}</span>
+          <span>${escapeHtml(l("Unknown or unsafe browser writes remain blocked by policy."))}</span>
           <span>${escapeHtml(l(workspace.boundary))}</span>
         </article>
       </div>
@@ -400,16 +399,15 @@ function liveWriteResult(result: NonNullable<LiveWorkspaceState["writeResult"]>)
   const projections = extractWriteProjections(result.jsonBody);
   return `
     <div class="live-write-result ${result.state}">
-      <strong>${escapeHtml(result.httpStatus ? `HTTP ${result.httpStatus}` : result.state)}</strong>
-      <span>${escapeHtml(l(result.detail))}</span>
-      ${result.blockedReason ? `<span>${escapeHtml(l(result.blockedReason))}</span>` : ""}
+      <strong>${escapeHtml(l(professionalConnectionState(result.state, result.httpStatus)))}</strong>
+      <span>${escapeHtml(l(friendlyResultDetail(result.detail, result.blockedReason)))}</span>
+      ${result.blockedReason ? `<span>${escapeHtml(l("Please contact the system operator if this continues."))}</span>` : ""}
       ${record ? `
-        <span>${escapeHtml(l("Persisted workflow"))}: ${escapeHtml(String(record.workflowKey ?? "accepted"))}</span>
-        <span>${escapeHtml(l("Event"))}: ${escapeHtml(String(record.eventType ?? ""))}</span>
+        <span>${escapeHtml(l("Governed transaction accepted"))}</span>
+        <span>${escapeHtml(l("Audit trail recorded"))}</span>
       ` : ""}
-      ${projections.length ? `<span>${escapeHtml(l("Projection Status"))}: ${escapeHtml(projections.map((projection) => `${String(projection.projectionTarget ?? "")}=${String(projection.status ?? projection.projectionStatus ?? "")}`).join(", "))}</span>` : ""}
+      ${projections.length ? `<span>${escapeHtml(l("Synchronization Status"))}: ${escapeHtml(l("Updated"))}</span>` : ""}
       <span>${escapeHtml(l("Last updated"))}: ${escapeHtml(result.checkedAt)}</span>
-      <span class="ltr-text" dir="ltr">${escapeHtml(result.requestId)}</span>
     </div>
   `;
 }
@@ -444,9 +442,8 @@ function extractReadModelPayload(value: unknown): Record<string, unknown> | unde
 
 function formatPayloadPreview(value: unknown): string {
   const payload = asRecord(value);
-  const entries = Object.entries(payload).slice(0, 4);
-  if (entries.length === 0) return "No payload fields";
-  return entries.map(([key, item]) => `${key}: ${typeof item === "object" ? JSON.stringify(item) : String(item)}`).join(" | ");
+  if (Object.keys(payload).length === 0) return "Governed service record";
+  return "Synchronized governed service record";
 }
 
 function asRecord(value: unknown): Record<string, unknown> {
@@ -456,7 +453,7 @@ function asRecord(value: unknown): Record<string, unknown> {
 function demoSourceBanner(context: RoleRenderContext): string {
   const status = context.mode === "live" ? "LIVE PARTIAL" : "DEMO DATA";
   const detail = context.mode === "live"
-    ? "Live API was evaluated where allowed. These records are frontend demo fallback data and are not persisted to the production backend."
+    ? "Live service access was evaluated where allowed. These records are presentation fallback data and are not persisted to the production backend."
     : "Frontend demo seed data. These records are synthetic and are not real patient data.";
   return `
     <section class="demo-data-banner">
@@ -907,7 +904,7 @@ function roleWorkflow(page: RolePageDefinition): string {
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l("Workflow Timeline"))}</h2>
-          <p>${escapeHtml(l("Workflow visualization uses documented/API-backed state. Live execution is unavailable in this UI sprint."))}</p>
+          <p>${escapeHtml(l("Workflow visualization uses documented governed state. Live execution remains controlled by approved backend workflows."))}</p>
         </div>
       </div>
       <ol class="timeline">
@@ -933,7 +930,7 @@ function roleTable(page: RolePageDefinition, mode: DataMode): string {
           <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Worklist"))}</h2>
           <p>${escapeHtml(l("Rows are UI-state examples and source labels only, not real patient records."))}</p>
         </div>
-        <span class="status-pill warn">${escapeHtml(l("Live data unavailable"))}</span>
+        <span class="status-pill warn">${escapeHtml(l("Service temporarily unavailable."))}</span>
       </div>
       <div class="table-wrap">
         <table>
@@ -955,7 +952,7 @@ function auditAction(action: NonNullable<LiveWorkspaceState["auditAction"]>): st
       <span><strong>${escapeHtml(l("User"))}</strong>${escapeHtml(action.user)}</span>
       <span><strong>${escapeHtml(l("Role"))}</strong>${escapeHtml(l(action.role))}</span>
       <span><strong>${escapeHtml(l("Tenant"))}</strong>${escapeHtml(action.tenant)}</span>
-      <span><strong>${escapeHtml(l("Request"))}</strong>${escapeHtml(action.requestId)}</span>
+      <span><strong>${escapeHtml(l("Request"))}</strong>${escapeHtml(l("Trace recorded"))}</span>
       <span><strong>${escapeHtml(l("Status"))}</strong>${escapeHtml(l(action.status))}</span>
       <span><strong>${escapeHtml(l("Time"))}</strong>${escapeHtml(action.timestamp)}</span>
     </div>
@@ -972,30 +969,30 @@ function roleSourceSection(data: AppData, workspace: RoleWorkspaceDefinition, se
     <section class="band">
       <div class="section-title">
         <div>
-          <h2>${escapeHtml(l("API And Documentation Sources"))}</h2>
-          <p>${escapeHtml(l(workspace.dataMode))}</p>
+          <h2>${escapeHtml(l("Governance And Evidence"))}</h2>
+          <p>${escapeHtml(l("This workspace shows professional capability status. Technical service routes and contract evidence are available in Operator Center."))}</p>
         </div>
-        <a class="button compact" href="#/developer/api-explorer"><i data-lucide="Braces"></i> ${escapeHtml(l("API Explorer"))}</a>
+        <a class="button compact" href="#/command/system-health"><i data-lucide="Activity"></i> ${escapeHtml(l("Operator Evidence"))}</a>
       </div>
       <div class="role-source-grid">
         <div>
-          <h3>${escapeHtml(l("OpenAPI-backed services"))}</h3>
+          <h3>${escapeHtml(l("Governed backend coverage"))}</h3>
           <div class="source-list">
             ${serviceSources.length ? serviceSources.map((service) => `
               <article>
                 <strong>${escapeHtml(l(service.title))}</strong>
-                <span class="ltr-text" dir="ltr">${escapeHtml(service.apiBase)} · ${service.pathCount} ${escapeHtml(l("paths"))} · ${escapeHtml(l("port"))} ${escapeHtml(service.localPort)}</span>
+                <span>${escapeHtml(l("Connected to controlled-pilot backend evidence."))}</span>
               </article>
             `).join("") : `<article><strong>${escapeHtml(l("No active service mapped"))}</strong><span>${escapeHtml(l("Coverage is documentation-backed in this checkout."))}</span></article>`}
           </div>
         </div>
         <div>
-          <h3>${escapeHtml(l("Related documents"))}</h3>
+          <h3>${escapeHtml(l("Related evidence"))}</h3>
           <div class="source-list">
             ${docs.length ? docs.map((doc) => `
               <article>
                 <strong>${escapeHtml(l(doc.title))}</strong>
-                <span class="ltr-text" dir="ltr">${escapeHtml(doc.relativePath)}</span>
+                <span>${escapeHtml(l("Available in the operator documentation center."))}</span>
               </article>
             `).join("") : `<article><strong>${escapeHtml(l("No matching document found"))}</strong><span>${escapeHtml(l("Review Documentation Center for all available docs."))}</span></article>`}
           </div>
@@ -1045,38 +1042,77 @@ function statusClass(status: string): string {
   return "neutral";
 }
 
+function professionalEndpointReason(reason: string): string {
+  const normalized = reason.toLowerCase();
+  if (normalized.includes("write")) return "Approved controlled-pilot workflow selected for this workspace.";
+  if (normalized.includes("read")) return "Approved read-only service check selected for this workspace.";
+  if (normalized.includes("unavailable") || normalized.includes("no matching")) return "The system could not reach this service for the current workspace.";
+  return "Governed service evidence is available for this workspace.";
+}
+
+function professionalConnectionState(state: string, httpStatus?: number): string {
+  if (state === "online" && httpStatus && httpStatus >= 200 && httpStatus < 300) return "Service Online";
+  if (state === "unauthorized" || httpStatus === 401 || httpStatus === 403) return "Secure Session Required";
+  if (state === "unavailable" || state === "offline") return "Service temporarily unavailable.";
+  if (state === "degraded") return "Service degraded";
+  return "Connection Pending";
+}
+
+function friendlyResultDetail(detail: string, blockedReason?: string): string {
+  const text = `${detail} ${blockedReason ?? ""}`.toLowerCase();
+  if (text.includes("failed to fetch") || text.includes("networkerror") || text.includes("cors")) {
+    return "The system could not reach this service. Please contact the system operator if this continues.";
+  }
+  if (text.includes("401") || text.includes("403") || text.includes("unauthorized") || text.includes("forbidden")) {
+    return "Your secure session does not currently allow this action.";
+  }
+  if (text.includes("404") || text.includes("not found")) {
+    return "The requested service view is not available in this pilot environment.";
+  }
+  if (detail.toLowerCase().includes("request completed")) return "The request completed successfully.";
+  return detail || "Service status is being evaluated.";
+}
+
+function professionalAccessClassification(classification: string): string {
+  if (classification.includes("ALLOWED_READ")) return "Approved read-only access";
+  if (classification.includes("ALLOWED_LIVE_WRITE")) return "Approved controlled write access";
+  if (classification.includes("BLOCKED")) return "Blocked by safety policy";
+  if (classification.includes("UNKNOWN")) return "Not approved for browser access";
+  return "Access policy evaluated";
+}
+
 function workspaceConnectionStatus(context: RoleRenderContext): { label: string; className: string } {
   if (context.mode !== "live") {
-    return { label: "DEMO MODE", className: "warn" };
+    return { label: "Demo Data — Not Real Patient Data", className: "warn" };
   }
   const state = context.workspaceState;
   if (!state) {
-    return { label: "LIVE PARTIAL", className: "warn" };
+    return { label: "Connection Pending", className: "warn" };
   }
   if (!state.endpoint.available) {
-    return { label: "LIVE API UNAVAILABLE", className: "warn" };
+    return { label: "Service temporarily unavailable.", className: "warn" };
   }
   const result = state.result;
   if (!result) {
-    return { label: "LIVE PARTIAL", className: "warn" };
+    return { label: "Connection Pending", className: "warn" };
   }
   if (result.httpStatus === 401 || result.httpStatus === 403 || result.state === "unauthorized") {
-    return { label: "BLOCKED BY AUTH", className: "danger" };
+    return { label: "Secure Session Required", className: "danger" };
   }
   if (result.state === "unavailable") {
     const detail = `${result.detail} ${result.blockedReason ?? ""}`.toLowerCase();
     if (detail.includes("cors") || detail.includes("failed to fetch")) {
-      return { label: "BLOCKED BY CORS", className: "danger" };
+      return { label: "Browser Access Policy Blocked", className: "danger" };
     }
-    return { label: "LIVE API UNAVAILABLE", className: "warn" };
+    return { label: "Service temporarily unavailable.", className: "warn" };
   }
   if (result.state === "online") {
     const runtimeOnly = /\/(live|ready|metrics)$|\/docs\/openapi\.json$/.test(state.endpoint.url);
     return runtimeOnly
-      ? { label: "LIVE PARTIAL", className: "warn" }
-      : { label: "LIVE CONNECTED", className: "success" };
+      ? { label: "Connection Pending", className: "warn" }
+      : { label: "Service Online", className: "success" };
   }
-  return { label: "LIVE PARTIAL", className: "warn" };
+  return { label: "Connection Pending", className: "warn" };
 }
 
 export function isRoleRoute(route: string): boolean {

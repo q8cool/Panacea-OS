@@ -1391,14 +1391,61 @@ pre {
   gap: 16px;
 }
 
+.professional-home-board {
+  background: linear-gradient(180deg, var(--panel), var(--panel-strong));
+}
+
+.pilot-brief {
+  display: grid;
+  gap: 12px;
+}
+
+.pilot-brief article {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 10px 12px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-strong);
+  padding: 14px;
+}
+
+.pilot-brief svg {
+  grid-row: span 2;
+  width: 40px;
+  height: 40px;
+  padding: 9px;
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--blue);
+}
+
+.pilot-brief strong,
+.pilot-brief span {
+  display: block;
+}
+
+.pilot-brief span {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .workspace-quick-grid,
+.role-entry-grid,
 .operational-cards {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-.workspace-quick-card {
+.role-entry-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.workspace-quick-card,
+.role-entry-card {
   min-height: 88px;
   display: grid;
   grid-template-columns: 34px minmax(0, 1fr);
@@ -1411,7 +1458,13 @@ pre {
   text-decoration: none;
 }
 
-.workspace-quick-card svg {
+.role-entry-card {
+  min-height: 112px;
+  align-items: start;
+}
+
+.workspace-quick-card svg,
+.role-entry-card svg {
   width: 34px;
   height: 34px;
   padding: 8px;
@@ -1421,14 +1474,18 @@ pre {
 }
 
 .workspace-quick-card strong,
-.workspace-quick-card span {
+.workspace-quick-card span,
+.role-entry-card strong,
+.role-entry-card span {
   display: block;
 }
 
-.workspace-quick-card span {
+.workspace-quick-card span,
+.role-entry-card span {
   margin-top: 4px;
   color: var(--muted);
   font-size: 12px;
+  line-height: 1.45;
 }
 
 .demo-table {
@@ -1688,6 +1745,7 @@ pre {
     .evidence-grid,
     .role-panel-grid,
     .workspace-quick-grid,
+    .role-entry-grid,
     .operational-cards,
     .api-controls,
     .nav {
