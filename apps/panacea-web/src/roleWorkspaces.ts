@@ -40,7 +40,7 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     docHints: ["Clinical", "Patient", "AI_Assurance", "Autonomous_Intelligence", "Patient_Safety", "Medication"],
     seeds: [
       seed("dashboard", "Clinician Dashboard", "LayoutDashboard", "Clinical command view with patient context, alerts, task load, documented clinical coverage, and advisory-only intelligence status."),
-      seed("patient-search", "Patient Search", "Search", "Search-ready shell for patient lookup using future authenticated clinical APIs; current state shows live data unavailable."),
+      seed("patient-search", "Patient Search", "Search", "Search-ready shell for patient lookup using approved authenticated clinical APIs when connected; current state shows live data availability explicitly."),
       seed("patient-profile", "Patient Profile", "UserRound", "Patient profile context panel with identity and consent source status clearly separated from live records."),
       seed("clinical-timeline", "Clinical Timeline", "History", "Timeline view for encounters, orders, results, medication events, and documented audit evidence."),
       seed("encounters", "Encounters", "ClipboardList", "Encounter list and details shell with documented API coverage status."),
@@ -68,7 +68,7 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     audience: "Patients and authorized caregivers viewing simple, clear, educational, and privacy-aware information.",
     summary: "Mobile-friendly patient portal shell for profile, appointments, visit history, medications, results, documents, messages, telemedicine, invoices, notifications, and care instructions.",
     boundary: "Patient-facing information is educational and does not replace clinician advice.",
-    dataMode: "Read-only portal workspace mode. Live patient records require future authenticated patient APIs and consent enforcement.",
+    dataMode: "Read-only portal workspace mode. Live patient records require approved authenticated patient APIs and consent enforcement.",
     serviceIds: ["global-enterprise-data-privacy-consent-trust-platform"],
     docHints: ["Patient Portal", "Patient_Experience", "Caregiver", "Consent", "Privacy"],
     seeds: [
@@ -97,7 +97,7 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     audience: "Laboratory users monitoring orders, specimens, results, critical flags, quality controls, and integration status.",
     summary: "A laboratory operations shell covering order flow, specimen lifecycle, result entry, validation, approval, critical results, quality control, analytics, and reports.",
     boundary: "No laboratory backend behavior is added; this UI displays documented/API-backed status only.",
-    dataMode: "Read-only laboratory workspace mode. Live laboratory workflow data is unavailable unless future approved lab APIs are connected.",
+    dataMode: "Read-only laboratory workspace mode. Live laboratory workflow data is available only through approved lab API integration.",
     serviceIds: ["real-time-global-healthcare-command-intelligence-platform"],
     docHints: ["Laboratory", "LOINC", "Critical", "Quality", "Specimen"],
     seeds: [
@@ -124,7 +124,7 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     audience: "Radiology users reviewing imaging orders, studies, metadata, PACS status, reports, approvals, and critical findings.",
     summary: "A radiology workflow shell for imaging orders, study list, DICOM metadata, PACS status, reporting worklist, report editing, approval, critical findings, timeline, and analytics.",
     boundary: "DICOM image viewer not implemented in this UI sprint.",
-    dataMode: "Read-only radiology workspace mode using documentation, OpenAPI contracts, and runtime status. Live imaging data requires future approved radiology APIs.",
+    dataMode: "Read-only radiology workspace mode using documentation, OpenAPI contracts, and runtime status. Live imaging data requires approved radiology API integration.",
     serviceIds: ["real-time-global-healthcare-command-intelligence-platform"],
     docHints: ["Radiology", "DICOM", "Imaging", "PACS", "Critical Findings"],
     seeds: [
@@ -150,7 +150,7 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     audience: "Pharmacists reviewing medication catalog, prescription queues, safety indicators, dispensing, inventory, controlled medications, and reports.",
     summary: "A pharmacy operations shell with medication review, dispensing workflow, stock status, batch/lot tracking, expiration tracking, drug safety alerts, and controlled medication audit.",
     boundary: "No new medication safety backend logic is implemented. Safety indicators display documented/API-backed status only.",
-    dataMode: "Read-only pharmacy workspace mode. Live pharmacy records require future approved pharmacy APIs.",
+    dataMode: "Read-only pharmacy workspace mode. Live pharmacy records require approved pharmacy API integration.",
     serviceIds: ["global-enterprise-data-privacy-consent-trust-platform", "real-time-global-healthcare-command-intelligence-platform"],
     docHints: ["Pharmacy", "Medication", "Drug", "Inventory", "Controlled"],
     seeds: [
@@ -351,7 +351,7 @@ function tableForRole(role: RoleId, pageLabel: string): RoleTable {
       columns: ["Lab workflow", "Status", "Auditability", "Integration"],
       rows: [
         [pageLabel, "Read-only shell", "Audit link visible", "Lab API not active"],
-        ["Specimen state", "Tracked visually", "Chain-of-custody label", "Future LIS feed"],
+        ["Specimen state", "Tracked visually", "Chain-of-custody label", "Approved LIS integration"],
         ["Critical result flag", "Visible", "Escalation label", "Notification API required"]
       ]
     };

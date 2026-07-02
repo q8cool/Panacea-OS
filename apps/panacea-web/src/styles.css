@@ -292,12 +292,12 @@ pre,
   color: var(--green);
 }
 
-.mode-pill.demo {
+.mode-pill.workspace {
   border-color: rgba(180, 83, 9, 0.35);
   color: var(--amber);
 }
 
-.mode-pill.preview {
+.mode-pill.secure {
   border-color: rgba(37, 99, 235, 0.35);
   color: var(--blue);
 }

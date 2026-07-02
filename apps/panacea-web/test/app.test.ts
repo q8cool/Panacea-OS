@@ -90,6 +90,9 @@ describe("Panacea web platform", () => {
     expect(publicData).not.toContain("Demo Mode");
     expect(data.documents.map((document) => document.body).join("\n")).not.toMatch(/\bDemo\b/i);
     expect(publicData).not.toMatch(/\bGuided Preview\b/i);
+    expect(data.documents.map((document) => document.body).join("\n")).not.toMatch(/\bPreview\b/i);
+    expect(data.documents.map((document) => document.body).join("\n")).not.toMatch(/\bPilot\b/i);
+    expect(data.documents.map((document) => document.body).join("\n")).not.toMatch(/\bSample\b/i);
     expect(publicData).not.toContain("non-production rows");
     expect(publicData).not.toMatch(/\bnon-production\b/i);
     expect(publicData).not.toContain("future work");
@@ -101,7 +104,7 @@ describe("Panacea web platform", () => {
     expect(publicData).not.toMatch(/\blocalhost\b/i);
     expect(publicData).toContain(publicApiBaseUrl);
     expect(publicData).toContain("Clinical and legal approval required before real clinical production use.");
-    expect(publicData).toContain("Protected sample records");
+    expect(publicData).toContain("Protected workspace records");
   });
 
   it("publishes only current professional documents in the browser data bundle", () => {
@@ -351,7 +354,12 @@ describe("Panacea web platform", () => {
       "Pilot Role View",
       "Demo Mode",
       "No Real Patient Data",
-      "No real patient data"
+      "No real patient data",
+      "Secure Preview",
+      "Preview",
+      "Synthetic",
+      "sample records",
+      "sample data"
     ];
 
     for (const route of generalRoutes) {
@@ -813,7 +821,7 @@ describe("Panacea web platform", () => {
     expect(html).not.toContain("Cardiology Clinic");
   });
 
-  it("renders live write workflow forms and Arabic secure preview persistence boundaries", () => {
+  it("renders live write workflow forms and Arabic secure workspace persistence boundaries", () => {
     const liveWorkspaceState: LiveWorkspaceState = {
       endpoint: {
         label: "Global Command Intelligence: List tenant-scoped clinical patient read models",
@@ -1212,7 +1220,7 @@ describe("Panacea web platform", () => {
     expect(html).toContain("#/workspace/administrator/dashboard");
   });
 
-  it("renders doctor patient search, chart, and advisory-only preview content", () => {
+  it("renders doctor patient search, chart, and advisory-only workspace content", () => {
     const search = renderRoute(data, "/workspace/doctor/patient-search", {
       ...initialState,
       selectedRole: "doctor"
@@ -1236,7 +1244,7 @@ describe("Panacea web platform", () => {
     expect(advisory).toContain("They are not diagnosis, treatment, or production AI output.");
   });
 
-  it("renders patient portal preview records without replacing clinician advice", () => {
+  it("renders patient portal workspace records without replacing clinician advice", () => {
     const html = renderRoute(data, "/workspace/patient/appointments", {
       ...initialState,
       selectedRole: "patient"
@@ -1266,7 +1274,7 @@ describe("Panacea web platform", () => {
     expect(admin).toContain("utbe-health-system");
   });
 
-  it("localizes operational secure preview labels in Arabic", () => {
+  it("localizes operational secure workspace labels in Arabic", () => {
     const html = renderRoute(data, "/workspace/doctor/patient-search", {
       ...initialState,
       language: "ar",
@@ -1274,7 +1282,7 @@ describe("Panacea web platform", () => {
     });
     expect(html).toContain("عرض مساحة عمل محكوم");
     expect(html).toContain("بحث المرضى");
-    expect(html).toContain("بحث مريض صناعي");
+    expect(html).toContain("بحث المرضى");
     expect(html).toContain("Patient Alpha");
   });
 });

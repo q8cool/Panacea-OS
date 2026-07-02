@@ -163,7 +163,7 @@ function renderTopbar(_data: AppData, route: string, state: RenderState): string
         <h1>${escapeHtml(l(pageTitle(route)))}</h1>
       </div>
       <div class="topbar-actions">
-        <a class="mode-pill ${liveMode ? "live" : "preview"}" href="#/auth/login">
+        <a class="mode-pill ${liveMode ? "live" : "workspace"}" href="#/auth/login">
           <i data-lucide="${liveMode ? "ShieldCheck" : "LockKeyhole"}"></i>
           <span>${escapeHtml(l(liveMode ? "Live Mode" : "Secure Workspace"))}</span>
         </a>
@@ -525,7 +525,7 @@ function renderLiveStatusPage(data: AppData, state: RenderState): string {
       <section class="metric-grid">
         ${metric("Foundation endpoints", `${foundationOnline}/${status?.foundation.length ?? 4}`, "Health, readiness, metrics, JWKS", "ShieldCheck", foundationOnline > 0 ? "success" : "warn")}
         ${metric("Service endpoints", `${serviceOnline}/${status?.services.length ?? data.services.length * 3}`, "Health, readiness, OpenAPI", "Server", serviceOnline > 0 ? "success" : "warn")}
-        ${metric("Auth", session ? "Authenticated" : "Not authenticated", session ? `${session.role} · ${session.tenantId}` : "Secure preview", "KeyRound", session ? "success" : "warn")}
+        ${metric("Auth", session ? "Authenticated" : "Not authenticated", session ? `${session.role} · ${session.tenantId}` : "Secure workspace", "KeyRound", session ? "success" : "warn")}
         ${metric("Last poll", status?.checkedAt ? new Date(status.checkedAt).toLocaleString() : "Not run", "Use Refresh Live Status", "RefreshCw", status?.checkedAt ? "success" : "warn")}
       </section>
       <section class="band">
@@ -1044,7 +1044,7 @@ function renderEndpointPreview(endpoints: { method: string; path: string; summar
     <section class="band">
       <div class="section-title">
         <div>
-          <h2>${escapeHtml(l("Endpoint Preview"))}</h2>
+          <h2>${escapeHtml(l("Endpoint Detail"))}</h2>
           <p>${escapeHtml(l("Open the API Explorer for filtering, schemas, response codes, and curl generation."))}</p>
         </div>
         <a class="button compact" href="#/developer/api-explorer"><i data-lucide="Braces"></i> ${escapeHtml(l("API Explorer"))}</a>

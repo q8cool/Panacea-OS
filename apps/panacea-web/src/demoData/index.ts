@@ -34,8 +34,8 @@ export interface DemoPatient {
   messages: Array<{ from: string; subject: string; status: string }>;
 }
 
-export const DEMO_DATA_LABEL = "PROTECTED PREVIEW RECORD -- NOT REAL PATIENT DATA";
-export const DEMO_DATA_LABEL_DISPLAY = "PROTECTED PREVIEW RECORDS";
+export const DEMO_DATA_LABEL = "PROTECTED WORKSPACE RECORD";
+export const DEMO_DATA_LABEL_DISPLAY = "PROTECTED WORKSPACE RECORDS";
 
 export const demoHospital = {
   name: "Panacea Gulf Hospital",
@@ -47,7 +47,7 @@ export const demoHospital = {
   clinics: ["Cardiology Clinic", "Diabetes Clinic", "Family Medicine", "Post-Discharge Clinic"],
   tenants: [
     { id: "utbe-health-system", name: "UTBE Health System", country: "KW", status: "Active" },
-    { id: "training-tenant", name: "Training Tenant", country: "KW", status: "Preview" }
+    { id: "training-tenant", name: "Training Tenant", country: "KW", status: "Workspace" }
   ]
 };
 
@@ -137,13 +137,13 @@ export const demoPatients: DemoPatient[] = firstNames.map((name, index) => {
       { time: "16:00", bp: `${116 + n}/${70 + n % 8}`, hr: 66 + n, temp: 36.4 + (n % 3) / 10, spo2: 98 - (n % 2) }
     ],
     encounters: [
-      { date: `2026-06-${String((n % 20) + 1).padStart(2, "0")}`, type: "Outpatient", provider: "Clinical Doctor", reason: "Preview follow-up visit" },
+      { date: `2026-06-${String((n % 20) + 1).padStart(2, "0")}`, type: "Outpatient", provider: "Clinical Doctor", reason: "Workspace follow-up visit" },
       { date: `2026-06-${String((n % 20) + 2).padStart(2, "0")}`, type: "Care team review", provider: "Nursing Lead", reason: "Care plan review" }
     ],
     timeline: [
       { time: "08:20", type: "Laboratory", title: "Specimen collected", detail: "Illustrative specimen event for operational UI review." },
       { time: "10:10", type: "Radiology", title: "Imaging report updated", detail: "Illustrative imaging event; no DICOM image is displayed." },
-      { time: "11:35", type: "Pharmacy", title: "Medication review queued", detail: "Medication safety visibility preview only." },
+      { time: "11:35", type: "Pharmacy", title: "Medication review queued", detail: "Medication safety visibility for workspace review." },
       { time: "13:00", type: "Encounter", title: "Care team review", detail: "Illustrative timeline event; not real clinical documentation." }
     ],
     notes: [
@@ -158,13 +158,13 @@ export const demoPatients: DemoPatient[] = firstNames.map((name, index) => {
       { studyId: `RAD-${n}-CXR`, modality: "XR", bodyPart: "Chest", status: n % 3 === 0 ? "Report pending" : "Reported", report: "Illustrative radiology report text for operational UI only.", reportedAt: "2026-07-01 10:10" }
     ],
     pharmacy: [
-      { medication: medicationPool[index % medicationPool.length][0], status: n % 2 === 0 ? "Ready for review" : "Dispensed in preview", route: "Oral", safety: risk === "critical" ? "Review required" : "No active preview alert" }
+      { medication: medicationPool[index % medicationPool.length][0], status: n % 2 === 0 ? "Ready for review" : "Dispensed for review", route: "Oral", safety: risk === "critical" ? "Review required" : "No active review alert" }
     ],
     appointments: [
       { date: "2026-07-04 09:30", clinic: demoHospital.clinics[index % demoHospital.clinics.length], status: "Scheduled" },
       { date: "2026-07-18 11:00", clinic: "Follow-up Clinic", status: "Planned" }
     ],
-    billing: { balance: `KWD ${(n * 4.25).toFixed(2)}`, insurance: n % 2 === 0 ? "Insurance Plan A" : "Self-pay preview", lastInvoice: `INV-PX-${String(n).padStart(4, "0")}` },
+    billing: { balance: `KWD ${(n * 4.25).toFixed(2)}`, insurance: n % 2 === 0 ? "Insurance Plan A" : "Self-pay account", lastInvoice: `INV-PX-${String(n).padStart(4, "0")}` },
     careInstructions: ["Use the patient portal for appointment review.", "Contact the care team for real medical advice.", "This content is educational and illustrative."],
     messages: [
       { from: "Care Team", subject: "Appointment reminder", status: "Unread" },
@@ -216,7 +216,7 @@ export const demoInventory = [
 export const demoAuditLogs = [
   { id: "AUD-PX-001", actor: "Platform Operator", action: "Viewed release evidence", tenant: "utbe-health-system", status: "Recorded", time: "2026-07-01 08:00" },
   { id: "AUD-PX-002", actor: "System Administrator", action: "Opened users table", tenant: "utbe-health-system", status: "Recorded", time: "2026-07-01 08:04" },
-  { id: "AUD-PX-003", actor: "Clinical Doctor", action: "Viewed preview patient chart", tenant: "utbe-health-system", status: "Preview only", time: "2026-07-01 08:08" }
+  { id: "AUD-PX-003", actor: "Clinical Doctor", action: "Viewed workspace patient chart", tenant: "utbe-health-system", status: "Review only", time: "2026-07-01 08:08" }
 ];
 
 export const demoSystemHealth = [
