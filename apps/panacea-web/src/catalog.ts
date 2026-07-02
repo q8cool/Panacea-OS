@@ -58,7 +58,7 @@ export const navSections: NavSection[] = [
     items: [
       { label: "API Contract Explorer", route: "/developer/api-explorer", icon: "Braces", keywords: ["openapi", "endpoint", "curl"] },
       { label: "Documentation Center", route: "/developer/documentation", icon: "BookOpen", keywords: ["docs", "guide", "manual"] },
-      { label: "Controlled Pilot Access", route: "/developer/demo-mode", icon: "MonitorPlay", keywords: ["demo", "operator", "run"] }
+      { label: "Access & Environment", route: "/developer/access-environment", icon: "MonitorPlay", keywords: ["environment", "operator", "run"] }
     ]
   },
   {

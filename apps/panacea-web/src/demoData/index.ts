@@ -34,55 +34,55 @@ export interface DemoPatient {
   messages: Array<{ from: string; subject: string; status: string }>;
 }
 
-export const DEMO_DATA_LABEL = "DEMO DATA -- NOT REAL PATIENT DATA";
-export const DEMO_DATA_LABEL_DISPLAY = "DEMO DATA — NOT REAL PATIENT DATA";
+export const DEMO_DATA_LABEL = "PROTECTED PREVIEW RECORD -- NOT REAL PATIENT DATA";
+export const DEMO_DATA_LABEL_DISPLAY = "PROTECTED PREVIEW RECORDS";
 
 export const demoHospital = {
-  name: "Panacea Gulf Demo Hospital",
-  tenantId: "demo-tenant",
+  name: "Panacea Gulf Hospital",
+  tenantId: "utbe-health-system",
   departments: ["Emergency", "Internal Medicine", "Laboratory", "Radiology", "Pharmacy", "Administration"],
   wards: ["Medical Ward A", "Surgical Ward B", "ICU", "Day Care"],
   rooms: ["A-101", "A-102", "A-103", "B-210", "ICU-01", "ICU-02"],
   beds: 96,
   clinics: ["Cardiology Clinic", "Diabetes Clinic", "Family Medicine", "Post-Discharge Clinic"],
   tenants: [
-    { id: "demo-tenant", name: "Panacea Demo Tenant", country: "KW", status: "Active" },
-    { id: "training-tenant", name: "Training Tenant", country: "KW", status: "Demo" }
+    { id: "utbe-health-system", name: "UTBE Health System", country: "KW", status: "Active" },
+    { id: "training-tenant", name: "Training Tenant", country: "KW", status: "Preview" }
   ]
 };
 
 export const demoUsers = [
-  { id: "usr-doctor", name: "Demo Doctor", role: "doctor", department: "Internal Medicine", tenant: "demo-tenant", status: "Active" },
-  { id: "usr-nurse", name: "Demo Nurse", role: "nurse", department: "Medical Ward A", tenant: "demo-tenant", status: "Active" },
-  { id: "usr-lab", name: "Demo Lab User", role: "laboratory", department: "Laboratory", tenant: "demo-tenant", status: "Active" },
-  { id: "usr-rad", name: "Demo Radiology User", role: "radiology", department: "Radiology", tenant: "demo-tenant", status: "Active" },
-  { id: "usr-pharm", name: "Demo Pharmacist", role: "pharmacy", department: "Pharmacy", tenant: "demo-tenant", status: "Active" },
-  { id: "usr-admin", name: "Demo Administrator", role: "administrator", department: "Administration", tenant: "demo-tenant", status: "Active" },
-  { id: "usr-patient", name: "Demo Patient User", role: "patient", department: "Patient Portal", tenant: "demo-tenant", status: "Active" },
-  { id: "usr-operator", name: "Demo Operator", role: "operator", department: "Platform Operations", tenant: "demo-tenant", status: "Active" }
+  { id: "usr-doctor", name: "Clinical Doctor", role: "doctor", department: "Internal Medicine", tenant: "utbe-health-system", status: "Active" },
+  { id: "usr-nurse", name: "Nursing Lead", role: "nurse", department: "Medical Ward A", tenant: "utbe-health-system", status: "Active" },
+  { id: "usr-lab", name: "Laboratory User", role: "laboratory", department: "Laboratory", tenant: "utbe-health-system", status: "Active" },
+  { id: "usr-rad", name: "Radiology User", role: "radiology", department: "Radiology", tenant: "utbe-health-system", status: "Active" },
+  { id: "usr-pharm", name: "Clinical Pharmacist", role: "pharmacy", department: "Pharmacy", tenant: "utbe-health-system", status: "Active" },
+  { id: "usr-admin", name: "System Administrator", role: "administrator", department: "Administration", tenant: "utbe-health-system", status: "Active" },
+  { id: "usr-patient", name: "Patient Portal User", role: "patient", department: "Patient Portal", tenant: "utbe-health-system", status: "Active" },
+  { id: "usr-operator", name: "Platform Operator", role: "operator", department: "Platform Operations", tenant: "utbe-health-system", status: "Active" }
 ];
 
 const firstNames = [
-  "Demo Patient Alpha",
-  "Demo Patient Bravo",
-  "Demo Patient Cedar",
-  "Demo Patient Delta",
-  "Demo Patient Echo",
-  "Demo Patient Falcon",
-  "Demo Patient Gulf",
-  "Demo Patient Harbor",
-  "Demo Patient Iris",
-  "Demo Patient Jade",
-  "Demo Patient Kuwait",
-  "Demo Patient Lotus",
-  "Demo Patient Marina",
-  "Demo Patient Noor",
-  "Demo Patient Oasis",
-  "Demo Patient Pearl",
-  "Demo Patient Qamar",
-  "Demo Patient Reef",
-  "Demo Patient Safa",
-  "Demo Patient Tariq"
+  "Patient Alpha",
+  "Patient Bravo",
+  "Patient Cedar",
+  "Patient Delta",
+  "Patient Echo",
+  "Patient Falcon",
+  "Patient Gulf",
+  "Patient Harbor",
+  "Patient Iris",
+  "Patient Jade",
+  "Patient Kuwait",
+  "Patient Lotus",
+  "Patient Marina",
+  "Patient Noor",
+  "Patient Oasis",
+  "Patient Pearl",
+  "Patient Qamar",
+  "Patient Reef",
+  "Patient Safa",
+  "Patient Tariq"
 ];
 
 const conditionPool = [
@@ -105,10 +105,10 @@ const medicationPool = [
   ["Ferrous sulfate", "Vitamin D"],
   ["Omeprazole 20 mg"],
   ["Atorvastatin 20 mg"],
-  ["Insulin glargine demo pen"],
-  ["Amoxicillin-clavulanate demo course"],
-  ["Enoxaparin prophylaxis demo order"],
-  ["Normal saline demo infusion"]
+  ["Insulin glargine pen"],
+  ["Amoxicillin-clavulanate course"],
+  ["Enoxaparin prophylaxis order"],
+  ["Normal saline infusion"]
 ];
 
 export const demoPatients: DemoPatient[] = firstNames.map((name, index) => {
@@ -118,17 +118,17 @@ export const demoPatients: DemoPatient[] = firstNames.map((name, index) => {
   const room = demoHospital.rooms[index % demoHospital.rooms.length];
   const labFlag: DemoSeverity = risk === "critical" ? "critical" : n % 3 === 0 ? "watch" : "normal";
   return {
-    id: `demo-patient-${String(n).padStart(3, "0")}`,
-    mrn: `DEMO-MRN-${String(1000 + n)}`,
+    id: `patient-px-${String(n).padStart(3, "0")}`,
+    mrn: `PX-MRN-${String(1000 + n)}`,
     name,
     age: 22 + (n * 3) % 61,
     sex: n % 2 === 0 ? "Female" : "Male",
     room,
     ward,
-    attending: n % 2 === 0 ? "Demo Doctor" : "Demo Clinician",
+    attending: n % 2 === 0 ? "Clinical Doctor" : "Clinical Reviewer",
     status: risk === "critical" ? "Critical review" : risk === "watch" ? "Watch list" : "Stable",
     risk,
-    allergies: n % 5 === 0 ? ["Penicillin demo allergy"] : n % 4 === 0 ? ["Shellfish demo allergy"] : ["No known demo allergy"],
+    allergies: n % 5 === 0 ? ["Penicillin allergy"] : n % 4 === 0 ? ["Shellfish allergy"] : ["No known allergy"],
     conditions: conditionPool[index % conditionPool.length],
     medications: medicationPool[index % medicationPool.length],
     vitals: [
@@ -137,38 +137,38 @@ export const demoPatients: DemoPatient[] = firstNames.map((name, index) => {
       { time: "16:00", bp: `${116 + n}/${70 + n % 8}`, hr: 66 + n, temp: 36.4 + (n % 3) / 10, spo2: 98 - (n % 2) }
     ],
     encounters: [
-      { date: `2026-06-${String((n % 20) + 1).padStart(2, "0")}`, type: "Outpatient", provider: "Demo Doctor", reason: "Synthetic follow-up visit" },
-      { date: `2026-06-${String((n % 20) + 2).padStart(2, "0")}`, type: "Care team review", provider: "Demo Nurse", reason: "Demo care plan review" }
+      { date: `2026-06-${String((n % 20) + 1).padStart(2, "0")}`, type: "Outpatient", provider: "Clinical Doctor", reason: "Preview follow-up visit" },
+      { date: `2026-06-${String((n % 20) + 2).padStart(2, "0")}`, type: "Care team review", provider: "Nursing Lead", reason: "Care plan review" }
     ],
     timeline: [
-      { time: "08:20", type: "Laboratory", title: "Demo specimen collected", detail: "Synthetic specimen event for operational UI demonstration." },
-      { time: "10:10", type: "Radiology", title: "Demo imaging report updated", detail: "Synthetic imaging event; no DICOM image is displayed." },
-      { time: "11:35", type: "Pharmacy", title: "Demo medication review queued", detail: "Frontend demo medication safety visibility only." },
-      { time: "13:00", type: "Encounter", title: "Demo care team review", detail: "Synthetic timeline event; not real clinical documentation." }
+      { time: "08:20", type: "Laboratory", title: "Specimen collected", detail: "Illustrative specimen event for operational UI review." },
+      { time: "10:10", type: "Radiology", title: "Imaging report updated", detail: "Illustrative imaging event; no DICOM image is displayed." },
+      { time: "11:35", type: "Pharmacy", title: "Medication review queued", detail: "Medication safety visibility preview only." },
+      { time: "13:00", type: "Encounter", title: "Care team review", detail: "Illustrative timeline event; not real clinical documentation." }
     ],
     notes: [
-      { date: "2026-06-30", author: "Demo Doctor", note: "Synthetic clinical note for UI demonstration only. No real patient information." },
-      { date: "2026-07-01", author: "Demo Nurse", note: "Demo nursing observation recorded in frontend seed data only." }
+      { date: "2026-06-30", author: "Clinical Doctor", note: "Illustrative clinical note for UI review only. No real patient information." },
+      { date: "2026-07-01", author: "Nursing Lead", note: "Illustrative nursing observation recorded in frontend seed data only." }
     ],
     labs: [
       { orderId: `LAB-${n}-CBC`, test: "CBC", status: n % 2 === 0 ? "Validated" : "Pending validation", value: `${11 + n % 5}.2 g/dL`, flag: labFlag, collectedAt: "2026-07-01 08:20" },
       { orderId: `LAB-${n}-BMP`, test: "Basic metabolic panel", status: "Resulted", value: `${135 + n % 6} mmol/L sodium`, flag: n % 7 === 0 ? "watch" : "normal", collectedAt: "2026-07-01 08:25" }
     ],
     radiology: [
-      { studyId: `RAD-${n}-CXR`, modality: "XR", bodyPart: "Chest", status: n % 3 === 0 ? "Report pending" : "Reported", report: "Demo radiology report text for operational UI only.", reportedAt: "2026-07-01 10:10" }
+      { studyId: `RAD-${n}-CXR`, modality: "XR", bodyPart: "Chest", status: n % 3 === 0 ? "Report pending" : "Reported", report: "Illustrative radiology report text for operational UI only.", reportedAt: "2026-07-01 10:10" }
     ],
     pharmacy: [
-      { medication: medicationPool[index % medicationPool.length][0], status: n % 2 === 0 ? "Ready for review" : "Dispensed in demo", route: "Oral", safety: risk === "critical" ? "Review required" : "No active demo alert" }
+      { medication: medicationPool[index % medicationPool.length][0], status: n % 2 === 0 ? "Ready for review" : "Dispensed in preview", route: "Oral", safety: risk === "critical" ? "Review required" : "No active preview alert" }
     ],
     appointments: [
       { date: "2026-07-04 09:30", clinic: demoHospital.clinics[index % demoHospital.clinics.length], status: "Scheduled" },
       { date: "2026-07-18 11:00", clinic: "Follow-up Clinic", status: "Planned" }
     ],
-    billing: { balance: `KWD ${(n * 4.25).toFixed(2)}`, insurance: n % 2 === 0 ? "Demo Insurance A" : "Self-pay demo", lastInvoice: `INV-DEMO-${String(n).padStart(4, "0")}` },
-    careInstructions: ["Use the patient portal for demo appointment review.", "Contact the care team for real medical advice.", "This content is educational and synthetic."],
+    billing: { balance: `KWD ${(n * 4.25).toFixed(2)}`, insurance: n % 2 === 0 ? "Insurance Plan A" : "Self-pay preview", lastInvoice: `INV-PX-${String(n).padStart(4, "0")}` },
+    careInstructions: ["Use the patient portal for appointment review.", "Contact the care team for real medical advice.", "This content is educational and illustrative."],
     messages: [
-      { from: "Care Team", subject: "Demo appointment reminder", status: "Unread" },
-      { from: "Billing Office", subject: "Demo statement available", status: "Read" }
+      { from: "Care Team", subject: "Appointment reminder", status: "Unread" },
+      { from: "Billing Office", subject: "Statement available", status: "Read" }
     ]
   };
 });
@@ -199,24 +199,24 @@ export const demoPharmacyRecords = demoPatients.flatMap((patient) => patient.pha
 })));
 
 export const demoMedicationCatalog = [
-  { code: "MED-DEMO-001", name: "Metformin 500 mg", form: "Tablet", stock: 420, status: "Available" },
-  { code: "MED-DEMO-002", name: "Amlodipine 5 mg", form: "Tablet", stock: 360, status: "Available" },
-  { code: "MED-DEMO-003", name: "Salbutamol inhaler", form: "Inhaler", stock: 84, status: "Watch" },
-  { code: "MED-DEMO-004", name: "Insulin glargine demo pen", form: "Pen", stock: 42, status: "Cold chain" },
-  { code: "MED-DEMO-005", name: "Controlled demo analgesic", form: "Ampoule", stock: 12, status: "Controlled" }
+  { code: "MED-PX-001", name: "Metformin 500 mg", form: "Tablet", stock: 420, status: "Available" },
+  { code: "MED-PX-002", name: "Amlodipine 5 mg", form: "Tablet", stock: 360, status: "Available" },
+  { code: "MED-PX-003", name: "Salbutamol inhaler", form: "Inhaler", stock: 84, status: "Watch" },
+  { code: "MED-PX-004", name: "Insulin glargine pen", form: "Pen", stock: 42, status: "Cold chain" },
+  { code: "MED-PX-005", name: "Controlled analgesic", form: "Ampoule", stock: 12, status: "Controlled" }
 ];
 
 export const demoInventory = [
-  { item: "Sodium chloride demo bags", lot: "LOT-DEMO-410", expiry: "2026-12-31", quantity: 240, status: "Available" },
-  { item: "CBC reagent demo kit", lot: "LOT-DEMO-512", expiry: "2026-08-15", quantity: 18, status: "Expiry watch" },
-  { item: "Radiology contrast demo vial", lot: "LOT-DEMO-620", expiry: "2026-10-05", quantity: 32, status: "Controlled storage" },
-  { item: "Pharmacy safety label roll", lot: "LOT-DEMO-707", expiry: "2027-01-20", quantity: 64, status: "Available" }
+  { item: "Sodium chloride bags", lot: "LOT-PX-410", expiry: "2026-12-31", quantity: 240, status: "Available" },
+  { item: "CBC reagent kit", lot: "LOT-PX-512", expiry: "2026-08-15", quantity: 18, status: "Expiry watch" },
+  { item: "Radiology contrast vial", lot: "LOT-PX-620", expiry: "2026-10-05", quantity: 32, status: "Controlled storage" },
+  { item: "Pharmacy safety label roll", lot: "LOT-PX-707", expiry: "2027-01-20", quantity: 64, status: "Available" }
 ];
 
 export const demoAuditLogs = [
-  { id: "AUD-DEMO-001", actor: "Demo Operator", action: "Viewed release evidence", tenant: "demo-tenant", status: "Recorded", time: "2026-07-01 08:00" },
-  { id: "AUD-DEMO-002", actor: "Demo Administrator", action: "Opened users table", tenant: "demo-tenant", status: "Recorded", time: "2026-07-01 08:04" },
-  { id: "AUD-DEMO-003", actor: "Demo Doctor", action: "Viewed demo patient chart", tenant: "demo-tenant", status: "Demo only", time: "2026-07-01 08:08" }
+  { id: "AUD-PX-001", actor: "Platform Operator", action: "Viewed release evidence", tenant: "utbe-health-system", status: "Recorded", time: "2026-07-01 08:00" },
+  { id: "AUD-PX-002", actor: "System Administrator", action: "Opened users table", tenant: "utbe-health-system", status: "Recorded", time: "2026-07-01 08:04" },
+  { id: "AUD-PX-003", actor: "Clinical Doctor", action: "Viewed preview patient chart", tenant: "utbe-health-system", status: "Preview only", time: "2026-07-01 08:08" }
 ];
 
 export const demoSystemHealth = [

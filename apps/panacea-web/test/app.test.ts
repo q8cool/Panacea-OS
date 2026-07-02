@@ -30,14 +30,17 @@ const providerKeyPair = crypto.generateKeyPairSync("rsa", {
 });
 
 describe("Panacea web platform", () => {
-  it("renders the executive overview as a professional controlled-pilot hospital interface", () => {
+  it("renders the executive overview as a professional enterprise hospital interface", () => {
     const html = renderRoute(data, "/command/executive-overview", initialState);
     expect(html).toContain("Executive Overview");
-    expect(html).toContain("UTBE Controlled Pilot");
+    expect(html).toContain("UTBE Enterprise");
+    expect(html).toContain("Enterprise Release");
     expect(html).toContain("Hospital Workspace Launchpad");
     expect(html).toContain("Clinical Operations");
     expect(html).toContain("Patient Care");
-    expect(html).toContain("No Real Patient Data");
+    expect(html).toContain("Protected");
+    expect(html).not.toContain("UTBE Controlled Pilot");
+    expect(html).not.toContain("Demo Data — Not Real Patient Data");
   });
 
   it("loads English and Arabic locale dictionaries", () => {
@@ -187,12 +190,12 @@ describe("Panacea web platform", () => {
     expect(result.checks.find((check) => check.name === "jwks")?.detail).toContain("Valid JWKS");
   });
 
-  it("renders the demo role switcher in the global shell", () => {
+  it("renders the workspace switcher in the global shell", () => {
     const html = renderApp(data, "/workspace/doctor/dashboard", {
       ...initialState,
       selectedRole: "doctor"
     });
-    expect(html).toContain("Pilot Role View");
+    expect(html).toContain("Workspace View");
     expect(html).toContain("Doctor");
     expect(html).toContain("Patient");
     expect(html).toContain("Administrator");
@@ -213,7 +216,7 @@ describe("Panacea web platform", () => {
         selectedRole: workspace.id
       });
       expect(html).toContain(workspace.title);
-      expect(html).toContain("DEMO DATA — NOT REAL PATIENT DATA");
+      expect(html).toContain("Protected Preview Records");
       expect(html).toContain("Workflow Timeline");
       expect(html).toContain("Governance And Evidence");
     }
@@ -227,7 +230,7 @@ describe("Panacea web platform", () => {
     });
     expect(html).toContain("مساحة عمل الطبيب / الطبيب السريري");
     expect(html).toContain("عارض توصيات الذكاء الاصطناعي");
-    expect(html).toContain("بيانات تجريبية — ليست بيانات مرضى حقيقية");
+    expect(html).toContain("سجلات معاينة محمية");
     expect(html).toContain("للاسترشاد فقط. يبقى القرار النهائي للطبيب المختص.");
   });
 
@@ -297,7 +300,7 @@ describe("Panacea web platform", () => {
       "/workspace/patient/dashboard",
       "/enterprise/workforce",
       "/clinical/modules",
-      "/developer/demo-mode"
+      "/developer/access-environment"
     ];
     const forbidden = [
       "http://localhost",
@@ -307,7 +310,12 @@ describe("Panacea web platform", () => {
       "FOUNDATION_",
       "PANACEA_",
       ".openapi.json",
-      "docs/openapi.json"
+      "docs/openapi.json",
+      "Controlled Pilot",
+      "UTBE Controlled Pilot",
+      "Demo Data",
+      "DEMO DATA",
+      "Pilot Role View"
     ];
 
     for (const route of generalRoutes) {
@@ -333,19 +341,21 @@ describe("Panacea web platform", () => {
     expect(explorer).toContain("/api/v");
   });
 
-  it("renders professional pilot badges, role cards, Arabic labels, and friendly error states", () => {
+  it("renders professional enterprise badges, role cards, Arabic labels, and friendly error states", () => {
     const home = renderRoute(data, "/command/executive-overview", initialState);
-    expect(home).toContain("Controlled Pilot");
-    expect(home).toContain("Demo Data — Not Real Patient Data");
+    expect(home).toContain("Enterprise Interface");
+    expect(home).toContain("Secure Data Boundary");
     expect(home).toContain("Human Approval Required");
     expect(home).toContain("Clinical Operations");
     expect(home).toContain("Medication Management");
+    expect(home).not.toContain("Controlled Pilot");
+    expect(home).not.toContain("Demo Data");
 
     const arabic = renderApp(data, "/command/executive-overview", {
       ...initialState,
       language: "ar"
     });
-    expect(arabic).toContain("التشغيل التجريبي المحكوم على UTBE");
+    expect(arabic).toContain("واجهة مؤسسية");
     expect(arabic).toContain("رعاية المرضى");
     expect(arabic).toContain("مركز المشغل");
 
@@ -758,7 +768,7 @@ describe("Panacea web platform", () => {
     expect(html).not.toContain("Cardiology Clinic");
   });
 
-  it("renders live write workflow forms and Arabic Demo Mode persistence boundaries", () => {
+  it("renders live write workflow forms and Arabic secure preview persistence boundaries", () => {
     const liveWorkspaceState: LiveWorkspaceState = {
       endpoint: {
         label: "Global Command Intelligence: List tenant-scoped clinical patient read models",
@@ -808,7 +818,7 @@ describe("Panacea web platform", () => {
       language: "ar",
       selectedRole: "laboratory"
     });
-    expect(arabicDemo).toContain("إجراء تجريبي فقط — لا يتم حفظه في قاعدة الإنتاج");
+    expect(arabicDemo).toContain("إجراء معاينة فقط — لا يتم حفظه في الخادم الإنتاجي");
   });
 
   it("renders live backend read-model rows without demo workspace records", () => {
@@ -1151,29 +1161,29 @@ describe("Panacea web platform", () => {
   it("renders the professional hospital workspace launchpad with quick workspace access", () => {
     const html = renderRoute(data, "/command/executive-overview", initialState);
     expect(html).toContain("Hospital Workspace Launchpad");
-    expect(html).toContain("UTBE Controlled Pilot hospital operating interface");
-    expect(html).toContain("Demo Data — Not Real Patient Data");
+    expect(html).toContain("UTBE enterprise hospital operating interface");
+    expect(html).toContain("Enterprise Interface");
     expect(html).toContain("#/workspace/doctor/dashboard");
     expect(html).toContain("#/workspace/administrator/dashboard");
   });
 
-  it("renders doctor patient search, chart, and advisory-only demo content", () => {
+  it("renders doctor patient search, chart, and advisory-only preview content", () => {
     const search = renderRoute(data, "/workspace/doctor/patient-search", {
       ...initialState,
       selectedRole: "doctor"
     });
-    expect(search).toContain("Demo Patient Alpha");
-    expect(search).toContain("DEMO-MRN-1001");
-    expect(search).toContain("#/workspace/doctor/patient-profile/demo-patient-001");
+    expect(search).toContain("Patient Alpha");
+    expect(search).toContain("PX-MRN-1001");
+    expect(search).toContain("#/workspace/doctor/patient-profile/patient-px-001");
 
-    const chart = renderRoute(data, "/workspace/doctor/clinical-timeline/demo-patient-001", {
+    const chart = renderRoute(data, "/workspace/doctor/clinical-timeline/patient-px-001", {
       ...initialState,
       selectedRole: "doctor"
     });
-    expect(chart).toContain("Demo specimen collected");
-    expect(chart).toContain("Demo medication review queued");
+    expect(chart).toContain("Specimen collected");
+    expect(chart).toContain("Medication review queued");
 
-    const advisory = renderRoute(data, "/workspace/doctor/ai-recommendations/demo-patient-001", {
+    const advisory = renderRoute(data, "/workspace/doctor/ai-recommendations/patient-px-001", {
       ...initialState,
       selectedRole: "doctor"
     });
@@ -1181,46 +1191,46 @@ describe("Panacea web platform", () => {
     expect(advisory).toContain("They are not diagnosis, treatment, or production AI output.");
   });
 
-  it("renders patient portal demo records without replacing clinician advice", () => {
+  it("renders patient portal preview records without replacing clinician advice", () => {
     const html = renderRoute(data, "/workspace/patient/appointments", {
       ...initialState,
       selectedRole: "patient"
     });
-    expect(html).toContain("Patient Portal Demo");
-    expect(html).toContain("Simple patient-facing demo data. This does not replace clinician advice.");
+    expect(html).toContain("Patient Portal");
+    expect(html).toContain("Patient-facing preview records do not replace clinician advice.");
     expect(html).toContain("Cardiology Clinic");
-    expect(html).toContain("DEMO DATA");
+    expect(html).toContain("SECURE PREVIEW");
   });
 
   it("renders operational records for lab, radiology, pharmacy, and administration", () => {
     const lab = renderRoute(data, "/workspace/laboratory/result-entry", initialState);
-    expect(lab).toContain("Laboratory Operations Demo");
-    expect(lab).toContain("Demo entry only -- not persisted to production backend");
+    expect(lab).toContain("Laboratory Operations");
+    expect(lab).toContain("Preview entry only -- not persisted to production backend");
 
     const radiology = renderRoute(data, "/workspace/radiology/dicom-metadata", initialState);
-    expect(radiology).toContain("Radiology Operations Demo");
-    expect(radiology).toContain("StudyInstanceUID-DEMO");
+    expect(radiology).toContain("Radiology Operations");
+    expect(radiology).toContain("StudyInstanceUID-PX");
 
     const pharmacy = renderRoute(data, "/workspace/pharmacy/inventory", initialState);
-    expect(pharmacy).toContain("Pharmacy Operations Demo");
-    expect(pharmacy).toContain("LOT-DEMO-410");
+    expect(pharmacy).toContain("Pharmacy Operations");
+    expect(pharmacy).toContain("LOT-PX-410");
 
     const admin = renderRoute(data, "/workspace/administrator/users", initialState);
-    expect(admin).toContain("Administration Demo Console");
-    expect(admin).toContain("Demo Doctor");
-    expect(admin).toContain("demo-tenant");
+    expect(admin).toContain("Administration Console");
+    expect(admin).toContain("Clinical Doctor");
+    expect(admin).toContain("utbe-health-system");
   });
 
-  it("localizes operational demo labels in Arabic", () => {
+  it("localizes operational secure preview labels in Arabic", () => {
     const html = renderRoute(data, "/workspace/doctor/patient-search", {
       ...initialState,
       language: "ar",
       selectedRole: "doctor"
     });
-    expect(html).toContain("بيانات تجريبية — ليست بيانات مرضى حقيقية");
+    expect(html).toContain("سجلات معاينة محمية");
     expect(html).toContain("بحث المرضى");
     expect(html).toContain("بحث مريض صناعي");
-    expect(html).toContain("Demo Patient Alpha");
+    expect(html).toContain("Patient Alpha");
   });
 });
 

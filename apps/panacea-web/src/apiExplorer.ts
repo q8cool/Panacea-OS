@@ -54,14 +54,14 @@ export function buildCurl(endpoint: EndpointRecord): string {
   const headers = [
     "-H 'Content-Type: application/json'",
     "-H 'Authorization: Bearer <TOKEN>'",
-    "-H 'X-Tenant-Id: demo-tenant'",
-    "-H 'X-User-Id: operator-demo'"
+    "-H 'X-Tenant-Id: utbe-health-system'",
+    "-H 'X-User-Id: platform-operator'"
   ];
   if (endpoint.method === "GET" || endpoint.method === "DELETE") {
     return `curl -X ${endpoint.method} ${headers.join(" ")} '${url}'`;
   }
   const body = endpoint.requestSchema
-    ? "{\\n  \"tenantId\": \"demo-tenant\",\\n  \"testOnly\": true\\n}"
+    ? "{\\n  \"tenantId\": \"utbe-health-system\",\\n  \"testOnly\": true\\n}"
     : "{}";
   return `curl -X ${endpoint.method} ${headers.join(" ")} '${url}' --data '${body}'`;
 }

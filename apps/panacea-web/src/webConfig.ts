@@ -40,7 +40,7 @@ export function buildWebConfig(data: AppData): PanaceaWebConfig {
     PANACEA_API_PUBLIC_BASE_URL: publicApiBase,
     PANACEA_API_BASE_URL: cleanUrl(readSetting("PANACEA_API_BASE_URL", runtime, env) || readSetting("VITE_PANACEA_API_BASE_URL", runtime, env) || publicApiBase),
     PANACEA_WEB_MODE: readSetting("PANACEA_WEB_MODE", runtime, env) === "live" ? "live" : "demo",
-    PANACEA_DEFAULT_TENANT: readSetting("PANACEA_DEFAULT_TENANT", runtime, env) || readSetting("VITE_PANACEA_DEFAULT_TENANT", runtime, env) || "demo-tenant",
+    PANACEA_DEFAULT_TENANT: readSetting("PANACEA_DEFAULT_TENANT", runtime, env) || readSetting("VITE_PANACEA_DEFAULT_TENANT", runtime, env) || "utbe-health-system",
     PANACEA_ENABLE_DEMO_MODE: readBoolean("PANACEA_ENABLE_DEMO_MODE", runtime, env, true),
     PANACEA_REQUEST_TIMEOUT_MS: readNumber("PANACEA_REQUEST_TIMEOUT_MS", runtime, env, 5000)
   };

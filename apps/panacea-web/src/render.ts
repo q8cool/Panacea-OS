@@ -118,7 +118,7 @@ export function renderRoute(data: AppData, route: string, state: RenderState = i
   if (route === "/intelligence/innovations") return renderInnovationPage(data);
   if (route === "/developer/api-explorer") return renderApiExplorer(data, state);
   if (route === "/developer/documentation") return renderDocumentationCenter(data, state);
-  if (route === "/developer/demo-mode") return renderDemoMode(data);
+  if (route === "/developer/access-environment" || route === "/developer/demo-mode") return renderDemoMode(data);
   if (route === "/evidence/release") return renderReleaseEvidence(data);
   if (route === "/evidence/legacy-coverage") return renderDocumentView(findDoc(data, "docs/user-guides/Legacy_Feature_Coverage_Matrix.md"), "Legacy Coverage");
   if (route === "/evidence/user-journeys") return renderDocumentView(findDoc(data, "docs/user-guides/User_Journey_Map.md"), "User Journeys");
@@ -161,13 +161,13 @@ function renderTopbar(_data: AppData, route: string, state: RenderState): string
   return `
     <header class="topbar">
       <div>
-        <p class="eyebrow">${escapeHtml(l("UTBE Controlled Pilot"))}</p>
+        <p class="eyebrow">${escapeHtml(l("Panacea OS Enterprise"))}</p>
         <h1>${escapeHtml(l(pageTitle(route)))}</h1>
       </div>
       <div class="topbar-actions">
-        <a class="mode-pill ${liveMode ? "live" : "demo"}" href="#/auth/login">
-          <i data-lucide="${liveMode ? "ShieldCheck" : "MonitorPlay"}"></i>
-          <span>${escapeHtml(l(liveMode ? "Live Mode" : "Demo Data — Not Real Patient Data"))}</span>
+        <a class="mode-pill ${liveMode ? "live" : "preview"}" href="#/auth/login">
+          <i data-lucide="${liveMode ? "ShieldCheck" : "LockKeyhole"}"></i>
+          <span>${escapeHtml(l(liveMode ? "Live Mode" : "Secure Preview"))}</span>
         </a>
         ${state.authSession ? `
           <div class="session-chip" title="${escapeAttribute(l("Authenticated secure session"))}">
@@ -180,8 +180,8 @@ function renderTopbar(_data: AppData, route: string, state: RenderState): string
           <input id="global-search" type="search" value="${escapeAttribute(state.globalSearch)}" autocomplete="off" aria-label="${escapeAttribute(l("Search pages, services, docs"))}" />
         </label>
         <label class="role-switcher">
-          <span>${escapeHtml(l(liveMode ? "Role From Token" : "Pilot Role View"))}</span>
-          <select id="demo-role-switcher" aria-label="${escapeAttribute(l("Pilot Role View"))}" ${liveMode ? "disabled" : ""}>
+          <span>${escapeHtml(l(liveMode ? "Role From Token" : "Workspace View"))}</span>
+          <select id="demo-role-switcher" aria-label="${escapeAttribute(l("Workspace View"))}" ${liveMode ? "disabled" : ""}>
             ${roleSwitcherOptions.map((option) => `<option value="${option.id}" ${option.id === activeRole ? "selected" : ""}>${escapeHtml(l(option.label))}</option>`).join("")}
           </select>
         </label>
@@ -212,20 +212,20 @@ function renderTopbar(_data: AppData, route: string, state: RenderState): string
 function renderExecutiveOverview(data: AppData): string {
   return `
     <div class="page-grid">
-      ${renderPageHeader("Executive Overview", "Panacea OS coordinates clinical, operational, compliance, and administrative workflows across the hospital environment.", "Controlled Pilot", "ShieldCheck")}
+      ${renderPageHeader("Executive Overview", "Panacea OS coordinates clinical, operational, compliance, and administrative workflows across the hospital environment.", "Enterprise Release", "ShieldCheck")}
       <section class="metric-grid">
-        ${metric("Deployment", "UTBE Controlled Pilot", "HTTPS access is active for external validation", "Globe2", "success")}
+        ${metric("Deployment", "UTBE Enterprise", "HTTPS access is active for authorized external access", "Globe2", "success")}
         ${metric("System Health", "Operational", "Runtime services are monitored through the operator center", "Activity", "success")}
         ${metric("Patient Safety", "Human Approval Required", "No autonomous diagnosis or treatment", "ShieldAlert", "success")}
         ${metric("Care Workspaces", "7 role areas", "Clinical, patient, operational, and administrative views", "LayoutDashboard", "info")}
         ${metric("Compliance Evidence", "Available", "Audit, privacy, release, and security evidence retained", "FileCheck2", "success")}
-        ${metric("Data Boundary", "No Real Patient Data", "Pilot presentation uses governed live checks and synthetic demo data only", "LockKeyhole", "warn")}
+        ${metric("Data Boundary", "Protected", "Public preview does not expose real patient records", "LockKeyhole", "success")}
       </section>
       ${renderProfessionalHomeBoard(data)}
       <section class="band two-column">
         <div>
           <h2>${escapeHtml(l("Hospital Command Summary"))}</h2>
-          <p>${escapeHtml(l("Panacea OS presents a hospital-grade operating layer for executive review, clinical workspace visibility, operational monitoring, compliance evidence, and controlled pilot validation."))}</p>
+          <p>${escapeHtml(l("Panacea OS presents a hospital-grade operating layer for executive review, clinical workspace visibility, operational monitoring, compliance evidence, and governed enterprise validation."))}</p>
           <div class="quick-actions">
             <a class="button primary" href="#/workspace/doctor/dashboard"><i data-lucide="Stethoscope"></i> ${escapeHtml(l("Open Clinical Operations"))}</a>
             <a class="button" href="#/workspace/patient/dashboard"><i data-lucide="HeartHandshake"></i> ${escapeHtml(l("Open Patient Care"))}</a>
@@ -233,7 +233,7 @@ function renderExecutiveOverview(data: AppData): string {
           </div>
         </div>
         <div class="release-stack">
-          ${releaseFact("Controlled Pilot", "No real patient data without approval", "ACTIVE")}
+          ${releaseFact("Production Interface", "Real patient data requires authorized integration", "ACTIVE")}
           ${releaseFact("Human Oversight", "Clinical decisions remain with authorized clinicians", "REQUIRED")}
           ${releaseFact("Access Control", "Role-based workspaces with secure session boundaries", "ENFORCED")}
           ${releaseFact("Evidence Access", "Technical proof remains in Operator Center", "AVAILABLE")}
@@ -243,7 +243,7 @@ function renderExecutiveOverview(data: AppData): string {
         <div class="section-title">
           <div>
             <h2>${escapeHtml(l("Professional Role Entry"))}</h2>
-            <p>${escapeHtml(l("Choose the appropriate hospital workspace. Demo data is clearly labeled and never presented as real patient information."))}</p>
+            <p>${escapeHtml(l("Choose the appropriate hospital workspace. Public preview records are separated from authenticated operational records."))}</p>
           </div>
         </div>
         ${renderRoleEntryGrid()}
@@ -252,7 +252,7 @@ function renderExecutiveOverview(data: AppData): string {
         <div class="section-title">
           <div>
             <h2>${escapeHtml(l("Operational Domains"))}</h2>
-            <p>${escapeHtml(l("The pilot interface groups capabilities by hospital outcome rather than by internal service implementation."))}</p>
+            <p>${escapeHtml(l("The enterprise interface groups capabilities by hospital outcome rather than by internal service implementation."))}</p>
           </div>
         </div>
         ${renderModuleTiles(activeServiceModules.slice(0, 6), data)}
@@ -275,21 +275,21 @@ function renderProfessionalHomeBoard(_data: AppData): string {
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l("Hospital Workspace Launchpad"))}</h2>
-          <p>${escapeHtml(l("A polished controlled-pilot entry point for executive, clinical, patient, operational, and administrative review."))}</p>
+          <p>${escapeHtml(l("A polished enterprise entry point for executive, clinical, patient, operational, and administrative review."))}</p>
         </div>
-        <span class="status-pill warn">${escapeHtml(l("Demo Data — Not Real Patient Data"))}</span>
+        <span class="status-pill success">${escapeHtml(l("Enterprise Interface"))}</span>
       </div>
       <div class="operator-grid">
         <div class="pilot-brief">
           <article>
             <i data-lucide="Hospital"></i>
             <strong>${escapeHtml(l("Panacea OS"))}</strong>
-            <span>${escapeHtml(l("UTBE Controlled Pilot hospital operating interface"))}</span>
+            <span>${escapeHtml(l("UTBE enterprise hospital operating interface"))}</span>
           </article>
           <article>
             <i data-lucide="ShieldCheck"></i>
-            <strong>${escapeHtml(l("Controlled Pilot"))}</strong>
-            <span>${escapeHtml(l("No real patient data without approval"))}</span>
+            <strong>${escapeHtml(l("Secure Data Boundary"))}</strong>
+            <span>${escapeHtml(l("No patient records are exposed in the public interface"))}</span>
           </article>
           <article>
             <i data-lucide="UserCheck"></i>
@@ -408,18 +408,18 @@ function renderAuthPage(data: AppData, state: RenderState): string {
   const validation = state.authValidation;
   const discovery = state.providerLoginDiscovery;
   const allowlist = state.apiAllowlistSummary;
-  const authMode = session?.authMode === "provider-login" ? "Provider Login" : session?.authMode === "operator-jwt" ? "Operator Token" : "Pilot View";
+  const authMode = session?.authMode === "provider-login" ? "Provider Login" : session?.authMode === "operator-jwt" ? "Operator Token" : "Secure Preview";
   const providerReady = discovery?.providerHostedLoginAvailable;
   return `
     <div class="page-grid">
-      ${renderPageHeader("Secure Access", "Authenticate controlled-pilot workspaces through the approved Foundation provider. Demo data remains clearly separated when live credentials are unavailable.", session ? "LIVE SESSION" : "AUTH READY", "KeyRound")}
+      ${renderPageHeader("Secure Access", "Authenticate enterprise workspaces through the approved Foundation provider. Public preview records remain separated from authenticated operational records.", session ? "LIVE SESSION" : "AUTH READY", "KeyRound")}
       <section class="metric-grid">
         ${metric("Auth mode", authMode, session ? "Live session active" : "No authenticated session", "ShieldCheck", session ? "success" : "warn")}
         ${metric("Foundation", "Configured", "Approved external identity provider", "Globe", "info")}
         ${metric("Provider login", providerReady ? "Available" : "Operator action required", discovery ? professionalAuthRecommendation(discovery.recommendation) : "Discovery not run", "LogIn", providerReady ? "success" : "warn")}
         ${metric("Secure Key Set", validation?.ok ? "Validated" : "Required", validation?.ok ? "Token validated against provider keys" : "Token validation has not completed", "KeyRound", validation?.ok ? "success" : "warn")}
-        ${metric("Organization", session ? "Verified" : "Pilot default", session ? "From secure session" : "No live organization session", "Building2", session ? "success" : "warn")}
-        ${metric("Role", session?.role ?? state.selectedRole, session ? "From secure session" : "Pilot role view only", "UserRoundCheck", session ? "success" : "warn")}
+        ${metric("Organization", session ? "Verified" : "Default", session ? "From secure session" : "No live organization session", "Building2", session ? "success" : "warn")}
+        ${metric("Role", session?.role ?? state.selectedRole, session ? "From secure session" : "Workspace preview only", "UserRoundCheck", session ? "success" : "warn")}
       </section>
       <section class="band two-column">
         <div>
@@ -436,7 +436,7 @@ function renderAuthPage(data: AppData, state: RenderState): string {
             </label>
             <label>
               <span>${escapeHtml(l("Tenant ID"))}</span>
-              <input id="provider-tenant" type="text" value="${escapeAttribute(config.PANACEA_DEFAULT_TENANT === "demo-tenant" ? "default" : config.PANACEA_DEFAULT_TENANT)}" autocomplete="organization" aria-label="${escapeAttribute(l("Foundation organization ID"))}" />
+              <input id="provider-tenant" type="text" value="${escapeAttribute(config.PANACEA_DEFAULT_TENANT)}" autocomplete="organization" aria-label="${escapeAttribute(l("Foundation organization ID"))}" />
             </label>
             <button class="button primary" type="submit"><i data-lucide="LogIn"></i> ${escapeHtml(l("Sign In With Foundation"))}</button>
           </form>
@@ -476,7 +476,7 @@ function renderAuthPage(data: AppData, state: RenderState): string {
             <div class="empty-state">
               <i data-lucide="LockKeyhole"></i>
               <h3>${escapeHtml(l("No live session"))}</h3>
-              <p>${escapeHtml(l("Use the controlled-pilot view for visual review, or provide approved Foundation credentials for Live Mode. Pilot role selection never grants production access."))}</p>
+              <p>${escapeHtml(l("Use the secure preview for visual review, or provide approved Foundation credentials for Live Mode. Workspace selection never grants production access."))}</p>
             </div>
           `}
         </div>
@@ -527,7 +527,7 @@ function renderLiveStatusPage(data: AppData, state: RenderState): string {
       <section class="metric-grid">
         ${metric("Foundation endpoints", `${foundationOnline}/${status?.foundation.length ?? 4}`, "Health, readiness, metrics, JWKS", "ShieldCheck", foundationOnline > 0 ? "success" : "warn")}
         ${metric("Service endpoints", `${serviceOnline}/${status?.services.length ?? data.services.length * 3}`, "Health, readiness, OpenAPI", "Server", serviceOnline > 0 ? "success" : "warn")}
-        ${metric("Auth", session ? "Authenticated" : "Not authenticated", session ? `${session.role} · ${session.tenantId}` : "Demo fallback", "KeyRound", session ? "success" : "warn")}
+        ${metric("Auth", session ? "Authenticated" : "Not authenticated", session ? `${session.role} · ${session.tenantId}` : "Secure preview", "KeyRound", session ? "success" : "warn")}
         ${metric("Last poll", status?.checkedAt ? new Date(status.checkedAt).toLocaleString() : "Not run", "Use Refresh Live Status", "RefreshCw", status?.checkedAt ? "success" : "warn")}
       </section>
       <section class="band">
@@ -697,7 +697,7 @@ function renderModuleGroupPage(title: string, description: string, modules: Modu
         ${renderModuleTiles(modules, data)}
       </section>
       <section class="band">
-        <h2>${escapeHtml(l("Pilot Capability View"))}</h2>
+        <h2>${escapeHtml(l("Enterprise Capability View"))}</h2>
         ${renderModuleTable(modules, data)}
       </section>
     </div>
@@ -713,7 +713,7 @@ function renderModuleDetailPage(data: AppData, serviceId: string): string {
     <div class="page-grid">
       ${renderPageHeader(module.title, module.summary, professionalModuleStatus(module.status), "Workflow")}
       <section class="metric-grid">
-        ${metric("Capability Status", professionalModuleStatus(module.status), "Visible in controlled pilot", "BadgeCheck", module.hasUi ? "success" : "warn")}
+        ${metric("Capability Status", professionalModuleStatus(module.status), "Visible in enterprise interface", "BadgeCheck", module.hasUi ? "success" : "warn")}
         ${metric("Governance", "Auditable", "Actions remain policy-controlled", "ShieldCheck", "success")}
         ${metric("Data Boundary", "Tenant Aware", "Organization separation remains enforced", "Building2", "success")}
         ${metric("Validation", service.testFiles ? "Validated" : "Needs Review", "Evidence retained in Operator Center", "TestTube2", service.testFiles ? "success" : "warn")}
@@ -779,7 +779,7 @@ function renderApiExplorer(data: AppData, state: RenderState): string {
   const methods = ["ALL", "GET", "POST", "PUT", "PATCH", "DELETE"];
   return `
     <div class="page-grid">
-      ${renderPageHeader("API Explorer", "Search versioned OpenAPI contracts and generate safe tenant-aware demo curl requests.", `${endpoints.length} endpoints`, "Braces")}
+      ${renderPageHeader("API Explorer", "Search versioned OpenAPI contracts and generate safe tenant-aware curl requests.", `${endpoints.length} endpoints`, "Braces")}
       <section class="band api-workspace">
         <div class="api-controls">
           <label class="field">
@@ -844,15 +844,15 @@ function renderDocumentationCenter(data: AppData, state: RenderState): string {
 function renderDemoMode(_data: AppData): string {
   return `
     <div class="page-grid">
-      ${renderPageHeader("Controlled Pilot Access", "A safe presentation mode for reviewing Panacea OS without real patient data or clinical production approval.", "Controlled Pilot", "MonitorPlay")}
+      ${renderPageHeader("Access & Environment", "A secure environment view for reviewing Panacea OS without exposing real patient records.", "Enterprise", "MonitorPlay")}
       <section class="band two-column">
         <div>
-          <h2>${escapeHtml(l("Pilot Review Mode"))}</h2>
-          <p>${escapeHtml(l("Use the role workspaces to review the hospital experience with synthetic data, clear safety boundaries, and no real patient information."))}</p>
+          <h2>${escapeHtml(l("Environment Review"))}</h2>
+          <p>${escapeHtml(l("Use the role workspaces to review the hospital experience with protected preview records, clear safety boundaries, and no public patient data exposure."))}</p>
           <ul class="check-list">
-            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Demo Data — Not Real Patient Data"))}</li>
+            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Protected Preview Records"))}</li>
             <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Human Approval Required"))}</li>
-            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Controlled Pilot — No Real Patient Data Without Approval"))}</li>
+            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("No real patient data without authorization"))}</li>
           </ul>
         </div>
         <div>
@@ -865,13 +865,13 @@ function renderDemoMode(_data: AppData): string {
         </div>
       </section>
       <section class="band">
-        <h2>${escapeHtml(l("Recommended Pilot Walkthrough"))}</h2>
+        <h2>${escapeHtml(l("Recommended Platform Walkthrough"))}</h2>
         ${renderRoleEntryGrid()}
       </section>
       <section class="band">
         <div class="section-title">
           <div>
-            <h2>${escapeHtml(l("Demo Access Plan"))}</h2>
+            <h2>${escapeHtml(l("Environment Access Plan"))}</h2>
             <p>${escapeHtml(l("The detailed operator runbook remains available in the documentation center for authorized technical review."))}</p>
           </div>
           <a class="button compact" href="#/developer/documentation"><i data-lucide="BookOpen"></i> ${escapeHtml(l("Documentation Center"))}</a>

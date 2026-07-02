@@ -1,8 +1,6 @@
 import { pageFromRoute, roleDefaultRoute, roleWorkspaces, workspaceFromRoute } from "./roleWorkspaces";
 import { translate, type Locale } from "./locales";
 import {
-  DEMO_DATA_LABEL,
-  DEMO_DATA_LABEL_DISPLAY,
   demoAuditLogs,
   demoHospital,
   demoInventory,
@@ -119,7 +117,7 @@ function modeNotice(workspace: RoleWorkspaceDefinition, context: RoleRenderConte
         <i data-lucide="ShieldCheck"></i>
         <div>
           <strong>${escapeHtml(l("Live Mode — Authenticated Read-Only Session"))}</strong>
-          <p>${escapeHtml(l("User"))} ${escapeHtml(context.session.displayName)} ${escapeHtml(l("is scoped to role"))} ${escapeHtml(l(context.session.role))}. ${escapeHtml(l("Pilot role switching is disabled for this session."))}</p>
+          <p>${escapeHtml(l("User"))} ${escapeHtml(context.session.displayName)} ${escapeHtml(l("is scoped to role"))} ${escapeHtml(l(context.session.role))}. ${escapeHtml(l("Workspace switching is controlled by the secure session."))}</p>
         </div>
       </section>
     `;
@@ -128,8 +126,8 @@ function modeNotice(workspace: RoleWorkspaceDefinition, context: RoleRenderConte
     <section class="demo-notice">
       <i data-lucide="Info"></i>
       <div>
-        <strong>${escapeHtml(l(DEMO_DATA_LABEL))}</strong>
-        <p>${escapeHtml(l(workspace.dataMode))} ${escapeHtml(l("Demo Role Switcher is for presentation only and does not bypass real security in production."))}</p>
+        <strong>${escapeHtml(l("Secure Preview — No Patient Records Loaded"))}</strong>
+        <p>${escapeHtml(l(workspace.dataMode))} ${escapeHtml(l("Workspace selection is for presentation only and does not bypass real security in production."))}</p>
       </div>
     </section>
   `;
@@ -143,7 +141,7 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
         <div class="section-title">
           <div>
             <h2>${escapeHtml(l("Live Data Connection"))}</h2>
-            <p>${escapeHtml(l("Controlled pilot view is active. Open Secure Access and provide approved Foundation credentials to use live read-only checks."))}</p>
+            <p>${escapeHtml(l("Secure preview is active. Open Secure Access and provide approved Foundation credentials to use live read-only checks."))}</p>
           </div>
           <span class="status-pill ${connection.className}">${escapeHtml(l(connection.label))}</span>
           <a class="button compact" href="#/auth/login"><i data-lucide="KeyRound"></i> ${escapeHtml(l("Foundation Login"))}</a>
@@ -250,7 +248,7 @@ function roleLiveReadModel(workspace: RoleWorkspaceDefinition, page: RolePageDef
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Live Records"))}</h2>
-          <p>${escapeHtml(l("Live Mode displays only authenticated service records. Demo rows are not mixed with live data."))}</p>
+          <p>${escapeHtml(l("Live Mode displays only authenticated service records. Preview rows are not mixed with live data."))}</p>
         </div>
         <span class="status-pill success">${escapeHtml(l("Service Online"))}</span>
       </div>
@@ -271,7 +269,7 @@ function liveReadModelShell(page: RolePageDefinition, title: string, detail: str
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Live Records"))}</h2>
-          <p>${escapeHtml(l("Live Mode displays only authenticated service records. Demo rows are not mixed with live data."))}</p>
+          <p>${escapeHtml(l("Live Mode displays only authenticated service records. Preview rows are not mixed with live data."))}</p>
         </div>
         <span class="status-pill ${escapeAttribute(tone)}">${escapeHtml(l(title))}</span>
       </div>
@@ -332,7 +330,7 @@ function roleLiveWriteWorkflow(workspace: RoleWorkspaceDefinition, page: RolePag
         </article>
         <article class="source-list">
           <strong>${escapeHtml(l("Write Boundary"))}</strong>
-          <span>${escapeHtml(l("Only approved controlled-pilot transactional forms can submit browser requests."))}</span>
+          <span>${escapeHtml(l("Only approved governed transactional forms can submit browser requests."))}</span>
           <span>${escapeHtml(l("Unknown or unsafe browser writes remain blocked by policy."))}</span>
           <span>${escapeHtml(l(workspace.boundary))}</span>
         </article>
@@ -381,13 +379,13 @@ function roleDemoWriteBoundary(_workspace: RoleWorkspaceDefinition, _page: RoleP
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l("Transactional Write Workflow"))}</h2>
-          <p>${escapeHtml(l("Demo action only — not persisted to production backend"))}</p>
+          <p>${escapeHtml(l("Preview action only — not persisted to production backend"))}</p>
         </div>
-        <span class="status-pill warn">${escapeHtml(l("DEMO MODE"))}</span>
+        <span class="status-pill warn">${escapeHtml(l("SECURE PREVIEW"))}</span>
       </div>
       <div class="empty-state compact">
         <i data-lucide="DatabaseZap"></i>
-        <p>${escapeHtml(l("إجراء تجريبي فقط — لا يتم حفظه في قاعدة الإنتاج"))}</p>
+        <p>${escapeHtml(l("Preview action only — not persisted to production backend"))}</p>
         <small>${escapeHtml(l("Sign in with a Foundation-issued token to enable approved Sprint 113 live write workflows."))}</small>
       </div>
     </section>
@@ -451,14 +449,14 @@ function asRecord(value: unknown): Record<string, unknown> {
 }
 
 function demoSourceBanner(context: RoleRenderContext): string {
-  const status = context.mode === "live" ? "LIVE PARTIAL" : "DEMO DATA";
+  const status = context.mode === "live" ? "LIVE PARTIAL" : "SECURE PREVIEW";
   const detail = context.mode === "live"
     ? "Live service access was evaluated where allowed. These records are presentation fallback data and are not persisted to the production backend."
-    : "Frontend demo seed data. These records are synthetic and are not real patient data.";
+    : "Preview records are illustrative, non-PHI, and separated from authenticated operational records.";
   return `
     <section class="demo-data-banner">
       <div>
-        <strong>${escapeHtml(l(DEMO_DATA_LABEL_DISPLAY))}</strong>
+        <strong>${escapeHtml(l("Protected Preview Records"))}</strong>
         <p>${escapeHtml(l(detail))}</p>
       </div>
       <span class="status-pill warn">${escapeHtml(l(status))}</span>
@@ -477,7 +475,7 @@ function doctorExperience(route: string, page: RolePageDefinition): string {
       ${patientChart(patient, "clinical-summary")}
     `;
   }
-  if (page.id === "patient-search") return patientSearchPanel("Patient Search", "Click a synthetic patient to open a complete demo chart.", true);
+  if (page.id === "patient-search") return patientSearchPanel("Patient Search", "Open an illustrative non-PHI patient chart.", true);
   if (["patient-profile", "clinical-timeline", "allergies", "conditions", "medications", "vital-signs", "encounters", "clinical-notes", "lab-results", "radiology-reports", "pharmacy-review", "ai-recommendations", "clinical-alerts", "care-team"].includes(page.id)) {
     return patientChart(patient, page.id);
   }
@@ -491,7 +489,7 @@ function patientPortalExperience(page: RolePageDefinition): string {
   const portalCards = [
     ["Next appointment", patient.appointments[0].date, patient.appointments[0].clinic],
     ["Medication count", String(patient.medications.length), "Review with your care team"],
-    ["Unread messages", String(patient.messages.filter((message) => message.status === "Unread").length), "Demo inbox"],
+    ["Unread messages", String(patient.messages.filter((message) => message.status === "Unread").length), "Inbox preview"],
     ["Balance", patient.billing.balance, patient.billing.insurance]
   ];
   const content = page.id === "appointments"
@@ -515,10 +513,10 @@ function patientPortalExperience(page: RolePageDefinition): string {
     <section class="band">
       <div class="section-title">
         <div>
-          <h2>${escapeHtml(l("Patient Portal Demo"))}</h2>
-          <p>${escapeHtml(l("Simple patient-facing demo data. This does not replace clinician advice."))}</p>
+          <h2>${escapeHtml(l("Patient Portal"))}</h2>
+          <p>${escapeHtml(l("Patient-facing preview records do not replace clinician advice."))}</p>
         </div>
-        <span class="status-pill warn">${escapeHtml(l("DEMO DATA"))}</span>
+        <span class="status-pill warn">${escapeHtml(l("SECURE PREVIEW"))}</span>
       </div>
       <div class="metric-grid">${portalCards.map(([label, value, detail]) => metricMini(label, value, detail)).join("")}</div>
       <div class="demo-section-spacer">${content}</div>
@@ -532,21 +530,21 @@ function laboratoryExperience(page: RolePageDefinition): string {
   const rows = page.id === "critical-results"
     ? critical.map((order) => [order.orderId, order.patientName, order.test, order.value, order.priority])
     : page.id === "result-entry"
-      ? pending.map((order) => [order.orderId, order.patientName, order.test, "Demo entry only -- not persisted to production backend"])
+      ? pending.map((order) => [order.orderId, order.patientName, order.test, "Preview entry only -- not persisted to production backend"])
       : demoLabOrders.slice(0, 10).map((order) => [order.orderId, order.patientName, order.test, order.status, order.value]);
   return `
     <section class="band">
       <div class="section-title">
         <div>
-          <h2>${escapeHtml(l("Laboratory Operations Demo"))}</h2>
-          <p>${escapeHtml(l(page.id === "result-entry" ? "Demo entry only -- not persisted to production backend" : "Pending orders, specimen status, validation, QC, and critical result visibility."))}</p>
+          <h2>${escapeHtml(l("Laboratory Operations"))}</h2>
+          <p>${escapeHtml(l(page.id === "result-entry" ? "Preview entry only -- not persisted to production backend" : "Pending orders, specimen status, validation, QC, and critical result visibility."))}</p>
         </div>
         <span class="status-pill ${critical.length ? "danger" : "success"}">${critical.length} ${escapeHtml(l("critical"))}</span>
       </div>
       <div class="metric-grid">
         ${metricMini("Pending orders", String(pending.length), "Specimen and validation queue")}
         ${metricMini("Turnaround", "42 min", "Synthetic median TAT")}
-        ${metricMini("QC status", "Passing", "Demo analyzer controls")}
+        ${metricMini("QC status", "Passing", "Analyzer controls preview")}
       </div>
       ${simpleTable(page.id === "result-entry" ? ["Order", "Patient", "Test", "Entry state"] : ["Order", "Patient", "Test", "Status", "Result"], rows)}
     </section>
@@ -555,13 +553,13 @@ function laboratoryExperience(page: RolePageDefinition): string {
 
 function radiologyExperience(page: RolePageDefinition): string {
   const rows = page.id === "dicom-metadata"
-    ? demoRadiologyStudies.slice(0, 8).map((study) => [study.studyId, study.modality, study.bodyPart, "StudyInstanceUID-DEMO", study.pacsStatus])
+    ? demoRadiologyStudies.slice(0, 8).map((study) => [study.studyId, study.modality, study.bodyPart, "StudyInstanceUID-PX", study.pacsStatus])
     : demoRadiologyStudies.slice(0, 10).map((study) => [study.studyId, study.patientName, study.modality, study.status, study.report]);
   return `
     <section class="band">
       <div class="section-title">
         <div>
-          <h2>${escapeHtml(l("Radiology Operations Demo"))}</h2>
+          <h2>${escapeHtml(l("Radiology Operations"))}</h2>
           <p>${escapeHtml(l("Imaging orders, study list, metadata, reports, approvals, and critical findings using synthetic records."))}</p>
         </div>
         <span class="status-pill warn">${escapeHtml(l("DICOM image viewer not implemented yet."))}</span>
@@ -569,7 +567,7 @@ function radiologyExperience(page: RolePageDefinition): string {
       <div class="metric-grid">
         ${metricMini("Studies today", String(demoRadiologyStudies.length), "Synthetic worklist")}
         ${metricMini("PACS status", "Metadata available", "No image viewer")}
-        ${metricMini("Critical findings", String(demoRadiologyStudies.filter((study) => study.priority === "Urgent").length), "Demo escalation list")}
+        ${metricMini("Critical findings", String(demoRadiologyStudies.filter((study) => study.priority === "Urgent").length), "Escalation preview")}
       </div>
       ${simpleTable(page.id === "dicom-metadata" ? ["Study", "Modality", "Body Part", "DICOM UID", "PACS"] : ["Study", "Patient", "Modality", "Status", "Report"], rows)}
     </section>
@@ -586,14 +584,14 @@ function pharmacyExperience(page: RolePageDefinition): string {
     <section class="band">
       <div class="section-title">
         <div>
-          <h2>${escapeHtml(l("Pharmacy Operations Demo"))}</h2>
+          <h2>${escapeHtml(l("Pharmacy Operations"))}</h2>
           <p>${escapeHtml(l("Prescription queue, dispensing workflow, inventory, batch tracking, and safety alert visibility."))}</p>
         </div>
-        <span class="status-pill warn">${escapeHtml(l("Demo safety rules only"))}</span>
+        <span class="status-pill warn">${escapeHtml(l("Safety rules preview"))}</span>
       </div>
       <div class="metric-grid">
         ${metricMini("Prescription queue", String(demoPharmacyRecords.length), "Synthetic prescriptions")}
-        ${metricMini("Inventory items", String(demoInventory.length), "Demo stock")}
+        ${metricMini("Inventory items", String(demoInventory.length), "Stock preview")}
         ${metricMini("Safety alerts", String(demoPharmacyRecords.filter((rx) => rx.safety.includes("Review")).length), "Review labels only")}
       </div>
       ${simpleTable(page.id === "inventory" || page.id === "batch-lot-tracking" || page.id === "expiration-tracking" ? ["Item", "Lot", "Expiry", "Qty", "Status"] : page.id === "medication-catalog" ? ["Code", "Medication", "Form", "Stock", "Status"] : ["Rx", "Patient", "Medication", "Status", "Safety"], rows)}
@@ -609,13 +607,13 @@ function adminExperience(data: AppData, page: RolePageDefinition): string {
       : page.id === "tenants"
         ? simpleTable(["Tenant", "Name", "Country", "Status"], demoHospital.tenants.map((tenant) => [tenant.id, tenant.name, tenant.country, tenant.status]))
         : page.id === "departments"
-          ? simpleTable(["Department", "Users", "Status"], demoHospital.departments.map((department) => [department, String(demoUsers.filter((user) => user.department === department).length), "Demo active"]))
+          ? simpleTable(["Department", "Users", "Status"], demoHospital.departments.map((department) => [department, String(demoUsers.filter((user) => user.department === department).length), "Active preview"]))
           : page.id === "audit-logs"
             ? simpleTable(["Event", "Actor", "Action", "Tenant", "Status"], demoAuditLogs.map((log) => [log.id, log.actor, log.action, log.tenant, log.status]))
             : page.id === "system-health"
               ? simpleTable(["Service", "Status", "Detail"], demoSystemHealth.map((item) => [item.service, item.status, item.detail]))
               : simpleTable(["Area", "Value", "Status"], [
-                ["Hospital", demoHospital.name, "Demo configured"],
+                ["Hospital", demoHospital.name, "Configured"],
                 ["Services", String(data.services.length), "Runtime contracts available"],
                 ["OpenAPI documents", String(data.openApiDocuments.length), "Validated"],
                 ["Users", String(demoUsers.length), "Synthetic"]
@@ -624,15 +622,15 @@ function adminExperience(data: AppData, page: RolePageDefinition): string {
     <section class="band">
       <div class="section-title">
         <div>
-          <h2>${escapeHtml(l("Administration Demo Console"))}</h2>
-          <p>${escapeHtml(l("Users, roles, tenants, organizations, configuration, audit, security, privacy, and compliance using safe demo records."))}</p>
+          <h2>${escapeHtml(l("Administration Console"))}</h2>
+          <p>${escapeHtml(l("Users, roles, tenants, organizations, configuration, audit, security, privacy, and compliance using protected preview records."))}</p>
         </div>
-        <span class="status-pill warn">${escapeHtml(l("Read-only admin demo"))}</span>
+        <span class="status-pill warn">${escapeHtml(l("Read-only preview"))}</span>
       </div>
       <div class="metric-grid">
-        ${metricMini("Demo users", String(demoUsers.length), "Role mapped")}
+        ${metricMini("Preview users", String(demoUsers.length), "Role mapped")}
         ${metricMini("Tenants", String(demoHospital.tenants.length), "Synthetic")}
-        ${metricMini("Audit events", String(demoAuditLogs.length), "Demo only")}
+        ${metricMini("Audit events", String(demoAuditLogs.length), "Preview only")}
       </div>
       ${table}
     </section>
@@ -711,7 +709,7 @@ function patientSummaryCards(patient: DemoPatient): string {
   return `
     <div class="operational-cards">
       ${metricMini("Age / Sex", `${patient.age} / ${patient.sex}`, patient.attending)}
-      ${metricMini("Allergies", patient.allergies.join(", "), "Demo allergy list")}
+      ${metricMini("Allergies", patient.allergies.join(", "), "Allergy list preview")}
       ${metricMini("Conditions", patient.conditions.join(", "), "Synthetic conditions")}
       ${metricMini("Billing", patient.billing.balance, patient.billing.lastInvoice)}
     </div>
@@ -734,7 +732,7 @@ function clinicalAlertsPanel(): string {
   return `
     <section class="band">
       <h2>${escapeHtml(l("Clinical Alerts"))}</h2>
-      <p>${escapeHtml(l("Synthetic watchlist for operational demo. No autonomous diagnosis or treatment."))}</p>
+      <p>${escapeHtml(l("Illustrative watchlist for operational review. No autonomous diagnosis or treatment."))}</p>
       ${simpleTable(["Patient", "Room", "Status", "Risk"], rows)}
     </section>
   `;
@@ -758,9 +756,9 @@ function taskPanel(patient: DemoPatient): string {
     <section class="band">
       <h2>${escapeHtml(l("Task List"))}</h2>
       ${simpleTable(["Task", "Owner", "Status"], [
-        ["Review demo lab trend", patient.attending, "Open"],
-        ["Confirm medication reconciliation", "Demo Pharmacist", "In progress"],
-        ["Patient portal education check", "Demo Nurse", "Scheduled"]
+        ["Review laboratory trend", patient.attending, "Open"],
+        ["Confirm medication reconciliation", "Pharmacist", "In progress"],
+        ["Patient portal education check", "Nursing team", "Scheduled"]
       ])}
     </section>
   `;
@@ -770,11 +768,11 @@ function advisoryPanel(patient: DemoPatient): string {
   return `
     <div class="alert warn">
       <strong>${escapeHtml(l("Advisory only. Clinician remains final decision maker."))}</strong>
-      <p>${escapeHtml(l("Demo recommendation cards are educational UI examples. They are not diagnosis, treatment, or production AI output."))}</p>
+      <p>${escapeHtml(l("Recommendation preview cards are educational UI examples. They are not diagnosis, treatment, or production AI output."))}</p>
     </div>
     ${simpleTable(["Recommendation", "Reason", "Required action"], [
-      ["Review demo allergy list", patient.allergies.join(", "), "Clinician review"],
-      ["Check pending demo lab result", patient.labs[0].status, "Wait for validated result"],
+      ["Review allergy list", patient.allergies.join(", "), "Clinician review"],
+      ["Check pending laboratory result", patient.labs[0].status, "Wait for validated result"],
       ["Review medication reconciliation", patient.medications.join(", "), "Pharmacist/clinician review"]
     ])}
   `;
@@ -981,7 +979,7 @@ function roleSourceSection(data: AppData, workspace: RoleWorkspaceDefinition, se
             ${serviceSources.length ? serviceSources.map((service) => `
               <article>
                 <strong>${escapeHtml(l(service.title))}</strong>
-                <span>${escapeHtml(l("Connected to controlled-pilot backend evidence."))}</span>
+                <span>${escapeHtml(l("Connected to governed backend evidence."))}</span>
               </article>
             `).join("") : `<article><strong>${escapeHtml(l("No active service mapped"))}</strong><span>${escapeHtml(l("Coverage is documentation-backed in this checkout."))}</span></article>`}
           </div>
@@ -1044,7 +1042,7 @@ function statusClass(status: string): string {
 
 function professionalEndpointReason(reason: string): string {
   const normalized = reason.toLowerCase();
-  if (normalized.includes("write")) return "Approved controlled-pilot workflow selected for this workspace.";
+  if (normalized.includes("write")) return "Approved governed workflow selected for this workspace.";
   if (normalized.includes("read")) return "Approved read-only service check selected for this workspace.";
   if (normalized.includes("unavailable") || normalized.includes("no matching")) return "The system could not reach this service for the current workspace.";
   return "Governed service evidence is available for this workspace.";
@@ -1067,7 +1065,7 @@ function friendlyResultDetail(detail: string, blockedReason?: string): string {
     return "Your secure session does not currently allow this action.";
   }
   if (text.includes("404") || text.includes("not found")) {
-    return "The requested service view is not available in this pilot environment.";
+    return "The requested service view is not available in this environment.";
   }
   if (detail.toLowerCase().includes("request completed")) return "The request completed successfully.";
   return detail || "Service status is being evaluated.";
@@ -1083,7 +1081,7 @@ function professionalAccessClassification(classification: string): string {
 
 function workspaceConnectionStatus(context: RoleRenderContext): { label: string; className: string } {
   if (context.mode !== "live") {
-    return { label: "Demo Data — Not Real Patient Data", className: "warn" };
+    return { label: "Secure Preview", className: "warn" };
   }
   const state = context.workspaceState;
   if (!state) {

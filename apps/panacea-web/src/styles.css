@@ -297,6 +297,11 @@ pre,
   color: var(--amber);
 }
 
+.mode-pill.preview {
+  border-color: rgba(37, 99, 235, 0.35);
+  color: var(--blue);
+}
+
 .session-chip {
   align-items: flex-start;
   flex-direction: column;
