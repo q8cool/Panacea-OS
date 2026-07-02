@@ -962,9 +962,12 @@ describe("Panacea web platform", () => {
       expect(visibleControls.some((text) => text.includes(label)), `${label} should be visible on /hospital-core`).toBe(true);
     }
 
-    expect(container.querySelector('a[href="#action-register-patient"]')?.textContent).toContain("Create Patient");
-    expect(container.querySelector('a[href="#action-attach-report"]')?.textContent).toContain("Upload Medical File");
-    expect(container.querySelector('a[href="#action-draft-prescription"]')?.textContent).toContain("Draft Prescription");
+    expect(container.querySelector('button[data-scroll-target="action-register-patient"]')?.textContent).toContain("Create Patient");
+    expect(container.querySelector('button[data-scroll-target="action-attach-report"]')?.textContent).toContain("Upload Medical File");
+    expect(container.querySelector('button[data-scroll-target="action-draft-prescription"]')?.textContent).toContain("Draft Prescription");
+    expect(container.querySelector('button[data-scroll-target="operational-patient-file"]')?.textContent).toContain("Patient List");
+    expect(container.querySelector('button[data-scroll-target="operational-audit-evidence"]')?.textContent).toContain("Audit Trail");
+    expect(container.querySelector('a[href^="#action-"]')).toBeNull();
   });
 
   it("renders the restored AI Hospital Core workflow page in Arabic", () => {

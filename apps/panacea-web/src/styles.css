@@ -1700,6 +1700,9 @@ pre {
   text-decoration: none;
   background: var(--panel);
   font-weight: 800;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
 }
 
 .hospital-core-control:hover {

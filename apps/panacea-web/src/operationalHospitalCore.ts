@@ -184,18 +184,18 @@ export function renderOperationalHospitalCore(data: AppData, state: RenderState)
 function operationConsole(locale: Locale, patientId: string, apiBase: string): string {
   const routeByLabel = new Map(readRoutes(patientId, apiBase).map((route) => [route.label, route.url]));
   const controls = [
-    { label: "Create Patient", icon: "UserPlus", href: "#action-register-patient", kind: "workflow" },
-    { label: "Patient List", icon: "Users", href: routeByLabel.get("Patient List") ?? "#operational-patient-file", kind: "record" },
-    { label: "Open Patient File", icon: "FolderOpen", href: routeByLabel.get("Patient Profile") ?? "#operational-patient-file", kind: "record" },
-    { label: "Upload Medical File", icon: "UploadCloud", href: "#action-attach-report", kind: "workflow" },
-    { label: "AI-Assisted Report Analysis", icon: "BrainCircuit", href: "#action-analyze-report", kind: "workflow" },
-    { label: "Patient AI Chat", icon: "MessagesSquare", href: "#action-patient-ai-chat", kind: "workflow" },
-    { label: "Global AI Chat", icon: "MessageCircle", href: "#action-global-ai-chat", kind: "workflow" },
-    { label: "Create Order", icon: "ListPlus", href: "#action-create-order", kind: "workflow" },
-    { label: "Draft Prescription", icon: "Pill", href: "#action-draft-prescription", kind: "workflow" },
-    { label: "Pharmacy Safety Check", icon: "ShieldAlert", href: "#action-pharmacy-safety", kind: "workflow" },
-    { label: "Advance Workflow", icon: "GitBranchPlus", href: "#action-advance-workflow", kind: "workflow" },
-    { label: "Audit Trail", icon: "FileClock", href: routeByLabel.get("Audit Trail") ?? "#operational-audit-evidence", kind: "record" }
+    { label: "Create Patient", icon: "UserPlus", target: "action-register-patient", kind: "workflow" },
+    { label: "Patient List", icon: "Users", target: "operational-patient-file", kind: "record", evidenceUrl: routeByLabel.get("Patient List") },
+    { label: "Open Patient File", icon: "FolderOpen", target: "operational-patient-file", kind: "record", evidenceUrl: routeByLabel.get("Patient Profile") },
+    { label: "Upload Medical File", icon: "UploadCloud", target: "action-attach-report", kind: "workflow" },
+    { label: "AI-Assisted Report Analysis", icon: "BrainCircuit", target: "action-analyze-report", kind: "workflow" },
+    { label: "Patient AI Chat", icon: "MessagesSquare", target: "action-patient-ai-chat", kind: "workflow" },
+    { label: "Global AI Chat", icon: "MessageCircle", target: "action-global-ai-chat", kind: "workflow" },
+    { label: "Create Order", icon: "ListPlus", target: "action-create-order", kind: "workflow" },
+    { label: "Draft Prescription", icon: "Pill", target: "action-draft-prescription", kind: "workflow" },
+    { label: "Pharmacy Safety Check", icon: "ShieldAlert", target: "action-pharmacy-safety", kind: "workflow" },
+    { label: "Advance Workflow", icon: "GitBranchPlus", target: "action-advance-workflow", kind: "workflow" },
+    { label: "Audit Trail", icon: "FileClock", target: "operational-audit-evidence", kind: "record", evidenceUrl: routeByLabel.get("Audit Trail") }
   ];
   return `
     <section class="band hospital-core-console" aria-label="${escapeAttribute(l(locale, "Hospital Operations Console"))}">
@@ -208,10 +208,10 @@ function operationConsole(locale: Locale, patientId: string, apiBase: string): s
       </div>
       <div class="hospital-core-control-grid">
         ${controls.map((control) => `
-          <a class="hospital-core-control ${escapeAttribute(control.kind)}" href="${escapeAttribute(control.href)}" ${control.href.startsWith("http") ? `target="_blank" rel="noreferrer"` : ""} aria-label="${escapeAttribute(l(locale, control.label))}">
+          <button class="hospital-core-control ${escapeAttribute(control.kind)}" type="button" data-scroll-target="${escapeAttribute(control.target)}" ${control.evidenceUrl ? `data-evidence-url="${escapeAttribute(control.evidenceUrl)}"` : ""} aria-label="${escapeAttribute(l(locale, control.label))}">
             <i data-lucide="${escapeAttribute(control.icon)}"></i>
             <span>${escapeHtml(l(locale, control.label))}</span>
-          </a>
+          </button>
         `).join("")}
       </div>
     </section>

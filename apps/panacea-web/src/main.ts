@@ -436,6 +436,18 @@ function bindEvents() {
       render();
     });
   });
+
+  document.querySelectorAll<HTMLButtonElement>("[data-scroll-target]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const targetId = button.dataset.scrollTarget;
+      if (!targetId) return;
+      const target = document.getElementById(targetId);
+      if (!target) return;
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      const focusable = target.querySelector<HTMLElement>("input, textarea, select, button, a");
+      focusable?.focus({ preventScroll: true });
+    });
+  });
 }
 
 async function afterRender(route: string) {
