@@ -2,55 +2,57 @@
 
 ## Purpose
 
-The Operational AI Hospital Core provides governed patient, file, clinical assistant, prescription, treatment order, report analysis, and workflow action surfaces inside Panacea OS.
+The restored AI Hospital Core is the executable hospital workflow entry for Panacea OS v4. It preserves the operational behavior from the old `ai-hospital-core` archive while running through the modern Panacea Foundation Auth, OpenAPI, event, audit, tenant, and projection layers.
 
-The core is available through the doctor workspace and through versioned API routes under:
+## URLs
 
-`https://api.panacea.utbe.ai/api/v4/global-command-intelligence/operational-core`
+- Web application: `https://panacea.utbe.ai/#/hospital-core`
+- API base: `https://api.panacea.utbe.ai`
+- Foundation provider: `https://foundation.utbe.ai`
 
-## Access
+## Sign In
 
-1. Open `https://panacea.utbe.ai`.
-2. Sign in through the Foundation Provider at `https://foundation.utbe.ai`.
-3. Open the doctor workspace.
-4. Use the operational pages for patient files, analysis, chat, prescriptions, treatment orders, reports, and workflow actions.
+1. Open `https://panacea.utbe.ai/#/auth/login`.
+2. Sign in with approved Foundation provider credentials.
+3. After successful authentication, Panacea opens `#/hospital-core`.
+4. Confirm the session banner shows the authenticated user, role, and tenant.
 
-## Main Pages
+## What You Can Do
 
-- Patient Search: patient registration and lookup entry point.
-- Patient Profile: governed patient profile context.
-- Patient Files: patient document attachment workflow.
-- Medical File Analysis: governed clinical file analysis record.
-- Patient AI Chat: patient-scoped assistant review trace.
-- Global AI Chat: organization-scoped assistant review trace.
-- Prescriptions: prescription request and approval workflow.
-- Treatment Orders: clinical order request and approval workflow.
-- Report Analysis: lab, radiology, and clinical report review.
-- Workflow Actions: patient journey advancement with audit.
+The restored hospital core supports:
 
-## API Controls
+- Create a patient.
+- Open patient list and patient profile routes.
+- View patient timeline, files, reports, chat, orders, pharmacy review, workflow, notifications, and audit evidence routes.
+- Add a clinical note.
+- Attach a medical report.
+- Record report text extraction or OCR fallback metadata.
+- Record AI-assisted report analysis for clinician review.
+- Record patient-scoped AI chat.
+- Record global AI chat.
+- Record clinical reasoning output.
+- Create an order workflow.
+- Draft a prescription under doctor approval.
+- Run pharmacy safety check workflow.
+- Advance a patient workflow.
+- Record operational notifications.
 
-Every write request requires:
+## Safety Boundary
 
-- Foundation authentication
-- Tenant isolation
-- RBAC and ABAC policy checks
-- Human user confirmation
-- Audit enabled
-- Event projection
-- No autonomous diagnosis
-- No autonomous treatment
+The AI Hospital Core does not autonomously diagnose, prescribe, or execute treatment. Clinical output is recorded as governed evidence for authorized clinician review. Prescription and treatment/order flows require human approval boundaries and audit evidence.
 
-## Operator Verification
+## Verification
 
-Use the Operator Center to review:
+Run:
 
-- API contracts
-- live service health
-- transaction evidence
-- audit and projection status
-- release evidence
+```bash
+npm run web:check
+node --test tests/real-time-global-healthcare-command-intelligence-platform/write-workflows.test.mjs
+```
 
-## Clinical Boundary
+Open:
 
-Panacea OS assists workflow review. It does not replace clinicians. Real clinical deployment requires organizational, legal, privacy, regulatory, and clinical approval.
+```text
+https://panacea.utbe.ai/#/hospital-core
+```
+

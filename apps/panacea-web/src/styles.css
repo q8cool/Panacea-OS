@@ -1665,6 +1665,102 @@ pre {
   border-color: color-mix(in srgb, var(--red) 45%, var(--line));
 }
 
+.operational-core-page .band {
+  align-items: stretch;
+}
+
+.operational-session-band {
+  display: grid;
+  gap: 10px;
+}
+
+.core-route-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.core-route-grid a {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  color: var(--text);
+  text-decoration: none;
+  background: var(--panel);
+}
+
+.core-route-grid a:hover {
+  border-color: color-mix(in srgb, var(--blue) 45%, var(--line));
+}
+
+.core-route-grid span,
+.endpoint-line {
+  color: var(--muted);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+.operational-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.operational-action-card {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--panel);
+}
+
+.action-card-title {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.action-card-title > i {
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+  border-radius: 8px;
+  color: var(--blue);
+  background: color-mix(in srgb, var(--blue) 10%, var(--panel-strong));
+}
+
+.action-card-title h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.action-card-title p {
+  margin: 4px 0 0;
+}
+
+.operational-core-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.operational-core-form select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  padding: 11px 12px;
+  font: inherit;
+}
+
+.operational-core-form .endpoint-line {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
 .review-write-boundary .empty-state {
   align-items: flex-start;
 }
@@ -1700,7 +1796,9 @@ pre {
   .operator-grid,
   .role-shell,
   .role-dashboard-grid,
-  .role-source-grid {
+  .role-source-grid,
+  .operational-action-grid,
+  .core-route-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1752,6 +1850,8 @@ pre {
     .workspace-quick-grid,
     .role-entry-grid,
     .operational-cards,
+    .operational-action-grid,
+    .core-route-grid,
     .api-controls,
     .nav {
     grid-template-columns: 1fr;

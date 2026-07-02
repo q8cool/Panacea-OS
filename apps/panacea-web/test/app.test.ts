@@ -12,8 +12,17 @@ import {
 import { buildCurl, endpointBaseUrl, flattenEndpoints, filterEndpoints } from "../src/apiExplorer";
 import { probeFoundation } from "../src/foundation";
 import { discoverFoundationLogin } from "../src/foundationLoginDiscovery";
-import { apiRequest, appendOperatorAuditTest, executeWriteWorkflowRequest, findReadOnlyEndpoint, findWriteWorkflowEndpoint, pollRuntimeStatus } from "../src/liveApi";
+import {
+  apiRequest,
+  appendOperatorAuditTest,
+  executeWriteWorkflowRequest,
+  findOperationalCoreWriteEndpoint,
+  findReadOnlyEndpoint,
+  findWriteWorkflowEndpoint,
+  pollRuntimeStatus
+} from "../src/liveApi";
 import { languageOptions, translate } from "../src/locales";
+import { operationalCoreActions } from "../src/operationalHospitalCore";
 import { allRoleRoutes, roleDefaultRoute, roleSwitcherOptions, roleWorkspaces } from "../src/roleWorkspaces";
 import { initialState, renderApp, renderRoute } from "../src/render";
 import { buildWebConfig } from "../src/webConfig";
@@ -855,6 +864,85 @@ describe("Panacea web platform", () => {
       expect(html).not.toContain("الخدمة غير متاحة مؤقتاً");
       expect(html).not.toContain("واجهة قراءة فقط");
       expect(html).not.toContain("localhost");
+    }
+  });
+
+  it("renders the restored AI Hospital Core as executable live workflows after Foundation login", () => {
+    const session = { ...sessionFor("doctor"), permissions: ["global_command_intelligence.write_workflows.write", "global_command_intelligence.read_models.read"] };
+    const html = renderRoute(data, "/hospital-core", {
+      ...initialState,
+      authSession: session,
+      selectedRole: "doctor"
+    });
+
+    const requiredLabels = [
+      "Patient Registration",
+      "Patient List",
+      "Patient Profile",
+      "Patient File",
+      "Upload Medical File",
+      "AI-Assisted Report Analysis",
+      "PDF Text Extraction",
+      "Patient-Isolated AI Chat",
+      "Global AI Chat",
+      "Clinical Reasoning Workflow",
+      "Report Interpretation",
+      "Arabic Medical Translation",
+      "Create Order",
+      "Draft Prescription",
+      "Pharmacy Safety Check",
+      "Advance Workflow",
+      "Audit Trail",
+      "Operational Notification"
+    ];
+
+    for (const label of requiredLabels) {
+      expect(html).toContain(label);
+    }
+
+    for (const item of operationalCoreActions) {
+      expect(html).toContain(`data-action-id="${item.id}"`);
+      expect(html).toContain(`data-workflow-path="/api/v4/global-command-intelligence${item.templatePath}"`);
+    }
+
+    expect(html).toContain("https://api.panacea.utbe.ai/api/v4/global-command-intelligence/operational-core/patients");
+    expect(html).toContain("https://api.panacea.utbe.ai/api/v4/global-command-intelligence/read-models/clinical/patients");
+    expect(html).toContain("Human approval enforced");
+    expect(html).toContain("No autonomous diagnosis or treatment");
+
+    for (const forbidden of [
+      "الخدمة غير متاحة مؤقتاً",
+      "واجهة قراءة فقط",
+      "Lab API not active",
+      "Future LIS feed",
+      "Notification API required",
+      "service unavailable",
+      "not active",
+      "read-only",
+      "localhost",
+      "127.0.0.1"
+    ]) {
+      expect(html).not.toContain(forbidden);
+    }
+  });
+
+  it("maps every restored AI Hospital Core action to an OpenAPI-published live endpoint", () => {
+    for (const item of operationalCoreActions) {
+      const endpoint = findOperationalCoreWriteEndpoint(
+        data,
+        config,
+        `/api/v4/global-command-intelligence${item.templatePath}`,
+        {
+          patientId: "patient-restored-001",
+          fileId: "file-restored-001",
+          prescriptionId: "prescription-restored-001",
+          orderId: "order-restored-001"
+        }
+      );
+      expect(endpoint.available, `${item.id} should be browser-allowlisted`).toBe(true);
+      expect(endpoint.url).toContain("https://api.panacea.utbe.ai/api/v4/global-command-intelligence");
+      expect(endpoint.url).not.toContain("{");
+      expect(endpoint.url).not.toContain("localhost");
     }
   });
 

@@ -179,9 +179,10 @@ function projectionTargets(context) {
     }
     return rows;
   }
-  if (event.eventType === "clinical.file.ingested" || event.eventType === "clinical.file.analyzed") {
+  if (event.eventType === "clinical.file.ingested" || event.eventType === "clinical.file.extracted" || event.eventType === "clinical.file.analyzed") {
     return [
       target(context, "clinical", "files", context.subjectId, context.title),
+      target(context, "clinical", "reports", context.subjectId, `${context.title} report record`),
       target(context, "clinical", "clinical_timeline", context.subjectId, `${context.title} timeline`),
       target(context, "patient_portal", "documents", context.subjectId, `${context.title} patient document`)
     ];
@@ -199,6 +200,14 @@ function projectionTargets(context) {
       target(context, "admin", "audit_logs", context.subjectId, `${context.title} audit`)
     ];
   }
+  if (event.eventType === "clinical.reasoning.completed") {
+    return [
+      target(context, "clinical", "clinical_reasoning", context.subjectId, context.title),
+      target(context, "clinical", "clinical_summary", context.subjectId, `${context.title} summary`),
+      target(context, "clinical", "alerts", context.subjectId, `${context.title} review alert`),
+      target(context, "clinical", "clinical_timeline", context.subjectId, `${context.title} timeline`)
+    ];
+  }
   if (event.eventType === "clinical.report.analyzed" || event.eventType === "clinical.report.translated") {
     return [
       target(context, "clinical", "reports", context.subjectId, context.title),
@@ -212,6 +221,14 @@ function projectionTargets(context) {
       target(context, "clinical", "workflow_actions", context.subjectId, context.title),
       target(context, "clinical", "tasks", context.subjectId, `${context.title} task`),
       target(context, "clinical", "clinical_timeline", context.subjectId, `${context.title} timeline`)
+    ];
+  }
+  if (event.eventType === "clinical.notification.sent") {
+    return [
+      target(context, "clinical", "notifications", context.subjectId, context.title),
+      target(context, "clinical", "tasks", context.subjectId, `${context.title} follow up`),
+      target(context, "clinical", "clinical_timeline", context.subjectId, `${context.title} timeline`),
+      target(context, "admin", "audit_logs", context.subjectId, `${context.title} audit`)
     ];
   }
   if (event.eventType.startsWith("lab.") || event.eventType.startsWith("specimen.") || event.eventType.startsWith("critical.lab.")) {
@@ -304,6 +321,14 @@ function pharmacyTargets(context) {
     return [
       target(context, "pharmacy", "safety_alerts", context.subjectId, context.title),
       target(context, "clinical", "alerts", context.subjectId, `${context.title} medication alert`)
+    ];
+  }
+  if (event.eventType === "pharmacy.safety.checked") {
+    return [
+      target(context, "pharmacy", "safety_alerts", context.subjectId, context.title),
+      target(context, "clinical", "pharmacy_review", context.subjectId, `${context.title} review`),
+      target(context, "clinical", "alerts", context.subjectId, `${context.title} safety review`),
+      target(context, "clinical", "clinical_timeline", context.subjectId, `${context.title} timeline`)
     ];
   }
   if (event.eventType === "medication.dispensed") {

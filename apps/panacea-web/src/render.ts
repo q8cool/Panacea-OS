@@ -7,6 +7,7 @@ import { roleFromRoute, roleSwitcherOptions } from "./roleWorkspaces";
 import { isSessionExpired, tokenSecondsRemaining } from "./auth";
 import { buildWebConfig, missingLiveConfig } from "./webConfig";
 import { languageOptions, localeDirection, translate, type Locale } from "./locales";
+import { renderOperationalHospitalCore } from "./operationalHospitalCore";
 import type {
   AppData,
   AuthSession,
@@ -52,6 +53,7 @@ export interface RenderState {
   authValidation?: TokenValidationResult;
   liveStatus?: LiveStatusState;
   liveWorkspaceState?: LiveWorkspaceState;
+  operationalCoreResult?: LiveApiResult;
   auditAppendResult?: LiveApiResult;
   lastAuditAction?: BrowserAuditAction;
   providerLoginDiscovery?: ProviderLoginDiscoveryResult;
@@ -90,6 +92,7 @@ export function renderApp(data: AppData, route: string, state: RenderState): str
 export function renderRoute(data: AppData, route: string, state: RenderState = initialState): string {
   setActiveLocale(state.language);
   if (route === "/auth/login") return renderAuthPage(data, state);
+  if (route === "/hospital-core") return renderOperationalHospitalCore(data, state);
   if (route === "/command/live-status") return renderLiveStatusPage(data, state);
   if (route === "/command/transaction-review") return renderTransactionReviewPage(state);
   if (isRoleRoute(route)) return renderRoleWorkspace(data, route, {
@@ -225,7 +228,7 @@ function renderExecutiveOverview(data: AppData): string {
           <h2>${escapeHtml(l("Hospital Command Summary"))}</h2>
           <p>${escapeHtml(l("Panacea OS presents a hospital-grade operating layer for executive review, clinical workspace visibility, operational monitoring, compliance evidence, and governed enterprise validation."))}</p>
           <div class="quick-actions">
-            <a class="button primary" href="#/workspace/doctor/dashboard"><i data-lucide="Stethoscope"></i> ${escapeHtml(l("Open Clinical Operations"))}</a>
+            <a class="button primary" href="#/hospital-core"><i data-lucide="Hospital"></i> ${escapeHtml(l("Open AI Hospital Core"))}</a>
             <a class="button" href="#/workspace/patient/dashboard"><i data-lucide="HeartHandshake"></i> ${escapeHtml(l("Open Patient Care"))}</a>
             <a class="button" href="#/command/system-health"><i data-lucide="Activity"></i> ${escapeHtml(l("Operator Evidence"))}</a>
           </div>
@@ -466,7 +469,7 @@ function renderAuthPage(data: AppData, state: RenderState): string {
               ${releaseFact("Expires", session.expiresAt, tokenSecondsRemaining(session) > 0 ? "ACTIVE" : "EXPIRED")}
             </div>
             <div class="quick-actions">
-              <a class="button primary" href="#/workspace/${session.role === "operator" ? "administrator" : session.role}/dashboard"><i data-lucide="LayoutDashboard"></i> ${escapeHtml(l("Open role workspace"))}</a>
+              <a class="button primary" href="#/hospital-core"><i data-lucide="Hospital"></i> ${escapeHtml(l("Open AI Hospital Core"))}</a>
               ${session.authMode === "provider-login" ? `<button class="button" id="refresh-provider-session"><i data-lucide="RefreshCw"></i> ${escapeHtml(l("Refresh Session"))}</button>` : ""}
               <button class="button" id="logout-button"><i data-lucide="LogOut"></i> ${escapeHtml(l("Logout"))}</button>
             </div>

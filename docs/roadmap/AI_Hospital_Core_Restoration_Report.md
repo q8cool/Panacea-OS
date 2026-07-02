@@ -40,17 +40,23 @@ Restored governed operations:
 
 - Patient registration
 - Patient profile read model linkage
+- Clinical note creation
 - Patient file attachment workflow
+- PDF text extraction and OCR fallback metadata workflow
 - Patient file analysis workflow
 - Patient-scoped clinical assistant chat logging
 - Global clinical assistant chat logging
+- Clinical reasoning workflow logging
 - Prescription approval request workflow
 - Prescription doctor approval workflow
+- Pharmacy safety check workflow
+- Order creation workflow
 - Treatment and order request workflow
 - Treatment and order doctor approval workflow
 - Lab, radiology, and clinical report analysis workflow
 - Arabic clinical report translation workflow
 - Patient workflow advancement workflow
+- Patient-linked notification workflow
 
 ## Backend Integration
 
@@ -70,16 +76,24 @@ No standalone healthcare service was added.
 
 ## Web Integration
 
-The doctor workspace now exposes operational pages for:
+The web application now exposes `#/hospital-core` as the restored operational product entry after Foundation login. It includes executable forms for:
 
-- Patient Files
-- Medical File Analysis
-- Patient AI Chat
+- Patient Registration
+- Add Clinical Note
+- Upload Medical File
+- PDF Text Extraction
+- AI-Assisted Report Analysis
+- Arabic Medical Translation
+- Patient-Isolated AI Chat
 - Global AI Chat
-- Prescriptions
-- Treatment Orders
-- Report Analysis
-- Workflow Actions
+- Clinical Reasoning Workflow
+- Create Order
+- Draft Prescription
+- Pharmacy Safety Check
+- Advance Workflow
+- Operational Notification
+
+The doctor workspace still exposes operational routes for patient files, report analysis, patient chat, global chat, prescriptions, treatment orders, workflow actions, pharmacy review, and clinical reasoning, and those routes now use the restored operational backend mappings.
 
 The patient registration action now uses the operational core route rather than a generic write route.
 
@@ -99,18 +113,46 @@ Added tests cover:
 
 - Operational core route matching
 - OpenAPI publication
+- Patient registration and clinical note execution
 - Patient file workflows
+- PDF text extraction and OCR fallback metadata route
 - Medical file analysis
 - Patient and global clinical assistant chat
+- Clinical reasoning workflow
 - Prescription approval boundary
+- Pharmacy safety workflow
 - Treatment and order approval boundary
+- Order creation
 - Report analysis and Arabic translation route
 - Workflow advancement route
+- Notification workflow
 - Read model projections
 - Audit metadata
 - Browser API allowlist enforcement
 - Production UTBE API URL usage
 - Public workspace text cleanup
+
+Validation commands executed:
+
+```bash
+npm run check
+npm run build
+npm run test:run
+npm run openapi
+npm run web:check
+npm run web:build
+npm run quality:gate
+```
+
+Results:
+
+- `npm run check`: PASS
+- `npm run build`: PASS
+- `npm run test:run`: PASS, 156 tests
+- `npm run openapi`: PASS, 26 OpenAPI documents
+- `npm run web:check`: PASS, 64 web tests
+- `npm run web:build`: PASS
+- `npm run quality:gate`: PASS
 
 ## Final Result
 

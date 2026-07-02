@@ -17,7 +17,7 @@ import type {
 } from "./types";
 
 const SAFE_RETRY_METHODS = new Set<HttpMethod>(["GET"]);
-const GLOBAL_COMMAND_API_BASE = "/api/v4/global-command-intelligence";
+export const GLOBAL_COMMAND_API_BASE = "/api/v4/global-command-intelligence";
 const TRANSACTION_EVENTS_PATH = `${GLOBAL_COMMAND_API_BASE}/write-workflows/events`;
 const TRANSACTION_PROJECTIONS_PATH = `${GLOBAL_COMMAND_API_BASE}/write-workflows/projections`;
 
@@ -138,17 +138,20 @@ const roleWriteWorkflowPaths: Record<string, Record<string, string>> = {
     "patient-ai-chat": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/chat`,
     "global-ai-chat": `${GLOBAL_COMMAND_API_BASE}/operational-core/chat`,
     encounters: `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/encounters`,
-    "clinical-notes": `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/notes`,
+    "clinical-notes": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/notes`,
     allergies: `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/allergies`,
     conditions: `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/conditions`,
     medications: `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/medications`,
     "vital-signs": `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/vitals`,
     "care-team": `${GLOBAL_COMMAND_API_BASE}/write-workflows/clinical/patients/{patientId}/care-team`,
-    "orders-overview": `${GLOBAL_COMMAND_API_BASE}/write-workflows/scheduling/appointments`,
+    "orders-overview": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/orders`,
     prescriptions: `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/prescriptions`,
     "treatment-orders": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/treatment-orders`,
     "report-analysis": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/reports/analyze`,
-    "workflow-actions": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/workflow/advance`
+    "workflow-actions": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/workflow/advance`,
+    "pharmacy-review": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/pharmacy-safety/check`,
+    "ai-recommendations": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/clinical-reasoning`,
+    "task-list": `${GLOBAL_COMMAND_API_BASE}/operational-core/patients/{patientId}/notifications`
   },
   patient: {
     appointments: `${GLOBAL_COMMAND_API_BASE}/write-workflows/patient-portal/appointment-requests`,
@@ -314,6 +317,36 @@ export function findWriteWorkflowEndpoint(
   };
 }
 
+export function findOperationalCoreWriteEndpoint(
+  data: AppData,
+  config: PanaceaWebConfig,
+  templatePath: string,
+  replacements: Record<string, string> = {}
+): LiveApiEndpointCandidate {
+  const allowlist = buildBrowserApiAllowlist(data, config);
+  const selected = flattenEndpoints(data.openApiDocuments).find((endpoint) => endpoint.method === "POST" && endpoint.path === templatePath);
+  if (!selected) {
+    return {
+      label: "AI Hospital Core transactional workflow",
+      method: "POST",
+      url: "",
+      source: "No matching OpenAPI endpoint",
+      available: false,
+      reason: "The operational hospital core workflow is not published in the OpenAPI contract."
+    };
+  }
+  const resolvedPath = resolveTemplatePath(templatePath, replacements);
+  const url = `${baseUrlForEndpoint(selected, config)}${resolvedPath}`;
+  return {
+    label: `${selected.documentTitle}: ${selected.summary}`,
+    method: selected.method,
+    url,
+    source: selected.documentPath,
+    available: evaluateBrowserApiRequest(allowlist, selected.method, url, undefined).classification === "ALLOWED_LIVE_WRITE",
+    reason: "Approved operational hospital core write workflow selected from OpenAPI."
+  };
+}
+
 export async function executeReadOnlyRequest(
   candidate: LiveApiEndpointCandidate,
   session: AuthSession,
@@ -475,16 +508,21 @@ function writeWorkflowPathForWorkspacePage(workspaceId: string, pageId: string):
 
 function resolveWorkflowPath(templatePath: string, route: string): string {
   const routeSubject = route.split("/")[4];
-  return templatePath
-    .replaceAll("{patientId}", encodeURIComponent(routeSubject || "current-patient"))
-    .replaceAll("{studyId}", encodeURIComponent(routeSubject || "current-study"))
-    .replaceAll("{specimenId}", encodeURIComponent(routeSubject || "current-specimen"))
-    .replaceAll("{prescriptionId}", encodeURIComponent(routeSubject || "current-prescription"))
-    .replaceAll("{orderId}", encodeURIComponent(routeSubject || "current-order"))
-    .replaceAll("{resultId}", encodeURIComponent(routeSubject || "current-result"))
-    .replaceAll("{reportId}", encodeURIComponent(routeSubject || "current-report"))
-    .replaceAll("{appointmentId}", encodeURIComponent(routeSubject || "current-appointment"))
-    .replaceAll("{userId}", encodeURIComponent(routeSubject || "current-user"));
+  return resolveTemplatePath(templatePath, {
+    patientId: routeSubject || "current-patient",
+    studyId: routeSubject || "current-study",
+    specimenId: routeSubject || "current-specimen",
+    prescriptionId: routeSubject || "current-prescription",
+    orderId: routeSubject || "current-order",
+    resultId: routeSubject || "current-result",
+    reportId: routeSubject || "current-report",
+    appointmentId: routeSubject || "current-appointment",
+    userId: routeSubject || "current-user"
+  });
+}
+
+export function resolveTemplatePath(templatePath: string, replacements: Record<string, string>): string {
+  return templatePath.replace(/\{([^}]+)\}/g, (_match, key: string) => encodeURIComponent(replacements[key] || `current-${key.replace(/Id$/, "").toLowerCase()}`));
 }
 
 export async function pollRuntimeStatus(

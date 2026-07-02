@@ -3843,6 +3843,102 @@
         }
       }
     },
+    "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/clinical-reasoning": {
+      "get": {
+        "tags": [
+          "live_read_models"
+        ],
+        "operationId": "listClinicalPatientReasoningReadModel",
+        "summary": "List clinician-reviewed clinical reasoning read models",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Read-model patientId selector."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "description": "Maximum read-model rows to return."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            },
+            "description": "Read-model row offset."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant-scoped live read-model rows returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadModelListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/chat": {
       "get": {
         "tags": [
@@ -5184,6 +5280,102 @@
         ],
         "operationId": "listClinicalPatientTasksReadModel",
         "summary": "List clinical task read models",
+        "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Read-model patientId selector."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "description": "Maximum read-model rows to return."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            },
+            "description": "Read-model row offset."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant-scoped live read-model rows returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadModelListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/notifications": {
+      "get": {
+        "tags": [
+          "live_read_models"
+        ],
+        "operationId": "listClinicalPatientNotificationsReadModel",
+        "summary": "List patient operational notification read models",
         "description": "Live workspace read model. The endpoint returns tenant-scoped backend records only; it does not perform writes or clinical actions.",
         "security": [
           {
@@ -10765,6 +10957,88 @@
         }
       }
     },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/notes": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createOperationalCoreClinicalNote",
+        "summary": "Add a governed clinical note to the patient file",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/files": {
       "post": {
         "tags": [
@@ -10791,6 +11065,98 @@
               "minLength": 1
             },
             "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/files/{fileId}/extract": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "extractOperationalCorePatientFileText",
+        "summary": "Record PDF text extraction or approved OCR fallback metadata for an attached patient file",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          },
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow fileId selector."
           }
         ],
         "requestBody": {
@@ -11082,6 +11448,88 @@
         }
       }
     },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/clinical-reasoning": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "recordOperationalCoreClinicalReasoning",
+        "summary": "Record clinician-reviewed clinical reasoning output without autonomous diagnosis or treatment",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/prescriptions": {
       "post": {
         "tags": [
@@ -11200,6 +11648,170 @@
               "minLength": 1
             },
             "description": "Write workflow prescriptionId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/pharmacy-safety/check": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "checkOperationalCorePharmacySafety",
+        "summary": "Record medication safety checks for clinician and pharmacy review",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/orders": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "createOperationalCoreOrder",
+        "summary": "Create an order workflow for clinician approval",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
           }
         ],
         "requestBody": {
@@ -11601,6 +12213,88 @@
         ],
         "operationId": "advanceOperationalCoreClinicalWorkflow",
         "summary": "Advance a governed patient workflow step with clinician oversight",
+        "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "tenantHeaders": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Write workflow patientId selector."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteWorkflowCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Live write workflow persisted and event queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/notifications": {
+      "post": {
+        "tags": [
+          "live_write_workflows"
+        ],
+        "operationId": "sendOperationalCoreNotification",
+        "summary": "Record an operational notification linked to the patient file",
         "description": "Authenticated tenant-scoped transactional write workflow. The endpoint persists approved operational or clinical records, appends audit evidence, and queues an event. It does not perform autonomous diagnosis, autonomous treatment, autonomous prescribing, or unapproved automation.",
         "security": [
           {
@@ -14550,12 +15244,15 @@
                 "patient.created",
                 "patient.updated",
                 "clinical.file.ingested",
+                "clinical.file.extracted",
                 "clinical.file.analyzed",
                 "clinical.patient.chat.logged",
                 "clinical.global.chat.logged",
+                "clinical.reasoning.completed",
                 "clinical.report.analyzed",
                 "clinical.report.translated",
                 "clinical.workflow.advanced",
+                "clinical.notification.sent",
                 "encounter.created",
                 "clinical.note.created",
                 "allergy.created",
@@ -14584,6 +15281,7 @@
                 "medication.dispensed",
                 "pharmacy.inventory.updated",
                 "medication.safety.alert.flagged",
+                "pharmacy.safety.checked",
                 "appointment.created",
                 "appointment.updated",
                 "appointment.cancelled",
@@ -14716,12 +15414,15 @@
                 "patient.created",
                 "patient.updated",
                 "clinical.file.ingested",
+                "clinical.file.extracted",
                 "clinical.file.analyzed",
                 "clinical.patient.chat.logged",
                 "clinical.global.chat.logged",
+                "clinical.reasoning.completed",
                 "clinical.report.analyzed",
                 "clinical.report.translated",
                 "clinical.workflow.advanced",
+                "clinical.notification.sent",
                 "encounter.created",
                 "clinical.note.created",
                 "allergy.created",
@@ -14750,6 +15451,7 @@
                 "medication.dispensed",
                 "pharmacy.inventory.updated",
                 "medication.safety.alert.flagged",
+                "pharmacy.safety.checked",
                 "appointment.created",
                 "appointment.updated",
                 "appointment.cancelled",
@@ -15656,12 +16358,15 @@
               "patient.created",
               "patient.updated",
               "clinical.file.ingested",
+              "clinical.file.extracted",
               "clinical.file.analyzed",
               "clinical.patient.chat.logged",
               "clinical.global.chat.logged",
+              "clinical.reasoning.completed",
               "clinical.report.analyzed",
               "clinical.report.translated",
               "clinical.workflow.advanced",
+              "clinical.notification.sent",
               "encounter.created",
               "clinical.note.created",
               "allergy.created",
@@ -15690,6 +16395,7 @@
               "medication.dispensed",
               "pharmacy.inventory.updated",
               "medication.safety.alert.flagged",
+              "pharmacy.safety.checked",
               "appointment.created",
               "appointment.updated",
               "appointment.cancelled",
@@ -15777,12 +16483,15 @@
                   "patient.created",
                   "patient.updated",
                   "clinical.file.ingested",
+                  "clinical.file.extracted",
                   "clinical.file.analyzed",
                   "clinical.patient.chat.logged",
                   "clinical.global.chat.logged",
+                  "clinical.reasoning.completed",
                   "clinical.report.analyzed",
                   "clinical.report.translated",
                   "clinical.workflow.advanced",
+                  "clinical.notification.sent",
                   "encounter.created",
                   "clinical.note.created",
                   "allergy.created",
@@ -15811,6 +16520,7 @@
                   "medication.dispensed",
                   "pharmacy.inventory.updated",
                   "medication.safety.alert.flagged",
+                  "pharmacy.safety.checked",
                   "appointment.created",
                   "appointment.updated",
                   "appointment.cancelled",
@@ -15867,12 +16577,15 @@
               "patient.created",
               "patient.updated",
               "clinical.file.ingested",
+              "clinical.file.extracted",
               "clinical.file.analyzed",
               "clinical.patient.chat.logged",
               "clinical.global.chat.logged",
+              "clinical.reasoning.completed",
               "clinical.report.analyzed",
               "clinical.report.translated",
               "clinical.workflow.advanced",
+              "clinical.notification.sent",
               "encounter.created",
               "clinical.note.created",
               "allergy.created",
@@ -15901,6 +16614,7 @@
               "medication.dispensed",
               "pharmacy.inventory.updated",
               "medication.safety.alert.flagged",
+              "pharmacy.safety.checked",
               "appointment.created",
               "appointment.updated",
               "appointment.cancelled",
@@ -15983,12 +16697,15 @@
               "patient.created",
               "patient.updated",
               "clinical.file.ingested",
+              "clinical.file.extracted",
               "clinical.file.analyzed",
               "clinical.patient.chat.logged",
               "clinical.global.chat.logged",
+              "clinical.reasoning.completed",
               "clinical.report.analyzed",
               "clinical.report.translated",
               "clinical.workflow.advanced",
+              "clinical.notification.sent",
               "encounter.created",
               "clinical.note.created",
               "allergy.created",
@@ -16017,6 +16734,7 @@
               "medication.dispensed",
               "pharmacy.inventory.updated",
               "medication.safety.alert.flagged",
+              "pharmacy.safety.checked",
               "appointment.created",
               "appointment.updated",
               "appointment.cancelled",
@@ -16343,6 +17061,18 @@
       },
       {
         "workspace": "clinical",
+        "modelKey": "clinical_reasoning",
+        "path": "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/clinical-reasoning",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.read_models.read"
+      },
+      {
+        "workspace": "clinical",
         "modelKey": "patient_chat",
         "path": "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/chat",
         "roles": [
@@ -16513,6 +17243,18 @@
         "workspace": "clinical",
         "modelKey": "tasks",
         "path": "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/tasks",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.read_models.read"
+      },
+      {
+        "workspace": "clinical",
+        "modelKey": "notifications",
+        "path": "/api/v4/global-command-intelligence/read-models/clinical/patients/{patientId}/notifications",
         "roles": [
           "doctor",
           "administrator",
@@ -17289,9 +18031,35 @@
       },
       {
         "workspace": "clinical",
+        "workflowKey": "operational_clinical_note_create",
+        "eventType": "clinical.note.created",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/notes",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
         "workflowKey": "operational_patient_file_ingest",
         "eventType": "clinical.file.ingested",
         "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/files",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "operational_patient_file_extract",
+        "eventType": "clinical.file.extracted",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/files/{fileId}/extract",
         "roles": [
           "doctor",
           "administrator",
@@ -17341,6 +18109,19 @@
       },
       {
         "workspace": "clinical",
+        "workflowKey": "operational_clinical_reasoning",
+        "eventType": "clinical.reasoning.completed",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/clinical-reasoning",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
         "workflowKey": "operational_prescription_request",
         "eventType": "prescription.approval.requested",
         "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/prescriptions",
@@ -17357,6 +18138,33 @@
         "workflowKey": "operational_prescription_approve",
         "eventType": "prescription.doctor.approved",
         "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/prescriptions/{prescriptionId}/approve",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "pharmacy",
+        "workflowKey": "operational_pharmacy_safety_check",
+        "eventType": "pharmacy.safety.checked",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/pharmacy-safety/check",
+        "roles": [
+          "doctor",
+          "pharmacy",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "operational_order_create",
+        "eventType": "treatment.order.requested",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/orders",
         "roles": [
           "doctor",
           "administrator",
@@ -17426,6 +18234,19 @@
         "workflowKey": "operational_workflow_advance",
         "eventType": "clinical.workflow.advanced",
         "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/workflow/advance",
+        "roles": [
+          "doctor",
+          "administrator",
+          "operator",
+          "global-command-intelligence-admin"
+        ],
+        "permission": "global_command_intelligence.write_workflows.write"
+      },
+      {
+        "workspace": "clinical",
+        "workflowKey": "operational_notification_send",
+        "eventType": "clinical.notification.sent",
+        "path": "/api/v4/global-command-intelligence/operational-core/patients/{patientId}/notifications",
         "roles": [
           "doctor",
           "administrator",

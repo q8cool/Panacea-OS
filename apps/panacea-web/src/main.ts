@@ -11,6 +11,7 @@ import {
   executeWriteWorkflowRequest,
   fetchTransactionReview,
   findReadOnlyEndpoint,
+  findOperationalCoreWriteEndpoint,
   findWriteWorkflowEndpoint,
   pollRuntimeStatus,
   retryProjectionReview
@@ -120,9 +121,10 @@ function bindEvents() {
       authError: "",
       authValidation: validation,
       selectedRole: validation.session.role,
-      liveWorkspaceState: undefined
+      liveWorkspaceState: undefined,
+      operationalCoreResult: undefined
     };
-    window.location.hash = roleDefaultRoute(validation.session.role);
+    window.location.hash = "/hospital-core";
     render();
     void refreshLiveStatus();
   });
@@ -146,6 +148,7 @@ function bindEvents() {
         authValidation: undefined,
         providerAuthStatus: session?.authMode === "provider-login" ? "Provider logout requested; local session cleared." : "",
         liveWorkspaceState: undefined,
+        operationalCoreResult: undefined,
         auditAppendResult: undefined
       };
       window.location.hash = "/auth/login";
@@ -194,9 +197,10 @@ function bindEvents() {
         authValidation: result,
         providerAuthStatus: "Foundation provider login succeeded.",
         selectedRole: result.session.role,
-        liveWorkspaceState: undefined
+        liveWorkspaceState: undefined,
+        operationalCoreResult: undefined
       };
-      window.location.hash = roleDefaultRoute(result.session.role);
+      window.location.hash = "/hospital-core";
       render();
       void refreshLiveStatus();
     } catch (error) {
@@ -390,6 +394,48 @@ function bindEvents() {
     };
     render();
   });
+
+  document.querySelectorAll<HTMLFormElement>(".operational-core-form").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!state.authSession) {
+        state = {
+          ...state,
+          authError: "Operational hospital workflows require a Foundation-authenticated session."
+        };
+        render();
+        return;
+      }
+      const session = state.authSession;
+      const currentForm = event.currentTarget;
+      if (!(currentForm instanceof HTMLFormElement)) return;
+      const config = state.webConfig ?? buildWebConfig(data);
+      const allowlist = buildBrowserApiAllowlist(data, config);
+      const actionId = currentForm.dataset.actionId ?? "hospital-core-action";
+      const workflowPath = currentForm.dataset.workflowPath ?? "";
+      const endpoint = findOperationalCoreWriteEndpoint(data, config, workflowPath, operationalPathReplacements(currentForm));
+      const body = buildWriteWorkflowBody(currentForm, session, "hospital-core", actionId);
+      state = {
+        ...state,
+        operationalCoreResult: {
+          requestId: "pending",
+          method: "POST",
+          url: endpoint.url,
+          state: "degraded",
+          detail: "Submitting operational hospital workflow...",
+          checkedAt: new Date().toISOString()
+        }
+      };
+      render();
+      const response = await executeWriteWorkflowRequest(endpoint, session, config, allowlist, body);
+      state = {
+        ...state,
+        operationalCoreResult: response.result,
+        lastAuditAction: response.auditAction
+      };
+      render();
+    });
+  });
 }
 
 async function afterRender(route: string) {
@@ -495,6 +541,17 @@ function buildWriteWorkflowBody(form: HTMLFormElement, session: NonNullable<Rend
       route: currentRoute(),
       language: state.language
     }
+  };
+}
+
+function operationalPathReplacements(form: HTMLFormElement): Record<string, string> {
+  const formData = new FormData(form);
+  const valueFor = (key: string, fallback: string) => String(formData.get(key) ?? "").trim() || fallback;
+  return {
+    patientId: valueFor("patientId", "patient-restored-001"),
+    fileId: valueFor("fileId", "file-restored-001"),
+    prescriptionId: valueFor("prescriptionId", "prescription-restored-001"),
+    orderId: valueFor("orderId", "order-restored-001")
   };
 }
 

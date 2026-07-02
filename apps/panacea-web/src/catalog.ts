@@ -6,6 +6,7 @@ export const navSections: NavSection[] = [
   {
     title: "Role Workspaces",
     items: [
+      { label: "AI Hospital Core", route: "/hospital-core", icon: "Hospital", keywords: ["hospital", "patient", "orders", "prescription", "workflow", "audit"] },
       { label: "Doctor / Clinician", route: "/workspace/doctor/dashboard", icon: "Stethoscope", keywords: ["doctor", "clinician", "patient", "clinical"] },
       { label: "Patient Portal", route: "/workspace/patient/dashboard", icon: "HeartHandshake", keywords: ["patient", "portal", "appointments", "messages"] },
       { label: "Laboratory", route: "/workspace/laboratory/dashboard", icon: "TestTube2", keywords: ["lab", "laboratory", "specimen", "results"] },

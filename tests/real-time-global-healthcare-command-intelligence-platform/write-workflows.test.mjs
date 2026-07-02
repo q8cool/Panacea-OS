@@ -228,21 +228,28 @@ test("Sprint 113 OpenAPI exposes every approved live write workflow", () => {
 test("operational AI Hospital Core routes restore governed patient, file, chat, prescription, report, and workflow transactions", async () => {
   const operationalDefinitions = writeWorkflowDefinitions.filter((item) => item.path.startsWith("/operational-core/"));
   const operationalEvents = new Set(operationalDefinitions.map((item) => item.eventType));
-  assert.equal(operationalDefinitions.length, 12);
-  assert.deepEqual(operationalEvents, new Set([
+  assert.equal(operationalDefinitions.length, 18);
+  for (const eventType of [
     "patient.created",
+    "clinical.note.created",
     "clinical.file.ingested",
+    "clinical.file.extracted",
     "clinical.file.analyzed",
     "clinical.patient.chat.logged",
     "clinical.global.chat.logged",
+    "clinical.reasoning.completed",
     "prescription.approval.requested",
     "prescription.doctor.approved",
+    "pharmacy.safety.checked",
     "treatment.order.requested",
     "treatment.order.doctor.approved",
     "clinical.report.analyzed",
     "clinical.report.translated",
-    "clinical.workflow.advanced"
-  ]));
+    "clinical.workflow.advanced",
+    "clinical.notification.sent"
+  ]) {
+    assert.equal(operationalEvents.has(eventType), true, `${eventType} must be restored`);
+  }
 
   const document = buildOpenApiDocument();
   for (const definition of operationalDefinitions) {
@@ -294,10 +301,13 @@ test("operational AI Hospital Core routes restore governed patient, file, chat, 
   assert.ok(repository.audits.every((entry) => entry.metadata?.workflowKey?.startsWith("operational_")));
   assertReadModel(repository, "clinical", "files", patientId);
   assertReadModel(repository, "clinical", "patient_chat", patientId);
+  assertReadModel(repository, "clinical", "global_chat", "patient-operational-core-001");
+  assertReadModel(repository, "clinical", "clinical_reasoning", patientId);
   assertReadModel(repository, "clinical", "reports", patientId);
   assertReadModel(repository, "clinical", "workflow_actions", patientId);
   assertReadModel(repository, "clinical", "orders", patientId);
   assertReadModel(repository, "clinical", "clinical_timeline", patientId);
+  assertReadModel(repository, "clinical", "notifications", patientId);
   assertReadModel(repository, "pharmacy", "prescriptions", patientId);
   assertReadModel(repository, "clinical", "pharmacy_review", patientId);
 
@@ -305,7 +315,7 @@ test("operational AI Hospital Core routes restore governed patient, file, chat, 
     roles: ["doctor"],
     permissions: [readModelPermission]
   }));
-  assert.equal(files.items.length, 2);
+  assert.equal(files.items.length, 3);
   assert.ok(files.items.every((item) => item.payload.controls.demoData === false));
 
   const treatmentDefinition = operationalDefinitions.find((item) => item.eventType === "treatment.order.requested");
@@ -530,6 +540,7 @@ function routeParams(definition) {
 function concreteOperationalPath(path) {
   return path
     .replaceAll("{patientId}", "patient-operational-core-001")
+    .replaceAll("{fileId}", "file-operational-core-001")
     .replaceAll("{prescriptionId}", "prescription-operational-core-001")
     .replaceAll("{orderId}", "order-operational-core-001");
 }
@@ -537,6 +548,7 @@ function concreteOperationalPath(path) {
 function concreteOperationalParams(definition) {
   const params = {};
   if (definition.path.includes("{patientId}")) params.patientId = "patient-operational-core-001";
+  if (definition.path.includes("{fileId}")) params.fileId = "file-operational-core-001";
   if (definition.path.includes("{prescriptionId}")) params.prescriptionId = "prescription-operational-core-001";
   if (definition.path.includes("{orderId}")) params.orderId = "order-operational-core-001";
   return params;
