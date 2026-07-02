@@ -926,6 +926,53 @@ describe("Panacea web platform", () => {
     }
   });
 
+  it("renders the restored AI Hospital Core workflow page in Arabic", () => {
+    const session = { ...sessionFor("doctor"), permissions: ["global_command_intelligence.write_workflows.write", "global_command_intelligence.read_models.read"] };
+    const html = renderRoute(data, "/hospital-core", {
+      ...initialState,
+      language: "ar",
+      authSession: session,
+      selectedRole: "doctor"
+    });
+
+    for (const label of [
+      "نواة المستشفى الذكي",
+      "تسجيل مريض",
+      "ملف المريض التشغيلي",
+      "رفع ملف طبي",
+      "استخراج نص PDF",
+      "تحليل تقرير بمساعدة الذكاء الاصطناعي",
+      "محادثة ذكية معزولة للمريض",
+      "محادثة ذكية عامة",
+      "سير الاستدلال السريري",
+      "إنشاء أمر",
+      "مسودة وصفة",
+      "فحص سلامة الصيدلية",
+      "تقديم سير العمل",
+      "تنبيه تشغيلي",
+      "الموافقة البشرية مفروضة",
+      "لا يوجد علاج مستقل",
+      "عرض مسار التدقيق"
+    ]) {
+      expect(html).toContain(label);
+    }
+
+    for (const untranslated of [
+      "Patient Registration",
+      "Upload Medical File",
+      "AI-Assisted Report Analysis",
+      "Patient-Isolated AI Chat",
+      "Draft Prescription",
+      "Pharmacy Safety Check",
+      "Advance Workflow",
+      "Authenticated Hospital Core Session",
+      "Human approval enforced",
+      "Submit Patient Registration"
+    ]) {
+      expect(html).not.toContain(untranslated);
+    }
+  });
+
   it("maps every restored AI Hospital Core action to an OpenAPI-published live endpoint", () => {
     for (const item of operationalCoreActions) {
       const endpoint = findOperationalCoreWriteEndpoint(

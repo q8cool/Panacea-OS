@@ -1,4 +1,5 @@
 import { findOperationalCoreWriteEndpoint, GLOBAL_COMMAND_API_BASE, resolveTemplatePath } from "./liveApi";
+import { translate, type Locale } from "./locales";
 import type { AppData, LiveApiResult, PanaceaWebConfig } from "./types";
 import type { RenderState } from "./render";
 
@@ -121,29 +122,30 @@ export const operationalCoreActions: OperationalAction[] = [
 export function renderOperationalHospitalCore(data: AppData, state: RenderState): string {
   const config = state.webConfig;
   const session = state.authSession;
+  const locale = state.language;
   const patientId = session ? "patient-restored-001" : "patient";
   const result = state.operationalCoreResult;
   return `
     <div class="page-grid operational-core-page">
-      ${pageHeader("AI Hospital Core", "Executable patient registration, patient file, report analysis, chat, orders, prescriptions, pharmacy safety, workflow, audit, and notification operations restored from the original hospital core.", session ? "Authenticated Operations" : "Foundation Access Required", "Hospital")}
+      ${pageHeader(locale, "AI Hospital Core", "Executable patient registration, patient file, report analysis, chat, orders, prescriptions, pharmacy safety, workflow, audit, and notification operations restored from the original hospital core.", session ? "Authenticated Operations" : "Foundation Access Required", "Hospital")}
       <section class="metric-grid">
-        ${metric("Patient Registry", "Operational", "Create and open governed patient records", "UserPlus", "success")}
-        ${metric("Patient File", "Operational", "Timeline, files, notes, reports, chat, orders, and notifications", "FolderOpen", "success")}
-        ${metric("AI Assistance", "Governed", "No autonomous diagnosis or treatment; clinician approval remains mandatory", "ShieldCheck", "success")}
-        ${metric("Audit Trail", "Active", "Write workflows generate event and projection evidence", "FileClock", "success")}
+        ${metric(locale, "Patient Registry", "Operational", "Create and open governed patient records", "UserPlus", "success")}
+        ${metric(locale, "Patient File", "Operational", "Timeline, files, notes, reports, chat, orders, and notifications", "FolderOpen", "success")}
+        ${metric(locale, "AI Assistance", "Governed", "No autonomous diagnosis or treatment; clinician approval remains mandatory", "ShieldCheck", "success")}
+        ${metric(locale, "Audit Trail", "Active", "Write workflows generate event and projection evidence", "FileClock", "success")}
       </section>
-      ${session ? sessionBanner(session.displayName, session.role, session.tenantId) : loginBanner()}
+      ${session ? sessionBanner(locale, session.displayName, session.role, session.tenantId) : loginBanner(locale)}
       <section class="band">
         <div class="section-title">
           <div>
-            <h2>Operational Patient File</h2>
-            <p>Open patient list, profile, timeline, file, report, chat, order, pharmacy, workflow, notification, and audit routes after write actions complete.</p>
+            <h2>${escapeHtml(l(locale, "Operational Patient File"))}</h2>
+            <p>${escapeHtml(l(locale, "Open patient list, profile, timeline, file, report, chat, order, pharmacy, workflow, notification, and audit routes after write actions complete."))}</p>
           </div>
         </div>
         <div class="core-route-grid">
           ${readRoutes(patientId, data.publicApiBaseUrl).map((route) => `
             <a href="${escapeAttribute(route.url)}" target="_blank" rel="noreferrer">
-              <strong>${escapeHtml(route.label)}</strong>
+              <strong>${escapeHtml(l(locale, route.label))}</strong>
               <span>${escapeHtml(route.path)}</span>
             </a>
           `).join("")}
@@ -152,33 +154,33 @@ export function renderOperationalHospitalCore(data: AppData, state: RenderState)
       <section class="band">
         <div class="section-title">
           <div>
-            <h2>Restored Executable Workflows</h2>
-            <p>Each action below submits to a live governed write endpoint published by the OpenAPI contract and requires a Foundation-authenticated session.</p>
+            <h2>${escapeHtml(l(locale, "Restored Executable Workflows"))}</h2>
+            <p>${escapeHtml(l(locale, "Each action below submits to a live governed write endpoint published by the OpenAPI contract and requires a Foundation-authenticated session."))}</p>
           </div>
         </div>
         <div class="operational-action-grid">
-          ${operationalCoreActions.map((item) => renderAction(item, data, config, patientId, Boolean(session))).join("")}
+          ${operationalCoreActions.map((item) => renderAction(item, data, config, patientId, Boolean(session), locale)).join("")}
         </div>
       </section>
       <section class="band">
         <div class="section-title">
           <div>
-            <h2>Transaction Evidence</h2>
-            <p>Successful operations create write workflow events, read-model projections, and operator review records.</p>
+            <h2>${escapeHtml(l(locale, "Transaction Evidence"))}</h2>
+            <p>${escapeHtml(l(locale, "Successful operations create write workflow events, read-model projections, and operator review records."))}</p>
           </div>
         </div>
-        ${renderResult(result)}
+        ${renderResult(result, locale)}
         <div class="quick-actions">
-          <a class="button" href="#/command/transaction-review"><i data-lucide="ListChecks"></i> Review Events and Projections</a>
-          <a class="button" href="#/workspace/administrator/audit-logs"><i data-lucide="FileClock"></i> View Audit Trail</a>
-          <a class="button" href="#/auth/login"><i data-lucide="KeyRound"></i> Manage Foundation Session</a>
+          <a class="button" href="#/command/transaction-review"><i data-lucide="ListChecks"></i> ${escapeHtml(l(locale, "Review Events and Projections"))}</a>
+          <a class="button" href="#/workspace/administrator/audit-logs"><i data-lucide="FileClock"></i> ${escapeHtml(l(locale, "View Audit Trail"))}</a>
+          <a class="button" href="#/auth/login"><i data-lucide="KeyRound"></i> ${escapeHtml(l(locale, "Manage Foundation Session"))}</a>
         </div>
       </section>
     </div>
   `;
 }
 
-function renderAction(item: OperationalAction, data: AppData, config: PanaceaWebConfig | undefined, patientId: string, enabled: boolean): string {
+function renderAction(item: OperationalAction, data: AppData, config: PanaceaWebConfig | undefined, patientId: string, enabled: boolean, locale: Locale): string {
   const fullTemplatePath = `${GLOBAL_COMMAND_API_BASE}${item.templatePath}`;
   const resolvedPath = resolveTemplatePath(fullTemplatePath, {
     patientId,
@@ -193,72 +195,74 @@ function renderAction(item: OperationalAction, data: AppData, config: PanaceaWeb
     orderId: "order-restored-001"
   }) : undefined;
   const endpointReady = Boolean(endpoint?.available);
+  const translatedTitle = l(locale, item.title);
+  const submitLabel = locale === "ar" ? `إرسال ${translatedTitle}` : `Submit ${translatedTitle}`;
   return `
     <article class="operational-action-card">
       <div class="action-card-title">
         <i data-lucide="${escapeAttribute(item.icon)}"></i>
         <div>
-          <h3>${escapeHtml(item.title)}</h3>
-          <p>${escapeHtml(item.purpose)}</p>
+          <h3>${escapeHtml(translatedTitle)}</h3>
+          <p>${escapeHtml(l(locale, item.purpose))}</p>
         </div>
       </div>
       <form class="live-write-form operational-core-form" data-action-id="${escapeAttribute(item.id)}" data-workflow-path="${escapeAttribute(fullTemplatePath)}" data-workflow-url="${escapeAttribute(endpoint?.url ?? `${data.publicApiBaseUrl}${resolvedPath}`)}">
-        ${item.fields.map((fieldDef) => renderField(fieldDef)).join("")}
+        ${item.fields.map((fieldDef) => renderField(fieldDef, locale)).join("")}
         <div class="write-control-list">
-          <span><i data-lucide="UserCheck"></i> Human approval enforced</span>
-          <span><i data-lucide="ShieldAlert"></i> No autonomous treatment</span>
-          <span><i data-lucide="FileClock"></i> Audited write workflow</span>
+          <span><i data-lucide="UserCheck"></i> ${escapeHtml(l(locale, "Human approval enforced"))}</span>
+          <span><i data-lucide="ShieldAlert"></i> ${escapeHtml(l(locale, "No autonomous treatment"))}</span>
+          <span><i data-lucide="FileClock"></i> ${escapeHtml(l(locale, "Audited write workflow"))}</span>
         </div>
         <button class="button primary" type="submit" ${enabled && endpointReady ? "" : "disabled"}>
           <i data-lucide="Send"></i>
-          Submit ${escapeHtml(item.title)}
+          ${escapeHtml(submitLabel)}
         </button>
-        <p class="endpoint-line">${escapeHtml(endpointReady ? "Live endpoint" : "OpenAPI route required")} · ${escapeHtml(endpoint?.url ?? `${data.publicApiBaseUrl}${resolvedPath}`)}</p>
+        <p class="endpoint-line">${escapeHtml(l(locale, endpointReady ? "Live endpoint" : "OpenAPI route required"))} · ${escapeHtml(endpoint?.url ?? `${data.publicApiBaseUrl}${resolvedPath}`)}</p>
       </form>
     </article>
   `;
 }
 
-function renderField(item: OperationalField): string {
+function renderField(item: OperationalField, locale: Locale): string {
   const kind = item.kind ?? "text";
   const value = item.value ?? "";
   if (kind === "textarea") {
     return `
       <label class="${item.wide ? "wide" : ""}">
-        ${escapeHtml(item.label)}
-        <textarea name="${escapeAttribute(item.name)}">${escapeHtml(value)}</textarea>
+        ${escapeHtml(l(locale, item.label))}
+        <textarea name="${escapeAttribute(item.name)}">${escapeHtml(l(locale, value))}</textarea>
       </label>
     `;
   }
   if (kind === "select") {
     return `
       <label class="${item.wide ? "wide" : ""}">
-        ${escapeHtml(item.label)}
+        ${escapeHtml(l(locale, item.label))}
         <select name="${escapeAttribute(item.name)}">
-          ${(item.options ?? [value]).map((option) => `<option value="${escapeAttribute(option)}" ${option === value ? "selected" : ""}>${escapeHtml(option)}</option>`).join("")}
+          ${(item.options ?? [value]).map((option) => `<option value="${escapeAttribute(option)}" ${option === value ? "selected" : ""}>${escapeHtml(l(locale, option))}</option>`).join("")}
         </select>
       </label>
     `;
   }
   return `
     <label class="${item.wide ? "wide" : ""}">
-      ${escapeHtml(item.label)}
-      <input type="${kind}" name="${escapeAttribute(item.name)}" value="${kind === "file" ? "" : escapeAttribute(value)}" />
+      ${escapeHtml(l(locale, item.label))}
+      <input type="${kind}" name="${escapeAttribute(item.name)}" value="${kind === "file" ? "" : escapeAttribute(l(locale, value))}" />
     </label>
   `;
 }
 
-function renderResult(result: LiveApiResult | undefined): string {
+function renderResult(result: LiveApiResult | undefined, locale: Locale): string {
   if (!result) {
-    return `<div class="empty-state compact"><i data-lucide="FileClock"></i><p>Submit an operational action to view request status, event acceptance, and projection evidence.</p></div>`;
+    return `<div class="empty-state compact"><i data-lucide="FileClock"></i><p>${escapeHtml(l(locale, "Submit an operational action to view request status, event acceptance, and projection evidence."))}</p></div>`;
   }
   return `
     <div class="live-write-result ${escapeAttribute(result.state)}">
-      <span><strong>State</strong> ${escapeHtml(result.state)}</span>
-      <span><strong>HTTP</strong> ${escapeHtml(result.httpStatus ?? "pending")}</span>
-      <span><strong>Request</strong> ${escapeHtml(result.requestId)}</span>
-      <span><strong>Detail</strong> ${escapeHtml(result.detail)}</span>
-      <span><strong>Endpoint</strong> ${escapeHtml(result.url)}</span>
+      <span><strong>${escapeHtml(l(locale, "State"))}</strong> ${escapeHtml(l(locale, result.state))}</span>
+      <span><strong>HTTP</strong> ${escapeHtml(result.httpStatus ?? l(locale, "pending"))}</span>
+      <span><strong>${escapeHtml(l(locale, "Request"))}</strong> ${escapeHtml(result.requestId)}</span>
+      <span><strong>${escapeHtml(l(locale, "Detail"))}</strong> ${escapeHtml(l(locale, result.detail))}</span>
+      <span><strong>${escapeHtml(l(locale, "Endpoint"))}</strong> ${escapeHtml(result.url)}</span>
     </div>
   `;
 }
@@ -283,47 +287,51 @@ function readRoutes(patientId: string, apiBase: string) {
   return paths.map(([label, path]) => ({ label, path, url: `${apiBase}${path}` }));
 }
 
-function pageHeader(title: string, description: string, status: string, icon: string): string {
+function pageHeader(locale: Locale, title: string, description: string, status: string, icon: string): string {
   return `
     <section class="page-header">
       <div>
-        <p class="eyebrow">Restored Operational Product</p>
-        <h1>${escapeHtml(title)}</h1>
-        <p>${escapeHtml(description)}</p>
+        <p class="eyebrow">${escapeHtml(l(locale, "Restored Operational Product"))}</p>
+        <h1>${escapeHtml(l(locale, title))}</h1>
+        <p>${escapeHtml(l(locale, description))}</p>
       </div>
-      <span><i data-lucide="${escapeAttribute(icon)}"></i>${escapeHtml(status)}</span>
+      <span><i data-lucide="${escapeAttribute(icon)}"></i>${escapeHtml(l(locale, status))}</span>
     </section>
   `;
 }
 
-function metric(label: string, value: string, detail: string, icon: string, tone: "success" | "warn" | "info"): string {
+function metric(locale: Locale, label: string, value: string, detail: string, icon: string, tone: "success" | "warn" | "info"): string {
   return `
     <article class="metric-card ${tone}">
       <i data-lucide="${escapeAttribute(icon)}"></i>
-      <span>${escapeHtml(label)}</span>
-      <strong>${escapeHtml(value)}</strong>
-      <p>${escapeHtml(detail)}</p>
+      <span>${escapeHtml(l(locale, label))}</span>
+      <strong>${escapeHtml(l(locale, value))}</strong>
+      <p>${escapeHtml(l(locale, detail))}</p>
     </article>
   `;
 }
 
-function sessionBanner(displayName: string, role: string, tenantId: string): string {
+function sessionBanner(locale: Locale, displayName: string, role: string, tenantId: string): string {
   return `
     <section class="band operational-session-band">
-      <h2>Authenticated Hospital Core Session</h2>
-      <p>${escapeHtml(displayName)} is connected as ${escapeHtml(role)} for tenant ${escapeHtml(tenantId)}. All actions remain tenant-scoped, audited, and governed by Foundation authentication.</p>
+      <h2>${escapeHtml(l(locale, "Authenticated Hospital Core Session"))}</h2>
+      <p>${escapeHtml(displayName)} ${escapeHtml(l(locale, "is connected as"))} ${escapeHtml(l(locale, role))} ${escapeHtml(l(locale, "for tenant"))} ${escapeHtml(tenantId)}. ${escapeHtml(l(locale, "All actions remain tenant-scoped, audited, and governed by Foundation authentication."))}</p>
     </section>
   `;
 }
 
-function loginBanner(): string {
+function loginBanner(locale: Locale): string {
   return `
     <section class="band operational-session-band">
-      <h2>Foundation Login Required</h2>
-      <p>Sign in through the approved Foundation provider to submit operational hospital workflows. The page remains visible for route review, but transactions require an authenticated session.</p>
-      <a class="button primary" href="#/auth/login"><i data-lucide="KeyRound"></i> Open Secure Access</a>
+      <h2>${escapeHtml(l(locale, "Foundation Login Required"))}</h2>
+      <p>${escapeHtml(l(locale, "Sign in through the approved Foundation provider to submit operational hospital workflows. The page remains visible for route review, but transactions require an authenticated session."))}</p>
+      <a class="button primary" href="#/auth/login"><i data-lucide="KeyRound"></i> ${escapeHtml(l(locale, "Open Secure Access"))}</a>
     </section>
   `;
+}
+
+function l(locale: Locale, value: string | number | undefined): string {
+  return translate(locale, value);
 }
 
 function action(id: string, title: string, purpose: string, icon: string, path: string, patientScoped: boolean, fields: OperationalField[]): OperationalAction {
