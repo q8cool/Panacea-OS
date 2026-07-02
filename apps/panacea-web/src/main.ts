@@ -7,6 +7,7 @@ import { discoverFoundationLogin } from "./foundationLoginDiscovery";
 import { probeFoundation } from "./foundation";
 import {
   appendOperatorAuditTest,
+  apiRequest,
   executeReadOnlyRequest,
   executeWriteWorkflowRequest,
   fetchTransactionReview,
@@ -17,6 +18,7 @@ import {
   retryProjectionReview
 } from "./liveApi";
 import { initialState, renderApp, type RenderState } from "./render";
+import { operationalCoreTargetFromRoute } from "./operationalHospitalCore";
 import { isRoleRoute } from "./roleRender";
 import { pageFromRoute, roleDefaultRoute, workspaceFromRoute } from "./roleWorkspaces";
 import { localeDirection, normalizeLocale } from "./locales";
@@ -30,6 +32,7 @@ let data: AppData;
 let lastLiveRoute = "";
 let transactionReviewInFlight = false;
 let liveWorkspaceInFlight = false;
+let pendingOperationalScrollTarget = "";
 let state: RenderState = {
   ...initialState,
   theme: (localStorage.getItem("panacea-theme") as RenderState["theme"]) || "light",
@@ -61,11 +64,18 @@ function render() {
   root.innerHTML = renderApp(data, route, state);
   bindEvents();
   renderPanaceaIcons();
+  scrollToOperationalTarget();
   void afterRender(route);
 }
 
 function currentRoute(): string {
   const route = window.location.hash.replace(/^#/, "");
+  const target = operationalCoreTargetFromRoute(route);
+  if (target) {
+    pendingOperationalScrollTarget = target;
+    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#/hospital-core`);
+    return "/hospital-core";
+  }
   return route || defaultRoute;
 }
 
@@ -398,20 +408,21 @@ function bindEvents() {
   document.querySelectorAll<HTMLFormElement>(".operational-core-form").forEach((form) => {
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
+      const currentForm = event.currentTarget;
+      if (!(currentForm instanceof HTMLFormElement)) return;
+      const actionId = currentForm.dataset.actionId ?? "hospital-core-action";
       if (!state.authSession) {
         state = {
           ...state,
           authError: "Operational hospital workflows require a Foundation-authenticated session."
         };
+        pendingOperationalScrollTarget = `action-${actionId}`;
         render();
         return;
       }
       const session = state.authSession;
-      const currentForm = event.currentTarget;
-      if (!(currentForm instanceof HTMLFormElement)) return;
       const config = state.webConfig ?? buildWebConfig(data);
       const allowlist = buildBrowserApiAllowlist(data, config);
-      const actionId = currentForm.dataset.actionId ?? "hospital-core-action";
       const workflowPath = currentForm.dataset.workflowPath ?? "";
       const endpoint = findOperationalCoreWriteEndpoint(data, config, workflowPath, operationalPathReplacements(currentForm));
       const body = buildWriteWorkflowBody(currentForm, session, "hospital-core", actionId);
@@ -441,13 +452,63 @@ function bindEvents() {
     button.addEventListener("click", () => {
       const targetId = button.dataset.scrollTarget;
       if (!targetId) return;
-      const target = document.getElementById(targetId);
-      if (!target) return;
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-      const focusable = target.querySelector<HTMLElement>("input, textarea, select, button, a");
-      focusable?.focus({ preventScroll: true });
+      pendingOperationalScrollTarget = targetId;
+      scrollToOperationalTarget();
     });
   });
+
+  document.querySelectorAll<HTMLButtonElement>("[data-operational-read-url]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const url = button.dataset.operationalReadUrl ?? "";
+      if (!url) return;
+      if (!state.authSession) {
+        state = {
+          ...state,
+          authError: "Sign in through Foundation to open patient files and live hospital records."
+        };
+        pendingOperationalScrollTarget = "operational-patient-file";
+        render();
+        return;
+      }
+      const session = state.authSession;
+      const config = state.webConfig ?? buildWebConfig(data);
+      const allowlist = buildBrowserApiAllowlist(data, config);
+      state = {
+        ...state,
+        authError: "",
+        operationalCoreResult: {
+          requestId: "pending",
+          method: "GET",
+          url,
+          state: "degraded",
+          detail: `Opening ${button.dataset.operationalReadLabel ?? "hospital record"}...`,
+          checkedAt: new Date().toISOString()
+        }
+      };
+      pendingOperationalScrollTarget = "operational-patient-file";
+      render();
+      const result = await apiRequest("GET", url, session, config, undefined, fetch, allowlist);
+      state = {
+        ...state,
+        operationalCoreResult: result
+      };
+      pendingOperationalScrollTarget = "operational-patient-file";
+      render();
+    });
+  });
+}
+
+function scrollToOperationalTarget() {
+  if (!pendingOperationalScrollTarget) return;
+  const targetId = pendingOperationalScrollTarget;
+  pendingOperationalScrollTarget = "";
+  window.setTimeout(() => {
+    const target = document.getElementById(targetId);
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    const focusable = target.querySelector<HTMLElement>("input, textarea, select, button, a");
+    focusable?.focus({ preventScroll: true });
+  }, 0);
 }
 
 async function afterRender(route: string) {

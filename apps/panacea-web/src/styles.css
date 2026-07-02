@@ -1730,7 +1730,8 @@ pre {
   gap: 10px;
 }
 
-.core-route-grid a {
+.core-route-grid a,
+.core-route-grid button {
   display: grid;
   gap: 6px;
   min-width: 0;
@@ -1740,9 +1741,13 @@ pre {
   color: var(--text);
   text-decoration: none;
   background: var(--panel);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
 }
 
-.core-route-grid a:hover {
+.core-route-grid a:hover,
+.core-route-grid button:hover {
   border-color: color-mix(in srgb, var(--blue) 45%, var(--line));
 }
 

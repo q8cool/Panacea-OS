@@ -24,6 +24,26 @@ interface OperationalAction {
   fields: OperationalField[];
 }
 
+const operationalCoreTargets = new Set([
+  "operational-patient-file",
+  "operational-workflows",
+  "operational-audit-evidence",
+  "action-register-patient",
+  "action-clinical-note",
+  "action-attach-report",
+  "action-extract-report-text",
+  "action-analyze-report",
+  "action-translate-report",
+  "action-patient-ai-chat",
+  "action-global-ai-chat",
+  "action-clinical-reasoning",
+  "action-create-order",
+  "action-draft-prescription",
+  "action-pharmacy-safety",
+  "action-advance-workflow",
+  "action-send-notification"
+]);
+
 export const operationalCoreActions: OperationalAction[] = [
   action("register-patient", "Patient Registration", "Create the patient record used by the restored hospital workflow.", "UserPlus", "/operational-core/patients", false, [
     field("subjectId", "Patient ID", "patient-restored-001"),
@@ -136,21 +156,23 @@ export function renderOperationalHospitalCore(data: AppData, state: RenderState)
         ${metric(locale, "Audit Trail", "Active", "Write workflows generate event and projection evidence", "FileClock", "success")}
       </section>
       ${session ? sessionBanner(locale, session.displayName, session.role, session.tenantId) : loginBanner(locale)}
+      ${state.authError ? `<div class="alert danger"><strong>${escapeHtml(l(locale, "Action Required"))}</strong><p>${escapeHtml(l(locale, state.authError))}</p></div>` : ""}
       <section id="operational-patient-file" class="band">
         <div class="section-title">
           <div>
             <h2>${escapeHtml(l(locale, "Operational Patient File"))}</h2>
-            <p>${escapeHtml(l(locale, "Open patient list, profile, timeline, file, report, chat, order, pharmacy, workflow, notification, and audit routes after write actions complete."))}</p>
+            <p>${escapeHtml(l(locale, "Open patient list, profile, timeline, file, report, chat, order, pharmacy, workflow, notification, and audit routes inside this workspace."))}</p>
           </div>
         </div>
         <div class="core-route-grid">
           ${readRoutes(patientId, data.publicApiBaseUrl).map((route) => `
-            <a href="${escapeAttribute(route.url)}" target="_blank" rel="noreferrer">
+            <button type="button" data-operational-read-url="${escapeAttribute(route.url)}" data-operational-read-label="${escapeAttribute(route.label)}">
               <strong>${escapeHtml(l(locale, route.label))}</strong>
               <span>${escapeHtml(route.path)}</span>
-            </a>
+            </button>
           `).join("")}
         </div>
+        ${result ? renderResult(result, locale) : `<div class="empty-state compact"><i data-lucide="FolderOpen"></i><p>${escapeHtml(l(locale, "Choose Patient List or Open Patient File to load live patient-file evidence after secure sign-in."))}</p></div>`}
       </section>
       <section id="operational-workflows" class="band">
         <div class="section-title">
@@ -160,7 +182,7 @@ export function renderOperationalHospitalCore(data: AppData, state: RenderState)
           </div>
         </div>
         <div class="operational-action-grid">
-          ${operationalCoreActions.map((item) => renderAction(item, data, config, patientId, Boolean(session), locale)).join("")}
+          ${operationalCoreActions.map((item) => renderAction(item, data, config, patientId, locale)).join("")}
         </div>
       </section>
       <section id="operational-audit-evidence" class="band">
@@ -179,6 +201,11 @@ export function renderOperationalHospitalCore(data: AppData, state: RenderState)
       </section>
     </div>
   `;
+}
+
+export function operationalCoreTargetFromRoute(route: string): string | undefined {
+  const cleaned = route.replace(/^#/, "").replace(/^\//, "");
+  return operationalCoreTargets.has(cleaned) ? cleaned : undefined;
 }
 
 function operationConsole(locale: Locale, patientId: string, apiBase: string): string {
@@ -218,7 +245,7 @@ function operationConsole(locale: Locale, patientId: string, apiBase: string): s
   `;
 }
 
-function renderAction(item: OperationalAction, data: AppData, config: PanaceaWebConfig | undefined, patientId: string, enabled: boolean, locale: Locale): string {
+function renderAction(item: OperationalAction, data: AppData, config: PanaceaWebConfig | undefined, patientId: string, locale: Locale): string {
   const fullTemplatePath = `${GLOBAL_COMMAND_API_BASE}${item.templatePath}`;
   const resolvedPath = resolveTemplatePath(fullTemplatePath, {
     patientId,
@@ -251,7 +278,7 @@ function renderAction(item: OperationalAction, data: AppData, config: PanaceaWeb
           <span><i data-lucide="ShieldAlert"></i> ${escapeHtml(l(locale, "No autonomous treatment"))}</span>
           <span><i data-lucide="FileClock"></i> ${escapeHtml(l(locale, "Audited write workflow"))}</span>
         </div>
-        <button class="button primary" type="submit" ${enabled && endpointReady ? "" : "disabled"}>
+        <button class="button primary" type="submit" ${endpointReady ? "" : "disabled"}>
           <i data-lucide="Send"></i>
           ${escapeHtml(submitLabel)}
         </button>

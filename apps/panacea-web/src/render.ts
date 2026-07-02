@@ -7,7 +7,7 @@ import { roleFromRoute, roleSwitcherOptions } from "./roleWorkspaces";
 import { isSessionExpired, tokenSecondsRemaining } from "./auth";
 import { buildWebConfig, missingLiveConfig } from "./webConfig";
 import { languageOptions, localeDirection, translate, type Locale } from "./locales";
-import { renderOperationalHospitalCore } from "./operationalHospitalCore";
+import { operationalCoreTargetFromRoute, renderOperationalHospitalCore } from "./operationalHospitalCore";
 import type {
   AppData,
   AuthSession,
@@ -92,7 +92,7 @@ export function renderApp(data: AppData, route: string, state: RenderState): str
 export function renderRoute(data: AppData, route: string, state: RenderState = initialState): string {
   setActiveLocale(state.language);
   if (route === "/auth/login") return renderAuthPage(data, state);
-  if (route === "/hospital-core") return renderOperationalHospitalCore(data, state);
+  if (route === "/hospital-core" || operationalCoreTargetFromRoute(route)) return renderOperationalHospitalCore(data, state);
   if (route === "/command/live-status") return renderLiveStatusPage(data, state);
   if (route === "/command/transaction-review") return renderTransactionReviewPage(state);
   if (isRoleRoute(route)) return renderRoleWorkspace(data, route, {

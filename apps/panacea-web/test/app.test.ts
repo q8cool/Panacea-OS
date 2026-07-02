@@ -22,7 +22,7 @@ import {
   pollRuntimeStatus
 } from "../src/liveApi";
 import { languageOptions, translate } from "../src/locales";
-import { operationalCoreActions } from "../src/operationalHospitalCore";
+import { operationalCoreActions, operationalCoreTargetFromRoute } from "../src/operationalHospitalCore";
 import { allRoleRoutes, roleDefaultRoute, roleSwitcherOptions, roleWorkspaces } from "../src/roleWorkspaces";
 import { initialState, renderApp, renderRoute } from "../src/render";
 import { buildWebConfig } from "../src/webConfig";
@@ -968,6 +968,78 @@ describe("Panacea web platform", () => {
     expect(container.querySelector('button[data-scroll-target="operational-patient-file"]')?.textContent).toContain("Patient List");
     expect(container.querySelector('button[data-scroll-target="operational-audit-evidence"]')?.textContent).toContain("Audit Trail");
     expect(container.querySelector('a[href^="#action-"]')).toBeNull();
+  });
+
+  it("keeps Hospital Core hash action targets inside the operational page", () => {
+    expect(operationalCoreTargetFromRoute("action-register-patient")).toBe("action-register-patient");
+    expect(operationalCoreTargetFromRoute("/action-register-patient")).toBe("action-register-patient");
+
+    for (const route of ["action-register-patient", "/action-register-patient"]) {
+      const html = renderRoute(data, route, {
+        ...initialState,
+        webConfig: config,
+        selectedRole: "doctor"
+      });
+      const container = document.createElement("main");
+      container.innerHTML = html;
+
+      expect(container.querySelector('[data-page="hospital-core"]')).not.toBeNull();
+      expect(container.querySelector("#action-register-patient")).not.toBeNull();
+      expect(container.querySelector("#action-register-patient form.operational-core-form")).not.toBeNull();
+      expect(container.textContent).toContain("Patient Registration");
+      expect(container.textContent).toContain("Submit Patient Registration");
+      expect(container.textContent).not.toContain("Executive Overview");
+      expect(container.textContent).not.toContain("Hospital Workspace Launchpad");
+    }
+  });
+
+  it("opens patient file routes inside Hospital Core instead of external browser tabs", () => {
+    const html = renderRoute(data, "/hospital-core", {
+      ...initialState,
+      webConfig: config,
+      selectedRole: "doctor"
+    });
+    const container = document.createElement("main");
+    container.innerHTML = html;
+    const readButtons = Array.from(container.querySelectorAll<HTMLButtonElement>(".core-route-grid button[data-operational-read-url]"));
+
+    expect(readButtons.length).toBeGreaterThanOrEqual(10);
+    expect(readButtons.some((button) => button.textContent?.includes("Patient List"))).toBe(true);
+    expect(readButtons.some((button) => button.textContent?.includes("Patient Profile"))).toBe(true);
+    expect(readButtons.some((button) => button.textContent?.includes("Audit Trail"))).toBe(true);
+    expect(readButtons.every((button) => button.dataset.operationalReadUrl?.startsWith("https://api.panacea.utbe.ai/api/"))).toBe(true);
+    expect(container.querySelector(".core-route-grid a[target='_blank']")).toBeNull();
+    expect(container.querySelector('.core-route-grid a[target="_blank"]')).toBeNull();
+  });
+
+  it("keeps operational write buttons active when OpenAPI-published endpoints exist", () => {
+    const html = renderRoute(data, "/hospital-core", {
+      ...initialState,
+      webConfig: config,
+      selectedRole: "doctor"
+    });
+    const container = document.createElement("main");
+    container.innerHTML = html;
+    const submitButtons = Array.from(container.querySelectorAll<HTMLButtonElement>(".operational-core-form button[type='submit']"));
+
+    expect(submitButtons).toHaveLength(operationalCoreActions.length);
+    expect(submitButtons.every((button) => !button.disabled)).toBe(true);
+    expect(container.textContent).not.toContain("الخدمة غير متاحة مؤقتاً");
+    expect(container.textContent).not.toContain("واجهة قراءة فقط");
+  });
+
+  it("renders a clear Foundation sign-in requirement inside Hospital Core after blocked record access", () => {
+    const html = renderRoute(data, "/hospital-core", {
+      ...initialState,
+      webConfig: config,
+      selectedRole: "doctor",
+      authError: "Sign in through Foundation to open patient files and live hospital records."
+    });
+
+    expect(html).toContain("Action Required");
+    expect(html).toContain("Sign in through Foundation to open patient files and live hospital records.");
+    expect(html).toContain("Patient Registration");
+    expect(html).not.toContain("Executive Overview");
   });
 
   it("renders the restored AI Hospital Core workflow page in Arabic", () => {
