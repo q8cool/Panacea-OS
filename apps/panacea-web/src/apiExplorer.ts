@@ -1,5 +1,7 @@
 import type { ApiEndpoint, OpenApiDocument } from "./types";
 
+const PUBLIC_API_BASE_URL = "https://api.panacea.utbe.ai";
+
 export interface EndpointRecord extends ApiEndpoint {
   documentId: string;
   documentTitle: string;
@@ -43,17 +45,8 @@ export function filterEndpoints(endpoints: EndpointRecord[], filter: ApiFilter):
   });
 }
 
-export function endpointBaseUrl(endpoint: EndpointRecord): string {
-  if (endpoint.documentId.includes("autonomous-healthcare-intelligence-foundation")) return "http://localhost:18094";
-  if (endpoint.documentId.includes("real-time-global-healthcare-command-intelligence-platform")) return "http://localhost:18095";
-  if (endpoint.documentId.includes("global-workforce")) return "http://localhost:18141";
-  if (endpoint.documentId.includes("global-legal")) return "http://localhost:18142";
-  if (endpoint.documentId.includes("global-customer-success")) return "http://localhost:18143";
-  if (endpoint.documentId.includes("global-product-management")) return "http://localhost:18144";
-  if (endpoint.documentId.includes("global-compliance")) return "http://localhost:18145";
-  if (endpoint.documentId.includes("global-ai-assurance")) return "http://localhost:18146";
-  if (endpoint.documentId.includes("global-enterprise-data-privacy-consent-trust-platform") || endpoint.documentId.includes("global-privacy")) return "http://localhost:18147";
-  return "http://localhost";
+export function endpointBaseUrl(_endpoint: EndpointRecord): string {
+  return PUBLIC_API_BASE_URL;
 }
 
 export function buildCurl(endpoint: EndpointRecord): string {

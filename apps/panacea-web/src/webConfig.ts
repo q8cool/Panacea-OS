@@ -9,6 +9,7 @@ type WindowWithPanaceaConfig = Window & {
 };
 
 const FOUNDATION_BASE_URL = "https://foundation.utbe.ai";
+const PANACEA_API_PUBLIC_BASE_URL = "https://api.panacea.utbe.ai";
 
 export function buildWebConfig(data: AppData): PanaceaWebConfig {
   const runtime = typeof window === "undefined" ? {} : (window as WindowWithPanaceaConfig).PANACEA_WEB_CONFIG ?? {};
@@ -20,6 +21,12 @@ export function buildWebConfig(data: AppData): PanaceaWebConfig {
       data.foundation.baseUrl ||
       FOUNDATION_BASE_URL
   );
+  const publicApiBase = cleanUrl(
+    readSetting("PANACEA_API_PUBLIC_BASE_URL", runtime, env) ||
+      readSetting("VITE_PANACEA_API_PUBLIC_BASE_URL", runtime, env) ||
+      data.publicApiBaseUrl ||
+      PANACEA_API_PUBLIC_BASE_URL
+  );
 
   return {
     FOUNDATION_BASE_URL: foundationBase,
@@ -30,7 +37,8 @@ export function buildWebConfig(data: AppData): PanaceaWebConfig {
     FOUNDATION_JWT_ISSUER: cleanUrl(readSetting("FOUNDATION_JWT_ISSUER", runtime, env) || foundationBase),
     FOUNDATION_AUDIT_APPEND_URL: endpointSetting("FOUNDATION_AUDIT_APPEND_URL", "/api/v1/audit-records", foundationBase, data.foundation.auditAppendUrl, runtime, env),
     FOUNDATION_POLICY_URL: endpointSetting("FOUNDATION_POLICY_URL", "/api/v1/policy/evaluate", foundationBase, data.foundation.policyUrl, runtime, env),
-    PANACEA_API_BASE_URL: cleanUrl(readSetting("PANACEA_API_BASE_URL", runtime, env) || readSetting("VITE_PANACEA_API_BASE_URL", runtime, env) || "http://localhost"),
+    PANACEA_API_PUBLIC_BASE_URL: publicApiBase,
+    PANACEA_API_BASE_URL: cleanUrl(readSetting("PANACEA_API_BASE_URL", runtime, env) || readSetting("VITE_PANACEA_API_BASE_URL", runtime, env) || publicApiBase),
     PANACEA_WEB_MODE: readSetting("PANACEA_WEB_MODE", runtime, env) === "live" ? "live" : "demo",
     PANACEA_DEFAULT_TENANT: readSetting("PANACEA_DEFAULT_TENANT", runtime, env) || readSetting("VITE_PANACEA_DEFAULT_TENANT", runtime, env) || "demo-tenant",
     PANACEA_ENABLE_DEMO_MODE: readBoolean("PANACEA_ENABLE_DEMO_MODE", runtime, env, true),
@@ -45,6 +53,7 @@ export function missingLiveConfig(config: PanaceaWebConfig): string[] {
     "FOUNDATION_READY_URL",
     "FOUNDATION_JWKS_URL",
     "FOUNDATION_JWT_ISSUER",
+    "PANACEA_API_PUBLIC_BASE_URL",
     "PANACEA_API_BASE_URL",
     "PANACEA_DEFAULT_TENANT"
   ] as const).filter((key) => !String(config[key] ?? "").trim());

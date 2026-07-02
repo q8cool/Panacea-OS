@@ -78,6 +78,8 @@ export interface ReleaseEvidence {
 
 export interface AppData {
   generatedAt: string;
+  publicWebUrl: string;
+  publicApiBaseUrl: string;
   repository: {
     name: string;
     company: string;
@@ -168,6 +170,7 @@ export interface PanaceaWebConfig {
   FOUNDATION_JWT_ISSUER: string;
   FOUNDATION_AUDIT_APPEND_URL: string;
   FOUNDATION_POLICY_URL: string;
+  PANACEA_API_PUBLIC_BASE_URL: string;
   PANACEA_API_BASE_URL: string;
   PANACEA_WEB_MODE: DataMode;
   PANACEA_DEFAULT_TENANT: string;

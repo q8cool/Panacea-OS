@@ -6,6 +6,24 @@ import { fileURLToPath } from "node:url";
 const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = path.resolve(appRoot, "../..");
 const outputPath = path.join(appRoot, "public", "panacea-data.json");
+const DEFAULT_PUBLIC_WEB_URL = "https://panacea.utbe.ai";
+const DEFAULT_PUBLIC_API_BASE_URL = "https://api.panacea.utbe.ai";
+
+function cleanUrl(value) {
+  return String(value ?? "").trim().replace(/\/+$/, "");
+}
+
+const publicWebUrl = cleanUrl(process.env.PANACEA_PUBLIC_WEB_URL || process.env.VITE_PANACEA_PUBLIC_WEB_URL || DEFAULT_PUBLIC_WEB_URL);
+const publicApiBaseUrl = cleanUrl(process.env.PANACEA_API_PUBLIC_BASE_URL || process.env.VITE_PANACEA_API_PUBLIC_BASE_URL || DEFAULT_PUBLIC_API_BASE_URL);
+
+function sanitizePublicText(value) {
+  return String(value ?? "")
+    .replace(/http:\/\/localhost:5174\b/g, publicWebUrl)
+    .replace(/http:\/\/localhost:\d+\b/g, publicApiBaseUrl)
+    .replace(/http:\/\/127\.0\.0\.1:\d+\b/g, publicApiBaseUrl)
+    .replace(/http:\/\/localhost\b/g, publicApiBaseUrl)
+    .replace(/http:\/\/127\.0\.0\.1\b/g, publicApiBaseUrl);
+}
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -158,7 +176,7 @@ function chooseSafestDocumentedGet(serviceOpenApi, alreadySelected) {
   ));
 }
 
-function runtimeChecksForService({ serviceOpenApi, hostPort }) {
+function runtimeChecksForService({ serviceOpenApi, hostPort, publicApiBaseUrl }) {
   if (!serviceOpenApi || !hostPort) return [];
   const selectedPaths = new Set();
   const checks = [];
@@ -171,7 +189,7 @@ function runtimeChecksForService({ serviceOpenApi, hostPort }) {
       kind,
       method: "GET",
       path: endpoint.path,
-      url: `http://localhost:${hostPort}${endpoint.path}`,
+      url: `${publicApiBaseUrl}${endpoint.path}`,
       sourceOpenApiPath: serviceOpenApi.relativePath
     });
   };
@@ -246,7 +264,7 @@ function loadServices(openApiDocuments) {
       : [];
     const portMatch = compose.match(new RegExp(`${name}[\\s\\S]*?ports:\\n\\s+- "([^"]+)"`));
     const hostPort = hostPortFromBinding(portMatch?.[1] ?? "");
-    const runtimeChecks = runtimeChecksForService({ serviceOpenApi, hostPort });
+    const runtimeChecks = runtimeChecksForService({ serviceOpenApi, hostPort, publicApiBaseUrl });
     return {
       id: name,
       name,
@@ -279,13 +297,14 @@ function loadDocuments() {
   return walkFiles(path.join(repoRoot, "docs"), (filePath) => filePath.endsWith(".md")).map((filePath) => {
     const relativePath = path.relative(repoRoot, filePath).replaceAll(path.sep, "/");
     const markdown = fs.readFileSync(filePath, "utf8");
+    const safeMarkdown = sanitizePublicText(markdown);
     return {
       id: relativePath,
-      title: firstHeading(markdown, titleFromPath(filePath)),
+      title: firstHeading(safeMarkdown, titleFromPath(filePath)),
       relativePath,
       group: groupDocument(relativePath),
-      excerpt: excerpt(markdown),
-      body: markdown
+      excerpt: excerpt(safeMarkdown),
+      body: safeMarkdown
     };
   });
 }
@@ -340,6 +359,8 @@ const releaseEvidence = loadReleaseEvidence(documents);
 
 const data = {
   generatedAt: new Date().toISOString(),
+  publicWebUrl,
+  publicApiBaseUrl,
   repository: {
     name: "Panacea OS Enterprise",
     company: "AlKandari Technologies",

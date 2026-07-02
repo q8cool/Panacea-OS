@@ -22,6 +22,7 @@ import { allowedReadFixture, blockedWriteFixture, operatorAuditFixture } from ".
 
 const data = dataJson as AppData;
 const config = buildWebConfig(data);
+const publicApiBaseUrl = "https://api.panacea.utbe.ai";
 const providerKeyPair = crypto.generateKeyPairSync("rsa", {
   modulusLength: 2048,
   publicKeyEncoding: { type: "spki", format: "pem" },
@@ -68,8 +69,16 @@ describe("Panacea web platform", () => {
   it("keeps active service technical health details in the operator system area", () => {
     const html = renderRoute(data, "/command/system-health", initialState);
     expect(html).toContain("Runtime Service Evidence");
-    expect(html).toContain("http://localhost:18095");
+    expect(html).toContain(`${publicApiBaseUrl}/api/v4/global-command-intelligence/live`);
     expect(html).toContain("docs/openapi.json");
+  });
+
+  it("generates production web data with UTBE public API routes and no localhost HTTP links", () => {
+    expect(data.publicApiBaseUrl).toBe(publicApiBaseUrl);
+    expect(config.PANACEA_API_PUBLIC_BASE_URL).toBe(publicApiBaseUrl);
+    expect(config.PANACEA_API_BASE_URL).toBe(publicApiBaseUrl);
+    expect(JSON.stringify(data)).not.toMatch(/https?:\/\/(?:localhost|127\.0\.0\.1)/);
+    expect(data.services.every((service) => service.runtimeChecks.every((check) => check.url.startsWith(publicApiBaseUrl)))).toBe(true);
   });
 
   it("derives active service status checks from docs/contracts OpenAPI paths", () => {
@@ -90,7 +99,7 @@ describe("Panacea web platform", () => {
         expect(check.method).toBe("GET");
         expect(check.sourceOpenApiPath).toBe(contractPath);
         expect(documentedGetPaths.has(check.path)).toBe(true);
-        expect(check.url).toBe(`http://localhost:${service.localPort}${check.path}`);
+        expect(check.url).toBe(`${publicApiBaseUrl}${check.path}`);
         expect(new URL(check.url).pathname).toBe(check.path);
       }
     }
@@ -114,8 +123,8 @@ describe("Panacea web platform", () => {
   it("maps the privacy consent trust contract to its runtime service port", () => {
     const privacyDocument = data.openApiDocuments.find((document) => document.relativePath === "docs/contracts/openapi/global-enterprise-data-privacy-consent-trust-platform.openapi.json")!;
     const privacyLiveEndpoint = flattenEndpoints([privacyDocument]).find((endpoint) => endpoint.path === "/api/v3/global-privacy/live")!;
-    expect(endpointBaseUrl(privacyLiveEndpoint)).toBe("http://localhost:18147");
-    expect(buildCurl(privacyLiveEndpoint)).toContain("http://localhost:18147/api/v3/global-privacy/live");
+    expect(endpointBaseUrl(privacyLiveEndpoint)).toBe(publicApiBaseUrl);
+    expect(buildCurl(privacyLiveEndpoint)).toContain(`${publicApiBaseUrl}/api/v3/global-privacy/live`);
   });
 
   it("keeps documented clinical modules visible without implying active runtime services", () => {
@@ -316,9 +325,11 @@ describe("Panacea web platform", () => {
       apiQuery: "live",
       apiMethod: "GET"
     });
-    expect(system).toContain("http://localhost");
+    expect(system).toContain(publicApiBaseUrl);
+    expect(system).not.toContain("http://localhost");
     expect(system).toContain("docs/openapi.json");
     expect(explorer).toContain("curl -X GET");
+    expect(explorer).toContain(publicApiBaseUrl);
     expect(explorer).toContain("/api/v");
   });
 
@@ -677,7 +688,7 @@ describe("Panacea web platform", () => {
         { label: "Foundation JWKS", url: config.FOUNDATION_JWKS_URL, state: "offline", httpStatus: 503, detail: "down", checkedAt: new Date().toISOString() }
       ],
       services: [
-        { label: "Service health", url: "http://localhost:18095/live", state: "unavailable", detail: "CORS", checkedAt: new Date().toISOString() }
+        { label: "Service health", url: `${publicApiBaseUrl}/api/v4/global-command-intelligence/live`, state: "unavailable", detail: "CORS", checkedAt: new Date().toISOString() }
       ]
     };
     const html = renderRoute(data, "/command/live-status", {
@@ -752,7 +763,7 @@ describe("Panacea web platform", () => {
       endpoint: {
         label: "Global Command Intelligence: List tenant-scoped clinical patient read models",
         method: "GET",
-        url: "http://localhost:18095/api/v4/global-command-intelligence/read-models/clinical/patients",
+        url: "https://api.panacea.utbe.ai/api/v4/global-command-intelligence/read-models/clinical/patients",
         source: "services/real-time-global-healthcare-command-intelligence-platform/docs/openapi.json",
         available: true,
         reason: "Live backend read-model endpoint selected from the OpenAPI contract."
@@ -760,7 +771,7 @@ describe("Panacea web platform", () => {
       writeEndpoint: {
         label: "Global Command Intelligence: Create a governed tenant-scoped patient record",
         method: "POST",
-        url: "http://localhost:18095/api/v4/global-command-intelligence/write-workflows/clinical/patients",
+        url: "https://api.panacea.utbe.ai/api/v4/global-command-intelligence/write-workflows/clinical/patients",
         source: "services/real-time-global-healthcare-command-intelligence-platform/docs/openapi.json",
         available: true,
         reason: "Approved live transactional write workflow selected from the OpenAPI contract."
@@ -768,7 +779,7 @@ describe("Panacea web platform", () => {
       writeResult: {
         requestId: "req-write",
         method: "POST",
-        url: "http://localhost:18095/api/v4/global-command-intelligence/write-workflows/clinical/patients",
+        url: "https://api.panacea.utbe.ai/api/v4/global-command-intelligence/write-workflows/clinical/patients",
         state: "online",
         httpStatus: 201,
         detail: "Request completed.",
@@ -805,7 +816,7 @@ describe("Panacea web platform", () => {
       endpoint: {
         label: "Global Command Intelligence: List tenant-scoped clinical patient read models",
         method: "GET",
-        url: "http://localhost:18095/api/v4/global-command-intelligence/read-models/clinical/patients",
+        url: "https://api.panacea.utbe.ai/api/v4/global-command-intelligence/read-models/clinical/patients",
         source: "services/real-time-global-healthcare-command-intelligence-platform/docs/openapi.json",
         available: true,
         reason: "Live backend read-model endpoint selected from the OpenAPI contract."
@@ -813,7 +824,7 @@ describe("Panacea web platform", () => {
       result: {
         requestId: "req-live-read",
         method: "GET",
-        url: "http://localhost:18095/api/v4/global-command-intelligence/read-models/clinical/patients",
+        url: "https://api.panacea.utbe.ai/api/v4/global-command-intelligence/read-models/clinical/patients",
         state: "online",
         httpStatus: 200,
         detail: "Request completed.",
@@ -916,7 +927,7 @@ describe("Panacea web platform", () => {
         endpoint: {
           label: `Sprint 115 ${item.role} live read model`,
           method: "GET",
-          url: `http://localhost:18095/api/v4/global-command-intelligence${item.endpoint}`,
+          url: `https://api.panacea.utbe.ai/api/v4/global-command-intelligence${item.endpoint}`,
           source: "docs/contracts/openapi/real-time-global-healthcare-command-intelligence-platform.openapi.json",
           available: true,
           reason: "Sprint 115 live read-model evidence selected from the OpenAPI contract."
@@ -924,7 +935,7 @@ describe("Panacea web platform", () => {
         result: {
           requestId: `sprint115-read-${item.role}`,
           method: "GET",
-          url: `http://localhost:18095/api/v4/global-command-intelligence${item.endpoint}`,
+          url: `https://api.panacea.utbe.ai/api/v4/global-command-intelligence${item.endpoint}`,
           state: "online",
           httpStatus: 200,
           detail: "Request completed.",
@@ -953,7 +964,7 @@ describe("Panacea web platform", () => {
         writeEndpoint: {
           label: `Sprint 115 ${item.write}`,
           method: "POST",
-          url: "http://localhost:18095/api/v4/global-command-intelligence/write-workflows/events",
+          url: "https://api.panacea.utbe.ai/api/v4/global-command-intelligence/write-workflows/events",
           source: "docs/contracts/openapi/real-time-global-healthcare-command-intelligence-platform.openapi.json",
           available: true,
           reason: "Approved live transactional workflow evidence."
@@ -961,7 +972,7 @@ describe("Panacea web platform", () => {
         writeResult: {
           requestId: `sprint115-write-${item.role}`,
           method: "POST",
-          url: "http://localhost:18095/api/v4/global-command-intelligence/write-workflows/events",
+          url: "https://api.panacea.utbe.ai/api/v4/global-command-intelligence/write-workflows/events",
           state: "online",
           httpStatus: 201,
           detail: "Request completed.",
@@ -995,7 +1006,7 @@ describe("Panacea web platform", () => {
         events: {
           requestId: "req-events",
           method: "GET",
-          url: "http://localhost:18095/api/v4/global-command-intelligence/write-workflows/events",
+          url: "https://api.panacea.utbe.ai/api/v4/global-command-intelligence/write-workflows/events",
           state: "online",
           httpStatus: 200,
           detail: "Request completed.",
@@ -1025,7 +1036,7 @@ describe("Panacea web platform", () => {
         projections: {
           requestId: "req-projections",
           method: "GET",
-          url: "http://localhost:18095/api/v4/global-command-intelligence/write-workflows/projections",
+          url: "https://api.panacea.utbe.ai/api/v4/global-command-intelligence/write-workflows/projections",
           state: "online",
           httpStatus: 200,
           detail: "Request completed.",
@@ -1076,7 +1087,7 @@ describe("Panacea web platform", () => {
     const endpoint = {
       label: "Runtime health",
       method: "GET" as const,
-      url: "http://localhost:18094/api/v4/autonomous-healthcare-intelligence/live",
+      url: "https://api.panacea.utbe.ai/api/v4/autonomous-healthcare-intelligence/live",
       source: "services/autonomous-healthcare-intelligence-foundation/docs/openapi.json",
       available: true,
       reason: "Runtime endpoint selected from existing OpenAPI."

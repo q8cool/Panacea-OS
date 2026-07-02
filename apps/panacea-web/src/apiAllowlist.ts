@@ -238,10 +238,7 @@ function workspaceScopesForEndpoint(endpoint: EndpointRecord): RoleId[] {
 }
 
 function baseUrlForEndpoint(endpoint: EndpointRecord, config: PanaceaWebConfig): string {
-  if (config.PANACEA_API_BASE_URL && config.PANACEA_API_BASE_URL !== "http://localhost") {
-    return config.PANACEA_API_BASE_URL;
-  }
-  return endpointBaseUrl(endpoint);
+  return config.PANACEA_API_BASE_URL || config.PANACEA_API_PUBLIC_BASE_URL || endpointBaseUrl(endpoint);
 }
 
 function normalizeUrl(url: string): string {

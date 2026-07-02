@@ -446,7 +446,7 @@ function readModelPathForWorkspacePage(workspaceId: string, pageId: string): str
 function baseUrlForGlobalCommand(data: AppData, config: PanaceaWebConfig): string {
   const endpoint = flattenEndpoints(data.openApiDocuments).find((item) => item.path === `${GLOBAL_COMMAND_API_BASE}/live`);
   if (endpoint) return baseUrlForEndpoint(endpoint, config);
-  return config.PANACEA_API_BASE_URL || "http://localhost:18095";
+  return config.PANACEA_API_BASE_URL || config.PANACEA_API_PUBLIC_BASE_URL;
 }
 
 function resolveReadModelPath(templatePath: string, route: string): string {
@@ -599,10 +599,7 @@ function auditFromResult(result: LiveApiResult, session: AuthSession, mode: "liv
 }
 
 function baseUrlForEndpoint(endpoint: EndpointRecord, config: PanaceaWebConfig): string {
-  if (config.PANACEA_API_BASE_URL && config.PANACEA_API_BASE_URL !== "http://localhost") {
-    return config.PANACEA_API_BASE_URL;
-  }
-  return endpointBaseUrl(endpoint);
+  return config.PANACEA_API_BASE_URL || config.PANACEA_API_PUBLIC_BASE_URL || endpointBaseUrl(endpoint);
 }
 
 function stateFromStatus(status: number): ConnectionState {
