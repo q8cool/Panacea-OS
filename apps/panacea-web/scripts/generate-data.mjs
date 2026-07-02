@@ -9,104 +9,22 @@ const outputPath = path.join(appRoot, "public", "panacea-data.json");
 const DEFAULT_PUBLIC_WEB_URL = "https://panacea.utbe.ai";
 const DEFAULT_PUBLIC_API_BASE_URL = "https://api.panacea.utbe.ai";
 const PUBLIC_DOCUMENT_ALLOWLIST = new Set([
-  "docs/user-guides/API_Client_Guide.md",
-  "docs/user-guides/Admin_Console_Guide.md",
-  "docs/user-guides/Admin_Write_Workflows_Guide.md",
-  "docs/user-guides/Arabic_Medical_Terminology_Guide.md",
-  "docs/user-guides/Arabic_UI_Guide.md",
-  "docs/user-guides/Auth_CORS_Guide.md",
-  "docs/user-guides/Auth_Token_Claims.md",
   "docs/user-guides/Backup_And_Restore_Guide.md",
-  "docs/user-guides/Browser_API_Allowlist.md",
-  "docs/user-guides/Browser_CORS_Deployment_Validation.md",
-  "docs/user-guides/CORS_Configuration_Guide.md",
   "docs/user-guides/Clinical_And_Legal_Boundary_Statement.md",
-  "docs/user-guides/Clinician_Workspace_Guide.md",
-  "docs/user-guides/Clinician_Write_Workflows_Guide.md",
-  "docs/user-guides/Domain_And_DNS_Setup_Guide.md",
-  "docs/user-guides/End_To_End_Hospital_Workflow_Guide.md",
-  "docs/user-guides/Event_Projection_Guide.md",
-  "docs/user-guides/External_Server_Deployment_Runbook.md",
-  "docs/user-guides/External_Server_Prerequisite_Checklist.md",
-  "docs/user-guides/Feature_Visibility_Report.md",
-  "docs/user-guides/Foundation_Auth_Provider_Guide.md",
-  "docs/user-guides/Foundation_Login_Guide.md",
-  "docs/user-guides/Foundation_Login_Operator_Guide.md",
-  "docs/user-guides/Foundation_Provider_Login_Discovery.md",
-  "docs/user-guides/Foundation_Test_JWT_Workflow.md",
-  "docs/user-guides/How_To_Run_Panacea_OS.md",
-  "docs/user-guides/Laboratory_Workspace_Guide.md",
-  "docs/user-guides/Laboratory_Write_Workflows_Guide.md",
-  "docs/user-guides/Legacy_Feature_Coverage_Matrix.md",
-  "docs/user-guides/Live_API_Connection_Status_Guide.md",
-  "docs/user-guides/Live_Admin_Workspace_Guide.md",
-  "docs/user-guides/Live_Clinician_Workspace_Guide.md",
-  "docs/user-guides/Live_Laboratory_Workspace_Guide.md",
-  "docs/user-guides/Live_Mode_Validation_Guide.md",
-  "docs/user-guides/Live_Patient_Portal_Guide.md",
-  "docs/user-guides/Live_Pharmacy_Workspace_Guide.md",
-  "docs/user-guides/Live_Radiology_Workspace_Guide.md",
-  "docs/user-guides/Live_Read_Model_Guide.md",
-  "docs/user-guides/Live_Workspace_Integration_Guide.md",
-  "docs/user-guides/Live_Write_Workflows_Guide.md",
-  "docs/user-guides/Localization_Guide.md",
-  "docs/user-guides/New_Innovations_Report.md",
-  "docs/user-guides/Operator_Production_Readiness_Guide.md",
-  "docs/user-guides/Panacea_OS_Usage_Summary.md",
-  "docs/user-guides/Panacea_Start_Stop_Status_Guide.md",
-  "docs/user-guides/Panacea_Web_Platform_Guide.md",
-  "docs/user-guides/Patient_Portal_Guide.md",
-  "docs/user-guides/Patient_Portal_Request_Workflows_Guide.md",
-  "docs/user-guides/Pharmacy_Workspace_Guide.md",
-  "docs/user-guides/Pharmacy_Write_Workflows_Guide.md",
-  "docs/user-guides/Production_Like_Deployment_Runbook.md",
-  "docs/user-guides/Projection_Retry_Guide.md",
-  "docs/user-guides/RTL_Layout_Guide.md",
-  "docs/user-guides/Radiology_Workspace_Guide.md",
-  "docs/user-guides/Radiology_Write_Workflows_Guide.md",
-  "docs/user-guides/Read_Model_Synchronization_Guide.md",
-  "docs/user-guides/Real_Server_Deployment_Execution_Checklist.md",
-  "docs/user-guides/Role_Based_Live_Workspace_Guide.md",
-  "docs/user-guides/Role_Based_UI_Guide.md",
-  "docs/user-guides/Role_Based_Workspace_Test_Guide.md",
-  "docs/user-guides/Scheduling_Write_Workflows_Guide.md",
   "docs/user-guides/Security_Boundary_Validation_Guide.md",
-  "docs/user-guides/Tenant_Token_Propagation_Guide.md",
-  "docs/user-guides/Transaction_Review_Guide.md",
-  "docs/user-guides/UI_Feature_Map.md",
-  "docs/user-guides/UI_Runbook.md",
   "docs/user-guides/UTBE_Domain_DNS_Setup_Guide.md",
   "docs/user-guides/UTBE_HTTPS_Certificate_Runbook.md",
-  "docs/user-guides/User_Journey_Map.md",
-  "docs/user-guides/Web_Login_Guide.md",
-  "docs/operations/External_Health_Verification_Commands.md",
-  "docs/operations/UTBE_External_API_Route_Matrix.md"
+  "docs/roadmap/Final_UTBE_External_Pilot_Deployment_Evidence_Report.md",
+  "docs/roadmap/Final_UTBE_Public_Port_Security_Closure_Report.md",
+  "docs/roadmap/Final_Professional_UI_Productization_Report.md",
+  "docs/roadmap/Final_Public_Product_UI_Polish_Report.md",
+  "docs/roadmap/Final_UTBE_UI_URL_Correction_Report.md",
+  "docs/roadmap/Final_Public_Browser_Data_Cleanup_Report.md",
+  "docs/roadmap/Final_Public_Data_Allowlist_Enforcement_Report.md"
 ]);
 
-const PUBLIC_DOCUMENT_PREFIXES = [
-  "docs/contracts/",
-  "docs/releases/v4.0.0/",
-  "docs/releases/v4.0-lts/"
-];
-
-const PUBLIC_FINAL_PACKAGE_ALLOWLIST = new Set([
-  "docs/final-package/AI_Governance_Final_Report.md",
-  "docs/final-package/API_Reference_Index.md",
-  "docs/final-package/Database_Migration_Index.md",
-  "docs/final-package/Disaster_Recovery_Final_Report.md",
-  "docs/final-package/Final_Administrator_Manual.md",
-  "docs/final-package/Final_Developer_Manual.md",
-  "docs/final-package/Final_Operator_Manual.md",
-  "docs/final-package/Master_Evidence_Index.md",
-  "docs/final-package/OpenAPI_Specification_Index.md",
-  "docs/final-package/Panacea_OS_Final_Decision_Report.md",
-  "docs/final-package/Panacea_OS_Final_Project_Report.md",
-  "docs/final-package/Privacy_Final_Report.md",
-  "docs/final-package/Runtime_Validation_Final_Report.md",
-  "docs/final-package/Security_Final_Report.md",
-  "docs/final-package/System_Architecture_Book.md",
-  "docs/final-package/Technical_Debt_Final_Report.md"
-]);
+const PUBLIC_DOCUMENT_PREFIXES = [];
+const PUBLIC_FINAL_PACKAGE_ALLOWLIST = new Set();
 
 const PUBLIC_DOCUMENT_EXCLUDED_PATTERNS = [
   /\/Sprint_\d+/i,
@@ -119,6 +37,27 @@ const PUBLIC_DOCUMENT_EXCLUDED_PATTERNS = [
   /\/Remaining_Work/i,
   /\/docs\/audits\//i,
   /\/docs\/releases\/v4\.0\.0-rc1\//i
+];
+
+const PUBLIC_FORBIDDEN_DOCUMENT_PATTERNS = [
+  ["Guided Preview", /\bGuided Preview\b/i],
+  ["Visual Guided Preview", /\bVisual Guided Preview\b/i],
+  ["Demo", /(^|[^A-Za-z0-9])Demo([^A-Za-z0-9]|$)/i],
+  ["Sprint 108-118", /\bSprint\s+10[89]\b|\bSprint\s+11[0-8]\b/i],
+  ["Full Progress Audit", /\bFull Progress Audit\b/i],
+  ["Remaining Gaps", /\bRemaining Gaps\b/i],
+  ["Next Recommended Sprint", /\bNext Recommended Sprint\b/i],
+  ["future work", /\bfuture work\b/i],
+  ["non-production", /\bnon-production\b/i],
+  ["documentation only", /\bdocumentation[- ]only\b/i],
+  ["LIVE PARTIAL", /\bLIVE PARTIAL\b/i],
+  ["LIVE API UNAVAILABLE", /\bLIVE API UNAVAILABLE\b/i],
+  ["protected sample records", /\bprotected sample records\b/i],
+  ["roadmap-managed language", /\broadmap[- ]managed\b/i],
+  ["Live API Connection Status Guide", /\bLive API Connection Status Guide\b/i],
+  ["Live Workspace Integration Guide", /\bLive Workspace Integration Guide\b/i],
+  ["localhost", /\blocalhost\b/i],
+  ["127.0.0.1", /\b127\.0\.0\.1\b/]
 ];
 
 function cleanUrl(value) {
@@ -173,6 +112,16 @@ function sanitizePublicText(value) {
     .replace(/\bProtected Workspace Records used\b/g, "Protected workspace record boundary confirmed")
     .replace(/\bprotected workspace records used\b/g, "protected workspace record boundary confirmed")
     .replace(/\bdemoData\b/g, "liveRecordPackage")
+    .replace(/Live_Demo/g, "Live_Workspace")
+    .replace(/live_demo/g, "live_workspace")
+    .replace(/Visual_Demo/g, "Visual_Workspace")
+    .replace(/visual_demo/g, "visual_workspace")
+    .replace(/Operational_Demo/g, "Operational_Workspace")
+    .replace(/operational_demo/g, "operational_workspace")
+    .replace(/Demo_/g, "Workspace_")
+    .replace(/demo_/g, "workspace_")
+    .replace(/_Demo/g, "_Workspace")
+    .replace(/_demo/g, "_workspace")
     .replace(/\bDemo\b/g, "Secure Workspace")
     .replace(/\bdemo\b/g, "secure workspace")
     .replace(/\bcontrolled external pilot\b/gi, "governed enterprise validation")
@@ -200,8 +149,22 @@ function sanitizePublicText(value) {
     .replace(/\bpreview\b/g, "workspace review")
     .replace(/\bSprint\s+\d+\b/gi, "current release")
     .replace(/\bsprint\d+\b/gi, "release")
+    .replace(/\broadmap[- ]managed expansion\b/gi, "governance-managed expansion")
+    .replace(/\broadmap[- ]managed capability\b/gi, "governance-managed capability")
+    .replace(/\bexpanded workflow surfaces are roadmap[- ]managed\b/gi, "expanded workflow surfaces are governed through product controls")
+    .replace(/\broadmap[- ]managed\b/gi, "governance-managed")
     .replace(/\bguided validation validation\b/gi, "governed validation")
     .replace(/\bGuided Validation validation\b/g, "Governed validation");
+}
+
+function assertNoForbiddenPublicTerms(label, value) {
+  const text = String(value ?? "");
+  const hits = PUBLIC_FORBIDDEN_DOCUMENT_PATTERNS
+    .filter(([, pattern]) => pattern.test(text))
+    .map(([name]) => name);
+  if (hits.length > 0) {
+    throw new Error(`${label} contains browser-forbidden public data terms: ${hits.join(", ")}`);
+  }
 }
 
 function readJson(filePath) {
@@ -286,6 +249,7 @@ function markdownDocumentFromPath(filePath) {
   const relativePath = path.relative(repoRoot, filePath).replaceAll(path.sep, "/");
   const markdown = fs.readFileSync(filePath, "utf8");
   const safeMarkdown = sanitizePublicText(markdown);
+  assertNoForbiddenPublicTerms(relativePath, safeMarkdown);
   return {
     id: relativePath,
     title: firstHeading(safeMarkdown, titleFromPath(filePath)),
@@ -495,8 +459,10 @@ function loadServices(openApiDocuments) {
 }
 
 function loadDocuments() {
-  return walkFiles(path.join(repoRoot, "docs"), (filePath) => filePath.endsWith(".md"))
-    .filter((filePath) => isPublicDocument(path.relative(repoRoot, filePath).replaceAll(path.sep, "/")))
+  return [...PUBLIC_DOCUMENT_ALLOWLIST]
+    .filter((relativePath) => fs.existsSync(path.join(repoRoot, relativePath)))
+    .filter(isPublicDocument)
+    .map((relativePath) => path.join(repoRoot, relativePath))
     .map(markdownDocumentFromPath);
 }
 
@@ -522,7 +488,7 @@ function loadReleaseEvidence(documents) {
       relativePath,
       status: fs.existsSync(path.join(repoRoot, relativePath)) ? "Available" : "Missing",
       excerpt: document?.excerpt ?? "",
-      body: document?.body ?? ""
+      body: ""
     };
   });
 }
@@ -587,5 +553,6 @@ const data = {
 };
 
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+assertNoForbiddenPublicTerms("generated public browser data", JSON.stringify(data));
 fs.writeFileSync(outputPath, `${JSON.stringify(data, null, 2)}\n`);
 console.log(`Generated ${path.relative(repoRoot, outputPath)} with ${services.length} service(s), ${openApiDocuments.length} OpenAPI document(s), and ${documents.length} document(s).`);

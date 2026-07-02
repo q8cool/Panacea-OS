@@ -813,7 +813,7 @@ function renderApiExplorer(data: AppData, state: RenderState): string {
 
 function renderDocumentationCenter(data: AppData, state: RenderState): string {
   const documents = groupDocs(data.documents);
-  const selected = state.selectedDocumentId ? data.documents.find((doc) => doc.id === state.selectedDocumentId) : findDoc(data, "docs/user-guides/How_To_Run_Panacea_OS.md");
+  const selected = state.selectedDocumentId ? data.documents.find((doc) => doc.id === state.selectedDocumentId) : findDoc(data, "docs/user-guides/Clinical_And_Legal_Boundary_Statement.md");
   return `
     <div class="page-grid">
       ${renderPageHeader("Documentation Center", "Searchable product, release, API, operator, and governance documents.", `${data.documents.length} docs`, "BookOpen")}

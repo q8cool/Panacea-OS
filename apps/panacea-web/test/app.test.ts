@@ -87,6 +87,22 @@ describe("Panacea web platform", () => {
 
   it("publishes professional browser documentation without prototype language", () => {
     const publicData = JSON.stringify(data);
+    const hardForbiddenMarkers = [
+      "Guided Preview",
+      "Visual Guided Preview",
+      "protected sample records",
+      "Sprint 110",
+      "Full Progress Audit",
+      "Remaining Gaps",
+      "Next Recommended Sprint",
+      "Live API Connection Status Guide",
+      "Live Workspace Integration Guide",
+      "localhost",
+      "127.0.0.1"
+    ];
+    for (const marker of hardForbiddenMarkers) {
+      expect(publicData, `public browser data contains ${marker}`).not.toContain(marker);
+    }
     expect(publicData).not.toContain("Demo Mode");
     expect(data.documents.map((document) => document.body).join("\n")).not.toMatch(/\bDemo\b/i);
     expect(publicData).not.toMatch(/\bGuided Preview\b/i);
@@ -102,6 +118,7 @@ describe("Panacea web platform", () => {
     expect(publicData).not.toMatch(/\bexperimental\b/i);
     expect(data.documents.map((document) => document.body).join("\n")).not.toMatch(/\bSprint\s+\d+\b/i);
     expect(publicData).not.toMatch(/\blocalhost\b/i);
+    expect(publicData).not.toMatch(/\broadmap[- ]managed\b/i);
     expect(publicData).toContain(publicApiBaseUrl);
     expect(publicData).toContain("Clinical and legal approval required before real clinical production use.");
     expect(publicData).toContain("Protected workspace records");
@@ -109,15 +126,35 @@ describe("Panacea web platform", () => {
 
   it("publishes only current professional documents in the browser data bundle", () => {
     const publicDocumentPaths = data.documents.map((document) => document.relativePath);
-    expect(publicDocumentPaths.length).toBeGreaterThan(20);
-    expect(publicDocumentPaths).toContain("docs/user-guides/How_To_Run_Panacea_OS.md");
-    expect(publicDocumentPaths).toContain("docs/user-guides/Web_Login_Guide.md");
-    expect(publicDocumentPaths).toContain("docs/releases/v4.0.0/Official_Closure_Report.md");
-    expect(publicDocumentPaths).toContain("docs/contracts/AI_Assurance_API.md");
+    const approvedPublicDocuments = new Set([
+      "docs/user-guides/Backup_And_Restore_Guide.md",
+      "docs/user-guides/Clinical_And_Legal_Boundary_Statement.md",
+      "docs/user-guides/Security_Boundary_Validation_Guide.md",
+      "docs/user-guides/UTBE_Domain_DNS_Setup_Guide.md",
+      "docs/user-guides/UTBE_HTTPS_Certificate_Runbook.md",
+      "docs/roadmap/Final_UTBE_External_Pilot_Deployment_Evidence_Report.md",
+      "docs/roadmap/Final_UTBE_Public_Port_Security_Closure_Report.md",
+      "docs/roadmap/Final_Professional_UI_Productization_Report.md",
+      "docs/roadmap/Final_Public_Product_UI_Polish_Report.md",
+      "docs/roadmap/Final_UTBE_UI_URL_Correction_Report.md",
+      "docs/roadmap/Final_Public_Browser_Data_Cleanup_Report.md",
+      "docs/roadmap/Final_Public_Data_Allowlist_Enforcement_Report.md"
+    ]);
+
+    expect(publicDocumentPaths.length).toBeGreaterThanOrEqual(10);
+    expect(publicDocumentPaths.every((relativePath) => approvedPublicDocuments.has(relativePath))).toBe(true);
+    expect(publicDocumentPaths).toContain("docs/user-guides/Clinical_And_Legal_Boundary_Statement.md");
+    expect(publicDocumentPaths).toContain("docs/user-guides/Security_Boundary_Validation_Guide.md");
+    expect(publicDocumentPaths).toContain("docs/user-guides/Backup_And_Restore_Guide.md");
     expect(publicDocumentPaths).not.toContain("docs/roadmap/Sprint_108_Live_Integration_Enablement_Report.md");
     expect(publicDocumentPaths).not.toContain("docs/roadmap/Sprint_110_Operational_Demo_Report.md");
     expect(publicDocumentPaths).not.toContain("docs/user-guides/Demo_Access_Plan.md");
-    expect(publicDocumentPaths.every((relativePath) => !/\/Sprint_\d+|Demo|Guided[_ -]?Preview|Pilot/i.test(relativePath))).toBe(true);
+    expect(publicDocumentPaths).not.toContain("docs/user-guides/How_To_Run_Panacea_OS.md");
+    expect(publicDocumentPaths).not.toContain("docs/user-guides/Web_Login_Guide.md");
+    expect(publicDocumentPaths).not.toContain("docs/user-guides/Live_API_Connection_Status_Guide.md");
+    expect(publicDocumentPaths).not.toContain("docs/user-guides/Live_Workspace_Integration_Guide.md");
+    expect(publicDocumentPaths).not.toContain("docs/contracts/AI_Assurance_API.md");
+    expect(publicDocumentPaths.every((relativePath) => !/\/Sprint_\d+|Demo|Guided|Live|Workspace|Pilot/i.test(relativePath))).toBe(true);
   });
 
   it("derives active service status checks from docs/contracts OpenAPI paths", () => {
@@ -208,10 +245,10 @@ describe("Panacea web platform", () => {
   it("renders user guide documents inside the documentation center", () => {
     const html = renderRoute(data, "/developer/documentation", {
       ...initialState,
-      selectedDocumentId: "docs/user-guides/How_To_Run_Panacea_OS.md"
+      selectedDocumentId: "docs/user-guides/Clinical_And_Legal_Boundary_Statement.md"
     });
     expect(html).toContain("Documentation Center");
-    expect(html).toContain("How To Run Panacea OS");
+    expect(html).toContain("Clinical And Legal Boundary Statement");
   });
 
   it("probes Foundation endpoints and validates JWKS shape", async () => {
