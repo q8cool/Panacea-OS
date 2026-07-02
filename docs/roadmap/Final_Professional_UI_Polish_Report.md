@@ -87,3 +87,19 @@ curl -fsS https://panacea.utbe.ai/ | rg "Controlled Pilot|Demo Data|Pilot Role V
 ```
 
 Expected: no matches in the public HTML shell or rendered public pages after deployment.
+
+## Live Deployment Attempt
+
+The professional UI build was generated locally at:
+
+```text
+apps/panacea-web/dist
+```
+
+Direct SSH deployment to the UTBE server was attempted from this workstation, but the server rejected access:
+
+```text
+root@162.0.228.10: Permission denied (publickey,password).
+```
+
+The repository and production-ready web build are complete. To make the polished interface visible at `https://panacea.utbe.ai`, an operator with server access must copy the current `apps/panacea-web/dist` contents to `/var/www/panacea` or run the approved deployment process on the server.
