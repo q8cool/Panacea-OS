@@ -126,8 +126,9 @@ export function renderOperationalHospitalCore(data: AppData, state: RenderState)
   const patientId = session ? "patient-restored-001" : "patient";
   const result = state.operationalCoreResult;
   return `
-    <div class="page-grid operational-core-page">
+    <div class="page-grid operational-core-page hospital-core-route" data-page="hospital-core">
       ${pageHeader(locale, "AI Hospital Core", "Executable patient registration, patient file, report analysis, chat, orders, prescriptions, pharmacy safety, workflow, audit, and notification operations restored from the original hospital core.", session ? "Authenticated Operations" : "Foundation Access Required", "Hospital")}
+      ${operationConsole(locale, patientId, data.publicApiBaseUrl)}
       <section class="metric-grid">
         ${metric(locale, "Patient Registry", "Operational", "Create and open governed patient records", "UserPlus", "success")}
         ${metric(locale, "Patient File", "Operational", "Timeline, files, notes, reports, chat, orders, and notifications", "FolderOpen", "success")}
@@ -135,7 +136,7 @@ export function renderOperationalHospitalCore(data: AppData, state: RenderState)
         ${metric(locale, "Audit Trail", "Active", "Write workflows generate event and projection evidence", "FileClock", "success")}
       </section>
       ${session ? sessionBanner(locale, session.displayName, session.role, session.tenantId) : loginBanner(locale)}
-      <section class="band">
+      <section id="operational-patient-file" class="band">
         <div class="section-title">
           <div>
             <h2>${escapeHtml(l(locale, "Operational Patient File"))}</h2>
@@ -151,7 +152,7 @@ export function renderOperationalHospitalCore(data: AppData, state: RenderState)
           `).join("")}
         </div>
       </section>
-      <section class="band">
+      <section id="operational-workflows" class="band">
         <div class="section-title">
           <div>
             <h2>${escapeHtml(l(locale, "Restored Executable Workflows"))}</h2>
@@ -162,7 +163,7 @@ export function renderOperationalHospitalCore(data: AppData, state: RenderState)
           ${operationalCoreActions.map((item) => renderAction(item, data, config, patientId, Boolean(session), locale)).join("")}
         </div>
       </section>
-      <section class="band">
+      <section id="operational-audit-evidence" class="band">
         <div class="section-title">
           <div>
             <h2>${escapeHtml(l(locale, "Transaction Evidence"))}</h2>
@@ -177,6 +178,43 @@ export function renderOperationalHospitalCore(data: AppData, state: RenderState)
         </div>
       </section>
     </div>
+  `;
+}
+
+function operationConsole(locale: Locale, patientId: string, apiBase: string): string {
+  const routeByLabel = new Map(readRoutes(patientId, apiBase).map((route) => [route.label, route.url]));
+  const controls = [
+    { label: "Create Patient", icon: "UserPlus", href: "#action-register-patient", kind: "workflow" },
+    { label: "Patient List", icon: "Users", href: routeByLabel.get("Patient List") ?? "#operational-patient-file", kind: "record" },
+    { label: "Open Patient File", icon: "FolderOpen", href: routeByLabel.get("Patient Profile") ?? "#operational-patient-file", kind: "record" },
+    { label: "Upload Medical File", icon: "UploadCloud", href: "#action-attach-report", kind: "workflow" },
+    { label: "AI-Assisted Report Analysis", icon: "BrainCircuit", href: "#action-analyze-report", kind: "workflow" },
+    { label: "Patient AI Chat", icon: "MessagesSquare", href: "#action-patient-ai-chat", kind: "workflow" },
+    { label: "Global AI Chat", icon: "MessageCircle", href: "#action-global-ai-chat", kind: "workflow" },
+    { label: "Create Order", icon: "ListPlus", href: "#action-create-order", kind: "workflow" },
+    { label: "Draft Prescription", icon: "Pill", href: "#action-draft-prescription", kind: "workflow" },
+    { label: "Pharmacy Safety Check", icon: "ShieldAlert", href: "#action-pharmacy-safety", kind: "workflow" },
+    { label: "Advance Workflow", icon: "GitBranchPlus", href: "#action-advance-workflow", kind: "workflow" },
+    { label: "Audit Trail", icon: "FileClock", href: routeByLabel.get("Audit Trail") ?? "#operational-audit-evidence", kind: "record" }
+  ];
+  return `
+    <section class="band hospital-core-console" aria-label="${escapeAttribute(l(locale, "Hospital Operations Console"))}">
+      <div class="section-title">
+        <div>
+          <h2>${escapeHtml(l(locale, "Hospital Operations Console"))}</h2>
+          <p>${escapeHtml(l(locale, "Use the controls below to create patients, open patient files, upload reports, run governed AI assistance, create orders, draft prescriptions, run pharmacy safety checks, advance workflows, and review audit evidence."))}</p>
+        </div>
+        <span class="status-pill online">${escapeHtml(l(locale, "Executable workflows"))}</span>
+      </div>
+      <div class="hospital-core-control-grid">
+        ${controls.map((control) => `
+          <a class="hospital-core-control ${escapeAttribute(control.kind)}" href="${escapeAttribute(control.href)}" ${control.href.startsWith("http") ? `target="_blank" rel="noreferrer"` : ""} aria-label="${escapeAttribute(l(locale, control.label))}">
+            <i data-lucide="${escapeAttribute(control.icon)}"></i>
+            <span>${escapeHtml(l(locale, control.label))}</span>
+          </a>
+        `).join("")}
+      </div>
+    </section>
   `;
 }
 
@@ -198,7 +236,7 @@ function renderAction(item: OperationalAction, data: AppData, config: PanaceaWeb
   const translatedTitle = l(locale, item.title);
   const submitLabel = locale === "ar" ? `إرسال ${translatedTitle}` : `Submit ${translatedTitle}`;
   return `
-    <article class="operational-action-card">
+    <article id="action-${escapeAttribute(item.id)}" class="operational-action-card">
       <div class="action-card-title">
         <i data-lucide="${escapeAttribute(item.icon)}"></i>
         <div>

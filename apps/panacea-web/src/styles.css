@@ -1674,6 +1674,53 @@ pre {
   gap: 10px;
 }
 
+.hospital-core-console {
+  display: grid;
+  gap: 14px;
+  border-color: color-mix(in srgb, var(--blue) 32%, var(--line));
+  background: color-mix(in srgb, var(--blue) 4%, var(--panel));
+}
+
+.hospital-core-control-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.hospital-core-control {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 58px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  color: var(--text);
+  text-decoration: none;
+  background: var(--panel);
+  font-weight: 800;
+}
+
+.hospital-core-control:hover {
+  border-color: color-mix(in srgb, var(--blue) 48%, var(--line));
+  transform: translateY(-1px);
+}
+
+.hospital-core-control svg {
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  border-radius: 8px;
+  color: var(--blue);
+  background: color-mix(in srgb, var(--blue) 10%, var(--panel-strong));
+}
+
+.hospital-core-control.record svg {
+  color: var(--green);
+  background: color-mix(in srgb, var(--green) 12%, var(--panel-strong));
+}
+
 .core-route-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1798,6 +1845,7 @@ pre {
   .role-dashboard-grid,
   .role-source-grid,
   .operational-action-grid,
+  .hospital-core-control-grid,
   .core-route-grid {
     grid-template-columns: 1fr;
   }

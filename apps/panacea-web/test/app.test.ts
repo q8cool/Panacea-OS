@@ -926,6 +926,47 @@ describe("Panacea web platform", () => {
     }
   });
 
+  it("opens /hospital-core as the visible operational hospital screen, not the executive launcher", () => {
+    const session = { ...sessionFor("doctor"), permissions: ["global_command_intelligence.write_workflows.write", "global_command_intelligence.read_models.read"] };
+    const html = renderRoute(data, "/hospital-core", {
+      ...initialState,
+      authSession: session,
+      selectedRole: "doctor"
+    });
+    const container = document.createElement("main");
+    container.innerHTML = html;
+
+    expect(container.querySelector('[data-page="hospital-core"]')).not.toBeNull();
+    expect(container.querySelector(".hospital-core-console")).not.toBeNull();
+    expect(container.textContent).toContain("Hospital Operations Console");
+    expect(container.textContent).not.toContain("Hospital Workspace Launchpad");
+    expect(container.textContent).not.toContain("Executive Overview");
+
+    const visibleControls = Array.from(container.querySelectorAll(".hospital-core-control, .operational-action-card h3, .core-route-grid strong, .quick-actions a"))
+      .map((element) => element.textContent?.replace(/\s+/g, " ").trim() ?? "");
+
+    for (const label of [
+      "Create Patient",
+      "Patient List",
+      "Open Patient File",
+      "Upload Medical File",
+      "AI-Assisted Report Analysis",
+      "Patient AI Chat",
+      "Global AI Chat",
+      "Create Order",
+      "Draft Prescription",
+      "Pharmacy Safety Check",
+      "Advance Workflow",
+      "Audit Trail"
+    ]) {
+      expect(visibleControls.some((text) => text.includes(label)), `${label} should be visible on /hospital-core`).toBe(true);
+    }
+
+    expect(container.querySelector('a[href="#action-register-patient"]')?.textContent).toContain("Create Patient");
+    expect(container.querySelector('a[href="#action-attach-report"]')?.textContent).toContain("Upload Medical File");
+    expect(container.querySelector('a[href="#action-draft-prescription"]')?.textContent).toContain("Draft Prescription");
+  });
+
   it("renders the restored AI Hospital Core workflow page in Arabic", () => {
     const session = { ...sessionFor("doctor"), permissions: ["global_command_intelligence.write_workflows.write", "global_command_intelligence.read_models.read"] };
     const html = renderRoute(data, "/hospital-core", {
