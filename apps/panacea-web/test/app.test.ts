@@ -997,16 +997,19 @@ describe("Panacea web platform", () => {
     const html = renderRoute(data, "/hospital-core", {
       ...initialState,
       webConfig: config,
+      operationalPatientId: "patient-live-2026",
       selectedRole: "doctor"
     });
     const container = document.createElement("main");
     container.innerHTML = html;
     const readButtons = Array.from(container.querySelectorAll<HTMLButtonElement>(".core-route-grid button[data-operational-read-url]"));
 
+    expect(container.querySelector<HTMLInputElement>('input[name="operationalPatientId"]')?.value).toBe("patient-live-2026");
     expect(readButtons.length).toBeGreaterThanOrEqual(10);
     expect(readButtons.some((button) => button.textContent?.includes("Patient List"))).toBe(true);
     expect(readButtons.some((button) => button.textContent?.includes("Patient Profile"))).toBe(true);
     expect(readButtons.some((button) => button.textContent?.includes("Audit Trail"))).toBe(true);
+    expect(readButtons.some((button) => button.dataset.operationalReadUrl?.includes("/patients/patient-live-2026/files"))).toBe(true);
     expect(readButtons.every((button) => button.dataset.operationalReadUrl?.startsWith("https://api.panacea.utbe.ai/api/"))).toBe(true);
     expect(container.querySelector(".core-route-grid a[target='_blank']")).toBeNull();
     expect(container.querySelector('.core-route-grid a[target="_blank"]')).toBeNull();
@@ -1016,6 +1019,7 @@ describe("Panacea web platform", () => {
     const html = renderRoute(data, "/hospital-core", {
       ...initialState,
       webConfig: config,
+      operationalPatientId: "patient-live-2026",
       selectedRole: "doctor"
     });
     const container = document.createElement("main");
@@ -1024,8 +1028,75 @@ describe("Panacea web platform", () => {
 
     expect(submitButtons).toHaveLength(operationalCoreActions.length);
     expect(submitButtons.every((button) => !button.disabled)).toBe(true);
+    expect(container.querySelector<HTMLInputElement>('#action-attach-report input[name="patientId"]')?.value).toBe("patient-live-2026");
+    expect(container.querySelector<HTMLInputElement>('#action-analyze-report input[name="patientId"]')?.value).toBe("patient-live-2026");
     expect(container.textContent).not.toContain("الخدمة غير متاحة مؤقتاً");
     expect(container.textContent).not.toContain("واجهة قراءة فقط");
+  });
+
+  it("renders the restored old patient-list open-file flow inside Hospital Core", () => {
+    const html = renderRoute(data, "/hospital-core", {
+      ...initialState,
+      webConfig: config,
+      selectedRole: "doctor",
+      operationalCoreResult: {
+        requestId: "req-patients",
+        method: "GET",
+        url: "https://api.panacea.utbe.ai/api/v4/global-command-intelligence/read-models/clinical/patients",
+        state: "online",
+        httpStatus: 200,
+        detail: "HTTP 200 OK",
+        checkedAt: "2026-07-02T19:00:00.000Z",
+        jsonBody: {
+          patients: [
+            {
+              id: "patient-101",
+              full_name: "Faisal Al Kandari",
+              file_number: "MRN-101",
+              workflow_state: "intake"
+            }
+          ]
+        }
+      }
+    });
+    const container = document.createElement("main");
+    container.innerHTML = html;
+
+    expect(container.textContent).toContain("Faisal Al Kandari");
+    expect(container.textContent).toContain("MRN-101");
+    expect(container.querySelector<HTMLButtonElement>('button[data-open-operational-patient="patient-101"]')?.textContent).toContain("Open Patient File");
+    expect(container.textContent).not.toContain("Executive Overview");
+  });
+
+  it("renders an opened patient file summary inside Hospital Core", () => {
+    const html = renderRoute(data, "/hospital-core", {
+      ...initialState,
+      webConfig: config,
+      operationalPatientId: "patient-101",
+      selectedRole: "doctor",
+      operationalCoreResult: {
+        requestId: "req-patient",
+        method: "GET",
+        url: "https://api.panacea.utbe.ai/api/v4/global-command-intelligence/read-models/clinical/patients/patient-101",
+        state: "online",
+        httpStatus: 200,
+        detail: "HTTP 200 OK",
+        checkedAt: "2026-07-02T19:00:00.000Z",
+        jsonBody: {
+          patient: {
+            id: "patient-101",
+            full_name: "Faisal Al Kandari",
+            file_number: "MRN-101",
+            workflow_state: "active"
+          }
+        }
+      }
+    });
+
+    expect(html).toContain("Faisal Al Kandari");
+    expect(html).toContain("MRN-101");
+    expect(html).toContain("The active patient file is open.");
+    expect(html).toContain("patient-101");
   });
 
   it("renders a clear Foundation sign-in requirement inside Hospital Core after blocked record access", () => {

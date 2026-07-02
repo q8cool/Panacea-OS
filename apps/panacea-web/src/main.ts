@@ -27,6 +27,7 @@ import { buildWebConfig } from "./webConfig";
 import { renderPanaceaIcons } from "./icons";
 
 const root = document.querySelector<HTMLDivElement>("#app");
+const operationalPatientStorageKey = "panacea-operational-patient-id";
 
 let data: AppData;
 let lastLiveRoute = "";
@@ -38,7 +39,8 @@ let state: RenderState = {
   theme: (localStorage.getItem("panacea-theme") as RenderState["theme"]) || "light",
   language: normalizeLocale(localStorage.getItem("panacea-language")),
   selectedRole: (localStorage.getItem("panacea-workspace-role") as RenderState["selectedRole"]) || "operator",
-  authSession: restoreSession()
+  authSession: restoreSession(),
+  operationalPatientId: localStorage.getItem(operationalPatientStorageKey) || undefined
 };
 
 async function bootstrap() {
@@ -439,8 +441,11 @@ function bindEvents() {
       };
       render();
       const response = await executeWriteWorkflowRequest(endpoint, session, config, allowlist, body);
+      const submittedPatientId = operationalPatientIdFromForm(currentForm, actionId);
+      if (submittedPatientId) persistOperationalPatientId(submittedPatientId);
       state = {
         ...state,
+        operationalPatientId: submittedPatientId || state.operationalPatientId,
         operationalCoreResult: response.result,
         lastAuditAction: response.auditAction
       };
@@ -457,45 +462,99 @@ function bindEvents() {
     });
   });
 
+  document.querySelector<HTMLFormElement>("#operational-patient-open-form")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    if (!(form instanceof HTMLFormElement)) return;
+    const formData = new FormData(form);
+    const patientId = String(formData.get("operationalPatientId") ?? "").trim();
+    if (!patientId) {
+      state = { ...state, authError: "Enter a patient ID or choose a patient from the patient list." };
+      pendingOperationalScrollTarget = "operational-patient-file";
+      render();
+      return;
+    }
+    persistOperationalPatientId(patientId);
+    state = { ...state, operationalPatientId: patientId };
+    await openOperationalReadUrl(patientProfileUrl(patientId), "Open Patient File", patientId);
+  });
+
   document.querySelectorAll<HTMLButtonElement>("[data-operational-read-url]").forEach((button) => {
     button.addEventListener("click", async () => {
       const url = button.dataset.operationalReadUrl ?? "";
       if (!url) return;
-      if (!state.authSession) {
-        state = {
-          ...state,
-          authError: "Sign in through Foundation to open patient files and live hospital records."
-        };
-        pendingOperationalScrollTarget = "operational-patient-file";
-        render();
-        return;
-      }
-      const session = state.authSession;
-      const config = state.webConfig ?? buildWebConfig(data);
-      const allowlist = buildBrowserApiAllowlist(data, config);
-      state = {
-        ...state,
-        authError: "",
-        operationalCoreResult: {
-          requestId: "pending",
-          method: "GET",
-          url,
-          state: "degraded",
-          detail: `Opening ${button.dataset.operationalReadLabel ?? "hospital record"}...`,
-          checkedAt: new Date().toISOString()
-        }
-      };
-      pendingOperationalScrollTarget = "operational-patient-file";
-      render();
-      const result = await apiRequest("GET", url, session, config, undefined, fetch, allowlist);
-      state = {
-        ...state,
-        operationalCoreResult: result
-      };
-      pendingOperationalScrollTarget = "operational-patient-file";
-      render();
+      await openOperationalReadUrl(url, button.dataset.operationalReadLabel ?? "hospital record", state.operationalPatientId);
     });
   });
+
+  document.querySelectorAll<HTMLButtonElement>("[data-open-operational-patient]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const patientId = button.dataset.openOperationalPatient?.trim() ?? "";
+      if (!patientId) return;
+      persistOperationalPatientId(patientId);
+      state = { ...state, operationalPatientId: patientId };
+      await openOperationalReadUrl(patientProfileUrl(patientId), "Open Patient File", patientId);
+    });
+  });
+}
+
+async function openOperationalReadUrl(url: string, label: string, patientId: string | undefined) {
+  if (!url) return;
+  if (!state.authSession) {
+    state = {
+      ...state,
+      operationalPatientId: patientId || state.operationalPatientId,
+      authError: "Sign in through Foundation to open patient files and live hospital records."
+    };
+    pendingOperationalScrollTarget = "operational-patient-file";
+    render();
+    return;
+  }
+  const session = state.authSession;
+  const config = state.webConfig ?? buildWebConfig(data);
+  const allowlist = buildBrowserApiAllowlist(data, config);
+  state = {
+    ...state,
+    operationalPatientId: patientId || state.operationalPatientId,
+    authError: "",
+    operationalCoreResult: {
+      requestId: "pending",
+      method: "GET",
+      url,
+      state: "degraded",
+      detail: `Opening ${label}...`,
+      checkedAt: new Date().toISOString()
+    }
+  };
+  pendingOperationalScrollTarget = "operational-patient-file";
+  render();
+  const result = await apiRequest("GET", url, session, config, undefined, fetch, allowlist);
+  state = {
+    ...state,
+    operationalPatientId: patientId || state.operationalPatientId,
+    operationalCoreResult: result
+  };
+  pendingOperationalScrollTarget = "operational-patient-file";
+  render();
+}
+
+function patientProfileUrl(patientId: string) {
+  const config = state.webConfig ?? buildWebConfig(data);
+  const encodedPatientId = encodeURIComponent(patientId);
+  return `${config.PANACEA_API_PUBLIC_BASE_URL}/api/v4/global-command-intelligence/read-models/clinical/patients/${encodedPatientId}`;
+}
+
+function persistOperationalPatientId(patientId: string) {
+  const normalized = patientId.trim();
+  if (!normalized) return;
+  localStorage.setItem(operationalPatientStorageKey, normalized);
+}
+
+function operationalPatientIdFromForm(form: HTMLFormElement, actionId: string): string {
+  const formData = new FormData(form);
+  const patientId = String(formData.get("patientId") ?? "").trim();
+  const subjectId = String(formData.get("subjectId") ?? "").trim();
+  return patientId || (actionId === "register-patient" ? subjectId : "");
 }
 
 function scrollToOperationalTarget() {

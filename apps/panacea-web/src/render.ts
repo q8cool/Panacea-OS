@@ -54,6 +54,7 @@ export interface RenderState {
   liveStatus?: LiveStatusState;
   liveWorkspaceState?: LiveWorkspaceState;
   operationalCoreResult?: LiveApiResult;
+  operationalPatientId?: string;
   auditAppendResult?: LiveApiResult;
   lastAuditAction?: BrowserAuditAction;
   providerLoginDiscovery?: ProviderLoginDiscoveryResult;

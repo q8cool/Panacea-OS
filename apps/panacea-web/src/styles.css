@@ -1724,6 +1724,53 @@ pre {
   background: color-mix(in srgb, var(--green) 12%, var(--panel-strong));
 }
 
+.legacy-patient-access {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+  border: 1px solid color-mix(in srgb, var(--blue) 24%, var(--line));
+  border-radius: 8px;
+  padding: 14px;
+  background: color-mix(in srgb, var(--blue) 5%, var(--panel));
+}
+
+.legacy-patient-access strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 1rem;
+}
+
+.legacy-patient-access p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.patient-open-form {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.patient-open-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.patient-open-form input {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 12px;
+  color: var(--text);
+  background: var(--panel-strong);
+  font: inherit;
+  font-weight: 800;
+}
+
 .core-route-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1756,6 +1803,26 @@ pre {
   color: var(--muted);
   font-size: 0.78rem;
   overflow-wrap: anywhere;
+}
+
+.operational-patient-table {
+  margin-top: 14px;
+}
+
+.operational-patient-table td:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.operational-patient-table td:first-child span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.patient-file-summary {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
 }
 
 .operational-action-grid {

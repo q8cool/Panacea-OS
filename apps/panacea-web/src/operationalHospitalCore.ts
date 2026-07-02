@@ -143,7 +143,7 @@ export function renderOperationalHospitalCore(data: AppData, state: RenderState)
   const config = state.webConfig;
   const session = state.authSession;
   const locale = state.language;
-  const patientId = session ? "patient-restored-001" : "patient";
+  const patientId = state.operationalPatientId?.trim() || "patient-restored-001";
   const result = state.operationalCoreResult;
   return `
     <div class="page-grid operational-core-page hospital-core-route" data-page="hospital-core">
@@ -164,6 +164,7 @@ export function renderOperationalHospitalCore(data: AppData, state: RenderState)
             <p>${escapeHtml(l(locale, "Open patient list, profile, timeline, file, report, chat, order, pharmacy, workflow, notification, and audit routes inside this workspace."))}</p>
           </div>
         </div>
+        ${patientFileAccessPanel(locale, patientId, data.publicApiBaseUrl)}
         <div class="core-route-grid">
           ${readRoutes(patientId, data.publicApiBaseUrl).map((route) => `
             <button type="button" data-operational-read-url="${escapeAttribute(route.url)}" data-operational-read-label="${escapeAttribute(route.label)}">
@@ -172,7 +173,7 @@ export function renderOperationalHospitalCore(data: AppData, state: RenderState)
             </button>
           `).join("")}
         </div>
-        ${result ? renderResult(result, locale) : `<div class="empty-state compact"><i data-lucide="FolderOpen"></i><p>${escapeHtml(l(locale, "Choose Patient List or Open Patient File to load live patient-file evidence after secure sign-in."))}</p></div>`}
+        ${result ? renderOperationalPatientResult(result, locale) : `<div class="empty-state compact"><i data-lucide="FolderOpen"></i><p>${escapeHtml(l(locale, "Choose Patient List or Open Patient File to load live patient-file evidence after secure sign-in."))}</p></div>`}
       </section>
       <section id="operational-workflows" class="band">
         <div class="section-title">
@@ -272,7 +273,7 @@ function renderAction(item: OperationalAction, data: AppData, config: PanaceaWeb
         </div>
       </div>
       <form class="live-write-form operational-core-form" data-action-id="${escapeAttribute(item.id)}" data-workflow-path="${escapeAttribute(fullTemplatePath)}" data-workflow-url="${escapeAttribute(endpoint?.url ?? `${data.publicApiBaseUrl}${resolvedPath}`)}">
-        ${item.fields.map((fieldDef) => renderField(fieldDef, locale)).join("")}
+        ${item.fields.map((fieldDef) => renderField(fieldDef, locale, patientId)).join("")}
         <div class="write-control-list">
           <span><i data-lucide="UserCheck"></i> ${escapeHtml(l(locale, "Human approval enforced"))}</span>
           <span><i data-lucide="ShieldAlert"></i> ${escapeHtml(l(locale, "No autonomous treatment"))}</span>
@@ -288,9 +289,9 @@ function renderAction(item: OperationalAction, data: AppData, config: PanaceaWeb
   `;
 }
 
-function renderField(item: OperationalField, locale: Locale): string {
+function renderField(item: OperationalField, locale: Locale, patientId: string): string {
   const kind = item.kind ?? "text";
-  const value = item.value ?? "";
+  const value = item.name === "patientId" ? patientId : item.value ?? "";
   if (kind === "textarea") {
     return `
       <label class="${item.wide ? "wide" : ""}">
@@ -315,6 +316,126 @@ function renderField(item: OperationalField, locale: Locale): string {
       <input type="${kind}" name="${escapeAttribute(item.name)}" value="${kind === "file" ? "" : escapeAttribute(l(locale, value))}" />
     </label>
   `;
+}
+
+function patientFileAccessPanel(locale: Locale, patientId: string, apiBase: string): string {
+  const patientListUrl = `${apiBase}${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients`;
+  const patientProfilePath = `${GLOBAL_COMMAND_API_BASE}/read-models/clinical/patients/${encodeURIComponent(patientId)}`;
+  return `
+    <div class="legacy-patient-access">
+      <div>
+        <strong>${escapeHtml(l(locale, "Patient File Access"))}</strong>
+        <p>${escapeHtml(l(locale, "Use the restored hospital workflow: load the patient list, choose a patient, then open the patient file in this workspace."))}</p>
+      </div>
+      <form id="operational-patient-open-form" class="patient-open-form">
+        <label>
+          ${escapeHtml(l(locale, "Active Patient ID"))}
+          <input name="operationalPatientId" value="${escapeAttribute(patientId)}" />
+        </label>
+        <button class="button primary" type="submit"><i data-lucide="FolderOpen"></i>${escapeHtml(l(locale, "Open Patient File"))}</button>
+        <button class="button" type="button" data-operational-read-url="${escapeAttribute(patientListUrl)}" data-operational-read-label="${escapeAttribute("Patient List")}">
+          <i data-lucide="Users"></i>${escapeHtml(l(locale, "Patient List"))}
+        </button>
+      </form>
+      <p class="endpoint-line">${escapeHtml(patientProfilePath)}</p>
+    </div>
+  `;
+}
+
+function renderOperationalPatientResult(result: LiveApiResult, locale: Locale): string {
+  const patients = patientRowsFromResult(result);
+  if (patients.length > 0) return renderPatientTable(patients, locale);
+  const patient = patientRecordFromResult(result);
+  if (patient) return renderPatientFileSummary(patient, result, locale);
+  return renderResult(result, locale);
+}
+
+function renderPatientTable(patients: Array<Record<string, unknown>>, locale: Locale): string {
+  return `
+    <div class="table-wrap operational-patient-table">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>${escapeHtml(l(locale, "Patient"))}</th>
+            <th>${escapeHtml(l(locale, "File Number"))}</th>
+            <th>${escapeHtml(l(locale, "Workflow State"))}</th>
+            <th>${escapeHtml(l(locale, "Actions"))}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${patients.map((patient) => {
+            const id = stringFromRecord(patient, ["id", "patientId", "subjectId"]);
+            const name = stringFromRecord(patient, ["full_name", "fullName", "name", "title"]) || id || l(locale, "Patient");
+            return `
+              <tr>
+                <td><strong>${escapeHtml(name)}</strong><span>${escapeHtml(stringFromRecord(patient, ["gender", "sex"]) || "")}</span></td>
+                <td>${escapeHtml(stringFromRecord(patient, ["file_number", "fileNumber", "medicalRecordNumber"]) || id || "-")}</td>
+                <td><span class="status-pill">${escapeHtml(stringFromRecord(patient, ["workflow_state", "workflowState", "status"]) || l(locale, "Ready"))}</span></td>
+                <td>${id ? `<button type="button" class="button" data-open-operational-patient="${escapeAttribute(id)}"><i data-lucide="FolderOpen"></i>${escapeHtml(l(locale, "Open Patient File"))}</button>` : `<span>${escapeHtml(l(locale, "No Patient ID"))}</span>`}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderPatientFileSummary(patient: Record<string, unknown>, result: LiveApiResult, locale: Locale): string {
+  const id = stringFromRecord(patient, ["id", "patientId", "subjectId"]);
+  return `
+    <div class="patient-file-summary">
+      <div class="section-title compact">
+        <div>
+          <h3>${escapeHtml(stringFromRecord(patient, ["full_name", "fullName", "name", "title"]) || l(locale, "Patient File"))}</h3>
+          <p>${escapeHtml(l(locale, "The active patient file is open. Uploads, analysis, prescriptions, orders, workflow, chat, and audit actions now use this patient ID."))}</p>
+        </div>
+        <span class="status-pill online">${escapeHtml(id || l(locale, "Active"))}</span>
+      </div>
+      <div class="premium-metrics four">
+        ${summaryMetric(locale, "Patient ID", id || "-")}
+        ${summaryMetric(locale, "File Number", stringFromRecord(patient, ["file_number", "fileNumber", "medicalRecordNumber"]) || "-")}
+        ${summaryMetric(locale, "Workflow State", stringFromRecord(patient, ["workflow_state", "workflowState", "status"]) || "-")}
+        ${summaryMetric(locale, "HTTP", result.httpStatus ?? "-")}
+      </div>
+      ${renderResult(result, locale)}
+    </div>
+  `;
+}
+
+function summaryMetric(locale: Locale, label: string, value: string | number): string {
+  return `<div class="metric-panel"><div class="metric-label">${escapeHtml(l(locale, label))}</div><div class="metric-value">${escapeHtml(value)}</div></div>`;
+}
+
+function patientRowsFromResult(result: LiveApiResult): Array<Record<string, unknown>> {
+  const body = result.jsonBody as Record<string, unknown> | unknown[] | undefined;
+  const rows = Array.isArray(body)
+    ? body
+    : Array.isArray(body?.["patients"])
+      ? body["patients"]
+      : Array.isArray(body?.["items"])
+        ? body["items"]
+        : Array.isArray(body?.["data"])
+          ? body["data"]
+          : [];
+  return rows.filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === "object" && !Array.isArray(row));
+}
+
+function patientRecordFromResult(result: LiveApiResult): Record<string, unknown> | undefined {
+  const body = result.jsonBody as Record<string, unknown> | undefined;
+  if (!body || typeof body !== "object" || Array.isArray(body)) return undefined;
+  const patient = body["patient"];
+  if (patient && typeof patient === "object" && !Array.isArray(patient)) return patient as Record<string, unknown>;
+  if (stringFromRecord(body, ["id", "patientId", "subjectId", "full_name", "fullName", "file_number", "fileNumber"])) return body;
+  return undefined;
+}
+
+function stringFromRecord(record: Record<string, unknown>, keys: string[]): string {
+  for (const key of keys) {
+    const value = record[key];
+    if (value !== undefined && value !== null && typeof value !== "object" && String(value).trim()) return String(value).trim();
+  }
+  return "";
 }
 
 function renderResult(result: LiveApiResult | undefined, locale: Locale): string {
