@@ -119,6 +119,7 @@ export function renderRoute(data: AppData, route: string, state: RenderState = i
   if (route === "/developer/api-explorer") return renderApiExplorer(data, state);
   if (route === "/developer/documentation") return renderDocumentationCenter(data, state);
   if (route === "/developer/access-environment" || route === "/developer/demo-mode") return renderDemoMode(data);
+  if (route === "/evidence/clinical-legal-boundary") return renderClinicalLegalBoundary();
   if (route === "/evidence/release") return renderReleaseEvidence(data);
   if (route === "/evidence/legacy-coverage") return renderDocumentView(findDoc(data, "docs/user-guides/Legacy_Feature_Coverage_Matrix.md"), "Legacy Coverage");
   if (route === "/evidence/user-journeys") return renderDocumentView(findDoc(data, "docs/user-guides/User_Journey_Map.md"), "User Journeys");
@@ -167,7 +168,7 @@ function renderTopbar(_data: AppData, route: string, state: RenderState): string
       <div class="topbar-actions">
         <a class="mode-pill ${liveMode ? "live" : "preview"}" href="#/auth/login">
           <i data-lucide="${liveMode ? "ShieldCheck" : "LockKeyhole"}"></i>
-          <span>${escapeHtml(l(liveMode ? "Live Mode" : "Secure Preview"))}</span>
+          <span>${escapeHtml(l(liveMode ? "Live Mode" : "Secure Workspace"))}</span>
         </a>
         ${state.authSession ? `
           <div class="session-chip" title="${escapeAttribute(l("Authenticated secure session"))}">
@@ -181,7 +182,7 @@ function renderTopbar(_data: AppData, route: string, state: RenderState): string
         </label>
         <label class="role-switcher">
           <span>${escapeHtml(l(liveMode ? "Role From Token" : "Workspace View"))}</span>
-          <select id="demo-role-switcher" aria-label="${escapeAttribute(l("Workspace View"))}" ${liveMode ? "disabled" : ""}>
+          <select id="workspace-role-switcher" aria-label="${escapeAttribute(l("Workspace View"))}" ${liveMode ? "disabled" : ""}>
             ${roleSwitcherOptions.map((option) => `<option value="${option.id}" ${option.id === activeRole ? "selected" : ""}>${escapeHtml(l(option.label))}</option>`).join("")}
           </select>
         </label>
@@ -219,7 +220,7 @@ function renderExecutiveOverview(data: AppData): string {
         ${metric("Patient Safety", "Human Approval Required", "No autonomous diagnosis or treatment", "ShieldAlert", "success")}
         ${metric("Care Workspaces", "7 role areas", "Clinical, patient, operational, and administrative views", "LayoutDashboard", "info")}
         ${metric("Compliance Evidence", "Available", "Audit, privacy, release, and security evidence retained", "FileCheck2", "success")}
-        ${metric("Data Boundary", "Protected", "Public preview does not expose real patient records", "LockKeyhole", "success")}
+        ${metric("Data Boundary", "Protected", "Governed access controls protect operational records", "LockKeyhole", "success")}
       </section>
       ${renderProfessionalHomeBoard(data)}
       <section class="band two-column">
@@ -233,7 +234,7 @@ function renderExecutiveOverview(data: AppData): string {
           </div>
         </div>
         <div class="release-stack">
-          ${releaseFact("Production Interface", "Real patient data requires authorized integration", "ACTIVE")}
+          ${releaseFact("Production Interface", "Live organizational records require authorized integration", "ACTIVE")}
           ${releaseFact("Human Oversight", "Clinical decisions remain with authorized clinicians", "REQUIRED")}
           ${releaseFact("Access Control", "Role-based workspaces with secure session boundaries", "ENFORCED")}
           ${releaseFact("Evidence Access", "Technical proof remains in Operator Center", "AVAILABLE")}
@@ -243,7 +244,7 @@ function renderExecutiveOverview(data: AppData): string {
         <div class="section-title">
           <div>
             <h2>${escapeHtml(l("Professional Role Entry"))}</h2>
-            <p>${escapeHtml(l("Choose the appropriate hospital workspace. Public preview records are separated from authenticated operational records."))}</p>
+            <p>${escapeHtml(l("Choose the appropriate hospital workspace. Role-based views remain separated from authenticated operational records."))}</p>
           </div>
         </div>
         ${renderRoleEntryGrid()}
@@ -280,7 +281,7 @@ function renderProfessionalHomeBoard(_data: AppData): string {
         <span class="status-pill success">${escapeHtml(l("Enterprise Interface"))}</span>
       </div>
       <div class="operator-grid">
-        <div class="pilot-brief">
+        <div class="product-brief">
           <article>
             <i data-lucide="Hospital"></i>
             <strong>${escapeHtml(l("Panacea OS"))}</strong>
@@ -289,7 +290,7 @@ function renderProfessionalHomeBoard(_data: AppData): string {
           <article>
             <i data-lucide="ShieldCheck"></i>
             <strong>${escapeHtml(l("Secure Data Boundary"))}</strong>
-            <span>${escapeHtml(l("No patient records are exposed in the public interface"))}</span>
+            <span>${escapeHtml(l("Tenant-aware access boundary and protected operational visibility"))}</span>
           </article>
           <article>
             <i data-lucide="UserCheck"></i>
@@ -408,18 +409,18 @@ function renderAuthPage(data: AppData, state: RenderState): string {
   const validation = state.authValidation;
   const discovery = state.providerLoginDiscovery;
   const allowlist = state.apiAllowlistSummary;
-  const authMode = session?.authMode === "provider-login" ? "Provider Login" : session?.authMode === "operator-jwt" ? "Operator Token" : "Secure Preview";
+  const authMode = session?.authMode === "provider-login" ? "Provider Login" : session?.authMode === "operator-jwt" ? "Operator Token" : "Secure Workspace";
   const providerReady = discovery?.providerHostedLoginAvailable;
   return `
     <div class="page-grid">
-      ${renderPageHeader("Secure Access", "Authenticate enterprise workspaces through the approved Foundation provider. Public preview records remain separated from authenticated operational records.", session ? "LIVE SESSION" : "AUTH READY", "KeyRound")}
+      ${renderPageHeader("Secure Access", "Authenticate enterprise workspaces through the approved Foundation provider. Workspace views remain separated from authenticated operational records.", session ? "LIVE SESSION" : "AUTH READY", "KeyRound")}
       <section class="metric-grid">
         ${metric("Auth mode", authMode, session ? "Live session active" : "No authenticated session", "ShieldCheck", session ? "success" : "warn")}
         ${metric("Foundation", "Configured", "Approved external identity provider", "Globe", "info")}
         ${metric("Provider login", providerReady ? "Available" : "Operator action required", discovery ? professionalAuthRecommendation(discovery.recommendation) : "Discovery not run", "LogIn", providerReady ? "success" : "warn")}
         ${metric("Secure Key Set", validation?.ok ? "Validated" : "Required", validation?.ok ? "Token validated against provider keys" : "Token validation has not completed", "KeyRound", validation?.ok ? "success" : "warn")}
         ${metric("Organization", session ? "Verified" : "Default", session ? "From secure session" : "No live organization session", "Building2", session ? "success" : "warn")}
-        ${metric("Role", session?.role ?? state.selectedRole, session ? "From secure session" : "Workspace preview only", "UserRoundCheck", session ? "success" : "warn")}
+        ${metric("Role", session?.role ?? state.selectedRole, session ? "From secure session" : "Workspace view only", "UserRoundCheck", session ? "success" : "warn")}
       </section>
       <section class="band two-column">
         <div>
@@ -476,7 +477,7 @@ function renderAuthPage(data: AppData, state: RenderState): string {
             <div class="empty-state">
               <i data-lucide="LockKeyhole"></i>
               <h3>${escapeHtml(l("No live session"))}</h3>
-              <p>${escapeHtml(l("Use the secure preview for visual review, or provide approved Foundation credentials for Live Mode. Workspace selection never grants production access."))}</p>
+          <p>${escapeHtml(l("Use the secure workspace for visual review, or provide approved Foundation credentials for Live Mode. Workspace selection never grants operational access."))}</p>
             </div>
           `}
         </div>
@@ -844,15 +845,15 @@ function renderDocumentationCenter(data: AppData, state: RenderState): string {
 function renderDemoMode(_data: AppData): string {
   return `
     <div class="page-grid">
-      ${renderPageHeader("Access & Environment", "A secure environment view for reviewing Panacea OS without exposing real patient records.", "Enterprise", "MonitorPlay")}
+      ${renderPageHeader("Access & Environment", "A secure environment view for reviewing Panacea OS workspace access, governance, and operator evidence.", "Enterprise", "MonitorPlay")}
       <section class="band two-column">
         <div>
           <h2>${escapeHtml(l("Environment Review"))}</h2>
-          <p>${escapeHtml(l("Use the role workspaces to review the hospital experience with protected preview records, clear safety boundaries, and no public patient data exposure."))}</p>
+          <p>${escapeHtml(l("Use the role workspaces to review the hospital experience with governed workspace views, clear safety boundaries, and protected operational access."))}</p>
           <ul class="check-list">
-            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Protected Preview Records"))}</li>
+            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Governed Workspace View"))}</li>
             <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Human Approval Required"))}</li>
-            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("No real patient data without authorization"))}</li>
+            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Clinical and legal approvals required for live deployment"))}</li>
           </ul>
         </div>
         <div>
@@ -875,6 +876,43 @@ function renderDemoMode(_data: AppData): string {
             <p>${escapeHtml(l("The detailed operator runbook remains available in the documentation center for authorized technical review."))}</p>
           </div>
           <a class="button compact" href="#/developer/documentation"><i data-lucide="BookOpen"></i> ${escapeHtml(l("Documentation Center"))}</a>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function renderClinicalLegalBoundary(): string {
+  return `
+    <div class="page-grid">
+      ${renderPageHeader("Clinical and Legal Boundary", "Professional governance notice for clinical, legal, privacy, regulatory, and organizational approval boundaries.", "Governance Notice", "Scale")}
+      <section class="band governance-notice">
+        <div class="section-title">
+          <div>
+            <h2>${escapeHtml(l("Clinical Governance Notice"))}</h2>
+            <p>${escapeHtml(l("Panacea OS supports controlled healthcare workflow validation. Real clinical deployment requires organizational, legal, privacy, regulatory, and clinical approval."))}</p>
+          </div>
+          <span class="status-pill warn">${escapeHtml(l("Approval Required"))}</span>
+        </div>
+        <div class="metric-grid compact">
+          ${metric("Clinical decisions", "Human governed", "Panacea OS does not replace clinicians", "UserCheck", "success")}
+          ${metric("Diagnosis", "Not autonomous", "No autonomous diagnosis is provided", "ShieldAlert", "success")}
+          ${metric("Treatment", "Not autonomous", "No autonomous treatment or prescribing is provided", "ShieldAlert", "success")}
+          ${metric("Deployment status", "Approval gated", "Clinical production use requires institutional authorization", "ClipboardCheck", "warn")}
+        </div>
+      </section>
+      <section class="band two-column">
+        <div>
+          <h2>${escapeHtml(l("Deployment Status"))}</h2>
+          <p>${escapeHtml(l("The UTBE external deployment is suitable for controlled validation and stakeholder review. Clinical production use requires formal approvals, live identity integration, privacy controls, data governance, operational readiness, and organizational sign-off."))}</p>
+        </div>
+        <div>
+          <h2>${escapeHtml(l("System Governance"))}</h2>
+          <ul class="check-list">
+            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Human oversight remains mandatory for clinical workflows"))}</li>
+            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Audit evidence and tenant boundaries remain enforced"))}</li>
+            <li><i data-lucide="CheckCircle2"></i> ${escapeHtml(l("Legal, privacy, and regulatory approval is required before clinical production use"))}</li>
+          </ul>
         </div>
       </section>
     </div>

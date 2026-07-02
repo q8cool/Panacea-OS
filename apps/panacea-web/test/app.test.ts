@@ -39,6 +39,7 @@ describe("Panacea web platform", () => {
     expect(html).toContain("Clinical Operations");
     expect(html).toContain("Patient Care");
     expect(html).toContain("Protected");
+    expect(html).toContain("Governed access controls protect operational records");
     expect(html).not.toContain("UTBE Controlled Pilot");
     expect(html).not.toContain("Demo Data — Not Real Patient Data");
   });
@@ -216,7 +217,7 @@ describe("Panacea web platform", () => {
         selectedRole: workspace.id
       });
       expect(html).toContain(workspace.title);
-      expect(html).toContain("Protected Preview Records");
+      expect(html).toContain("Governed Workspace View");
       expect(html).toContain("Workflow Timeline");
       expect(html).toContain("Governance And Evidence");
     }
@@ -230,7 +231,7 @@ describe("Panacea web platform", () => {
     });
     expect(html).toContain("مساحة عمل الطبيب / الطبيب السريري");
     expect(html).toContain("عارض توصيات الذكاء الاصطناعي");
-    expect(html).toContain("سجلات معاينة محمية");
+    expect(html).toContain("عرض مساحة عمل محكوم");
     expect(html).toContain("للاسترشاد فقط. يبقى القرار النهائي للطبيب المختص.");
   });
 
@@ -315,7 +316,10 @@ describe("Panacea web platform", () => {
       "UTBE Controlled Pilot",
       "Demo Data",
       "DEMO DATA",
-      "Pilot Role View"
+      "Pilot Role View",
+      "Demo Mode",
+      "No Real Patient Data",
+      "No real patient data"
     ];
 
     for (const route of generalRoutes) {
@@ -339,6 +343,15 @@ describe("Panacea web platform", () => {
     expect(explorer).toContain("curl -X GET");
     expect(explorer).toContain(publicApiBaseUrl);
     expect(explorer).toContain("/api/v");
+  });
+
+  it("keeps clinical and legal limitations in a dedicated governance page", () => {
+    const boundary = renderRoute(data, "/evidence/clinical-legal-boundary", initialState);
+    expect(boundary).toContain("Clinical and Legal Boundary");
+    expect(boundary).toContain("Clinical Governance Notice");
+    expect(boundary).toContain("Real clinical deployment requires organizational, legal, privacy, regulatory, and clinical approval.");
+    expect(boundary).toContain("No autonomous diagnosis is provided");
+    expect(boundary).toContain("No autonomous treatment or prescribing is provided");
   });
 
   it("renders professional enterprise badges, role cards, Arabic labels, and friendly error states", () => {
@@ -818,7 +831,7 @@ describe("Panacea web platform", () => {
       language: "ar",
       selectedRole: "laboratory"
     });
-    expect(arabicDemo).toContain("إجراء معاينة فقط — لا يتم حفظه في الخادم الإنتاجي");
+    expect(arabicDemo).toContain("إجراء مراجعة فقط — لا يتم حفظه في الخادم التشغيلي");
   });
 
   it("renders live backend read-model rows without demo workspace records", () => {
@@ -1197,15 +1210,15 @@ describe("Panacea web platform", () => {
       selectedRole: "patient"
     });
     expect(html).toContain("Patient Portal");
-    expect(html).toContain("Patient-facing preview records do not replace clinician advice.");
+    expect(html).toContain("Patient-facing workspace information does not replace clinician advice.");
     expect(html).toContain("Cardiology Clinic");
-    expect(html).toContain("SECURE PREVIEW");
+    expect(html).toContain("SECURE WORKSPACE");
   });
 
   it("renders operational records for lab, radiology, pharmacy, and administration", () => {
     const lab = renderRoute(data, "/workspace/laboratory/result-entry", initialState);
     expect(lab).toContain("Laboratory Operations");
-    expect(lab).toContain("Preview entry only -- not persisted to production backend");
+    expect(lab).toContain("Review entry only -- not persisted to operational backend");
 
     const radiology = renderRoute(data, "/workspace/radiology/dicom-metadata", initialState);
     expect(radiology).toContain("Radiology Operations");
@@ -1227,7 +1240,7 @@ describe("Panacea web platform", () => {
       language: "ar",
       selectedRole: "doctor"
     });
-    expect(html).toContain("سجلات معاينة محمية");
+    expect(html).toContain("عرض مساحة عمل محكوم");
     expect(html).toContain("بحث المرضى");
     expect(html).toContain("بحث مريض صناعي");
     expect(html).toContain("Patient Alpha");

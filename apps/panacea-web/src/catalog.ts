@@ -64,6 +64,7 @@ export const navSections: NavSection[] = [
   {
     title: "Evidence",
     items: [
+      { label: "Clinical and Legal Boundary", route: "/evidence/clinical-legal-boundary", icon: "Scale", keywords: ["clinical", "legal", "boundary", "governance"] },
       { label: "Release Evidence", route: "/evidence/release", icon: "FileCheck2", keywords: ["release", "evidence", "ci"] },
       { label: "Legacy Coverage", route: "/evidence/legacy-coverage", icon: "GitCompare", keywords: ["legacy", "coverage", "preserved"] },
       { label: "User Journeys", route: "/evidence/user-journeys", icon: "Route", keywords: ["roles", "journey", "workflow"] }

@@ -147,7 +147,7 @@ export const demoPatients: DemoPatient[] = firstNames.map((name, index) => {
       { time: "13:00", type: "Encounter", title: "Care team review", detail: "Illustrative timeline event; not real clinical documentation." }
     ],
     notes: [
-      { date: "2026-06-30", author: "Clinical Doctor", note: "Illustrative clinical note for UI review only. No real patient information." },
+      { date: "2026-06-30", author: "Clinical Doctor", note: "Illustrative clinical note for governed workspace review." },
       { date: "2026-07-01", author: "Nursing Lead", note: "Illustrative nursing observation recorded in frontend seed data only." }
     ],
     labs: [

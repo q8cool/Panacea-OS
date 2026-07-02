@@ -1058,7 +1058,7 @@ pre {
   gap: 18px;
 }
 
-.demo-notice {
+.workspace-notice {
   display: grid;
   grid-template-columns: 26px minmax(0, 1fr);
   gap: 12px;
@@ -1070,25 +1070,25 @@ pre {
   padding: 14px;
 }
 
-.app-shell[data-theme="dark"] .demo-notice {
+.app-shell[data-theme="dark"] .workspace-notice {
   background: rgba(180, 83, 9, 0.14);
   color: #fed7aa;
   border-color: rgba(251, 191, 36, 0.35);
 }
 
-.demo-notice.live {
+.workspace-notice.live {
   background: rgba(23, 128, 60, 0.1);
   color: var(--green);
   border-color: rgba(23, 128, 60, 0.32);
 }
 
-.app-shell[data-theme="dark"] .demo-notice.live {
+.app-shell[data-theme="dark"] .workspace-notice.live {
   background: rgba(23, 128, 60, 0.16);
   color: #86efac;
   border-color: rgba(134, 239, 172, 0.28);
 }
 
-.demo-notice p {
+.workspace-notice p {
   margin: 4px 0 0;
 }
 
@@ -1363,7 +1363,7 @@ pre {
   padding: 12px;
 }
 
-.demo-data-banner {
+.workspace-source-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1375,12 +1375,12 @@ pre {
   color: #7c2d12;
 }
 
-.app-shell[data-theme="dark"] .demo-data-banner {
+.app-shell[data-theme="dark"] .workspace-source-banner {
   background: rgba(180, 83, 9, 0.14);
   color: #fed7aa;
 }
 
-.demo-data-banner p {
+.workspace-source-banner p {
   margin: 4px 0 0;
 }
 
@@ -1400,12 +1400,12 @@ pre {
   background: linear-gradient(180deg, var(--panel), var(--panel-strong));
 }
 
-.pilot-brief {
+.product-brief {
   display: grid;
   gap: 12px;
 }
 
-.pilot-brief article {
+.product-brief article {
   display: grid;
   grid-template-columns: 40px minmax(0, 1fr);
   gap: 10px 12px;
@@ -1416,7 +1416,7 @@ pre {
   padding: 14px;
 }
 
-.pilot-brief svg {
+.product-brief svg {
   grid-row: span 2;
   width: 40px;
   height: 40px;
@@ -1426,12 +1426,12 @@ pre {
   color: var(--blue);
 }
 
-.pilot-brief strong,
-.pilot-brief span {
+.product-brief strong,
+.product-brief span {
   display: block;
 }
 
-.pilot-brief span {
+.product-brief span {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.45;
@@ -1493,11 +1493,11 @@ pre {
   line-height: 1.45;
 }
 
-.demo-table {
+.workspace-table {
   margin-top: 14px;
 }
 
-.demo-table a {
+.workspace-table a {
   color: var(--blue);
   font-weight: 800;
   text-decoration: none;
@@ -1538,18 +1538,18 @@ pre {
   color: #fff;
 }
 
-.demo-section-spacer {
+.workspace-section-spacer {
   margin-top: 16px;
 }
 
-.demo-bullet-list {
+.workspace-bullet-list {
   display: grid;
   gap: 8px;
   margin: 0;
   padding-inline-start: 22px;
 }
 
-.demo-timeline small {
+.workspace-timeline small {
   color: var(--muted);
 }
 
@@ -1665,7 +1665,7 @@ pre {
   border-color: color-mix(in srgb, var(--red) 45%, var(--line));
 }
 
-.demo-write-boundary .empty-state {
+.review-write-boundary .empty-state {
   align-items: flex-start;
 }
 

@@ -113,7 +113,7 @@ function roleNavigation(workspace: RoleWorkspaceDefinition, activePage: RolePage
 function modeNotice(workspace: RoleWorkspaceDefinition, context: RoleRenderContext): string {
   if (context.mode === "live" && context.session) {
     return `
-      <section class="demo-notice live">
+      <section class="workspace-notice live">
         <i data-lucide="ShieldCheck"></i>
         <div>
           <strong>${escapeHtml(l("Live Mode — Authenticated Read-Only Session"))}</strong>
@@ -123,11 +123,11 @@ function modeNotice(workspace: RoleWorkspaceDefinition, context: RoleRenderConte
     `;
   }
   return `
-    <section class="demo-notice">
+    <section class="workspace-notice">
       <i data-lucide="Info"></i>
       <div>
-        <strong>${escapeHtml(l("Secure Preview — No Patient Records Loaded"))}</strong>
-        <p>${escapeHtml(l(workspace.dataMode))} ${escapeHtml(l("Workspace selection is for presentation only and does not bypass real security in production."))}</p>
+        <strong>${escapeHtml(l("Secure Workspace — Authentication Required"))}</strong>
+        <p>${escapeHtml(l(workspace.dataMode))} ${escapeHtml(l("Workspace selection is for presentation only and does not bypass operational security."))}</p>
       </div>
     </section>
   `;
@@ -141,7 +141,7 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
         <div class="section-title">
           <div>
             <h2>${escapeHtml(l("Live Data Connection"))}</h2>
-            <p>${escapeHtml(l("Secure preview is active. Open Secure Access and provide approved Foundation credentials to use live read-only checks."))}</p>
+            <p>${escapeHtml(l("Secure workspace review is active. Open Secure Access and provide approved Foundation credentials to use live read-only checks."))}</p>
           </div>
           <span class="status-pill ${connection.className}">${escapeHtml(l(connection.label))}</span>
           <a class="button compact" href="#/auth/login"><i data-lucide="KeyRound"></i> ${escapeHtml(l("Foundation Login"))}</a>
@@ -375,17 +375,17 @@ function roleLiveWriteWorkflow(workspace: RoleWorkspaceDefinition, page: RolePag
 
 function roleDemoWriteBoundary(_workspace: RoleWorkspaceDefinition, _page: RolePageDefinition): string {
   return `
-    <section class="band live-write-workflow demo-write-boundary">
+    <section class="band live-write-workflow review-write-boundary">
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l("Transactional Write Workflow"))}</h2>
-          <p>${escapeHtml(l("Preview action only — not persisted to production backend"))}</p>
+          <p>${escapeHtml(l("Review action only — not persisted to the operational backend"))}</p>
         </div>
-        <span class="status-pill warn">${escapeHtml(l("SECURE PREVIEW"))}</span>
+        <span class="status-pill warn">${escapeHtml(l("SECURE WORKSPACE"))}</span>
       </div>
       <div class="empty-state compact">
         <i data-lucide="DatabaseZap"></i>
-        <p>${escapeHtml(l("Preview action only — not persisted to production backend"))}</p>
+        <p>${escapeHtml(l("Review action only — not persisted to the operational backend"))}</p>
         <small>${escapeHtml(l("Sign in with a Foundation-issued token to enable approved Sprint 113 live write workflows."))}</small>
       </div>
     </section>
@@ -449,14 +449,14 @@ function asRecord(value: unknown): Record<string, unknown> {
 }
 
 function demoSourceBanner(context: RoleRenderContext): string {
-  const status = context.mode === "live" ? "LIVE PARTIAL" : "SECURE PREVIEW";
+  const status = context.mode === "live" ? "LIVE PARTIAL" : "SECURE WORKSPACE";
   const detail = context.mode === "live"
-    ? "Live service access was evaluated where allowed. These records are presentation fallback data and are not persisted to the production backend."
-    : "Preview records are illustrative, non-PHI, and separated from authenticated operational records.";
+    ? "Live service access was evaluated where allowed. These records are presentation fallback data and are not persisted to the operational backend."
+    : "Workspace content is illustrative, non-PHI, and separated from authenticated operational records.";
   return `
-    <section class="demo-data-banner">
+    <section class="workspace-source-banner">
       <div>
-        <strong>${escapeHtml(l("Protected Preview Records"))}</strong>
+        <strong>${escapeHtml(l("Governed Workspace View"))}</strong>
         <p>${escapeHtml(l(detail))}</p>
       </div>
       <span class="status-pill warn">${escapeHtml(l(status))}</span>
@@ -489,7 +489,7 @@ function patientPortalExperience(page: RolePageDefinition): string {
   const portalCards = [
     ["Next appointment", patient.appointments[0].date, patient.appointments[0].clinic],
     ["Medication count", String(patient.medications.length), "Review with your care team"],
-    ["Unread messages", String(patient.messages.filter((message) => message.status === "Unread").length), "Inbox preview"],
+    ["Unread messages", String(patient.messages.filter((message) => message.status === "Unread").length), "Inbox review"],
     ["Balance", patient.billing.balance, patient.billing.insurance]
   ];
   const content = page.id === "appointments"
@@ -514,12 +514,12 @@ function patientPortalExperience(page: RolePageDefinition): string {
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l("Patient Portal"))}</h2>
-          <p>${escapeHtml(l("Patient-facing preview records do not replace clinician advice."))}</p>
+          <p>${escapeHtml(l("Patient-facing workspace information does not replace clinician advice."))}</p>
         </div>
-        <span class="status-pill warn">${escapeHtml(l("SECURE PREVIEW"))}</span>
+        <span class="status-pill warn">${escapeHtml(l("SECURE WORKSPACE"))}</span>
       </div>
       <div class="metric-grid">${portalCards.map(([label, value, detail]) => metricMini(label, value, detail)).join("")}</div>
-      <div class="demo-section-spacer">${content}</div>
+      <div class="workspace-section-spacer">${content}</div>
     </section>
   `;
 }
@@ -530,21 +530,21 @@ function laboratoryExperience(page: RolePageDefinition): string {
   const rows = page.id === "critical-results"
     ? critical.map((order) => [order.orderId, order.patientName, order.test, order.value, order.priority])
     : page.id === "result-entry"
-      ? pending.map((order) => [order.orderId, order.patientName, order.test, "Preview entry only -- not persisted to production backend"])
+      ? pending.map((order) => [order.orderId, order.patientName, order.test, "Review entry only -- not persisted to operational backend"])
       : demoLabOrders.slice(0, 10).map((order) => [order.orderId, order.patientName, order.test, order.status, order.value]);
   return `
     <section class="band">
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l("Laboratory Operations"))}</h2>
-          <p>${escapeHtml(l(page.id === "result-entry" ? "Preview entry only -- not persisted to production backend" : "Pending orders, specimen status, validation, QC, and critical result visibility."))}</p>
+          <p>${escapeHtml(l(page.id === "result-entry" ? "Review entry only -- not persisted to operational backend" : "Pending orders, specimen status, validation, QC, and critical result visibility."))}</p>
         </div>
         <span class="status-pill ${critical.length ? "danger" : "success"}">${critical.length} ${escapeHtml(l("critical"))}</span>
       </div>
       <div class="metric-grid">
         ${metricMini("Pending orders", String(pending.length), "Specimen and validation queue")}
         ${metricMini("Turnaround", "42 min", "Synthetic median TAT")}
-        ${metricMini("QC status", "Passing", "Analyzer controls preview")}
+        ${metricMini("QC status", "Passing", "Analyzer controls review")}
       </div>
       ${simpleTable(page.id === "result-entry" ? ["Order", "Patient", "Test", "Entry state"] : ["Order", "Patient", "Test", "Status", "Result"], rows)}
     </section>
@@ -567,7 +567,7 @@ function radiologyExperience(page: RolePageDefinition): string {
       <div class="metric-grid">
         ${metricMini("Studies today", String(demoRadiologyStudies.length), "Synthetic worklist")}
         ${metricMini("PACS status", "Metadata available", "No image viewer")}
-        ${metricMini("Critical findings", String(demoRadiologyStudies.filter((study) => study.priority === "Urgent").length), "Escalation preview")}
+        ${metricMini("Critical findings", String(demoRadiologyStudies.filter((study) => study.priority === "Urgent").length), "Escalation review")}
       </div>
       ${simpleTable(page.id === "dicom-metadata" ? ["Study", "Modality", "Body Part", "DICOM UID", "PACS"] : ["Study", "Patient", "Modality", "Status", "Report"], rows)}
     </section>
@@ -587,11 +587,11 @@ function pharmacyExperience(page: RolePageDefinition): string {
           <h2>${escapeHtml(l("Pharmacy Operations"))}</h2>
           <p>${escapeHtml(l("Prescription queue, dispensing workflow, inventory, batch tracking, and safety alert visibility."))}</p>
         </div>
-        <span class="status-pill warn">${escapeHtml(l("Safety rules preview"))}</span>
+        <span class="status-pill warn">${escapeHtml(l("Safety rules review"))}</span>
       </div>
       <div class="metric-grid">
         ${metricMini("Prescription queue", String(demoPharmacyRecords.length), "Synthetic prescriptions")}
-        ${metricMini("Inventory items", String(demoInventory.length), "Stock preview")}
+        ${metricMini("Inventory items", String(demoInventory.length), "Stock review")}
         ${metricMini("Safety alerts", String(demoPharmacyRecords.filter((rx) => rx.safety.includes("Review")).length), "Review labels only")}
       </div>
       ${simpleTable(page.id === "inventory" || page.id === "batch-lot-tracking" || page.id === "expiration-tracking" ? ["Item", "Lot", "Expiry", "Qty", "Status"] : page.id === "medication-catalog" ? ["Code", "Medication", "Form", "Stock", "Status"] : ["Rx", "Patient", "Medication", "Status", "Safety"], rows)}
@@ -607,7 +607,7 @@ function adminExperience(data: AppData, page: RolePageDefinition): string {
       : page.id === "tenants"
         ? simpleTable(["Tenant", "Name", "Country", "Status"], demoHospital.tenants.map((tenant) => [tenant.id, tenant.name, tenant.country, tenant.status]))
         : page.id === "departments"
-          ? simpleTable(["Department", "Users", "Status"], demoHospital.departments.map((department) => [department, String(demoUsers.filter((user) => user.department === department).length), "Active preview"]))
+          ? simpleTable(["Department", "Users", "Status"], demoHospital.departments.map((department) => [department, String(demoUsers.filter((user) => user.department === department).length), "Workspace active"]))
           : page.id === "audit-logs"
             ? simpleTable(["Event", "Actor", "Action", "Tenant", "Status"], demoAuditLogs.map((log) => [log.id, log.actor, log.action, log.tenant, log.status]))
             : page.id === "system-health"
@@ -623,9 +623,9 @@ function adminExperience(data: AppData, page: RolePageDefinition): string {
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l("Administration Console"))}</h2>
-          <p>${escapeHtml(l("Users, roles, tenants, organizations, configuration, audit, security, privacy, and compliance using protected preview records."))}</p>
+          <p>${escapeHtml(l("Users, roles, tenants, organizations, configuration, audit, security, privacy, and compliance using governed workspace records."))}</p>
         </div>
-        <span class="status-pill warn">${escapeHtml(l("Read-only preview"))}</span>
+        <span class="status-pill warn">${escapeHtml(l("Read-only workspace"))}</span>
       </div>
       <div class="metric-grid">
         ${metricMini("Preview users", String(demoUsers.length), "Role mapped")}
@@ -709,7 +709,7 @@ function patientSummaryCards(patient: DemoPatient): string {
   return `
     <div class="operational-cards">
       ${metricMini("Age / Sex", `${patient.age} / ${patient.sex}`, patient.attending)}
-      ${metricMini("Allergies", patient.allergies.join(", "), "Allergy list preview")}
+      ${metricMini("Allergies", patient.allergies.join(", "), "Allergy list review")}
       ${metricMini("Conditions", patient.conditions.join(", "), "Synthetic conditions")}
       ${metricMini("Billing", patient.billing.balance, patient.billing.lastInvoice)}
     </div>
@@ -768,7 +768,7 @@ function advisoryPanel(patient: DemoPatient): string {
   return `
     <div class="alert warn">
       <strong>${escapeHtml(l("Advisory only. Clinician remains final decision maker."))}</strong>
-      <p>${escapeHtml(l("Recommendation preview cards are educational UI examples. They are not diagnosis, treatment, or production AI output."))}</p>
+      <p>${escapeHtml(l("Recommendation review cards are educational UI examples. They are not diagnosis, treatment, or production AI output."))}</p>
     </div>
     ${simpleTable(["Recommendation", "Reason", "Required action"], [
       ["Review allergy list", patient.allergies.join(", "), "Clinician review"],
@@ -780,7 +780,7 @@ function advisoryPanel(patient: DemoPatient): string {
 
 function timeline(events: DemoPatient["timeline"]): string {
   return `
-    <ol class="timeline demo-timeline">
+    <ol class="timeline workspace-timeline">
       ${events.map((event, index) => `
         <li>
           <span>${index + 1}</span>
@@ -792,12 +792,12 @@ function timeline(events: DemoPatient["timeline"]): string {
 }
 
 function bulletList(items: string[]): string {
-  return `<ul class="demo-bullet-list">${items.map((item) => `<li>${escapeHtml(l(item))}</li>`).join("")}</ul>`;
+  return `<ul class="workspace-bullet-list">${items.map((item) => `<li>${escapeHtml(l(item))}</li>`).join("")}</ul>`;
 }
 
 function simpleTable(headers: string[], rows: string[][], htmlCells = false): string {
   return `
-    <div class="table-wrap demo-table">
+    <div class="table-wrap workspace-table">
       <table>
         <thead><tr>${headers.map((header) => `<th>${escapeHtml(l(header))}</th>`).join("")}</tr></thead>
         <tbody>
@@ -926,7 +926,7 @@ function roleTable(page: RolePageDefinition, mode: DataMode): string {
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Worklist"))}</h2>
-          <p>${escapeHtml(l("Rows are UI-state examples and source labels only, not real patient records."))}</p>
+          <p>${escapeHtml(l("Rows are governed workspace examples with source labels and protected clinical boundaries."))}</p>
         </div>
         <span class="status-pill warn">${escapeHtml(l("Service temporarily unavailable."))}</span>
       </div>
@@ -1081,7 +1081,7 @@ function professionalAccessClassification(classification: string): string {
 
 function workspaceConnectionStatus(context: RoleRenderContext): { label: string; className: string } {
   if (context.mode !== "live") {
-    return { label: "Secure Preview", className: "warn" };
+    return { label: "Secure Workspace", className: "warn" };
   }
   const state = context.workspaceState;
   if (!state) {

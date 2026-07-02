@@ -33,7 +33,7 @@ let state: RenderState = {
   ...initialState,
   theme: (localStorage.getItem("panacea-theme") as RenderState["theme"]) || "light",
   language: normalizeLocale(localStorage.getItem("panacea-language")),
-  selectedRole: (localStorage.getItem("panacea-demo-role") as RenderState["selectedRole"]) || "operator",
+  selectedRole: (localStorage.getItem("panacea-workspace-role") as RenderState["selectedRole"]) || "operator",
   authSession: restoreSession()
 };
 
@@ -86,11 +86,11 @@ function bindEvents() {
     render();
   });
 
-  document.querySelector<HTMLSelectElement>("#demo-role-switcher")?.addEventListener("change", (event) => {
+  document.querySelector<HTMLSelectElement>("#workspace-role-switcher")?.addEventListener("change", (event) => {
     if (state.authSession) return;
     const selectedRole = (event.target as HTMLSelectElement).value as RenderState["selectedRole"];
     state = { ...state, selectedRole };
-    localStorage.setItem("panacea-demo-role", selectedRole);
+    localStorage.setItem("panacea-workspace-role", selectedRole);
     window.location.hash = roleDefaultRoute(selectedRole);
   });
 
