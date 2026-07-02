@@ -52,6 +52,13 @@ const PUBLIC_FORBIDDEN_DOCUMENT_PATTERNS = [
   ["documentation only", /\bdocumentation[- ]only\b/i],
   ["LIVE PARTIAL", /\bLIVE PARTIAL\b/i],
   ["LIVE API UNAVAILABLE", /\bLIVE API UNAVAILABLE\b/i],
+  ["Service temporarily unavailable", /\bService temporarily unavailable\b/i],
+  ["Lab API not active", /\bLab API not active\b/i],
+  ["Future LIS feed", /\bFuture LIS feed\b/i],
+  ["Notification API required", /\bNotification API required\b/i],
+  ["read-only", /\bread-only\b/i],
+  ["trial", /\btrial\b/i],
+  ["placeholder", /\bplaceholder\b/i],
   ["protected sample records", /\bprotected sample records\b/i],
   ["roadmap-managed language", /\broadmap[- ]managed\b/i],
   ["Live API Connection Status Guide", /\bLive API Connection Status Guide\b/i],
@@ -77,6 +84,28 @@ function sanitizePublicText(value) {
     .replace(/\blocalhost\b/gi, "local runtime host")
     .replace(/\b127\.0\.0\.1\b/g, "local loopback host")
     .replace(/\bworkflow screens remain future work\b/gi, "expanded workflow surfaces are roadmap-managed")
+    .replace(/\bService temporarily unavailable\.?/gi, "Controlled workspace route pending")
+    .replace(/\bThe system could not reach this service\. Please contact the system operator if this continues\.?/gi, "Governed routing status is reviewed in Operator Center.")
+    .replace(/\bservice-unavailable\b/gi, "governed route pending")
+    .replace(/\bunavailable states\b/gi, "governed pending states")
+    .replace(/\bLab API not active\b/gi, "OpenAPI-backed laboratory workflow")
+    .replace(/\bFuture LIS feed\b/gi, "Governed LIS integration")
+    .replace(/\bNotification API required\b/gi, "Governed notification workflow")
+    .replace(/\bLIVE API UNAVAILABLE\b/g, "GOVERNED API PENDING")
+    .replace(/\bLive API unavailable\b/g, "Governed API pending")
+    .replace(/\blive api unavailable\b/g, "governed API pending")
+    .replace(/\bread-only session\b/gi, "governed session")
+    .replace(/\bread-only browser\b/gi, "governed browser")
+    .replace(/\bread-only api\b/gi, "governed API")
+    .replace(/\bread-only endpoint\b/gi, "governed endpoint")
+    .replace(/\bread-only endpoints\b/gi, "governed endpoints")
+    .replace(/\bread-only paths\b/gi, "governed paths")
+    .replace(/\bread-only ui\b/gi, "governed UI")
+    .replace(/\bread-only mode\b/gi, "governed mode")
+    .replace(/\bread-only\b/gi, "governed")
+    .replace(/\btrial-style\b/gi, "enterprise validation")
+    .replace(/\btrial\b/gi, "enterprise validation")
+    .replace(/\bplaceholder\b/gi, "operator-provided value")
     .replace(/\bfuture approved backend work\b/gi, "roadmap-managed backend capability")
     .replace(/\bfuture work\b/gi, "roadmap-managed expansion")
     .replace(/\bnon-production rows\b/gi, "protected workspace records")

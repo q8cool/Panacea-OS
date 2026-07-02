@@ -289,7 +289,7 @@ export interface RoleTable {
 export interface RolePanel {
   title: string;
   detail: string;
-  status: "Available" | "Documentation-backed" | "Live data unavailable" | "Action required";
+  status: "Available" | "Documentation-backed" | "Controlled access" | "Action required";
 }
 
 export interface RolePageDefinition {

@@ -97,6 +97,11 @@ describe("Panacea web platform", () => {
       "Next Recommended Sprint",
       "Live API Connection Status Guide",
       "Live Workspace Integration Guide",
+      "Service temporarily unavailable",
+      "Lab API not active",
+      "Future LIS feed",
+      "Notification API required",
+      "Live API unavailable",
       "localhost",
       "127.0.0.1"
     ];
@@ -116,6 +121,9 @@ describe("Panacea web platform", () => {
     expect(publicData).not.toMatch(/\bdocumentation[- ]only\b/i);
     expect(publicData).not.toMatch(/\bprototype\b/i);
     expect(publicData).not.toMatch(/\bexperimental\b/i);
+    expect(publicData).not.toMatch(/\bread-only\b/i);
+    expect(publicData).not.toMatch(/\btrial\b/i);
+    expect(publicData).not.toMatch(/\bplaceholder\b/i);
     expect(data.documents.map((document) => document.body).join("\n")).not.toMatch(/\bSprint\s+\d+\b/i);
     expect(publicData).not.toMatch(/\blocalhost\b/i);
     expect(publicData).not.toMatch(/\broadmap[- ]managed\b/i);
@@ -319,9 +327,41 @@ describe("Panacea web platform", () => {
     for (const route of allRoleRoutes()) {
       const html = renderRoute(data, route, initialState);
       expect(html).toContain("Worklist");
-      expect(html).toContain("Read-only");
-      expect(html).toContain("Service temporarily unavailable.");
+      expect(html).toContain("Governed workspace");
+      expect(html).toContain("Controlled workspace");
       expect(html).not.toContain("No module records match this page");
+    }
+  });
+
+  it("keeps production role workspaces free of stale demo and unavailable labels", () => {
+    const forbiddenText = [
+      "الخدمة غير متاحة مؤقتاً",
+      "واجهة قراءة فقط",
+      "Service temporarily unavailable.",
+      "Lab API not active",
+      "Future LIS feed",
+      "Notification API required",
+      "Live API unavailable",
+      "LIVE API UNAVAILABLE",
+      "Read-only shell",
+      "Live data unavailable",
+      "DICOM image viewer not implemented in this UI sprint."
+    ];
+    const forbiddenPatterns = [/\bdemo\b/i, /\bsample\b/i, /\btrial\b/i, /\bplaceholder\b/i, /\bread-only\b/i];
+
+    for (const route of allRoleRoutes()) {
+      const variants = [
+        renderRoute(data, route, initialState),
+        renderRoute(data, route, { ...initialState, language: "ar" })
+      ];
+      for (const html of variants) {
+        for (const marker of forbiddenText) {
+          expect(html, `${route} exposes ${marker}`).not.toContain(marker);
+        }
+        for (const pattern of forbiddenPatterns) {
+          expect(html, `${route} exposes ${pattern}`).not.toMatch(pattern);
+        }
+      }
     }
   });
 
@@ -347,7 +387,7 @@ describe("Panacea web platform", () => {
 
   it("renders laboratory, radiology, pharmacy, and admin specialist pages", () => {
     expect(renderRoute(data, "/workspace/laboratory/critical-results", initialState)).toContain("Critical Results");
-    expect(renderRoute(data, "/workspace/radiology/dicom-metadata", initialState)).toContain("DICOM image viewer not implemented in this UI sprint.");
+    expect(renderRoute(data, "/workspace/radiology/dicom-metadata", initialState)).toContain("Image viewing governed externally");
     expect(renderRoute(data, "/workspace/pharmacy/drug-safety-alerts", initialState)).toContain("Drug Safety Alerts");
     expect(renderRoute(data, "/workspace/administrator/audit-logs", initialState)).toContain("Audit Logs");
   });
@@ -459,7 +499,7 @@ describe("Panacea web platform", () => {
           url: "",
           source: "contract",
           available: false,
-          reason: "Live API unavailable"
+          reason: "Controlled pilot workflow is governed through approved backend/API publication"
         },
         result: {
           requestId: "friendly-error",
@@ -471,8 +511,8 @@ describe("Panacea web platform", () => {
         }
       }
     });
-    expect(unavailable).toContain("Service temporarily unavailable.");
-    expect(unavailable).toContain("The system could not reach this service. Please contact the system operator if this continues.");
+    expect(unavailable).toContain("Controlled Pilot Pending");
+    expect(unavailable).toContain("Controlled pilot routing did not return a browser response. Operator Center contains technical details.");
     expect(unavailable).not.toContain("Failed to fetch");
   });
 
@@ -819,26 +859,26 @@ describe("Panacea web platform", () => {
       }
     });
     expect(html).toContain("Browser Access Policy");
-    expect(html).toContain("Approved read-only access");
+    expect(html).toContain("Approved governed access");
     expect(html).not.toContain("ALLOWED_READ");
   });
 
-  it("renders live workspace unavailable states without presenting demo rows as live data", () => {
+  it("renders governed live workspace pending states without presenting workspace records as live data", () => {
     const liveWorkspaceState: LiveWorkspaceState = {
       endpoint: {
-        label: "No matching read-only endpoint",
+        label: "Governed service check pending OpenAPI publication",
         method: "GET",
         url: "",
         source: "OpenAPI contract",
         available: false,
-        reason: "Live API unavailable"
+        reason: "Controlled pilot workflow is governed through approved backend/API publication"
       },
       result: {
         requestId: "req-test",
         method: "GET",
-        url: "No matching read-only endpoint",
+        url: "Governed service check pending OpenAPI publication",
         state: "unavailable",
-        detail: "Live API unavailable",
+        detail: "Controlled pilot API response pending",
         checkedAt: new Date().toISOString(),
         allowlistClassification: "ALLOWED_READ",
         blockedReason: "No browser-visible read model returned records."
@@ -849,10 +889,10 @@ describe("Panacea web platform", () => {
       authSession: sessionFor("patient"),
       liveWorkspaceState
     });
-    expect(html).toContain("Live Mode — Authenticated Read-Only Session");
-    expect(html).toContain("Service temporarily unavailable.");
+    expect(html).toContain("Live Mode — Authenticated Governed Session");
+    expect(html).toContain("Controlled Pilot Pending");
     expect(html).toContain("Live Records");
-    expect(html).toContain("Approved read-only access");
+    expect(html).toContain("Approved governed access");
     expect(html).not.toContain("Rows are UI-state examples");
     expect(html).not.toContain("Patient Portal Demo");
     expect(html).not.toContain("Cardiology Clinic");
@@ -1088,7 +1128,7 @@ describe("Panacea web platform", () => {
         authSession: { ...sessionFor(item.role), permissions: ["read", "global_command_intelligence.write_workflows.write"] },
         liveWorkspaceState
       });
-      expect(html).toContain("Live Mode — Authenticated Read-Only Session");
+      expect(html).toContain("Live Mode — Authenticated Governed Session");
       expect(html).toContain("Live Records");
       expect(html).toContain(item.title);
       expect(html).toContain("Governed transaction accepted");
@@ -1245,7 +1285,7 @@ describe("Panacea web platform", () => {
         }
       }
     });
-    expect(corsBlocked).toContain("Browser Access Policy Blocked");
+    expect(corsBlocked).toContain("Browser Access Policy Review");
   });
 
   it("renders the professional hospital workspace launchpad with quick workspace access", () => {

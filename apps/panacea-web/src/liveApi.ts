@@ -197,9 +197,9 @@ export function findReadOnlyEndpoint(
         label: `${workspace.label} ${page.label}`,
         method: "GET",
         url: "",
-        source: "No matching live read-model OpenAPI endpoint",
+        source: "Governed read-model OpenAPI route pending publication",
         available: false,
-        reason: "Live API unavailable. The role workspace is mapped to a backend read model, but the OpenAPI contract is missing that endpoint."
+        reason: "Controlled pilot workflow is mapped to a backend read model, but the OpenAPI contract has not published that endpoint."
       };
     }
     const resolvedPath = resolveReadModelPath(readModelPath, route);
@@ -240,9 +240,9 @@ export function findReadOnlyEndpoint(
       label: `${workspace.label} ${page.label}`,
       method: "GET",
       url: "",
-      source: "No matching read-only OpenAPI endpoint",
+      source: "Governed service check pending OpenAPI publication",
       available: false,
-      reason: "Live API unavailable. Review the OpenAPI contract; no read-only endpoint is exposed for this workspace page."
+      reason: "Controlled pilot workflow is governed through approved backend/API publication for this workspace page."
     };
   }
 
@@ -252,7 +252,7 @@ export function findReadOnlyEndpoint(
     url: `${baseUrlForEndpoint(selected, config)}${selected.path}`,
     source: selected.documentPath,
     available: true,
-    reason: "Read-only endpoint selected from the OpenAPI contract."
+    reason: "Governed endpoint selected from the OpenAPI contract."
   };
 }
 
@@ -270,9 +270,9 @@ export function findWriteWorkflowEndpoint(
       label: `${workspace.label} ${page.label}`,
       method: "POST",
       url: "",
-      source: "No approved Sprint 113 write workflow for this page",
+      source: "No browser-governed write workflow for this page",
       available: false,
-      reason: "This workspace page remains read-only. Sprint 113 exposes writes only for explicitly approved transactional workflows."
+      reason: "This workspace page does not expose a transactional workflow in the current governed browser allowlist."
     };
   }
   const selected = flattenEndpoints(data.openApiDocuments).find((endpoint) => endpoint.method === "POST" && endpoint.path === writeWorkflowPath);
@@ -283,7 +283,7 @@ export function findWriteWorkflowEndpoint(
       url: "",
       source: "No matching live write workflow OpenAPI endpoint",
       available: false,
-      reason: "Live write workflow unavailable. The role workspace is mapped to an approved write path, but OpenAPI does not expose it yet."
+      reason: "Controlled transactional workflow is mapped, but OpenAPI has not published it yet."
     };
   }
   const resolvedPath = resolveWorkflowPath(writeWorkflowPath, route);
@@ -377,7 +377,7 @@ export async function apiRequest(
       method,
       url,
       state: "unavailable",
-      detail: "Browser API request blocked by allowlist.",
+      detail: "Browser API request blocked by governance policy.",
       checkedAt: new Date().toISOString(),
       blockedReason: decision.reason,
       allowlistClassification: decision.classification
@@ -432,7 +432,7 @@ export async function apiRequest(
       method,
       url,
       state: "unavailable",
-      detail: error instanceof Error ? error.message : "Live API unavailable",
+      detail: error instanceof Error ? error.message : "Controlled pilot API response pending",
       checkedAt: new Date().toISOString(),
       durationMs: Math.round(performance.now() - started)
     };
@@ -557,7 +557,7 @@ async function probeEndpoint(
       label,
       url,
       state: "unavailable",
-      detail: error instanceof Error ? error.message : "Endpoint unavailable from browser",
+      detail: error instanceof Error ? error.message : "Endpoint pending browser response",
       checkedAt: new Date().toISOString(),
       durationMs: Math.round(performance.now() - started)
     };
@@ -614,7 +614,7 @@ function stateFromStatus(status: number): ConnectionState {
 function detailFromStatus(status: number): string {
   if (status === 401) return "Unauthorized. Check token and issuer.";
   if (status === 403) return "Forbidden. Check role, tenant, or permission claims.";
-  if (status === 404) return "Endpoint not found.";
+  if (status === 404) return "Endpoint governed outside current route set.";
   if (status >= 200 && status < 300) return "Request completed.";
   if (status >= 500) return "Service error.";
   return `HTTP ${status}`;

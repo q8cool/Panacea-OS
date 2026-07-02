@@ -521,7 +521,7 @@ function renderLiveStatusPage(data: AppData, state: RenderState): string {
   const session = state.authSession;
   return `
     <div class="page-grid">
-      ${renderPageHeader("Live API Status", "Browser-visible Foundation and service endpoint polling for authenticated read-only mode.", status?.checkedAt ? "POLLED" : "NOT POLLED", "Activity")}
+      ${renderPageHeader("Live API Status", "Browser-visible Foundation and service endpoint polling for authenticated governed mode.", status?.checkedAt ? "POLLED" : "NOT POLLED", "Activity")}
       <section class="metric-grid">
         ${metric("Foundation endpoints", `${foundationOnline}/${status?.foundation.length ?? 4}`, "Health, readiness, metrics, JWKS", "ShieldCheck", foundationOnline > 0 ? "success" : "warn")}
         ${metric("Service endpoints", `${serviceOnline}/${status?.services.length ?? data.services.length * 3}`, "Health, readiness, OpenAPI", "Server", serviceOnline > 0 ? "success" : "warn")}
@@ -601,7 +601,7 @@ function renderTransactionReviewPage(state: RenderState): string {
         <div class="section-title">
           <div>
             <h2>${escapeHtml(l("Transaction Projection Review"))}</h2>
-            <p>${escapeHtml(l("Review is read-only except for safe retry of failed projections. Retry upserts read models and never re-executes clinical decisions."))}</p>
+            <p>${escapeHtml(l("Review permits only safe retry of failed projections. Retry upserts read models and never re-executes clinical decisions."))}</p>
           </div>
           <button class="button primary" id="refresh-transaction-review"><i data-lucide="RefreshCw"></i> ${escapeHtml(l("Refresh Transactions"))}</button>
         </div>
@@ -1346,7 +1346,7 @@ function professionalAvailabilityDetail(status: string, detail: string): string 
 
 function professionalAllowlistLabel(label: BrowserApiClassification): string {
   const labels: Record<BrowserApiClassification, string> = {
-    ALLOWED_READ: "Approved read-only access",
+    ALLOWED_READ: "Approved governed access",
     ALLOWED_LIVE_WRITE: "Approved live workflow access",
     ALLOWED_OPERATOR_TEST: "Operator test access",
     ALLOWED_OPERATOR_ACTION: "Operator action access",

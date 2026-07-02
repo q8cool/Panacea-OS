@@ -10,7 +10,7 @@ export const allowedReadFixture: BrowserApiAllowlistEntry = {
   summary: "Liveness probe",
   classification: "ALLOWED_READ",
   workspaceScopes: ["operator"],
-  reason: "Read-only fixture based on existing OpenAPI liveness endpoint shape."
+  reason: "Governed fixture based on existing OpenAPI liveness endpoint shape."
 };
 
 export const operatorAuditFixture: BrowserApiAllowlistEntry = {

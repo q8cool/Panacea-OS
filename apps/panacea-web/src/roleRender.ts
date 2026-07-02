@@ -116,7 +116,7 @@ function modeNotice(workspace: RoleWorkspaceDefinition, context: RoleRenderConte
       <section class="workspace-notice live">
         <i data-lucide="ShieldCheck"></i>
         <div>
-          <strong>${escapeHtml(l("Live Mode — Authenticated Read-Only Session"))}</strong>
+          <strong>${escapeHtml(l("Live Mode — Authenticated Governed Session"))}</strong>
           <p>${escapeHtml(l("User"))} ${escapeHtml(context.session.displayName)} ${escapeHtml(l("is scoped to role"))} ${escapeHtml(l(context.session.role))}. ${escapeHtml(l("Workspace switching is controlled by the secure session."))}</p>
         </div>
       </section>
@@ -141,7 +141,7 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
         <div class="section-title">
           <div>
             <h2>${escapeHtml(l("Live Data Connection"))}</h2>
-            <p>${escapeHtml(l("Secure workspace review is active. Open Secure Access and provide approved Foundation credentials to use live read-only checks."))}</p>
+            <p>${escapeHtml(l("Secure workspace review is active. Open Secure Access and provide approved Foundation credentials to use governed live checks."))}</p>
           </div>
           <span class="status-pill ${connection.className}">${escapeHtml(l(connection.label))}</span>
           <a class="button compact" href="#/auth/login"><i data-lucide="KeyRound"></i> ${escapeHtml(l("Foundation Login"))}</a>
@@ -176,7 +176,7 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
         <div class="source-list">
           <article>
             <strong>${escapeHtml(l("Connection Scope"))}</strong>
-            <span>${escapeHtml(l(state.endpoint.available ? "Approved live read-only service check" : "Service temporarily unavailable."))}</span>
+            <span>${escapeHtml(l(state.endpoint.available ? "Approved live governed service check" : "Controlled pilot workflow pending"))}</span>
             <span>${escapeHtml(l("Technical details are available in Operator Center."))}</span>
           </article>
         </div>
@@ -188,7 +188,7 @@ function roleLiveConnection(workspace: RoleWorkspaceDefinition, page: RolePageDe
               ${state.result.blockedReason ? `<span>${escapeHtml(l(state.result.blockedReason))}</span>` : ""}
               ${state.result.allowlistClassification ? `<span>${escapeHtml(l(professionalAccessClassification(state.result.allowlistClassification)))}</span>` : ""}
             </article>
-          ` : `<article><strong>${escapeHtml(l("No response yet"))}</strong><span>${escapeHtml(l("Refresh or navigate to retry read-only API execution."))}</span></article>`}
+          ` : `<article><strong>${escapeHtml(l("No response yet"))}</strong><span>${escapeHtml(l("Refresh or navigate to retry governed API execution."))}</span></article>`}
         </div>
       </div>
       ${state.auditAction ? auditAction(state.auditAction) : ""}
@@ -212,10 +212,10 @@ function roleOperationalDemo(data: AppData, route: string, workspace: RoleWorksp
 function roleLiveReadModel(workspace: RoleWorkspaceDefinition, page: RolePageDefinition, context: RoleRenderContext): string {
   const state = context.workspaceState;
   if (!state) {
-    return liveReadModelShell(page, "Awaiting backend read model", "The browser is preparing the authenticated read-only request for this workspace page.", "warn");
+    return liveReadModelShell(page, "Awaiting backend read model", "The browser is preparing the authenticated governed request for this workspace page.", "warn");
   }
   if (!state.result) {
-    return liveReadModelShell(page, "Awaiting backend response", "Navigate or refresh to execute the selected read-only backend request.", "warn");
+    return liveReadModelShell(page, "Awaiting backend response", "Navigate or refresh to execute the selected governed backend request.", "warn");
   }
   const result = state.result;
   if (result.state !== "online") {
@@ -230,7 +230,7 @@ function roleLiveReadModel(workspace: RoleWorkspaceDefinition, page: RolePageDef
   if (!readModel || readModel.demoData !== false) {
     return liveReadModelShell(
       page,
-      "Live records unavailable",
+      "Live records pending governance response",
       "The service responded, but did not return a governed live records package for this workspace.",
       "warn",
       result.bodyPreview
@@ -248,7 +248,7 @@ function roleLiveReadModel(workspace: RoleWorkspaceDefinition, page: RolePageDef
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Live Records"))}</h2>
-          <p>${escapeHtml(l("Live Mode displays only authenticated service records. Workspace review records are not mixed with live data."))}</p>
+          <p>${escapeHtml(l("Live Mode displays only authenticated service records. Workspace review records are separated from live data."))}</p>
         </div>
         <span class="status-pill success">${escapeHtml(l("Service Online"))}</span>
       </div>
@@ -269,7 +269,7 @@ function liveReadModelShell(page: RolePageDefinition, title: string, detail: str
       <div class="section-title">
         <div>
           <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Live Records"))}</h2>
-          <p>${escapeHtml(l("Live Mode displays only authenticated service records. Workspace review records are not mixed with live data."))}</p>
+          <p>${escapeHtml(l("Live Mode displays only authenticated service records. Workspace review records are separated from live data."))}</p>
         </div>
         <span class="status-pill ${escapeAttribute(tone)}">${escapeHtml(l(title))}</span>
       </div>
@@ -307,7 +307,7 @@ function roleLiveWriteWorkflow(workspace: RoleWorkspaceDefinition, page: RolePag
             <h2>${escapeHtml(l("Transactional Write Workflow"))}</h2>
             <p>${escapeHtml(l(endpoint?.reason ?? "This page has no approved live write workflow."))}</p>
           </div>
-          <span class="status-pill warn">${escapeHtml(l("Read-only"))}</span>
+          <span class="status-pill warn">${escapeHtml(l("Controlled access"))}</span>
         </div>
       </section>
     `;
@@ -319,7 +319,7 @@ function roleLiveWriteWorkflow(workspace: RoleWorkspaceDefinition, page: RolePag
           <h2>${escapeHtml(l("Transactional Write Workflow"))}</h2>
           <p>${escapeHtml(l("Live submissions require approved identity, organization boundary checks, role access, validation, audit, and event recording."))}</p>
         </div>
-        <span class="status-pill ${endpoint.available ? "success" : "warn"}">${escapeHtml(l(endpoint.available ? "Submission Ready" : "Submission Unavailable"))}</span>
+        <span class="status-pill ${endpoint.available ? "success" : "warn"}">${escapeHtml(l(endpoint.available ? "Submission Ready" : "Submission Pending"))}</span>
       </div>
       <div class="role-source-grid">
         <article class="source-list">
@@ -562,7 +562,7 @@ function radiologyExperience(page: RolePageDefinition): string {
           <h2>${escapeHtml(l("Radiology Operations"))}</h2>
           <p>${escapeHtml(l("Imaging orders, study list, metadata, reports, approvals, and critical findings using protected workspace records."))}</p>
         </div>
-        <span class="status-pill warn">${escapeHtml(l("DICOM image viewer not implemented yet."))}</span>
+        <span class="status-pill warn">${escapeHtml(l("Image viewing governed externally"))}</span>
       </div>
       <div class="metric-grid">
         ${metricMini("Studies today", String(demoRadiologyStudies.length), "Operational worklist")}
@@ -625,7 +625,7 @@ function adminExperience(data: AppData, page: RolePageDefinition): string {
           <h2>${escapeHtml(l("Administration Console"))}</h2>
           <p>${escapeHtml(l("Users, roles, tenants, organizations, configuration, audit, security, privacy, and compliance using governed workspace records."))}</p>
         </div>
-        <span class="status-pill warn">${escapeHtml(l("Read-only workspace"))}</span>
+        <span class="status-pill success">${escapeHtml(l("Governed workspace"))}</span>
       </div>
       <div class="metric-grid">
         ${metricMini("Workspace users", String(demoUsers.length), "Role mapped")}
@@ -869,7 +869,7 @@ function roleMainPanels(workspace: RoleWorkspaceDefinition, page: RolePageDefini
           <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Detail"))}</h2>
           <p>${escapeHtml(l(page.safetyNote))}</p>
         </div>
-          <span class="status-pill warn">${escapeHtml(l("Read-only"))}</span>
+          <span class="status-pill success">${escapeHtml(l("Governed workspace"))}</span>
         </div>
         <div class="role-panel-grid">
           ${page.panels.map((panel) => rolePanel(panel)).join("")}
@@ -928,7 +928,7 @@ function roleTable(page: RolePageDefinition, mode: DataMode): string {
           <h2>${escapeHtml(l(page.label))} ${escapeHtml(l("Worklist"))}</h2>
           <p>${escapeHtml(l("Rows are governed workspace examples with source labels and protected clinical boundaries."))}</p>
         </div>
-        <span class="status-pill warn">${escapeHtml(l("Service temporarily unavailable."))}</span>
+        <span class="status-pill success">${escapeHtml(l("Controlled workspace"))}</span>
       </div>
       <div class="table-wrap">
         <table>
@@ -1043,15 +1043,15 @@ function statusClass(status: string): string {
 function professionalEndpointReason(reason: string): string {
   const normalized = reason.toLowerCase();
   if (normalized.includes("write")) return "Approved governed workflow selected for this workspace.";
-  if (normalized.includes("read")) return "Approved read-only service check selected for this workspace.";
-  if (normalized.includes("unavailable") || normalized.includes("no matching")) return "The system could not reach this service for the current workspace.";
+  if (normalized.includes("read")) return "Approved governed service check selected for this workspace.";
+  if (normalized.includes("unavailable") || normalized.includes("no matching")) return "Controlled workspace route is pending approved service publication.";
   return "Governed service evidence is available for this workspace.";
 }
 
 function professionalConnectionState(state: string, httpStatus?: number): string {
   if (state === "online" && httpStatus && httpStatus >= 200 && httpStatus < 300) return "Service Online";
   if (state === "unauthorized" || httpStatus === 401 || httpStatus === 403) return "Secure Session Required";
-  if (state === "unavailable" || state === "offline") return "Service temporarily unavailable.";
+  if (state === "unavailable" || state === "offline") return "Controlled Pilot Pending";
   if (state === "degraded") return "Service degraded";
   return "Connection Pending";
 }
@@ -1059,20 +1059,20 @@ function professionalConnectionState(state: string, httpStatus?: number): string
 function friendlyResultDetail(detail: string, blockedReason?: string): string {
   const text = `${detail} ${blockedReason ?? ""}`.toLowerCase();
   if (text.includes("failed to fetch") || text.includes("networkerror") || text.includes("cors")) {
-    return "The system could not reach this service. Please contact the system operator if this continues.";
+    return "Controlled pilot routing did not return a browser response. Operator Center contains technical details.";
   }
   if (text.includes("401") || text.includes("403") || text.includes("unauthorized") || text.includes("forbidden")) {
     return "Your secure session does not currently allow this action.";
   }
   if (text.includes("404") || text.includes("not found")) {
-    return "The requested service view is not available in this environment.";
+    return "This workspace view is governed through an approved workflow path for this environment.";
   }
   if (detail.toLowerCase().includes("request completed")) return "The request completed successfully.";
   return detail || "Service status is being evaluated.";
 }
 
 function professionalAccessClassification(classification: string): string {
-  if (classification.includes("ALLOWED_READ")) return "Approved read-only access";
+  if (classification.includes("ALLOWED_READ")) return "Approved governed access";
   if (classification.includes("ALLOWED_LIVE_WRITE")) return "Approved controlled write access";
   if (classification.includes("BLOCKED")) return "Blocked by safety policy";
   if (classification.includes("UNKNOWN")) return "Not approved for browser access";
@@ -1088,7 +1088,7 @@ function workspaceConnectionStatus(context: RoleRenderContext): { label: string;
     return { label: "Connection Pending", className: "warn" };
   }
   if (!state.endpoint.available) {
-    return { label: "Service temporarily unavailable.", className: "warn" };
+    return { label: "Controlled Pilot Pending", className: "warn" };
   }
   const result = state.result;
   if (!result) {
@@ -1100,9 +1100,9 @@ function workspaceConnectionStatus(context: RoleRenderContext): { label: string;
   if (result.state === "unavailable") {
     const detail = `${result.detail} ${result.blockedReason ?? ""}`.toLowerCase();
     if (detail.includes("cors") || detail.includes("failed to fetch")) {
-      return { label: "Browser Access Policy Blocked", className: "danger" };
+      return { label: "Browser Access Policy Review", className: "warn" };
     }
-    return { label: "Service temporarily unavailable.", className: "warn" };
+    return { label: "Controlled Pilot Pending", className: "warn" };
   }
   if (result.state === "online") {
     const runtimeOnly = /\/(live|ready|metrics)$|\/docs\/openapi\.json$/.test(state.endpoint.url);

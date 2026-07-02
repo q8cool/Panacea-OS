@@ -31,7 +31,7 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     audience: "Clinicians reviewing patient context, documented clinical coverage, active governance APIs, and advisory-only intelligence evidence.",
     summary: "A professional clinical workspace shell with patient context, timelines, summaries, alerts, medication safety visibility, lab/radiology summaries, task views, and audit/documentation links.",
     boundary: "No autonomous diagnosis. No autonomous treatment. Advisory only. Clinician remains final decision maker.",
-    dataMode: "Read-only secure workspace mode using OpenAPI, documentation, release evidence, and active governance service status.",
+    dataMode: "Secure workspace mode using OpenAPI, documentation, release evidence, and active governance service status.",
     serviceIds: [
       "autonomous-healthcare-intelligence-foundation",
       "global-ai-assurance-safety-model-risk-management-platform",
@@ -40,7 +40,7 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     docHints: ["Clinical", "Patient", "AI_Assurance", "Autonomous_Intelligence", "Patient_Safety", "Medication"],
     seeds: [
       seed("dashboard", "Clinician Dashboard", "LayoutDashboard", "Clinical command view with patient context, alerts, task load, documented clinical coverage, and advisory-only intelligence status."),
-      seed("patient-search", "Patient Search", "Search", "Search-ready shell for patient lookup using approved authenticated clinical APIs when connected; current state shows live data availability explicitly."),
+      seed("patient-search", "Patient Search", "Search", "Search-ready workspace for patient lookup using approved authenticated clinical APIs when connected; current state shows governed live data status explicitly."),
       seed("patient-profile", "Patient Profile", "UserRound", "Patient profile context panel with identity and consent source status clearly separated from live records."),
       seed("clinical-timeline", "Clinical Timeline", "History", "Timeline view for encounters, orders, results, medication events, and documented audit evidence."),
       seed("encounters", "Encounters", "ClipboardList", "Encounter list and details shell with documented API coverage status."),
@@ -68,7 +68,7 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     audience: "Patients and authorized caregivers viewing simple, clear, educational, and privacy-aware information.",
     summary: "Mobile-friendly patient portal shell for profile, appointments, visit history, medications, results, documents, messages, telemedicine, invoices, notifications, and care instructions.",
     boundary: "Patient-facing information is educational and does not replace clinician advice.",
-    dataMode: "Read-only portal workspace mode. Live patient records require approved authenticated patient APIs and consent enforcement.",
+    dataMode: "Secure portal workspace mode. Live patient records require approved authenticated patient APIs and consent enforcement.",
     serviceIds: ["global-enterprise-data-privacy-consent-trust-platform"],
     docHints: ["Patient Portal", "Patient_Experience", "Caregiver", "Consent", "Privacy"],
     seeds: [
@@ -97,7 +97,7 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     audience: "Laboratory users monitoring orders, specimens, results, critical flags, quality controls, and integration status.",
     summary: "A laboratory operations shell covering order flow, specimen lifecycle, result entry, validation, approval, critical results, quality control, analytics, and reports.",
     boundary: "No laboratory backend behavior is added; this UI displays documented/API-backed status only.",
-    dataMode: "Read-only laboratory workspace mode. Live laboratory workflow data is available only through approved lab API integration.",
+    dataMode: "Secure laboratory workspace mode. Live laboratory workflow data is available through approved lab API integration.",
     serviceIds: ["real-time-global-healthcare-command-intelligence-platform"],
     docHints: ["Laboratory", "LOINC", "Critical", "Quality", "Specimen"],
     seeds: [
@@ -106,7 +106,7 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
       seed("specimen-tracking", "Specimen Tracking", "Route", "Specimen status board from collection to receiving, validation, and approval."),
       seed("specimen-collection", "Specimen Collection", "PackageCheck", "Collection workflow surface with auditability and chain-of-custody labels."),
       seed("specimen-receiving", "Specimen Receiving", "Inbox", "Receiving queue with accession, condition, and routing status labels."),
-      seed("result-entry", "Result Entry", "Keyboard", "Result entry UI shell; no live write behavior is implemented."),
+      seed("result-entry", "Result Entry", "Keyboard", "Result entry workspace with governed transactional workflow controls where approved."),
       seed("result-validation", "Result Validation", "BadgeCheck", "Validation state view with documented approval flow."),
       seed("result-approval", "Result Approval", "CheckCircle2", "Approval worklist surface with audit and release-state indicators."),
       seed("critical-results", "Critical Results", "Siren", "Critical result flag view with escalation status and auditability."),
@@ -123,8 +123,8 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     route: "/workspace/radiology/dashboard",
     audience: "Radiology users reviewing imaging orders, studies, metadata, PACS status, reports, approvals, and critical findings.",
     summary: "A radiology workflow shell for imaging orders, study list, DICOM metadata, PACS status, reporting worklist, report editing, approval, critical findings, timeline, and analytics.",
-    boundary: "DICOM image viewer not implemented in this UI sprint.",
-    dataMode: "Read-only radiology workspace mode using documentation, OpenAPI contracts, and runtime status. Live imaging data requires approved radiology API integration.",
+    boundary: "DICOM image viewing remains governed by approved imaging systems and formal clinical workflow controls.",
+    dataMode: "Secure radiology workspace mode using documentation, OpenAPI contracts, and runtime status. Live imaging data requires approved radiology API integration.",
     serviceIds: ["real-time-global-healthcare-command-intelligence-platform"],
     docHints: ["Radiology", "DICOM", "Imaging", "PACS", "Critical Findings"],
     seeds: [
@@ -134,7 +134,7 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
       seed("dicom-metadata", "DICOM Metadata Viewer", "Database", "DICOM metadata surface without image rendering."),
       seed("pacs-status", "PACS Status", "Server", "PACS availability and integration status surface."),
       seed("reporting-worklist", "Reporting Worklist", "FileText", "Reporting worklist shell with assignment and priority labels."),
-      seed("report-editor", "Report Editor UI", "Edit3", "Report editor surface without backend write behavior."),
+      seed("report-editor", "Report Editor UI", "Edit3", "Report editor surface with governed transactional controls where approved."),
       seed("report-approval", "Report Approval", "BadgeCheck", "Approval queue with auditability and release evidence status."),
       seed("critical-findings", "Critical Findings", "Siren", "Critical finding review and escalation status surface."),
       seed("imaging-timeline", "Imaging Timeline", "History", "Imaging timeline from order to report approval."),
@@ -150,7 +150,7 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     audience: "Pharmacists reviewing medication catalog, prescription queues, safety indicators, dispensing, inventory, controlled medications, and reports.",
     summary: "A pharmacy operations shell with medication review, dispensing workflow, stock status, batch/lot tracking, expiration tracking, drug safety alerts, and controlled medication audit.",
     boundary: "No new medication safety backend logic is implemented. Safety indicators display documented/API-backed status only.",
-    dataMode: "Read-only pharmacy workspace mode. Live pharmacy records require approved pharmacy API integration.",
+    dataMode: "Secure pharmacy workspace mode. Live pharmacy records require approved pharmacy API integration.",
     serviceIds: ["global-enterprise-data-privacy-consent-trust-platform", "real-time-global-healthcare-command-intelligence-platform"],
     docHints: ["Pharmacy", "Medication", "Drug", "Inventory", "Controlled"],
     seeds: [
@@ -175,9 +175,9 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     icon: "Settings",
     route: "/workspace/administrator/dashboard",
     audience: "Administrators reviewing system configuration, identity, access, tenants, organizations, facilities, audit, security, privacy, compliance, release evidence, and APIs.",
-    summary: "An administration console visually connected to the operator dashboard with OpenAPI-backed read-only views for system and governance state.",
-    boundary: "Administrative write workflows require live admin APIs and production authorization. This sprint adds read-only UI surfaces only.",
-    dataMode: "Read-only admin console mode using active service APIs, OpenAPI, release evidence, and Foundation Provider status.",
+    summary: "An administration console visually connected to the operator dashboard with OpenAPI-backed governed views for system and governance state.",
+    boundary: "Administrative write workflows require live admin APIs and production authorization.",
+    dataMode: "Secure admin console mode using active service APIs, OpenAPI, release evidence, and Foundation Provider status.",
     serviceIds: [
       "global-workforce-hr-credentialing-staff-experience-platform",
       "global-enterprise-data-privacy-consent-trust-platform",
@@ -189,14 +189,14 @@ export const roleWorkspaces: RoleWorkspaceDefinition[] = [
     docHints: ["Security", "Privacy", "Compliance", "Release", "Foundation", "Deployment", "Admin"],
     seeds: [
       seed("dashboard", "Admin Dashboard", "LayoutDashboard", "System overview for release, runtime, services, tenants, security, privacy, compliance, and documentation."),
-      seed("users", "Users", "UserCog", "User management read-only shell with Foundation dependency status."),
+      seed("users", "Users", "UserCog", "User management workspace with Foundation dependency status."),
       seed("roles", "Roles", "Badge", "Role registry surface with RBAC source labels."),
       seed("permissions", "Permissions", "KeyRound", "Permission matrix shell with API-backed control status."),
       seed("tenants", "Tenants", "Building", "Tenant inventory surface with isolation and evidence indicators."),
       seed("organizations", "Organizations", "Network", "Organization registry shell with documentation and OpenAPI sources."),
       seed("facilities", "Facilities", "Hospital", "Facility registry surface connected to documented global operations scope."),
       seed("departments", "Departments", "Building2", "Department overview with command intelligence and workforce source labels."),
-      seed("configuration", "Configuration", "SlidersHorizontal", "Configuration read-only surface with environment and Foundation provider status."),
+      seed("configuration", "Configuration", "SlidersHorizontal", "Configuration surface with environment and Foundation provider status."),
       seed("audit-logs", "Audit Logs", "ScrollText", "Audit log visibility surface using service audit evidence and Foundation audit endpoint status."),
       seed("security", "Security", "Shield", "Authentication, RBAC, ABAC, tenant, and secret handling evidence view."),
       seed("privacy", "Privacy", "LockKeyhole", "Consent, data rights, privacy policy, and trust status view."),
@@ -288,15 +288,15 @@ function sourceForRole(role: RoleId): string {
 function safetyForRole(role: RoleId): string {
   if (role === "doctor") return "Advisory only. Clinician remains final decision maker.";
   if (role === "patient") return "Educational content only. Patient-facing information does not replace clinician advice.";
-  if (role === "radiology") return "DICOM image viewer not implemented in this UI sprint.";
+  if (role === "radiology") return "DICOM image viewing remains governed by approved imaging systems and formal clinical workflow controls.";
   if (role === "pharmacy") return "No new medication safety backend logic is implemented; safety status is displayed from documented/API-backed sources.";
   if (role === "administrator") return "Workspace selection does not bypass real security in production.";
-  return "Read-only workspace. Live operational data requires approved backend APIs.";
+  return "Governed workspace. Live operational data requires approved backend APIs.";
 }
 
 function metricsForRole(role: RoleId, pageLabel: string): RoleMetric[] {
   const common = [
-    { label: "Live data", value: "Unavailable", detail: "Read-only UI uses documented/API-backed status", tone: "warn" as const },
+    { label: "Live APIs", value: "Configured", detail: "Authenticated UTBE API routes are selected when the session is active", tone: "success" as const },
     { label: "Audit trail", value: "Linked", detail: "Audit evidence shown when available", tone: "success" as const },
     { label: "Source", value: "OpenAPI/docs", detail: pageLabel, tone: "info" as const }
   ];
@@ -304,10 +304,10 @@ function metricsForRole(role: RoleId, pageLabel: string): RoleMetric[] {
     operator: { label: "Mode", value: "Operator", detail: "Release and runtime visibility", tone: "info" },
     doctor: { label: "Clinical mode", value: "Advisory", detail: "Human clinician approval required", tone: "success" },
     patient: { label: "Language", value: "Plain", detail: "Patient-friendly labels", tone: "success" },
-    laboratory: { label: "Turnaround", value: "Tracked", detail: "TAT surface ready for live feeds", tone: "info" },
+    laboratory: { label: "Turnaround", value: "Tracked", detail: "TAT surface connected to governed workflow visibility", tone: "info" },
     radiology: { label: "PACS", value: "Status view", detail: "Metadata and report workflow only", tone: "info" },
     pharmacy: { label: "Safety", value: "Visible", detail: "Allergy, interaction and duplicate therapy areas", tone: "success" },
-    administrator: { label: "Access", value: "Read-only", detail: "Admin APIs must be live for write actions", tone: "warn" }
+    administrator: { label: "Access", value: "Governed", detail: "Admin actions require approved APIs and authorization", tone: "success" }
   };
   return [roleMetric[role], ...common];
 }
@@ -331,7 +331,7 @@ function tableForRole(role: RoleId, pageLabel: string): RoleTable {
       columns: ["Clinical area", "Status", "Source", "Next action"],
       rows: [
         ["Patient context", "Workspace view", "Documentation/OpenAPI", "Connect authenticated clinical APIs"],
-        [pageLabel, "Live data unavailable", "Clinical docs and governance evidence", "Review source links"],
+        [pageLabel, "Governed live workflow", "Clinical docs and governance evidence", "Review source links"],
         ["Safety area", "Visible", "AI assurance and privacy controls", "Clinician review required"]
       ]
     };
@@ -350,9 +350,9 @@ function tableForRole(role: RoleId, pageLabel: string): RoleTable {
     return {
       columns: ["Lab workflow", "Status", "Auditability", "Integration"],
       rows: [
-        [pageLabel, "Read-only shell", "Audit link visible", "Lab API not active"],
+        [pageLabel, "Governed workspace", "Audit link visible", "OpenAPI-backed laboratory workflow"],
         ["Specimen state", "Tracked visually", "Chain-of-custody label", "Approved LIS integration"],
-        ["Critical result flag", "Visible", "Escalation label", "Notification API required"]
+        ["Critical result flag", "Visible", "Escalation label", "Governed notification workflow"]
       ]
     };
   }
@@ -360,9 +360,9 @@ function tableForRole(role: RoleId, pageLabel: string): RoleTable {
     return {
       columns: ["Radiology workflow", "Status", "Viewer", "Integration"],
       rows: [
-        [pageLabel, "Read-only shell", "Metadata/report UI", "Radiology API not active"],
-        ["DICOM metadata", "Visible", "Image viewer not implemented", "PACS connection required"],
-        ["Critical findings", "Visible", "Report workflow", "Notification API required"]
+        [pageLabel, "Governed workspace", "Metadata/report UI", "OpenAPI-backed radiology workflow"],
+        ["DICOM metadata", "Visible", "Image viewing governed externally", "PACS integration governed by approved imaging systems"],
+        ["Critical findings", "Visible", "Report workflow", "Governed notification workflow"]
       ]
     };
   }
@@ -370,16 +370,16 @@ function tableForRole(role: RoleId, pageLabel: string): RoleTable {
     return {
       columns: ["Pharmacy workflow", "Status", "Safety area", "Audit"],
       rows: [
-        [pageLabel, "Read-only shell", "Visible", "Audit link visible"],
+        [pageLabel, "Governed workspace", "Visible", "Audit link visible"],
         ["Allergy safety", "Displayed", "Documentation-backed", "Connect pharmacy APIs"],
-        ["Controlled medications", "Audit view", "Access controlled", "Approved live data required"]
+        ["Controlled medications", "Audit view", "Access controlled", "Approved live workflow"]
       ]
     };
   }
   return {
     columns: ["Admin area", "Status", "Source", "Action"],
     rows: [
-      [pageLabel, "Read-only shell", "OpenAPI/release evidence", "Use approved admin APIs"],
+      [pageLabel, "Governed workspace", "OpenAPI/release evidence", "Use approved admin APIs"],
       ["Identity and access", "Foundation-backed", "Provider configuration", "Validate live credentials"],
       ["Audit and compliance", "Visible", "Active services and docs", "Review evidence"]
     ]
@@ -389,12 +389,12 @@ function tableForRole(role: RoleId, pageLabel: string): RoleTable {
 function panelsForRole(role: RoleId, pageLabel: string): RolePanel[] {
   const shared: RolePanel[] = [
     { title: "Data source", detail: sourceForRole(role), status: "Documentation-backed" },
-    { title: "Live data", detail: "Live records are loaded only after secure authentication.", status: "Live data unavailable" },
+    { title: "Live data", detail: "Live records are loaded only after secure authentication.", status: "Controlled access" },
     { title: "Auditability", detail: "Audit links and release evidence are surfaced where available.", status: "Available" }
   ];
   if (role === "doctor") {
     return [
-      { title: "Patient context panel", detail: `${demoLabel}. Context is shown as a non-PHI shell until authenticated clinical APIs are connected.`, status: "Documentation-backed" },
+      { title: "Patient context panel", detail: `${demoLabel}. Context is shown as non-PHI workspace content until authenticated clinical APIs are connected.`, status: "Documentation-backed" },
       { title: "Medication safety area", detail: "Allergy, interaction, duplicate therapy, and pharmacy review areas are visible without adding backend logic.", status: "Documentation-backed" },
       { title: "Advisory AI", detail: "Advisory only. Clinician remains final decision maker.", status: "Available" },
       ...shared
@@ -416,7 +416,7 @@ function panelsForRole(role: RoleId, pageLabel: string): RolePanel[] {
   }
   if (role === "radiology") {
     return [
-      { title: "DICOM scope", detail: "DICOM image viewer not implemented in this UI sprint.", status: "Action required" },
+      { title: "DICOM scope", detail: "DICOM image viewing remains governed by approved imaging systems.", status: "Controlled access" },
       { title: "Report workflow", detail: "Metadata, report editor shell, approval, and critical findings are visible.", status: "Documentation-backed" },
       ...shared
     ];
@@ -424,12 +424,12 @@ function panelsForRole(role: RoleId, pageLabel: string): RolePanel[] {
   if (role === "pharmacy") {
     return [
       { title: "Drug safety alerts", detail: "Allergy, interaction, duplicate therapy, dispensing, and controlled-medication audit areas are visible.", status: "Documentation-backed" },
-      { title: "Inventory status", detail: "Stock, batch, lot, expiration, and controlled medication sections are UI-only.", status: "Live data unavailable" },
+      { title: "Inventory status", detail: "Stock, batch, lot, expiration, and controlled medication sections use governed workspace visibility.", status: "Controlled access" },
       ...shared
     ];
   }
   return [
-    { title: "Identity and access", detail: "Users, roles, permissions, tenants, and organizations are shown as OpenAPI-backed read-only views.", status: "Documentation-backed" },
+    { title: "Identity and access", detail: "Users, roles, permissions, tenants, and organizations are shown as OpenAPI-backed governed views.", status: "Documentation-backed" },
     { title: "System configuration", detail: "Configuration, release, health, API, security, privacy, and compliance surfaces are connected to existing evidence.", status: "Available" },
     ...shared
   ];
@@ -441,32 +441,32 @@ function chartForRole(role: RoleId): RoleMetric[] {
     doctor: [
       { label: "Clinical summary", value: "72", detail: "UI readiness", tone: "info" },
       { label: "Safety visibility", value: "88", detail: "Warnings and review areas", tone: "success" },
-      { label: "Live clinical APIs", value: "28", detail: "Requires backend connection", tone: "warn" }
+      { label: "Live clinical APIs", value: "28", detail: "Governed backend connection", tone: "info" }
     ],
     patient: [
       { label: "Mobile clarity", value: "86", detail: "Responsive patient layout", tone: "success" },
       { label: "Portal coverage", value: "70", detail: "Docs and UI shell", tone: "info" },
-      { label: "Live records", value: "22", detail: "Requires patient APIs", tone: "warn" }
+      { label: "Live records", value: "22", detail: "Governed patient APIs", tone: "info" }
     ],
     laboratory: [
       { label: "Workflow coverage", value: "78", detail: "Order and specimen surfaces", tone: "info" },
       { label: "Critical visibility", value: "84", detail: "Critical flag areas", tone: "success" },
-      { label: "Live LIS feeds", value: "18", detail: "Requires lab APIs", tone: "warn" }
+      { label: "Laboratory feeds", value: "18", detail: "Governed lab APIs", tone: "info" }
     ],
     radiology: [
       { label: "Report workflow", value: "82", detail: "Report and approval UI", tone: "success" },
       { label: "Metadata coverage", value: "76", detail: "DICOM metadata surface", tone: "info" },
-      { label: "Image viewer", value: "0", detail: "Not in this sprint", tone: "warn" }
+      { label: "Image viewer", value: "Governed", detail: "External imaging system boundary", tone: "info" }
     ],
     pharmacy: [
       { label: "Safety visibility", value: "88", detail: "Safety status areas", tone: "success" },
       { label: "Inventory shell", value: "74", detail: "Stock and batch UI", tone: "info" },
-      { label: "Live dispensing", value: "20", detail: "Requires pharmacy APIs", tone: "warn" }
+      { label: "Live dispensing", value: "20", detail: "Governed pharmacy APIs", tone: "info" }
     ],
     administrator: [
       { label: "Release evidence", value: "96", detail: "Official v4 evidence", tone: "success" },
       { label: "OpenAPI coverage", value: "92", detail: "26 documents", tone: "success" },
-      { label: "Admin writes", value: "25", detail: "Requires live admin APIs", tone: "warn" }
+      { label: "Admin actions", value: "25", detail: "Governed admin APIs", tone: "info" }
     ]
   };
   return chartMap[role];

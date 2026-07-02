@@ -166,11 +166,11 @@ function classifyEndpoint(endpoint: EndpointRecord, config: PanaceaWebConfig): B
   const workspaceScopes = workspaceScopesForEndpoint(endpoint);
 
   if (method === "GET" && READ_ONLY_RUNTIME_PATHS.some((suffix) => path.endsWith(suffix))) {
-    return entry(endpoint, url, "ALLOWED_READ", workspaceScopes, "Read-only runtime or OpenAPI endpoint generated from the existing OpenAPI contract.");
+    return entry(endpoint, url, "ALLOWED_READ", workspaceScopes, "Governed runtime or OpenAPI endpoint generated from the existing OpenAPI contract.");
   }
 
   if (method === "GET" && path.includes("/read-models/")) {
-    return entry(endpoint, url, "ALLOWED_READ", workspaceScopes, "Authenticated browser Live Mode may call versioned backend read-model endpoints only. Responses must be tenant scoped and read-only.");
+    return entry(endpoint, url, "ALLOWED_READ", workspaceScopes, "Authenticated browser Live Mode may call versioned backend read-model endpoints only. Responses must be tenant scoped and governed.");
   }
 
   if (method === "GET" && (path.endsWith("/write-workflows/events") || path.includes("/write-workflows/projections"))) {
@@ -194,14 +194,14 @@ function classifyEndpoint(endpoint: EndpointRecord, config: PanaceaWebConfig): B
   }
 
   if (method !== "GET") {
-    return entry(endpoint, url, "BLOCKED_WRITE", workspaceScopes, "Browser Live Mode is read-only by default; non-GET endpoints are blocked unless explicitly allowlisted.");
+    return entry(endpoint, url, "BLOCKED_WRITE", workspaceScopes, "Browser Live Mode permits governed actions only; non-GET endpoints are blocked unless explicitly allowlisted.");
   }
 
   if (text.includes("metrics")) {
     return entry(endpoint, url, "SERVER_ONLY", workspaceScopes, "Metrics may be browser-visible only when deployment policy confirms safe exposure.");
   }
 
-  return entry(endpoint, url, "UNKNOWN", workspaceScopes, "Endpoint did not match a browser-safe read-only allowlist rule.");
+  return entry(endpoint, url, "UNKNOWN", workspaceScopes, "Endpoint did not match a browser-safe governed allowlist rule.");
 }
 
 function entry(
