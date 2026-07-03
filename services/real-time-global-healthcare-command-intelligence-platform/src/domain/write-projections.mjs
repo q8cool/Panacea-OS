@@ -158,10 +158,11 @@ function projectionContext(record, event, processedAt) {
 function projectionTargets(context) {
   const { event } = context;
   if (event.eventType === "patient.created" || event.eventType === "patient.updated") {
+    const title = patientDisplayTitle(context);
     return [
-      target(context, "clinical", "patients", context.subjectId, context.title),
-      target(context, "clinical", "patient_profile", context.subjectId, context.title),
-      target(context, "clinical", "clinical_timeline", context.subjectId, `${context.title} timeline`)
+      target(context, "clinical", "patients", context.subjectId, title),
+      target(context, "clinical", "patient_profile", context.subjectId, title),
+      target(context, "clinical", "clinical_timeline", context.subjectId, `${title} timeline`)
     ];
   }
   if (patientEventModelKeys[event.eventType]) {
@@ -402,6 +403,7 @@ function target(context, workspace, modelKey, subjectId, title) {
     title: title || context.title,
     payload: {
       ...context.basePayload,
+      ...patientDisplayFields(context.record.payload),
       projectionTarget: `${workspace}.${modelKey}`,
       projectionStatus: "projected",
       readModelId: id
@@ -411,6 +413,46 @@ function target(context, workspace, modelKey, subjectId, title) {
     createdAt: context.processedAt,
     updatedAt: context.processedAt
   };
+}
+
+function patientDisplayTitle(context) {
+  return stringOrNull(
+    context.record.payload?.fullName ??
+    context.record.payload?.patientName ??
+    context.record.payload?.full_name ??
+    context.title
+  ) ?? context.title;
+}
+
+function patientDisplayFields(payload) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return {};
+  const fullName = stringOrNull(payload.fullName ?? payload.patientName ?? payload.full_name);
+  const medicalRecordNumber = stringOrNull(payload.medicalRecordNumber ?? payload.fileNumber ?? payload.file_number);
+  const bloodType = stringOrNull(payload.bloodType ?? payload.blood_type);
+  const dateOfBirth = stringOrNull(payload.dateOfBirth ?? payload.date_of_birth);
+  const gender = stringOrNull(payload.gender);
+  const phoneNumber = stringOrNull(payload.phoneNumber ?? payload.phone_number);
+  const nationalId = stringOrNull(payload.nationalId ?? payload.national_id);
+  const emergencyContact = stringOrNull(payload.emergencyContact ?? payload.emergency_contact);
+  return Object.fromEntries(Object.entries({
+    fullName,
+    patientName: fullName,
+    full_name: fullName,
+    medicalRecordNumber,
+    fileNumber: medicalRecordNumber,
+    file_number: medicalRecordNumber,
+    bloodType,
+    blood_type: bloodType,
+    dateOfBirth,
+    date_of_birth: dateOfBirth,
+    gender,
+    phoneNumber,
+    phone_number: phoneNumber,
+    nationalId,
+    national_id: nationalId,
+    emergencyContact,
+    emergency_contact: emergencyContact
+  }).filter(([, value]) => value));
 }
 
 function subjectFrom(record) {

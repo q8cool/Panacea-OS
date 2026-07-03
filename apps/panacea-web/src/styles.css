@@ -1604,6 +1604,15 @@ pre {
   grid-column: 1 / -1;
 }
 
+.live-write-form label.auto-generated-field {
+  color: var(--text);
+}
+
+.live-write-form label small {
+  color: var(--muted);
+  font-weight: 600;
+}
+
 .live-write-form input,
 .live-write-form textarea {
   width: 100%;
@@ -1613,6 +1622,13 @@ pre {
   color: var(--text);
   padding: 11px 12px;
   font: inherit;
+}
+
+.live-write-form input[readonly] {
+  background: color-mix(in srgb, var(--blue) 7%, var(--panel));
+  border-color: color-mix(in srgb, var(--blue) 28%, var(--line));
+  color: var(--text);
+  font-weight: 800;
 }
 
 .live-write-form textarea {

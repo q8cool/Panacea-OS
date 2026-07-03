@@ -1059,6 +1059,32 @@ describe("Panacea web platform", () => {
     expect(container.textContent).not.toContain("واجهة قراءة فقط");
   });
 
+  it("renders professional patient registration fields with automatic file identifiers", () => {
+    const html = renderRoute(data, "/hospital-core", {
+      ...initialState,
+      webConfig: config,
+      selectedRole: "doctor"
+    });
+    const container = document.createElement("main");
+    container.innerHTML = html;
+    const registrationForm = container.querySelector<HTMLFormElement>("#action-register-patient form.operational-core-form");
+
+    expect(registrationForm).not.toBeNull();
+    expect(registrationForm?.querySelector<HTMLInputElement>('input[name="subjectId"]')?.dataset.autoField).toBe("patient-id");
+    expect(registrationForm?.querySelector<HTMLInputElement>('input[name="subjectId"]')?.readOnly).toBe(true);
+    expect(registrationForm?.querySelector<HTMLInputElement>('input[name="medicalRecordNumber"]')?.dataset.autoField).toBe("medical-record-number");
+    expect(registrationForm?.querySelector<HTMLInputElement>('input[name="medicalRecordNumber"]')?.readOnly).toBe(true);
+    expect(registrationForm?.querySelector<HTMLInputElement>('input[name="fullName"]')?.required).toBe(true);
+    expect(registrationForm?.querySelector<HTMLSelectElement>('select[name="bloodType"]')?.required).toBe(true);
+    expect(Array.from(registrationForm?.querySelectorAll('select[name="bloodType"] option') ?? []).map((option) => option.getAttribute("value"))).toContain("O+");
+    expect(registrationForm?.textContent).toContain("Patient Full Name");
+    expect(registrationForm?.textContent).toContain("Blood Type");
+    expect(registrationForm?.textContent).toContain("Medical Record Number");
+    expect(registrationForm?.textContent).toContain("Civil ID / National ID");
+    expect(registrationForm?.textContent).toContain("Emergency Contact");
+    expect(registrationForm?.textContent).not.toContain("patient-restored-001");
+  });
+
   it("keeps Hospital Core operational for project-owner platform permissions after Foundation login", () => {
     const ownerSession: AuthSession = {
       ...sessionFor("operator"),
@@ -1176,6 +1202,10 @@ describe("Panacea web platform", () => {
     for (const label of [
       "نواة المستشفى الذكي",
       "تسجيل مريض",
+      "اسم المريض الكامل",
+      "رقم الملف الطبي",
+      "فصيلة الدم",
+      "يتم توليده تلقائياً",
       "ملف المريض التشغيلي",
       "رفع ملف طبي",
       "استخراج نص PDF",

@@ -28,6 +28,7 @@ import { renderPanaceaIcons } from "./icons";
 
 const root = document.querySelector<HTMLDivElement>("#app");
 const operationalPatientStorageKey = "panacea-operational-patient-id";
+const operationalRegistrationDraftStorageKey = "panacea-operational-registration-draft";
 
 let data: AppData;
 let lastLiveRoute = "";
@@ -65,6 +66,7 @@ function render() {
   document.title = state.language === "ar" ? "باناسيا أو إس" : "Panacea OS";
   root.innerHTML = renderApp(data, route, state);
   bindEvents();
+  hydrateOperationalAutoFields();
   renderPanaceaIcons();
   scrollToOperationalTarget();
   void afterRender(route);
@@ -425,6 +427,7 @@ function bindEvents() {
       const session = state.authSession;
       const config = state.webConfig ?? buildWebConfig(data);
       const allowlist = buildBrowserApiAllowlist(data, config);
+      hydrateOperationalAutoFields();
       const workflowPath = currentForm.dataset.workflowPath ?? "";
       const endpoint = findOperationalCoreWriteEndpoint(data, config, workflowPath, operationalPathReplacements(currentForm));
       const body = buildWriteWorkflowBody(currentForm, session, "hospital-core", actionId);
@@ -443,6 +446,9 @@ function bindEvents() {
       const response = await executeWriteWorkflowRequest(endpoint, session, config, allowlist, body);
       const submittedPatientId = operationalPatientIdFromForm(currentForm, actionId);
       if (submittedPatientId) persistOperationalPatientId(submittedPatientId);
+      if (actionId === "register-patient" && response.result.state === "online") {
+        clearOperationalRegistrationDraft();
+      }
       state = {
         ...state,
         operationalPatientId: submittedPatientId || state.operationalPatientId,
@@ -557,6 +563,57 @@ function operationalPatientIdFromForm(form: HTMLFormElement, actionId: string): 
   return patientId || (actionId === "register-patient" ? subjectId : "");
 }
 
+function hydrateOperationalAutoFields() {
+  const fields = document.querySelectorAll<HTMLInputElement>("[data-auto-field]");
+  if (!fields.length) return;
+  const draft = getOperationalRegistrationDraft();
+  fields.forEach((field) => {
+    if (field.value.trim()) return;
+    if (field.dataset.autoField === "patient-id") {
+      field.value = draft.patientId;
+    }
+    if (field.dataset.autoField === "medical-record-number") {
+      field.value = draft.medicalRecordNumber;
+    }
+  });
+}
+
+function getOperationalRegistrationDraft(): { patientId: string; medicalRecordNumber: string; createdAt: string } {
+  const existing = localStorage.getItem(operationalRegistrationDraftStorageKey);
+  if (existing) {
+    try {
+      const parsed = JSON.parse(existing) as { patientId?: unknown; medicalRecordNumber?: unknown; createdAt?: unknown };
+      if (typeof parsed.patientId === "string" && typeof parsed.medicalRecordNumber === "string" && typeof parsed.createdAt === "string") {
+        return {
+          patientId: parsed.patientId,
+          medicalRecordNumber: parsed.medicalRecordNumber,
+          createdAt: parsed.createdAt
+        };
+      }
+    } catch {
+      localStorage.removeItem(operationalRegistrationDraftStorageKey);
+    }
+  }
+  const draft = createOperationalRegistrationDraft();
+  localStorage.setItem(operationalRegistrationDraftStorageKey, JSON.stringify(draft));
+  return draft;
+}
+
+function createOperationalRegistrationDraft(): { patientId: string; medicalRecordNumber: string; createdAt: string } {
+  const createdAt = new Date().toISOString();
+  const stamp = createdAt.replace(/[-:.TZ]/g, "").slice(0, 14);
+  const suffix = Math.random().toString(36).slice(2, 6).toUpperCase().padEnd(4, "0");
+  return {
+    patientId: `PAT-${stamp}-${suffix}`,
+    medicalRecordNumber: `MRN-${stamp}-${suffix}`,
+    createdAt
+  };
+}
+
+function clearOperationalRegistrationDraft() {
+  localStorage.removeItem(operationalRegistrationDraftStorageKey);
+}
+
 function scrollToOperationalTarget() {
   if (!pendingOperationalScrollTarget) return;
   const targetId = pendingOperationalScrollTarget;
@@ -640,17 +697,21 @@ function buildWriteWorkflowBody(form: HTMLFormElement, session: NonNullable<Rend
       .map(([key, value]) => [key, typeof value === "string" ? value.trim() : value.name])
       .filter(([, value]) => Boolean(value))
   );
+  const normalizedExtraFields = normalizeOperationalPayloadFields(extraFields);
+  const effectiveTitle = pageId === "register-patient" && normalizedExtraFields.fullName
+    ? `Patient registration - ${normalizedExtraFields.fullName}`
+    : title;
   return {
     tenantId: session.tenantId,
     subjectId: subjectId || undefined,
-    title,
+    title: effectiveTitle,
     reason,
     idempotencyKey: `web-${workspaceId}-${pageId}-${Date.now()}`,
     payload: {
       workspaceId,
       pageId,
       detail,
-      ...extraFields,
+      ...normalizedExtraFields,
       submittedBy: session.subject,
       submittedRole: session.role,
       submittedAt: new Date().toISOString()
@@ -674,6 +735,34 @@ function buildWriteWorkflowBody(form: HTMLFormElement, session: NonNullable<Rend
       language: state.language
     }
   };
+}
+
+function normalizeOperationalPayloadFields(fields: Record<string, string>): Record<string, string> {
+  const normalized = { ...fields };
+  if (fields.fullName) {
+    normalized.patientName = fields.fullName;
+    normalized.full_name = fields.fullName;
+  }
+  if (fields.medicalRecordNumber) {
+    normalized.fileNumber = fields.medicalRecordNumber;
+    normalized.file_number = fields.medicalRecordNumber;
+  }
+  if (fields.bloodType) {
+    normalized.blood_type = fields.bloodType;
+  }
+  if (fields.dateOfBirth) {
+    normalized.date_of_birth = fields.dateOfBirth;
+  }
+  if (fields.phoneNumber) {
+    normalized.phone_number = fields.phoneNumber;
+  }
+  if (fields.nationalId) {
+    normalized.national_id = fields.nationalId;
+  }
+  if (fields.emergencyContact) {
+    normalized.emergency_contact = fields.emergencyContact;
+  }
+  return normalized;
 }
 
 function operationalPathReplacements(form: HTMLFormElement): Record<string, string> {

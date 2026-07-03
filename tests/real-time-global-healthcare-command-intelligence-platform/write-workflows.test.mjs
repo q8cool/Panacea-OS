@@ -275,6 +275,9 @@ test("operational AI Hospital Core routes restore governed patient, file, chat, 
         idempotencyKey: `operational-core-${definition.workflowKey}`,
         payload: {
           patientId,
+          fullName: "Faisal Al Kandari",
+          medicalRecordNumber: "MRN-20260703-0001",
+          bloodType: "O+",
           fileId: "file-operational-core-001",
           prescriptionId: "prescription-operational-core-001",
           orderId: "order-operational-core-001",
@@ -310,6 +313,16 @@ test("operational AI Hospital Core routes restore governed patient, file, chat, 
   assertReadModel(repository, "clinical", "notifications", patientId);
   assertReadModel(repository, "pharmacy", "prescriptions", patientId);
   assertReadModel(repository, "clinical", "pharmacy_review", patientId);
+
+  const patients = await readModel(service, "clinical", "patients", patientId, principal({
+    roles: ["doctor"],
+    permissions: [readModelPermission]
+  }));
+  assert.equal(patients.items.length, 1);
+  assert.equal(patients.items[0].title, "Faisal Al Kandari");
+  assert.equal(patients.items[0].payload.fullName, "Faisal Al Kandari");
+  assert.equal(patients.items[0].payload.medicalRecordNumber, "MRN-20260703-0001");
+  assert.equal(patients.items[0].payload.bloodType, "O+");
 
   const files = await readModel(service, "clinical", "files", patientId, principal({
     roles: ["doctor"],

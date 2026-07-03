@@ -3,7 +3,8 @@ import { translate, type Locale } from "./locales";
 import type { AppData, AuthSession, LiveApiResult, PanaceaWebConfig } from "./types";
 import type { RenderState } from "./render";
 
-type FieldKind = "text" | "textarea" | "file" | "select";
+type FieldKind = "text" | "textarea" | "file" | "select" | "date" | "tel";
+type AutoFieldKind = "patient-id" | "medical-record-number";
 
 interface OperationalField {
   name: string;
@@ -12,6 +13,10 @@ interface OperationalField {
   value?: string;
   options?: string[];
   wide?: boolean;
+  readonly?: boolean;
+  required?: boolean;
+  auto?: AutoFieldKind;
+  hint?: string;
 }
 
 interface OperationalAction {
@@ -45,11 +50,19 @@ const operationalCoreTargets = new Set([
 ]);
 
 export const operationalCoreActions: OperationalAction[] = [
-  action("register-patient", "Patient Registration", "Create the patient record used by the restored hospital workflow.", "UserPlus", "/operational-core/patients", false, [
-    field("subjectId", "Patient ID", "patient-restored-001"),
-    field("title", "Registration Title", "Register restored patient"),
+  action("register-patient", "Patient Registration", "Create a complete patient registration record with an automatic medical file number.", "UserPlus", "/operational-core/patients", false, [
+    autoField("subjectId", "Patient ID", "patient-id", "Generated automatically"),
+    autoField("medicalRecordNumber", "Medical Record Number", "medical-record-number", "Generated automatically"),
+    field("fullName", "Patient Full Name", "", "text", false, undefined, { required: true }),
+    field("bloodType", "Blood Type", "Unknown", "select", false, ["Unknown", "O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"], { required: true }),
+    field("dateOfBirth", "Date of Birth", "", "date"),
+    field("gender", "Gender", "Not specified", "select", false, ["Not specified", "Male", "Female", "Other"]),
+    field("phoneNumber", "Phone Number", "", "tel"),
+    field("nationalId", "Civil ID / National ID", ""),
+    field("emergencyContact", "Emergency Contact", ""),
+    field("title", "Registration Title", "Patient registration"),
     field("reason", "Registration Reason", "Front desk admission"),
-    field("detail", "Demographics and contact notes", "Adult patient record with consent-managed contact details.", "textarea", true)
+    field("detail", "Patient address and registration notes", "", "textarea", true)
   ]),
   action("clinical-note", "Add Clinical Note", "Append a clinician-authored note to the patient file and timeline.", "ClipboardPenLine", "/operational-core/patients/{patientId}/notes", true, [
     patientField(),
@@ -327,28 +340,36 @@ function expandedOperationalPermissions(permissions: string[]): Set<string> {
 function renderField(item: OperationalField, locale: Locale, patientId: string): string {
   const kind = item.kind ?? "text";
   const value = item.name === "patientId" ? patientId : item.value ?? "";
+  const fieldClasses = [item.wide ? "wide" : "", item.auto ? "auto-generated-field" : ""].filter(Boolean).join(" ");
+  const autoAttribute = item.auto ? ` data-auto-field="${escapeAttribute(item.auto)}"` : "";
+  const readonlyAttribute = item.readonly ? " readonly" : "";
+  const requiredAttribute = item.required ? " required" : "";
+  const hint = item.hint ? `<small>${escapeHtml(l(locale, item.hint))}</small>` : "";
   if (kind === "textarea") {
     return `
-      <label class="${item.wide ? "wide" : ""}">
+      <label class="${escapeAttribute(fieldClasses)}">
         ${escapeHtml(l(locale, item.label))}
-        <textarea name="${escapeAttribute(item.name)}">${escapeHtml(l(locale, value))}</textarea>
+        <textarea name="${escapeAttribute(item.name)}"${requiredAttribute}>${escapeHtml(l(locale, value))}</textarea>
+        ${hint}
       </label>
     `;
   }
   if (kind === "select") {
     return `
-      <label class="${item.wide ? "wide" : ""}">
+      <label class="${escapeAttribute(fieldClasses)}">
         ${escapeHtml(l(locale, item.label))}
-        <select name="${escapeAttribute(item.name)}">
+        <select name="${escapeAttribute(item.name)}"${requiredAttribute}>
           ${(item.options ?? [value]).map((option) => `<option value="${escapeAttribute(option)}" ${option === value ? "selected" : ""}>${escapeHtml(l(locale, option))}</option>`).join("")}
         </select>
+        ${hint}
       </label>
     `;
   }
   return `
-    <label class="${item.wide ? "wide" : ""}">
+    <label class="${escapeAttribute(fieldClasses)}">
       ${escapeHtml(l(locale, item.label))}
-      <input type="${kind}" name="${escapeAttribute(item.name)}" value="${kind === "file" ? "" : escapeAttribute(l(locale, value))}" />
+      <input type="${kind}" name="${escapeAttribute(item.name)}" value="${kind === "file" ? "" : escapeAttribute(item.auto ? value : l(locale, value))}"${autoAttribute}${readonlyAttribute}${requiredAttribute} />
+      ${hint}
     </label>
   `;
 }
@@ -393,6 +414,7 @@ function renderPatientTable(patients: Array<Record<string, unknown>>, locale: Lo
           <tr>
             <th>${escapeHtml(l(locale, "Patient"))}</th>
             <th>${escapeHtml(l(locale, "File Number"))}</th>
+            <th>${escapeHtml(l(locale, "Blood Type"))}</th>
             <th>${escapeHtml(l(locale, "Workflow State"))}</th>
             <th>${escapeHtml(l(locale, "Actions"))}</th>
           </tr>
@@ -400,11 +422,12 @@ function renderPatientTable(patients: Array<Record<string, unknown>>, locale: Lo
         <tbody>
           ${patients.map((patient) => {
             const id = stringFromRecord(patient, ["id", "patientId", "subjectId"]);
-            const name = stringFromRecord(patient, ["full_name", "fullName", "name", "title"]) || id || l(locale, "Patient");
+            const name = stringFromRecord(patient, ["full_name", "fullName", "patientName", "name", "title"]) || id || l(locale, "Patient");
             return `
               <tr>
                 <td><strong>${escapeHtml(name)}</strong><span>${escapeHtml(stringFromRecord(patient, ["gender", "sex"]) || "")}</span></td>
                 <td>${escapeHtml(stringFromRecord(patient, ["file_number", "fileNumber", "medicalRecordNumber"]) || id || "-")}</td>
+                <td>${escapeHtml(stringFromRecord(patient, ["blood_type", "bloodType"]) || "-")}</td>
                 <td><span class="status-pill">${escapeHtml(stringFromRecord(patient, ["workflow_state", "workflowState", "status"]) || l(locale, "Ready"))}</span></td>
                 <td>${id ? `<button type="button" class="button" data-open-operational-patient="${escapeAttribute(id)}"><i data-lucide="FolderOpen"></i>${escapeHtml(l(locale, "Open Patient File"))}</button>` : `<span>${escapeHtml(l(locale, "No Patient ID"))}</span>`}</td>
               </tr>
@@ -430,6 +453,7 @@ function renderPatientFileSummary(patient: Record<string, unknown>, result: Live
       <div class="premium-metrics four">
         ${summaryMetric(locale, "Patient ID", id || "-")}
         ${summaryMetric(locale, "File Number", stringFromRecord(patient, ["file_number", "fileNumber", "medicalRecordNumber"]) || "-")}
+        ${summaryMetric(locale, "Blood Type", stringFromRecord(patient, ["blood_type", "bloodType"]) || "-")}
         ${summaryMetric(locale, "Workflow State", stringFromRecord(patient, ["workflow_state", "workflowState", "status"]) || "-")}
         ${summaryMetric(locale, "HTTP", result.httpStatus ?? "-")}
       </div>
@@ -469,6 +493,21 @@ function stringFromRecord(record: Record<string, unknown>, keys: string[]): stri
   for (const key of keys) {
     const value = record[key];
     if (value !== undefined && value !== null && typeof value !== "object" && String(value).trim()) return String(value).trim();
+  }
+  const payload = record["payload"];
+  if (payload && typeof payload === "object" && !Array.isArray(payload)) {
+    const nestedPayload = payload as Record<string, unknown>;
+    for (const key of keys) {
+      const value = nestedPayload[key];
+      if (value !== undefined && value !== null && typeof value !== "object" && String(value).trim()) return String(value).trim();
+    }
+    const commandPayload = nestedPayload["payload"];
+    if (commandPayload && typeof commandPayload === "object" && !Array.isArray(commandPayload)) {
+      for (const key of keys) {
+        const value = (commandPayload as Record<string, unknown>)[key];
+        if (value !== undefined && value !== null && typeof value !== "object" && String(value).trim()) return String(value).trim();
+      }
+    }
   }
   return "";
 }
@@ -559,8 +598,20 @@ function action(id: string, title: string, purpose: string, icon: string, path: 
   return { id, title, purpose, icon, templatePath: path, patientScoped, fields };
 }
 
-function field(name: string, label: string, value = "", kind: FieldKind = "text", wide = false, options?: string[]): OperationalField {
-  return { name, label, value, kind, wide, options };
+function field(
+  name: string,
+  label: string,
+  value = "",
+  kind: FieldKind = "text",
+  wide = false,
+  options?: string[],
+  extra: Partial<OperationalField> = {}
+): OperationalField {
+  return { name, label, value, kind, wide, options, ...extra };
+}
+
+function autoField(name: string, label: string, auto: AutoFieldKind, hint: string): OperationalField {
+  return { name, label, kind: "text", readonly: true, required: true, auto, hint };
 }
 
 function patientField(): OperationalField {
