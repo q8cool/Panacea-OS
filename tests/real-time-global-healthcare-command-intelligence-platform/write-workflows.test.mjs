@@ -277,6 +277,7 @@ test("operational AI Hospital Core routes restore governed patient, file, chat, 
           patientId,
           fullName: "Faisal Al Kandari",
           medicalRecordNumber: "MRN-20260703-0001",
+          patientFileName: "Faisal Al Kandari - MRN-20260703-0001",
           bloodType: "O+",
           fileId: "file-operational-core-001",
           prescriptionId: "prescription-operational-core-001",
@@ -322,6 +323,7 @@ test("operational AI Hospital Core routes restore governed patient, file, chat, 
   assert.equal(patients.items[0].title, "Faisal Al Kandari");
   assert.equal(patients.items[0].payload.fullName, "Faisal Al Kandari");
   assert.equal(patients.items[0].payload.medicalRecordNumber, "MRN-20260703-0001");
+  assert.equal(patients.items[0].payload.patientFileName, "Faisal Al Kandari - MRN-20260703-0001");
   assert.equal(patients.items[0].payload.bloodType, "O+");
 
   const files = await readModel(service, "clinical", "files", patientId, principal({

@@ -410,6 +410,11 @@ function bindEvents() {
   });
 
   document.querySelectorAll<HTMLFormElement>(".operational-core-form").forEach((form) => {
+    if (form.dataset.actionId === "register-patient") {
+      form.querySelector<HTMLInputElement>('input[name="fullName"]')?.addEventListener("input", () => {
+        syncPatientFileNameField(form);
+      });
+    }
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const currentForm = event.currentTarget;
@@ -568,14 +573,34 @@ function hydrateOperationalAutoFields() {
   if (!fields.length) return;
   const draft = getOperationalRegistrationDraft();
   fields.forEach((field) => {
-    if (field.value.trim()) return;
     if (field.dataset.autoField === "patient-id") {
+      if (field.value.trim()) return;
       field.value = draft.patientId;
     }
     if (field.dataset.autoField === "medical-record-number") {
+      if (field.value.trim()) return;
       field.value = draft.medicalRecordNumber;
+      syncPatientFileNameField(field.form);
+    }
+    if (field.dataset.autoField === "patient-file-name") {
+      syncPatientFileNameField(field.form);
     }
   });
+}
+
+function syncPatientFileNameField(form: HTMLFormElement | null) {
+  if (!form) return;
+  const fileNameField = form.querySelector<HTMLInputElement>('input[data-auto-field="patient-file-name"]');
+  if (!fileNameField) return;
+  const fullName = form.querySelector<HTMLInputElement>('input[name="fullName"]')?.value.trim() ?? "";
+  const medicalRecordNumber = form.querySelector<HTMLInputElement>('input[name="medicalRecordNumber"]')?.value.trim() ?? "";
+  fileNameField.value = buildPatientFileName(fullName, medicalRecordNumber);
+}
+
+function buildPatientFileName(fullName: string, medicalRecordNumber: string): string {
+  const safeName = fullName.trim() || "New Patient File";
+  const safeRecordNumber = medicalRecordNumber.trim();
+  return safeRecordNumber ? `${safeName} - ${safeRecordNumber}` : safeName;
 }
 
 function getOperationalRegistrationDraft(): { patientId: string; medicalRecordNumber: string; createdAt: string } {
@@ -746,6 +771,9 @@ function normalizeOperationalPayloadFields(fields: Record<string, string>): Reco
   if (fields.medicalRecordNumber) {
     normalized.fileNumber = fields.medicalRecordNumber;
     normalized.file_number = fields.medicalRecordNumber;
+  }
+  if (fields.patientFileName) {
+    normalized.patient_file_name = fields.patientFileName;
   }
   if (fields.bloodType) {
     normalized.blood_type = fields.bloodType;

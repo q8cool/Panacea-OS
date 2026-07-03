@@ -4,7 +4,7 @@ import type { AppData, AuthSession, LiveApiResult, PanaceaWebConfig } from "./ty
 import type { RenderState } from "./render";
 
 type FieldKind = "text" | "textarea" | "file" | "select" | "date" | "tel";
-type AutoFieldKind = "patient-id" | "medical-record-number";
+type AutoFieldKind = "patient-id" | "medical-record-number" | "patient-file-name";
 
 interface OperationalField {
   name: string;
@@ -54,6 +54,7 @@ export const operationalCoreActions: OperationalAction[] = [
     autoField("subjectId", "Patient ID", "patient-id", "Generated automatically"),
     autoField("medicalRecordNumber", "Medical Record Number", "medical-record-number", "Generated automatically"),
     field("fullName", "Patient Full Name", "", "text", false, undefined, { required: true }),
+    autoField("patientFileName", "Patient File Name", "patient-file-name", "Generated from patient name and medical record number"),
     field("bloodType", "Blood Type", "Unknown", "select", false, ["Unknown", "O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"], { required: true }),
     field("dateOfBirth", "Date of Birth", "", "date"),
     field("gender", "Gender", "Not specified", "select", false, ["Not specified", "Male", "Female", "Other"]),
@@ -423,9 +424,11 @@ function renderPatientTable(patients: Array<Record<string, unknown>>, locale: Lo
           ${patients.map((patient) => {
             const id = stringFromRecord(patient, ["id", "patientId", "subjectId"]);
             const name = stringFromRecord(patient, ["full_name", "fullName", "patientName", "name", "title"]) || id || l(locale, "Patient");
+            const patientFileName = stringFromRecord(patient, ["patient_file_name", "patientFileName"]);
+            const secondaryLabel = patientFileName || stringFromRecord(patient, ["gender", "sex"]) || "";
             return `
               <tr>
-                <td><strong>${escapeHtml(name)}</strong><span>${escapeHtml(stringFromRecord(patient, ["gender", "sex"]) || "")}</span></td>
+                <td><strong>${escapeHtml(name)}</strong><span>${escapeHtml(secondaryLabel)}</span></td>
                 <td>${escapeHtml(stringFromRecord(patient, ["file_number", "fileNumber", "medicalRecordNumber"]) || id || "-")}</td>
                 <td>${escapeHtml(stringFromRecord(patient, ["blood_type", "bloodType"]) || "-")}</td>
                 <td><span class="status-pill">${escapeHtml(stringFromRecord(patient, ["workflow_state", "workflowState", "status"]) || l(locale, "Ready"))}</span></td>
@@ -441,11 +444,12 @@ function renderPatientTable(patients: Array<Record<string, unknown>>, locale: Lo
 
 function renderPatientFileSummary(patient: Record<string, unknown>, result: LiveApiResult, locale: Locale): string {
   const id = stringFromRecord(patient, ["id", "patientId", "subjectId"]);
+  const patientFileName = stringFromRecord(patient, ["patient_file_name", "patientFileName"]);
   return `
     <div class="patient-file-summary">
       <div class="section-title compact">
         <div>
-          <h3>${escapeHtml(stringFromRecord(patient, ["full_name", "fullName", "name", "title"]) || l(locale, "Patient File"))}</h3>
+          <h3>${escapeHtml(patientFileName || stringFromRecord(patient, ["full_name", "fullName", "name", "title"]) || l(locale, "Patient File"))}</h3>
           <p>${escapeHtml(l(locale, "The active patient file is open. Uploads, analysis, prescriptions, orders, workflow, chat, and audit actions now use this patient ID."))}</p>
         </div>
         <span class="status-pill online">${escapeHtml(id || l(locale, "Active"))}</span>
@@ -453,6 +457,7 @@ function renderPatientFileSummary(patient: Record<string, unknown>, result: Live
       <div class="premium-metrics four">
         ${summaryMetric(locale, "Patient ID", id || "-")}
         ${summaryMetric(locale, "File Number", stringFromRecord(patient, ["file_number", "fileNumber", "medicalRecordNumber"]) || "-")}
+        ${summaryMetric(locale, "Patient File Name", patientFileName || "-")}
         ${summaryMetric(locale, "Blood Type", stringFromRecord(patient, ["blood_type", "bloodType"]) || "-")}
         ${summaryMetric(locale, "Workflow State", stringFromRecord(patient, ["workflow_state", "workflowState", "status"]) || "-")}
         ${summaryMetric(locale, "HTTP", result.httpStatus ?? "-")}
@@ -485,7 +490,7 @@ function patientRecordFromResult(result: LiveApiResult): Record<string, unknown>
   if (!body || typeof body !== "object" || Array.isArray(body)) return undefined;
   const patient = body["patient"];
   if (patient && typeof patient === "object" && !Array.isArray(patient)) return patient as Record<string, unknown>;
-  if (stringFromRecord(body, ["id", "patientId", "subjectId", "full_name", "fullName", "file_number", "fileNumber"])) return body;
+  if (stringFromRecord(body, ["id", "patientId", "subjectId", "full_name", "fullName", "patient_file_name", "patientFileName", "file_number", "fileNumber"])) return body;
   return undefined;
 }
 

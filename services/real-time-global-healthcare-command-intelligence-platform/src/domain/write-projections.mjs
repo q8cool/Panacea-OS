@@ -428,6 +428,7 @@ function patientDisplayFields(payload) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) return {};
   const fullName = stringOrNull(payload.fullName ?? payload.patientName ?? payload.full_name);
   const medicalRecordNumber = stringOrNull(payload.medicalRecordNumber ?? payload.fileNumber ?? payload.file_number);
+  const patientFileName = stringOrNull(payload.patientFileName ?? payload.patient_file_name);
   const bloodType = stringOrNull(payload.bloodType ?? payload.blood_type);
   const dateOfBirth = stringOrNull(payload.dateOfBirth ?? payload.date_of_birth);
   const gender = stringOrNull(payload.gender);
@@ -441,6 +442,8 @@ function patientDisplayFields(payload) {
     medicalRecordNumber,
     fileNumber: medicalRecordNumber,
     file_number: medicalRecordNumber,
+    patientFileName,
+    patient_file_name: patientFileName,
     bloodType,
     blood_type: bloodType,
     dateOfBirth,

@@ -1074,10 +1074,13 @@ describe("Panacea web platform", () => {
     expect(registrationForm?.querySelector<HTMLInputElement>('input[name="subjectId"]')?.readOnly).toBe(true);
     expect(registrationForm?.querySelector<HTMLInputElement>('input[name="medicalRecordNumber"]')?.dataset.autoField).toBe("medical-record-number");
     expect(registrationForm?.querySelector<HTMLInputElement>('input[name="medicalRecordNumber"]')?.readOnly).toBe(true);
+    expect(registrationForm?.querySelector<HTMLInputElement>('input[name="patientFileName"]')?.dataset.autoField).toBe("patient-file-name");
+    expect(registrationForm?.querySelector<HTMLInputElement>('input[name="patientFileName"]')?.readOnly).toBe(true);
     expect(registrationForm?.querySelector<HTMLInputElement>('input[name="fullName"]')?.required).toBe(true);
     expect(registrationForm?.querySelector<HTMLSelectElement>('select[name="bloodType"]')?.required).toBe(true);
     expect(Array.from(registrationForm?.querySelectorAll('select[name="bloodType"] option') ?? []).map((option) => option.getAttribute("value"))).toContain("O+");
     expect(registrationForm?.textContent).toContain("Patient Full Name");
+    expect(registrationForm?.textContent).toContain("Patient File Name");
     expect(registrationForm?.textContent).toContain("Blood Type");
     expect(registrationForm?.textContent).toContain("Medical Record Number");
     expect(registrationForm?.textContent).toContain("Civil ID / National ID");
@@ -1203,6 +1206,7 @@ describe("Panacea web platform", () => {
       "نواة المستشفى الذكي",
       "تسجيل مريض",
       "اسم المريض الكامل",
+      "اسم ملف المريض",
       "رقم الملف الطبي",
       "فصيلة الدم",
       "يتم توليده تلقائياً",
